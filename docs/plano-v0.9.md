@@ -27,9 +27,17 @@ O que **não** trazer: grid/orientação de torres e torres únicas por tipo (o 
 - **Símbolo da Essência**: hoje aparece lilás no contador (`.essence`) e dourado nos custos (`<b>` do `.shop-item`). Unificar: Essência sempre com o mesmo símbolo e a mesma cor (lilás/roxo, `✦`) em todo lugar; ouro sempre `◉` dourado.
 - **Aura do herói**: hoje o herói tem brilho `#7fd8ff`, a mesma cor da lentidão do Dragão de Gelo. Trocar por uma marca própria de herói: **anel rúnico dourado girando sob os pés** + brilho na cor da raça do herói (seção 3, D4). Ciano fica reservado para lentidão/gelo.
 
-## 3. Decisões para você confirmar antes das etapas afetadas
+## 3. Decisões
 
-Cada item traz uma recomendação; as etapas só começam depois da sua resposta.
+**Respostas (05/10/2026):**
+- **D1 = B.** Equipe de 6 com criaturas da Coleção, todas disponíveis desde o início da run (paga-se o ouro para invocar). **Os ovos deixam de existir**: a run começa direto na onda 1 e as escolhas entre ondas passam a ser só melhorias (mais a loja).
+- **D2:** seguir a tabela proposta abaixo; novas raças depois.
+- **D3:** skins **por conquista** (a etapa E9 inclui um sistema de conquistas).
+- **D4:** moeda única, a Essência.
+- **D5:** árvore livre, tomando a do Myth TD como base (ramos em colunas, nós filhos com pré-requisito de nível do pai).
+- **D6:** como proposto.
+
+Texto original das propostas, para referência:
 
 **D1. Equipe e ovos (afeta E6).** Hoje: criaturas compradas começam liberadas e os ovos sorteiam as bloqueadas.
 - **A (recomendado):** a **Equipe** tem 6 vagas (atalhos 1–6) montadas com criaturas da Coleção. Na run, só a equipe aparece no painel. A run começa com **2 da equipe chocadas** (o jogador escolhe quais são as "iniciais") e os **ovos sorteiam entre as outras 4**. Mantém a fantasia do ovo e dá planejamento de build. A Coleção cresce comprando criaturas com Essência.
@@ -116,9 +124,10 @@ interface ProfileV4 {
 - Substitui a coluna "Começar a run com" do menu atual.
 - **Pronto quando:** toda criatura tem ficha; comprar atualiza a Coleção e salva.
 
-### E6. Equipe (roster da run) `[ ]` — depende de D1
-- Tela **Equipe**: 6 vagas; clicar na carta adiciona/remove; marcar as "iniciais" (se D1 = A); "Jogar" fica desabilitado se a equipe estiver vazia.
-- Na run, o painel lateral mostra só a equipe (atalhos 1–6 na ordem da equipe); ovos sorteiam dentro da equipe.
+### E6. Equipe (roster da run) `[ ]` — D1 = B
+- Tela **Equipe**: 6 vagas; clicar na carta adiciona/remove; "Jogar" fica desabilitado se a equipe estiver vazia.
+- Na run, o painel lateral mostra só a equipe (atalhos 1–6 na ordem da equipe), todas disponíveis desde o início.
+- Remover os ovos: sem escolha inicial; escolhas entre ondas só com melhorias.
 - Resolve o crescimento do painel com 12+ criaturas.
 - **Pronto quando:** runs diferentes com equipes diferentes; o ovo nunca oferece criatura fora da equipe.
 
@@ -135,7 +144,9 @@ interface ProfileV4 {
 - Sprites: Nobre Vampiro e Draconato nesta etapa; os heróis de Lobisomem, Fantasma e Bruxa entram junto com cada raça na E10.
 - **Pronto quando:** dá para jogar uma run inteira com cada herói disponível; o bônus de raça aparece no tooltip das criaturas.
 
-### E9. Skins `[ ]` — depende de D3
+### E9. Conquistas e skins `[ ]` — D3 = por conquista
+- `src/data/achievements.ts`: conquistas como dados (ex.: vencer com cada herói, evoluir 3 criaturas ao nível 3 numa run, vencer sem o Nexus cair abaixo de 50%); progresso salvo no perfil; aviso ao desbloquear; lista no menu.
+- Cada skin aponta para a conquista que a libera.
 - `src/data/skins.ts`: por herói, paleta e acessório; os sprites leem cores da skin em vez de constantes.
 - Seleção na tela de Heróis; prévia animada; compra com Essência.
 - **Pronto quando:** cada herói tem a skin padrão + 2 alternativas selecionáveis e salvas.
