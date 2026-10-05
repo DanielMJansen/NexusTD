@@ -88,6 +88,13 @@ export interface RunState {
   spawnTimer: number;
   incomeTimer: number;
   choices: Choice[];
+  /** Por que as opções foram oferecidas (a loja só abre após uma onda). */
+  choiceReason: 'start' | 'waveCleared';
+  /** Limite de criaturas em campo (aumenta com vagas compradas na loja). */
+  creatureLimit: number;
+  /** Compras na loja nesta run (encarecem a próxima). */
+  rerolls: number;
+  extraSlots: number;
   result: RunResult | null;
   /** Fila de eventos do quadro; quem consome esvazia. */
   events: GameEvent[];
@@ -114,6 +121,10 @@ export function createRun(setup: RunSetup): RunState {
     spawnTimer: 0,
     incomeTimer: 0,
     choices: [],
+    choiceReason: 'start',
+    creatureLimit: ECONOMY.creatureLimit,
+    rerolls: 0,
+    extraSlots: 0,
     result: null,
     events: [],
   };

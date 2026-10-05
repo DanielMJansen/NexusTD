@@ -14,7 +14,7 @@ export function canPlaceCreature(state: RunState, id: CreatureId, at: Point): bo
   return (
     state.phase === 'playing' &&
     state.unlocked.has(id) &&
-    state.creatures.length < ECONOMY.creatureLimit &&
+    state.creatures.length < state.creatureLimit &&
     state.gold >= creatureCost(state, id) &&
     distance(at, ARENA.center) > NEXUS.placementClearance
   );

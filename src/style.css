@@ -670,3 +670,30 @@ button:disabled {
 .tooltip .evolves b {
   color: var(--gold);
 }
+
+/* loja entre ondas */
+.shop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #ffffff14;
+}
+
+.shop-gold {
+  font: 700 15px var(--font-label);
+  color: var(--gold);
+  margin-right: 6px;
+}
+
+.shop-button {
+  font: 600 14px var(--font-label);
+  padding: 8px 14px;
+}
+
+.shop-button b {
+  color: var(--gold);
+  margin-left: 4px;
+}

@@ -50,6 +50,14 @@ export const CHOICES = {
   startingEgg: true,
 };
 
+/** Loja entre ondas (na tela de escolha após cada onda vencida). */
+export const SHOP = {
+  /** Sortear de novo as opções: custo = baseCost + costStep × vezes já sorteadas na run. */
+  reroll: { baseCost: 10, costStep: 10 },
+  /** +1 vaga de criatura: custo = baseCost × costGrowth^(vagas já compradas). */
+  extraSlot: { baseCost: 60, costGrowth: 2, max: 3 },
+};
+
 /** Essência = 3 × onda + 1 a cada 5 abates + 30 se vencer. */
 export const REWARDS = {
   essencePerWave: 3,

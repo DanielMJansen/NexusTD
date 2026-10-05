@@ -1,4 +1,3 @@
-import { ECONOMY } from '../data/config';
 import { WAVES } from '../data/waves';
 import type { RunState } from '../game/state';
 
@@ -16,7 +15,7 @@ export function updateHud(run: RunState): void {
   setText(nexusText, `${hp}/${run.nexus.maxHp}`);
   nexusBar.style.width = `${ratio * 100}%`;
   nexusBar.classList.toggle('low', ratio < 0.3);
-  setText(creatures, `${run.creatures.length}/${ECONOMY.creatureLimit}`);
+  setText(creatures, `${run.creatures.length}/${run.creatureLimit}`);
 }
 
 function setText(element: HTMLElement, text: string): void {

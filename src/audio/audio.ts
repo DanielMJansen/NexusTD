@@ -69,6 +69,7 @@ export class SoundPlayer {
         break;
       case 'creatureSold':
       case 'choiceMade':
+      case 'shopPurchase':
         this.play('coin');
         break;
       default:

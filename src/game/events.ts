@@ -16,6 +16,7 @@ export type GameEvent =
   | { type: 'creatureSold'; x: number; y: number; refund: number }
   | { type: 'creatureEvolved'; creature: CreatureId; x: number; y: number; level: number; ascended: boolean }
   | { type: 'choiceMade' }
+  | { type: 'shopPurchase'; item: 'reroll' | 'extraSlot' }
   | { type: 'waveStarted'; wave: number }
   | { type: 'choicesOffered'; reason: 'start' | 'waveCleared'; wave: number }
   | { type: 'runEnded'; result: RunResult };

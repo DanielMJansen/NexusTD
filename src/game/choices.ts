@@ -14,6 +14,7 @@ export function offerStartingEggs(state: RunState): boolean {
   const eggs = eggChoices(state);
   if (!CHOICES.startingEgg || !eggs.length) return false;
   state.phase = 'choosing';
+  state.choiceReason = 'start';
   state.choices = shuffle(eggs).slice(0, CHOICES.count);
   state.events.push({ type: 'choicesOffered', reason: 'start', wave: state.wave });
   return true;
@@ -22,12 +23,21 @@ export function offerStartingEggs(state: RunState): boolean {
 /** Fim de onda: cura o Nexus e sorteia as opções. Após a onda 1, só ovos (se houver). */
 export function offerChoices(state: RunState): void {
   state.phase = 'choosing';
+  state.choiceReason = 'waveCleared';
   state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + NEXUS.healBetweenWaves);
+  rollWaveChoices(state);
+  state.events.push({ type: 'choicesOffered', reason: 'waveCleared', wave: state.wave });
+}
+
+/** Opções possíveis no fim da onda. Após a onda 1, só ovos (se houver). */
+export function waveChoicePool(state: RunState): Choice[] {
   const eggs = eggChoices(state);
   const upgrades: Choice[] = RUN_UPGRADES.map((upgrade) => ({ kind: 'upgrade', upgrade }));
-  const pool = state.wave === 1 && eggs.length ? eggs : [...upgrades, ...eggs];
-  state.choices = shuffle(pool).slice(0, CHOICES.count);
-  state.events.push({ type: 'choicesOffered', reason: 'waveCleared', wave: state.wave });
+  return state.wave === 1 && eggs.length ? eggs : [...upgrades, ...eggs];
+}
+
+export function rollWaveChoices(state: RunState): void {
+  state.choices = shuffle(waveChoicePool(state)).slice(0, CHOICES.count);
 }
 
 export function applyChoice(state: RunState, choice: Choice): void {

@@ -6,6 +6,7 @@ import { chooseOption } from './game/choices';
 import { firePulse } from './game/combat';
 import type { GameEvent } from './game/events';
 import { buyMetaUpgrade, runSetup, unlockCreature, type Profile } from './game/profile';
+import { buyExtraSlot, reroll } from './game/shop';
 import { createRun, type RunState } from './game/state';
 import { startRun, updateRun } from './game/update';
 import { createInteraction, interactionView, resetInteraction } from './input/interaction';
@@ -129,10 +130,10 @@ export class App {
     switch (event.type) {
       case 'choicesOffered':
         resetInteraction(this.interaction);
-        showWaveChoices(this.run, event.reason, (index) => {
-          chooseOption(this.run, index);
-          hideOverlay();
-        });
+        this.showChoices();
+        break;
+      case 'shopPurchase':
+        this.showChoices();
         break;
       case 'runEnded':
         resetInteraction(this.interaction);
@@ -143,6 +144,17 @@ export class App {
       default:
         break;
     }
+  }
+
+  private showChoices(): void {
+    showWaveChoices(this.run, this.run.choiceReason, {
+      onChoose: (index) => {
+        chooseOption(this.run, index);
+        hideOverlay();
+      },
+      onReroll: () => reroll(this.run),
+      onBuyExtraSlot: () => buyExtraSlot(this.run),
+    });
   }
 
   private openMenu(): void {
