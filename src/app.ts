@@ -15,22 +15,29 @@ import { attachPointer, type PointerControls } from './input/pointer';
 import { drawFrame } from './render/draw';
 import { Effects } from './render/effects';
 import { fitArenaCanvas } from './render/viewport';
+import { downloadBackup, importBackup, pickBackupFile } from './save/backup';
 import { loadProfile, saveProfile } from './save/save';
+import { loadSettings, saveSettings, type Settings } from './save/settings';
+import { showEntry } from './ui/entry';
 import { updateHud } from './ui/hud';
 import { showMenu } from './ui/menu';
 import { animateOverlay, hideOverlay } from './ui/overlay';
 import { showPause } from './ui/pause';
 import { showRunEnd } from './ui/runEnd';
+import { showSettings } from './ui/settingsScreen';
 import { SidePanel } from './ui/sidePanel';
 import { showWaveChoices } from './ui/waveChoices';
 
-type Mode = 'menu' | 'run';
+type Mode = 'entry' | 'menu' | 'run';
 
 /** Liga as peças: simulação, desenho, entrada, áudio, telas e save. */
 export class App {
   private profile: Profile = loadProfile();
+  private settings: Settings = loadSettings();
   private run: RunState;
-  private mode: Mode = 'menu';
+  private mode: Mode = 'entry';
+  /** Para onde voltar ao fechar as configurações (null = fechadas). */
+  private settingsReturn: (() => void) | null = null;
   private paused = false;
   private lastFrame = 0;
 
@@ -71,13 +78,69 @@ export class App {
     this.muteButton = document.querySelector<HTMLButtonElement>('#mute-button')!;
     this.muteButton.addEventListener('click', () => {
       this.muteButton.blur();
-      this.muteButton.textContent = this.sound.toggleMute() ? '🔇' : '🔊';
+      this.updateSettings({ muted: !this.settings.muted });
     });
+    document.querySelector('#settings-button')!.addEventListener('click', (event) => {
+      (event.currentTarget as HTMLElement).blur();
+      this.openSettings();
+    });
+    this.updateSettings({});
   }
 
   start(): void {
-    this.openMenu();
+    showEntry(() => this.leaveEntry());
     requestAnimationFrame((t) => this.frame(t));
+  }
+
+  private leaveEntry(): void {
+    if (this.mode !== 'entry') return;
+    this.sound.unlock();
+    this.openMenu();
+  }
+
+  private updateSettings(change: Partial<Settings>): void {
+    this.settings = { ...this.settings, ...change };
+    saveSettings(this.settings);
+    this.sound.applySettings(this.settings);
+    this.muteButton.textContent = this.settings.muted ? '🔇' : '🔊';
+  }
+
+  /** Abre as configurações por cima da tela atual; durante uma onda, pausa antes. */
+  private openSettings(): void {
+    if (this.mode === 'entry' || this.settingsReturn) return;
+    if (this.isPlaying()) this.togglePause();
+    this.settingsReturn =
+      this.mode === 'menu'
+        ? () => this.openMenu()
+        : this.paused
+          ? () => this.showPauseScreen()
+          : this.run.result
+            ? () => showRunEnd(this.run.result!, () => this.openMenu())
+            : () => this.showChoices();
+    showSettings(this.settings, {
+      onChange: (change) => this.updateSettings(change),
+      onBack: () => this.closeSettings(),
+      onExport: () => downloadBackup(),
+      onImport: () => void this.importSave(),
+    });
+  }
+
+  private closeSettings(): void {
+    const back = this.settingsReturn;
+    this.settingsReturn = null;
+    back?.();
+  }
+
+  private async importSave(): Promise<void> {
+    const text = await pickBackupFile();
+    if (text === null) return;
+    if (!confirm('Importar este save vai substituir TODO o seu progresso atual. Continuar?')) return;
+    try {
+      importBackup(text);
+      location.reload();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Não foi possível importar o save.');
+    }
   }
 
   private isPlaying(): boolean {
@@ -86,6 +149,17 @@ export class App {
 
   private onKey(key: string, event: KeyboardEvent): void {
     this.sound.unlock();
+    if (this.mode === 'entry') {
+      if (key === 'enter' || key === ' ') {
+        event.preventDefault();
+        this.leaveEntry();
+      }
+      return;
+    }
+    if (this.settingsReturn) {
+      if (key === 'escape') this.closeSettings();
+      return;
+    }
     if (key === ' ') {
       event.preventDefault();
       this.pulse();
@@ -193,10 +267,15 @@ export class App {
     } else if (this.isPlaying()) {
       this.paused = true;
       resetInteraction(this.interaction);
-      showPause({
-        onResume: () => this.togglePause(),
-        onQuit: () => this.openMenu(),
-      });
+      this.showPauseScreen();
     }
+  }
+
+  private showPauseScreen(): void {
+    showPause({
+      onResume: () => this.togglePause(),
+      onQuit: () => this.openMenu(),
+      onSettings: () => this.openSettings(),
+    });
   }
 }

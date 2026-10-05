@@ -3,7 +3,8 @@ import { META_UPGRADES, META_UPGRADE_IDS } from '../data/upgrades';
 import { createProfile, type Profile } from '../game/profile';
 
 const SAVE_KEY = 'nx3';
-const SAVE_VERSION = 3;
+/** Versão do formato do perfil (vai junto nos arquivos exportados). */
+export const PROFILE_VERSION = 3;
 /** Save do protótipo v2: { ess, up: { d, h, e }, un: { V, D, G } }. */
 const LEGACY_KEY = 'nx2';
 const LEGACY_UPGRADES = { d: 'damage', h: 'nexusHp', e: 'startGold' } as const;
@@ -28,11 +29,19 @@ export function loadProfile(): Profile {
 
 export function saveProfile(profile: Profile): void {
   try {
-    const file: SaveFile = { version: SAVE_VERSION, profile };
+    const file: SaveFile = { version: PROFILE_VERSION, profile };
     localStorage.setItem(SAVE_KEY, JSON.stringify(file));
   } catch {
     // Sem localStorage (aba privada etc.): o jogo segue sem salvar.
   }
+}
+
+/** Perfil vindo de um arquivo importado; lança erro legível se for de uma versão mais nova. */
+export function profileFromData(data: unknown, version: unknown): Profile {
+  if (typeof version !== 'number' || version > PROFILE_VERSION) {
+    throw new Error('Esse save é de uma versão mais nova do jogo.');
+  }
+  return sanitize(data as Partial<Profile>);
 }
 
 function migrateLegacy(old: { ess?: unknown; up?: Record<string, unknown>; un?: Record<string, unknown> }): Profile {

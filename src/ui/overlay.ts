@@ -15,12 +15,14 @@ overlay.addEventListener('click', (event) => {
   actions[button.dataset.action!]?.(button.dataset.value ?? '');
 });
 
-export function showOverlay(html: string, newActions: OverlayActions): void {
+/** Mostra o overlay e devolve o elemento (para telas que precisam de mais eventos, como sliders). */
+export function showOverlay(html: string, newActions: OverlayActions): HTMLElement {
   actions = newActions;
   overlay.innerHTML = html;
   overlay.scrollTop = 0;
   overlay.classList.add('visible');
   portraits = [...overlay.querySelectorAll<HTMLCanvasElement>('canvas[data-sprite]')];
+  return overlay;
 }
 
 export function hideOverlay(): void {

@@ -729,3 +729,105 @@ button:disabled {
   color: var(--gold);
   white-space: nowrap;
 }
+
+/* tela de entrada */
+.entry {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  background: none;
+  border: none;
+  padding: 40px 60px;
+}
+
+.entry:hover:not(:disabled) {
+  filter: none;
+}
+
+.entry-title {
+  font: 900 72px var(--font-title);
+  letter-spacing: 10px;
+  color: #f6ecff;
+  text-shadow:
+    0 0 18px #b36bffcc,
+    0 0 50px #7a3cff88;
+}
+
+.entry-hint {
+  font: 600 18px var(--font-label);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--muted);
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* configurações */
+.settings {
+  text-align: left;
+}
+
+.settings h2 {
+  text-align: center;
+}
+
+.settings h3 {
+  margin-top: 14px;
+}
+
+.slider-row,
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 8px 0;
+  font: 600 16px var(--font-label);
+}
+
+.slider-row span {
+  width: 80px;
+}
+
+.slider-row input {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.slider-row output {
+  width: 48px;
+  text-align: right;
+  color: var(--muted);
+}
+
+.check-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.row-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.row-buttons button {
+  flex: 1;
+}
+
+.settings .play-button {
+  display: block;
+  margin: 0 auto;
+}

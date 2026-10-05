@@ -6,6 +6,8 @@ export interface SoundDef {
   to: number;
   duration: number;
   wave: OscillatorType;
+  /** Volume relativo (padrão 1). */
+  volume?: number;
 }
 
 export type SoundId = CreatureId | 'kill' | 'coin' | 'place' | 'pulse' | 'hurt' | 'boss' | 'evolve' | 'heal';
