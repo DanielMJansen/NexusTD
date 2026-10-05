@@ -1,4 +1,5 @@
-import { ARENA, ECONOMY, HERO, NEXUS, PULSE } from '../data/config';
+import { ARENA, ECONOMY, HERO_PLACEMENT, NEXUS } from '../data/config';
+import { HEROES, type HeroDef, type HeroId, type RaceBonus } from '../data/heroes';
 import type { CreatureDef, CreatureId } from '../data/creatures';
 import type { EnemyDef, EnemyId } from '../data/enemies';
 import type { RunUpgradeDef } from '../data/upgrades';
@@ -41,6 +42,7 @@ export interface Creature extends Point {
 }
 
 export interface Hero extends Point {
+  def: HeroDef;
   target: Point;
   attackTimer: number;
   /** Dicas visuais, como nas criaturas. */
@@ -54,6 +56,8 @@ export interface Modifiers {
   damage: number;
   range: number;
   attackSpeed: number;
+  /** Bônus do herói para criaturas da raça dele. */
+  raceBonus: { race: string; bonus: RaceBonus };
 }
 
 export type Choice = { kind: 'upgrade'; upgrade: RunUpgradeDef };
@@ -73,6 +77,7 @@ export interface RunSetup {
   talents: TalentBonuses;
   /** Equipe da run: criaturas disponíveis, na ordem dos atalhos 1–6. */
   team: readonly CreatureId[];
+  hero: HeroId;
 }
 
 export interface RunState {
@@ -114,7 +119,8 @@ export interface RunState {
 export function createRun(setup: RunSetup): RunState {
   const t = setup.talents;
   const maxHp = NEXUS.baseHp + t.nexusMaxHp;
-  const heroStart = { x: ARENA.center.x, y: ARENA.center.y + HERO.startOffsetY };
+  const heroDef = HEROES[setup.hero];
+  const heroStart = { x: ARENA.center.x, y: ARENA.center.y + HERO_PLACEMENT.startOffsetY };
   return {
     phase: 'playing',
     wave: 0,
@@ -122,13 +128,22 @@ export function createRun(setup: RunSetup): RunState {
     nexus: { hp: maxHp, maxHp },
     gold: ECONOMY.startGold + t.startGold,
     kills: 0,
-    hero: { ...heroStart, target: { ...heroStart }, attackTimer: 0, facing: 1, lastAttackAt: -Infinity, moving: false },
+    hero: { ...heroStart, def: heroDef, target: { ...heroStart }, attackTimer: 0, facing: 1, lastAttackAt: -Infinity, moving: false },
     enemies: [],
     creatures: [],
     team: [...setup.team],
     unlocked: new Set(setup.team),
-    modifiers: { damage: 1 + t.damage, range: 1 + t.range, attackSpeed: 1 + t.attackSpeed },
-    pulse: { cooldown: PULSE.cooldown * (1 - t.pulseCooldown), remaining: 0, radius: PULSE.radius * (1 + t.pulseRadius) },
+    modifiers: {
+      damage: 1 + t.damage,
+      range: 1 + t.range,
+      attackSpeed: 1 + t.attackSpeed,
+      raceBonus: { race: heroDef.race, bonus: heroDef.raceBonus },
+    },
+    pulse: {
+      cooldown: heroDef.pulse.cooldown * (1 - t.pulseCooldown),
+      remaining: 0,
+      radius: heroDef.pulse.radius * (1 + t.pulseRadius),
+    },
     talents: { ...t },
     wardReady: false,
     spawnQueue: [],

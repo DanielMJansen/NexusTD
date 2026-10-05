@@ -1,4 +1,5 @@
 import { CREATURE_IDS, type CreatureId } from '../data/creatures';
+import { HERO_IDS, STARTER_HERO, type HeroId } from '../data/heroes';
 import { TALENT_IDS, talentMaxLevel, type TalentId } from '../data/talents';
 import { createProfile, STARTER_CREATURES, TEAM_SIZE, type Profile } from '../game/profile';
 
@@ -93,6 +94,11 @@ function sanitize(data: unknown): Profile {
   profile.ownedCreatures = CREATURE_IDS.filter((id) => owned.has(id));
   const team = [...new Set(validCreatures(raw.team))].filter((id) => owned.has(id)).slice(0, TEAM_SIZE);
   profile.team = team.length ? team : profile.ownedCreatures.slice(0, TEAM_SIZE);
+
+  const heroes = Array.isArray(raw.ownedHeroes) ? raw.ownedHeroes : [];
+  profile.ownedHeroes = HERO_IDS.filter((id) => id === STARTER_HERO || heroes.includes(id));
+  const selected = raw.selectedHero as HeroId;
+  profile.selectedHero = profile.ownedHeroes.includes(selected) ? selected : STARTER_HERO;
   return profile;
 }
 

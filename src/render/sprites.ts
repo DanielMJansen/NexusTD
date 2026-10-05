@@ -1,7 +1,8 @@
 import type { CreatureId } from '../data/creatures';
 import type { EnemyId } from '../data/enemies';
+import type { HeroId } from '../data/heroes';
 
-export type SpriteId = 'hero' | CreatureId | EnemyId;
+export type SpriteId = HeroId | CreatureId | EnemyId;
 
 /** Como o personagem está agora; tudo opcional exceto o tempo de animação. */
 export interface SpritePose {
@@ -33,8 +34,14 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
   ctx.lineCap = 'round';
   const p: Required<SpritePose> = { facing: 1, attack: 0, moving: false, level: 1, ...pose };
   switch (id) {
-    case 'hero':
+    case 'knight':
       drawHero(ctx, p);
+      break;
+    case 'vampireLord':
+      drawVampireLord(ctx, p);
+      break;
+    case 'draconian':
+      drawDraconian(ctx, p);
       break;
     case 'archer':
       drawArcher(ctx, p);
@@ -233,6 +240,116 @@ function drawHero(ctx: Ctx, p: Required<SpritePose>): void {
   ctx.beginPath();
   ctx.arc(4, hy + 3.6, 1.4, 0.2, Math.PI - 0.2);
   ctx.stroke();
+}
+
+// ---------- nobre vampiro (herói) ----------
+
+function drawVampireLord(ctx: Ctx, p: Required<SpritePose>): void {
+  const step = walk(p);
+  const bob = p.moving ? Math.abs(step) * -1.2 : Math.sin(p.time * 2.2) * 0.5;
+  const sway = Math.sin(p.time * 3) * 1.5 + step * 2.5;
+
+  // capa longa com forro vermelho
+  shape(ctx, vertical(ctx, -9, 14, '#2a1440', '#0e0618'), () =>
+    poly(ctx, [-6, -8 + bob, 6, -8 + bob, 9, 14, -2 - sway, 12, -14 - sway, 14]),
+  );
+  shape(ctx, vertical(ctx, -6, 12, '#c8203a', '#5e0a1a'), () => poly(ctx, [-5, -6 + bob, -12 - sway, 12, -4 - sway, 10]), 0);
+  // pernas e sobretudo
+  shape(ctx, '#140a20', () => ctx.roundRect(-4.5 + step * 2, 6, 4, 8, 1.5));
+  shape(ctx, '#140a20', () => ctx.roundRect(0.5 - step * 2, 6, 4, 8, 1.5));
+  shape(ctx, vertical(ctx, -8, 9, '#4a2a6a', '#24123a'), () => ctx.roundRect(-6.5, -8 + bob, 13, 16 - bob, [4, 4, 2, 2]));
+  shape(ctx, '#f4eef8', () => poly(ctx, [-2.2, -8 + bob, 2.2, -8 + bob, 0, -2 + bob]), 0.8);
+  shape(ctx, GOLD, () => ctx.rect(-6.5, 2 + bob * 0.5, 13, 1.6), 0.6);
+
+  // rapieira: estoca no ataque
+  const thrust = p.attack * 8;
+  line(ctx, '#dfe6f4', 1.4, () => {
+    ctx.moveTo(6, 0 + bob);
+    ctx.lineTo(17 + thrust, -6 + bob - thrust * 0.2);
+  });
+  shape(ctx, GOLD, () => circle(ctx, 6.5, 0 + bob, 2), 0.8);
+
+  // cabeça, cabelo, cartola
+  const hy = -16 + bob;
+  shape(ctx, radial(ctx, 0, hy, 8, '#fbf6ff', '#cdbfe0'), () => circle(ctx, 0, hy, 8));
+  shape(ctx, '#140a20', () => {
+    ctx.moveTo(-8.2, hy + 1);
+    ctx.quadraticCurveTo(-8.5, hy - 7, 0, hy - 7.5);
+    ctx.quadraticCurveTo(8.5, hy - 7, 8.2, hy + 1);
+    ctx.lineTo(5, hy - 3);
+    ctx.lineTo(1.5, hy - 1);
+    ctx.lineTo(-2, hy - 4);
+    ctx.closePath();
+  });
+  shape(ctx, '#140a20', () => ctx.roundRect(-7, hy - 9.5, 14, 2.5, 1));
+  shape(ctx, '#1e1030', () => ctx.roundRect(-4.5, hy - 19, 9, 10, 1.5));
+  shape(ctx, '#c8203a', () => ctx.rect(-4.5, hy - 12, 9, 2), 0.6);
+  glowingEye(ctx, 1.6, hy + 0.8, 1.4, '#ff3048');
+  glowingEye(ctx, 5.2, hy + 0.8, 1.4, '#ff3048');
+  shape(ctx, '#ffffff', () => poly(ctx, [2.5, hy + 4.4, 3.4, hy + 4.4, 3, hy + 6]), 0.4);
+  shape(ctx, '#ffffff', () => poly(ctx, [4.4, hy + 4.4, 5.3, hy + 4.4, 4.9, hy + 6]), 0.4);
+}
+
+// ---------- draconato (herói) ----------
+
+function drawDraconian(ctx: Ctx, p: Required<SpritePose>): void {
+  const step = walk(p, 10);
+  const bob = p.moving ? Math.abs(step) * -1 : Math.sin(p.time * 2) * 0.5;
+  const tail = Math.sin(p.time * 3) * 2;
+  const flap = Math.sin(p.time * 5) * 0.15;
+
+  // cauda e asinhas nas costas
+  shape(ctx, '#8a2418', () => {
+    ctx.moveTo(-4, 6);
+    ctx.quadraticCurveTo(-14, 10, -17, 3 + tail);
+    ctx.quadraticCurveTo(-12, 8, -3, 10);
+    ctx.closePath();
+  });
+  shape(ctx, '#f0c35a', () => poly(ctx, [-17, 3 + tail, -21, 0 + tail, -18, 6 + tail]), 1);
+  ctx.save();
+  ctx.translate(-3, -6 + bob);
+  ctx.rotate(-0.3 + flap);
+  shape(ctx, '#c8402a', () => poly(ctx, [0, 0, -12, -10, -13, -2, -8, 2]));
+  ctx.restore();
+  // pernas
+  shape(ctx, '#5a1810', () => ctx.roundRect(-5 + step * 2, 6, 4.5, 8, 2));
+  shape(ctx, '#5a1810', () => ctx.roundRect(0.5 - step * 2, 6, 4.5, 8, 2));
+  // corpo escamado com peitoral
+  shape(ctx, radial(ctx, 0, 0 + bob, 10, '#d8452a', '#7a1a10'), () => ctx.roundRect(-7, -9 + bob, 14, 17, [5, 5, 4, 4]));
+  shape(ctx, '#f0c890', () => ctx.roundRect(-3, -7 + bob, 7, 13, 3), 1);
+  // cinto e ombreira de bronze
+  shape(ctx, '#3a1a10', () => ctx.rect(-7, 3 + bob, 14, 2.4), 0.8);
+  shape(ctx, GOLD, () => ctx.rect(-1.2, 2.8 + bob, 2.4, 2.8), 0.6);
+  shape(ctx, vertical(ctx, -10, -4, '#ffe07a', '#b8801a'), () => ellipse(ctx, -4, -7 + bob, 4.5, 3), 1);
+  ctx.strokeStyle = '#c8803a';
+  ctx.lineWidth = 0.7;
+  for (const y of [-4, -1, 2]) {
+    ctx.beginPath();
+    ctx.moveTo(-2.5, y + bob);
+    ctx.lineTo(3.5, y + bob);
+    ctx.stroke();
+  }
+  // braço com garras
+  shape(ctx, '#c8402a', () => circle(ctx, 7, 1 + bob, 2.6), 1);
+
+  // cabeça de dragão: focinho, chifres, olhos
+  const hy = -16 + bob;
+  shape(ctx, '#fff0d0', () => poly(ctx, [-3, hy - 5, -10, hy - 12, -1, hy - 8]), 1);
+  shape(ctx, '#fff0d0', () => poly(ctx, [1, hy - 7, -2, hy - 15, 4, hy - 8]), 1);
+  shape(ctx, radial(ctx, 1, hy, 8.5, '#d8452a', '#7a1a10'), () => circle(ctx, 1, hy, 8));
+  shape(ctx, radial(ctx, 8, hy + 2, 5, '#d8452a', '#9a2a18'), () => ellipse(ctx, 7.5, hy + 2.5, 5, 3.6));
+  ctx.fillStyle = '#5a1a0a';
+  ctx.beginPath();
+  circle(ctx, 11, hy + 1.5, 0.7);
+  ctx.fill();
+  if (p.attack > 0.3) {
+    ctx.save();
+    ctx.shadowColor = '#ffb040';
+    ctx.shadowBlur = 10;
+    shape(ctx, '#ffb040', () => circle(ctx, 13, hy + 3.5, 1 + p.attack * 2), 0);
+    ctx.restore();
+  }
+  eye(ctx, 3, hy - 1.5, 2.6, '#e0a020', 0.3);
 }
 
 // ---------- arqueiro (humano) ----------

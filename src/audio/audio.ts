@@ -88,7 +88,7 @@ export class SoundPlayer {
   handle(event: GameEvent): void {
     switch (event.type) {
       case 'shot':
-        if (event.source !== 'hero') this.play(event.source);
+        this.play(event.source);
         break;
       case 'enemyKilled':
         this.playKill();

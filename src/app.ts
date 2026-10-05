@@ -5,7 +5,16 @@ import { WAVES } from './data/waves';
 import { chooseOption } from './game/choices';
 import { firePulse } from './game/combat';
 import type { GameEvent } from './game/events';
-import { buyTalent, grantStarterCreature, runSetup, toggleTeamMember, unlockCreature, type Profile } from './game/profile';
+import {
+  buyHero,
+  buyTalent,
+  grantStarterCreature,
+  runSetup,
+  selectHero,
+  toggleTeamMember,
+  unlockCreature,
+  type Profile,
+} from './game/profile';
 import { buyExtraSlot, reroll } from './game/shop';
 import { createRun, type RunState } from './game/state';
 import { startRun, updateRun } from './game/update';
@@ -20,6 +29,7 @@ import { loadProfile, saveProfile } from './save/save';
 import { loadSettings, saveSettings, type Settings } from './save/settings';
 import { showCollection } from './ui/collection';
 import { showEntry } from './ui/entry';
+import { showHeroes } from './ui/heroesScreen';
 import { updateHud } from './ui/hud';
 import { showMenu } from './ui/menu';
 import { animateOverlay, hideOverlay } from './ui/overlay';
@@ -264,6 +274,7 @@ export class App {
     showMenu(this.profile, {
       onPlay: () => this.startRun(),
       onTeam: () => this.openTeam(),
+      onHeroes: () => this.openHeroes(),
       onCollection: () => this.openCollection(),
       onTalents: () => this.openTalents(),
       onSettings: () => this.openSettings(),
@@ -275,6 +286,20 @@ export class App {
   private openTalents(): void {
     showTalents(this.profile, {
       onBuy: (id) => this.afterPurchase(buyTalent(this.profile, id), () => this.openTalents()),
+      onBack: () => this.openMenu(),
+    });
+  }
+
+  private openHeroes(): void {
+    showHeroes(this.profile, {
+      onBuy: (id) => this.afterPurchase(buyHero(this.profile, id), () => this.openHeroes()),
+      onSelect: (id) => {
+        if (!selectHero(this.profile, id)) return;
+        saveProfile(this.profile);
+        this.sound.play('place');
+        this.run = createRun(runSetup(this.profile));
+        this.openHeroes();
+      },
       onBack: () => this.openMenu(),
     });
   }

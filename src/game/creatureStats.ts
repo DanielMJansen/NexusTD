@@ -14,8 +14,14 @@ export const creatureAbility = (creature: Creature): CreatureAbility =>
 export const creatureName = (creature: Creature): string =>
   isAscended(creature) ? creature.def.ascended.name : creature.def.name;
 
+/** Bônus do herói que vale para esta criatura (mesma raça), ou 0. */
+function raceBonusValue(creature: Creature, modifiers: Modifiers, kind: 'damage' | 'range'): number {
+  const { race, bonus } = modifiers.raceBonus;
+  return creature.def.race === race && bonus.kind === kind ? bonus.value : 0;
+}
+
 export const creatureDamage = (creature: Creature, modifiers: Modifiers): number =>
-  creature.def.damage * levelInfo(creature).damage * modifiers.damage;
+  creature.def.damage * levelInfo(creature).damage * modifiers.damage * (1 + raceBonusValue(creature, modifiers, 'damage'));
 
 export const creatureRange = (creature: Creature, modifiers: Modifiers): number =>
-  creature.def.range * levelInfo(creature).range * modifiers.range;
+  creature.def.range * levelInfo(creature).range * modifiers.range * (1 + raceBonusValue(creature, modifiers, 'range'));

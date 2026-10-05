@@ -187,9 +187,9 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number):
     ctx.setLineDash([]);
   }
   drawShadow(ctx, hero.x, hero.y + 14, 10);
-  drawHeroRing(ctx, hero.x, hero.y + 14, time);
+  drawHeroRing(ctx, hero.x, hero.y + 14, time, hero.def.color);
   ctx.save();
-  drawSprite(ctx, 'hero', hero.x, hero.y, 1.05, {
+  drawSprite(ctx, hero.def.id, hero.x, hero.y, 1.05, {
     time,
     facing: hero.facing,
     moving: hero.moving,
@@ -199,18 +199,18 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number):
 }
 
 /** Marca do herói: anel rúnico dourado girando sob os pés (ciano fica reservado para lentidão). */
-function drawHeroRing(ctx: CanvasRenderingContext2D, x: number, y: number, time: number): void {
+function drawHeroRing(ctx: CanvasRenderingContext2D, x: number, y: number, time: number, color: string): void {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(1, 0.38);
   const glow = ctx.createRadialGradient(0, 0, 4, 0, 0, 20);
-  glow.addColorStop(0, '#ffd25a40');
-  glow.addColorStop(1, '#ffd25a00');
+  glow.addColorStop(0, withAlpha(color, 0.25));
+  glow.addColorStop(1, withAlpha(color, 0));
   ctx.fillStyle = glow;
   ctx.beginPath();
   ctx.arc(0, 0, 20, 0, TAU);
   ctx.fill();
-  ctx.strokeStyle = '#ffd25acc';
+  ctx.strokeStyle = withAlpha(color, 0.8);
   ctx.lineWidth = 1.6;
   ctx.beginPath();
   ctx.arc(0, 0, 16, 0, TAU);

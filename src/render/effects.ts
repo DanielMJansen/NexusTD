@@ -1,6 +1,7 @@
 import { ARENA } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { ENEMIES, type EnemyId } from '../data/enemies';
+import { HEROES, type HeroId } from '../data/heroes';
 import { WAVES } from '../data/waves';
 import type { GameEvent } from '../game/events';
 import type { Point } from '../game/state';
@@ -9,8 +10,17 @@ import { drawSprite } from './sprites';
 const TAU = Math.PI * 2;
 const GOLD = '#ffd25a';
 
+/** Cores do Pulso de cada herói. */
+const PULSE_LOOK: Record<HeroId, { ring: string; inner: string; particle: string }> = {
+  knight: { ring: '#c08cff', inner: '#ffffff', particle: '#c99bff' },
+  vampireLord: { ring: '#ff3a50', inner: '#2a1040', particle: '#3a1a50' },
+  draconian: { ring: '#ff8a2a', inner: '#ffd25a', particle: '#ff5a1a' },
+};
+
 interface Shot {
   source: CreatureId | 'hero';
+  /** Cor do corte (golpes do herói). */
+  color?: string;
   from: Point;
   to: Point;
   duration: number;
@@ -88,9 +98,36 @@ export class Effects {
   handle(event: GameEvent): void {
     switch (event.type) {
       case 'shot': {
-        const melee = event.source === 'hero' || event.source === 'duelist' || event.source === 'guard';
+        const melee = event.source === 'duelist' || event.source === 'guard';
         const duration = melee ? 0.16 : 0.22;
         this.shots.push({ ...event, duration, remaining: duration, trailTimer: 0 });
+        break;
+      }
+      case 'heroAttack': {
+        const color = HEROES[event.hero].color;
+        if (event.cone === null) {
+          const slash = event.hero === 'knight' ? '#e8f6ff' : color;
+          this.shots.push({ source: 'hero', from: event.from, to: event.to, duration: 0.16, remaining: 0.16, trailTimer: 1, color: slash });
+          break;
+        }
+        // leque de fogo: partículas espalhadas dentro do cone
+        const aim = Math.atan2(event.to.y - event.from.y, event.to.x - event.from.x);
+        for (let i = 0; i < 18; i++) {
+          const a = aim + random(-event.cone, event.cone);
+          const speed = random(event.range * 2, event.range * 3.4);
+          this.particles.push({
+            x: event.from.x,
+            y: event.from.y - 6,
+            vx: Math.cos(a) * speed,
+            vy: Math.sin(a) * speed,
+            life: 0.3,
+            maxLife: 0.3,
+            size: random(2, 3.5),
+            color: Math.random() < 0.5 ? '#ffb040' : color,
+            gravity: 0,
+            glow: true,
+          });
+        }
         break;
       }
       case 'enemyKilled':
@@ -111,12 +148,13 @@ export class Effects {
         });
         this.text(event.x, event.y - 18, `+${event.gold}`, GOLD, 10);
         break;
-      case 'pulse':
-        this.ring(event.x, event.y, event.radius, '#c08cff', 0.45, 6);
-        this.ring(event.x, event.y, event.radius * 0.6, '#ffffff', 0.3, 3);
+      case 'pulse': {
+        const look = PULSE_LOOK[event.hero];
+        this.ring(event.x, event.y, event.radius, look.ring, 0.45, 6);
+        this.ring(event.x, event.y, event.radius * 0.6, look.inner, 0.3, 3);
         for (let i = 0; i < 26; i++) {
           const a = (i / 26) * TAU;
-          const speed = random(140, 220);
+          const speed = random(140, 220) * (event.radius / 95);
           this.particles.push({
             x: event.x,
             y: event.y,
@@ -125,13 +163,14 @@ export class Effects {
             life: 0.45,
             maxLife: 0.45,
             size: 2.4,
-            color: '#c99bff',
+            color: Math.random() < 0.6 ? look.particle : look.inner,
             gravity: 0,
             glow: true,
           });
         }
         this.shake = Math.max(this.shake, 3);
         break;
+      }
       case 'nexusHit':
         this.nexusHurt = 1;
         this.shake = Math.max(this.shake, Math.min(7, 2 + event.damage * 0.2));
@@ -390,7 +429,7 @@ export class Effects {
         this.burst(x, y, 5, '#e8f0ff', 60, 0.25, 1.6, true);
         break;
       case 'hero':
-        this.burst(x, y, 4, '#e8f6ff', 70, 0.25, 1.6, true);
+        this.burst(x, y, 4, shot.color ?? '#e8f6ff', 70, 0.25, 1.6, true);
         break;
     }
   }
@@ -484,7 +523,7 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
     case 'guard':
     case 'hero': {
       // corte em meia-lua sobre o alvo
-      const color = shot.source === 'duelist' ? '#ff3a50' : '#e8f6ff';
+      const color = shot.color ?? (shot.source === 'duelist' ? '#ff3a50' : '#e8f6ff');
       const start = -1.6 + progress * 2.4;
       ctx.translate(shot.to.x, shot.to.y - 6);
       ctx.shadowColor = color;

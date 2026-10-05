@@ -1,4 +1,5 @@
 import { CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
+import { HEROES, STARTER_HERO, type HeroId } from '../data/heroes';
 import { TALENTS, talentMaxLevel, type TalentId } from '../data/talents';
 import type { RunSetup } from './state';
 import { talentBonuses, type TalentLevels } from './talents';
@@ -15,13 +16,22 @@ export interface Profile {
   ownedCreatures: CreatureId[];
   /** Equipe da próxima run (subconjunto da coleção, na ordem dos atalhos). */
   team: CreatureId[];
+  ownedHeroes: HeroId[];
+  selectedHero: HeroId;
 }
 
 /** Criaturas que já vêm na coleção. */
 export const STARTER_CREATURES = CREATURE_IDS.filter((id) => CREATURES[id].unlock.kind === 'start');
 
 export function createProfile(): Profile {
-  return { essence: 0, talents: {}, ownedCreatures: [...STARTER_CREATURES], team: [...STARTER_CREATURES] };
+  return {
+    essence: 0,
+    talents: {},
+    ownedCreatures: [...STARTER_CREATURES],
+    team: [...STARTER_CREATURES],
+    ownedHeroes: [STARTER_HERO],
+    selectedHero: STARTER_HERO,
+  };
 }
 
 // ---------- talentos ----------
@@ -86,9 +96,29 @@ export function toggleTeamMember(profile: Profile, id: CreatureId): boolean {
   return true;
 }
 
+// ---------- heróis ----------
+
+export const ownsHero = (profile: Profile, id: HeroId): boolean => profile.ownedHeroes.includes(id);
+
+export function buyHero(profile: Profile, id: HeroId): boolean {
+  const cost = HEROES[id].cost;
+  if (cost === null || ownsHero(profile, id) || profile.essence < cost) return false;
+  profile.essence -= cost;
+  profile.ownedHeroes.push(id);
+  profile.selectedHero = id;
+  return true;
+}
+
+export function selectHero(profile: Profile, id: HeroId): boolean {
+  if (!ownsHero(profile, id)) return false;
+  profile.selectedHero = id;
+  return true;
+}
+
 export function runSetup(profile: Profile): RunSetup {
   return {
     talents: talentBonuses(profile.talents),
     team: profile.team.filter((id) => ownsCreature(profile, id)),
+    hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,
   };
 }

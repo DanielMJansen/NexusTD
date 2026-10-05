@@ -1,4 +1,4 @@
-import { ARENA, HERO, PULSE } from '../data/config';
+import { ARENA, HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureDamage, creatureRange } from './creatureStats';
 import { distance, type Creature, type Enemy, type Point, type RunState } from './state';
 
@@ -18,8 +18,12 @@ export function damageEnemy(state: RunState, enemy: Enemy, amount: number, sourc
       gold: enemy.def.gold,
       color: enemy.def.color,
     });
-    const ability = source ? creatureAbility(source) : null;
-    if (ability?.kind === 'lifesteal') healNexus(state, ability.healPerKill);
+    if (source) {
+      const ability = creatureAbility(source);
+      if (ability.kind === 'lifesteal') healNexus(state, ability.healPerKill);
+      const { race, bonus } = state.modifiers.raceBonus;
+      if (bonus.kind === 'killHeal' && source.def.race === race) healNexus(state, bonus.value);
+    }
   }
 }
 
@@ -48,18 +52,23 @@ export function applyBlocks(state: RunState): void {
 export function firePulse(state: RunState): boolean {
   if (state.phase !== 'playing' || state.pulse.remaining > 0) return false;
   const { hero } = state;
+  const pulse = hero.def.pulse;
   state.pulse.remaining = state.pulse.cooldown;
+  let hit = 0;
   for (const enemy of state.enemies) {
-    if (distance(enemy, hero) < state.pulse.radius) damageEnemy(state, enemy, PULSE.damage);
+    if (enemy.dead || distance(enemy, hero) >= state.pulse.radius) continue;
+    damageEnemy(state, enemy, pulse.damage * (1 + state.talents.heroDamage));
+    hit++;
   }
-  state.events.push({ type: 'pulse', x: hero.x, y: hero.y, radius: state.pulse.radius });
+  if (pulse.healPerEnemy > 0 && hit > 0) healNexus(state, pulse.healPerEnemy * hit);
+  state.events.push({ type: 'pulse', hero: hero.def.id, x: hero.x, y: hero.y, radius: state.pulse.radius });
   return true;
 }
 
 /** Move o herói (direção do teclado tem prioridade sobre o alvo de toque) e ataca. */
 export function updateHero(state: RunState, dt: number, direction: Point): void {
   const { hero } = state;
-  const step = HERO.speed * (1 + state.talents.heroSpeed) * dt;
+  const step = hero.def.speed * (1 + state.talents.heroSpeed) * dt;
   const startX = hero.x;
   const startY = hero.y;
   if (direction.x || direction.y) {
@@ -76,7 +85,7 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
       hero.y += (dy / length) * step;
     }
   }
-  const margin = HERO.edgeMargin;
+  const margin = HERO_PLACEMENT.edgeMargin;
   hero.x = Math.min(ARENA.width - margin, Math.max(margin, hero.x));
   hero.y = Math.min(ARENA.height - margin, Math.max(margin, hero.y));
   const movedX = hero.x - startX;
@@ -85,8 +94,9 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
 
   hero.attackTimer -= dt;
   if (hero.attackTimer > 0) return;
+  const attack = hero.def.attack;
   let target: Enemy | null = null;
-  let best = HERO.range;
+  let best = attack.range;
   for (const enemy of state.enemies) {
     if (enemy.dead) continue;
     const d = distance(enemy, hero);
@@ -96,11 +106,33 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
     }
   }
   if (!target) return;
-  damageEnemy(state, target, HERO.damage * state.modifiers.damage * (1 + state.talents.heroDamage));
-  hero.attackTimer = HERO.cooldown / state.modifiers.attackSpeed;
+
+  // Leque: todos dentro do alcance e do ângulo na direção do alvo mais próximo.
+  const pattern = attack.pattern;
+  const aim = Math.atan2(target.y - hero.y, target.x - hero.x);
+  const victims =
+    pattern.kind === 'cone'
+      ? state.enemies.filter((e) => {
+          if (e.dead || distance(e, hero) > attack.range) return false;
+          const diff = Math.abs(((Math.atan2(e.y - hero.y, e.x - hero.x) - aim + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);
+          return diff <= pattern.halfAngle;
+        })
+      : [target];
+  const damage = attack.damage * state.modifiers.damage * (1 + state.talents.heroDamage);
+  for (const victim of victims) damageEnemy(state, victim, damage);
+  if (attack.healPerHit > 0) healNexus(state, attack.healPerHit * victims.length);
+
+  hero.attackTimer = attack.cooldown / state.modifiers.attackSpeed;
   hero.lastAttackAt = state.time;
   if (!hero.moving) hero.facing = target.x >= hero.x ? 1 : -1;
-  state.events.push({ type: 'shot', source: 'hero', from: { x: hero.x, y: hero.y }, to: { x: target.x, y: target.y } });
+  state.events.push({
+    type: 'heroAttack',
+    hero: hero.def.id,
+    from: { x: hero.x, y: hero.y },
+    to: { x: target.x, y: target.y },
+    cone: pattern.kind === 'cone' ? pattern.halfAngle : null,
+    range: attack.range,
+  });
 }
 
 /**

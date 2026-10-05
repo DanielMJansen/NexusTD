@@ -4,6 +4,8 @@ import type { RunState } from '../game/state';
 import { drawPortrait } from '../render/portrait';
 import { gold } from './currency';
 import { abilityText, creatureStats } from './describe';
+import { raceBonusText } from './heroesScreen';
+import type { HeroDef, HeroId } from '../data/heroes';
 
 interface Card {
   root: HTMLElement;
@@ -21,10 +23,12 @@ export interface SidePanelHandlers {
 export class SidePanel {
   private cards = new Map<CreatureId, Card>();
   private team: readonly CreatureId[] = [];
+  private heroId: HeroId | null = null;
   private list = document.querySelector<HTMLElement>('#card-list')!;
   private pulseButton = document.querySelector<HTMLButtonElement>('#pulse-button')!;
   private pulseFill = this.pulseButton.querySelector<HTMLElement>('.pulse-fill')!;
   private pulseStatus = document.querySelector<HTMLElement>('#pulse-status')!;
+  private pulseName = this.pulseButton.querySelector<HTMLElement>('.pulse-label b')!;
 
   constructor(private readonly handlers: SidePanelHandlers) {
     this.pulseButton.addEventListener('click', () => {
@@ -33,9 +37,10 @@ export class SidePanel {
     });
   }
 
-  /** Remonta as cartas quando a equipe muda (nova run ou menu). */
-  private setTeam(team: readonly CreatureId[]): void {
+  /** Remonta as cartas quando a equipe ou o herói mudam (nova run ou menu). */
+  private setTeam(team: readonly CreatureId[], hero: HeroDef): void {
     this.team = [...team];
+    this.heroId = hero.id;
     this.cards.clear();
     this.list.innerHTML = '';
     team.forEach((id, index) => {
@@ -61,6 +66,7 @@ export class SidePanel {
           <dl>${stats}</dl>
           <p class="special">${abilityText(def.ability)}</p>
           <p class="special evolves">Nível 3: <b>${def.ascended.name}</b>. ${abilityText(def.ascended.ability)}</p>
+          ${def.race === hero.race ? `<p class="special hero-bonus">Bônus do ${hero.name}: ${raceBonusText(hero.race, hero.raceBonus)}</p>` : ''}
         </div>`;
       root.addEventListener('pointerdown', (event) => {
         if (event.button !== 0) return;
@@ -73,7 +79,8 @@ export class SidePanel {
   }
 
   update(run: RunState, selected: CreatureId | null, time: number): void {
-    if (run.team.length !== this.team.length || run.team.some((id, i) => id !== this.team[i])) this.setTeam(run.team);
+    const changed = run.team.length !== this.team.length || run.team.some((id, i) => id !== this.team[i]);
+    if (changed || this.heroId !== run.hero.def.id) this.setTeam(run.team, run.hero.def);
     for (const [id, card] of this.cards) {
       const cost = creatureCost(run, id);
       card.root.classList.toggle('selected', selected === id);
@@ -87,6 +94,8 @@ export class SidePanel {
     this.pulseFill.style.transform = `scaleX(${1 - remaining / cooldown})`;
     this.pulseButton.classList.toggle('ready', ready);
     const status = remaining > 0 ? `recarregando ${Math.ceil(remaining)} s` : 'pronto';
+    const name = run.hero.def.pulse.name;
+    if (this.pulseName.textContent !== name) this.pulseName.textContent = name;
     if (this.pulseStatus.textContent !== status) this.pulseStatus.textContent = status;
   }
 }

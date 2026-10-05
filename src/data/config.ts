@@ -18,20 +18,11 @@ export const NEXUS = {
   placementClearance: 28,
 };
 
-export const HERO = {
-  speed: 115,
-  damage: 10,
-  range: 60,
-  cooldown: 0.5,
+/** Onde o herói começa e quanto pode chegar perto da borda. Atributos de cada herói: data/heroes.ts. */
+export const HERO_PLACEMENT = {
   /** Posição inicial: abaixo do Nexus. */
   startOffsetY: 55,
   edgeMargin: 10,
-};
-
-export const PULSE = {
-  damage: 35,
-  radius: 95,
-  cooldown: 12,
 };
 
 export const ECONOMY = {
