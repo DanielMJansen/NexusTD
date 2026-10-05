@@ -1,6 +1,8 @@
 import { SoundPlayer } from './audio/audio';
+import { Music } from './audio/music';
 import { GAME_TITLE, SIMULATION } from './data/config';
 import { CREATURE_IDS, type CreatureId } from './data/creatures';
+import { WAVES } from './data/waves';
 import type { MetaUpgradeId } from './data/upgrades';
 import { chooseOption } from './game/choices';
 import { firePulse } from './game/combat';
@@ -46,6 +48,7 @@ export class App {
   private readonly effects = new Effects();
   private readonly interaction = createInteraction();
   private readonly sound = new SoundPlayer();
+  private readonly music = new Music();
   private readonly keyboard: Keyboard;
   private readonly pointer: PointerControls;
   private readonly panel: SidePanel;
@@ -63,6 +66,7 @@ export class App {
       getRun: () => this.run,
       isActive: () => this.isPlaying(),
     });
+    this.sound.onReady = (ctx, output) => this.music.connect(ctx, output);
     this.keyboard = new Keyboard((key, event) => this.onKey(key, event));
     addEventListener('pointerdown', () => this.sound.unlock());
 
@@ -94,8 +98,8 @@ export class App {
 
   private leaveEntry(): void {
     if (this.mode !== 'entry') return;
-    this.sound.unlock();
     this.openMenu();
+    this.sound.unlock();
   }
 
   private updateSettings(change: Partial<Settings>): void {
@@ -209,8 +213,15 @@ export class App {
       case 'shopPurchase':
         this.showChoices();
         break;
+      case 'waveStarted':
+        this.music.setIntensity((event.wave - 1) / (WAVES.total - 1));
+        break;
+      case 'bossSpawned':
+        this.music.play('boss');
+        break;
       case 'runEnded':
         resetInteraction(this.interaction);
+        this.music.play('menu');
         this.profile.essence += event.result.essence;
         saveProfile(this.profile);
         showRunEnd(event.result, () => this.openMenu());
@@ -233,6 +244,7 @@ export class App {
 
   private openMenu(): void {
     this.mode = 'menu';
+    this.music.play('menu');
     this.paused = false;
     // Arena vazia ao fundo, já com as criaturas iniciais do perfil no painel.
     this.run = createRun(runSetup(this.profile));
@@ -257,6 +269,8 @@ export class App {
     resetInteraction(this.interaction);
     hideOverlay();
     this.mode = 'run';
+    this.music.play('run');
+    this.music.setIntensity(0);
     this.run = startRun(runSetup(this.profile));
   }
 
