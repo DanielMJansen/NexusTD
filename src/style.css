@@ -1,0 +1,154 @@
+:root {
+  --bg: #0c0817;
+  --fg: #f0eaff;
+  --accent: #b36bff;
+  --border: #4a3a70;
+  --gold: #fc6;
+  --max-width: 360px;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  height: 100%;
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background: radial-gradient(#1e1438, var(--bg));
+  color: var(--fg);
+  font: 14px Georgia, serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+#top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: var(--max-width);
+  padding: 4px 2px;
+  box-sizing: border-box;
+}
+
+#top-bar button {
+  flex: none;
+  width: 38px;
+  padding: 4px;
+}
+
+#hud {
+  padding: 8px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+#stage {
+  position: relative;
+  width: 100%;
+  max-width: var(--max-width);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 30px #b36bff44;
+}
+
+canvas {
+  width: 100%;
+  display: block;
+  touch-action: none;
+}
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  justify-content: safe center;
+  overflow-y: auto;
+  gap: 8px;
+  padding: 14px;
+  background: #0c0817ee;
+  text-align: center;
+}
+
+#overlay.visible {
+  display: flex;
+}
+
+#overlay button {
+  flex: none;
+  padding: 12px;
+  font-size: 14px;
+}
+
+#card-bar {
+  display: flex;
+  gap: 5px;
+  width: 100%;
+  max-width: var(--max-width);
+  padding: 8px 2px;
+  box-sizing: border-box;
+}
+
+button {
+  flex: 1;
+  background: linear-gradient(#3a2b60, #241a40);
+  color: var(--fg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 2px;
+  font: 12px Georgia, serif;
+}
+
+button.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+button:disabled {
+  opacity: 0.45;
+}
+
+button b {
+  display: block;
+  font-size: 11px;
+}
+
+button i {
+  font-style: normal;
+  color: var(--gold);
+  font-size: 12px;
+}
+
+button canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.row {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+}
+
+.title {
+  font-size: 30px;
+  letter-spacing: 6px;
+  text-shadow: 0 0 16px var(--accent);
+  font-weight: bold;
+}
