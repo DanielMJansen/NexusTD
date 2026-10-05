@@ -1,42 +1,47 @@
 # Checklist de regressão manual
 
-Rodar após cada passo de refatoração (`npm run dev`), em retrato no celular (ou DevTools em modo mobile) e com teclado/mouse.
+Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com mouse e teclado. Testar também uma janela menor (ex.: 1280×720) e uma tela de alta densidade, se houver.
 
 ## Menu
-- [ ] Título NEXUS, Essência atual e texto de instruções aparecem.
-- [ ] Melhorias permanentes mostram nível (●○) e custo; botão desabilitado sem Essência ou no nível 5 (MÁX).
-- [ ] Comprar melhoria desconta Essência, sobe o nível, toca som e persiste após recarregar a página.
-- [ ] Desbloquear criatura inicial (Duelista 40, Fogo 80, Gelo 80) mostra ✔ e persiste.
-- [ ] ▶ JOGAR inicia a onda 1.
+- [ ] Título, Essência, objetivo da run e as duas colunas (melhorias permanentes, criaturas iniciais) cabem sem rolagem.
+- [ ] Melhorias mostram nível (●○) e custo; desabilitadas sem Essência ou no nível máximo (MÁX).
+- [ ] Comprar melhoria ou criatura inicial desconta Essência, toca som e persiste após recarregar.
+- [ ] ▶ Jogar abre a escolha do primeiro ovo.
 
-## Run
-- [ ] HUD: `Onda X/10 · 💰 ouro · Nexus vida/máx · criaturas/5`.
-- [ ] Ouro inicial = 30 + 10 × nível da melhoria; vida do Nexus = 100 + 15 × nível.
+## Início da run
+- [ ] "Escolha seu primeiro ovo" mostra até 3 criaturas místicas ainda bloqueadas, com retrato animado, papel e habilidade.
+- [ ] Ao escolher, a carta dela sai da silhueta no painel e aparece a faixa "Onda 1".
+- [ ] Se todas já estiverem desbloqueadas no perfil, a run começa direto na onda 1.
+
+## Durante a onda
+- [ ] HUD: onda, ouro, barra de vida do Nexus (vermelha abaixo de 30%) e criaturas em campo.
 - [ ] Renda passiva: +1 ouro a cada 2 s.
-- [ ] Herói se move tocando/segurando na arena e com setas/WASD; marcador de destino aparece; não sai da tela.
-- [ ] Herói ataca sozinho o inimigo mais próximo (alcance 60).
-- [ ] Cartas bloqueadas ficam escondidas; carta mostra sprite, nome e custo.
-- [ ] Tocar carta → arrastar na arena mostra alcance e prévia; soltar posiciona (desconta ouro, custo da próxima cópia sobe ×1,5).
-- [ ] Não posiciona: sem ouro, com 5 criaturas, ou em cima do Nexus.
-- [ ] Tocar criatura mostra alcance e “Vender +X”; tocar no botão vende por 60% e devolve ouro flutuante.
-- [ ] Pulso (botão ⚡): dano em área ao redor do herói, anel roxo, recarga de 12 s exibida no botão.
-- [ ] Arqueiro (flecha), Duelista (Frenesi: brilho vermelho após 6 golpes), Fogo (área), Gelo (lentidão com brilho azul).
+- [ ] Herói anda com WASD/setas e com clique/segurar no chão; vira para o lado do movimento; não sai da arena.
+- [ ] Herói ataca sozinho o inimigo mais próximo (alcance 60), com animação de espada.
+- [ ] Arrastar uma carta do painel até a arena posiciona a criatura; soltar fora da arena deixa a carta escolhida.
+- [ ] Tecla 1–4 escolhe a carta; clicar na arena posiciona; a prévia segue o mouse e fica vermelha onde não pode (sem ouro, limite de 5, em cima do Nexus).
+- [ ] Botão direito ou Esc cancelam a carta escolhida.
+- [ ] Custo da próxima cópia sobe ×1,5 e fica vermelho quando falta ouro.
+- [ ] Clicar numa criatura mostra alcance e "Vender +X"; clicar no botão vende por 60%.
+- [ ] Tooltip ao passar o mouse na carta: atributos e habilidade.
+- [ ] Pulso (Espaço ou botão): onda de choque ao redor do herói; botão mostra recarga.
+- [ ] Arqueiro (flecha), Duelista (corte; Frenesi com aura vermelha após 6 golpes), Fogo (bola de fogo e explosão em área), Gelo (estilhaço e lentidão com brilho azul).
 - [ ] Morcegos em zigue-zague a partir da onda 2; Ogros a partir da onda 4; zumbis às vezes em bando de 3.
-- [ ] Abate: +ouro flutuante, partículas, som.
-- [ ] Inimigo que chega ao Nexus causa dano e some.
+- [ ] Inimigos piscam ao levar dano; ao morrer: fantasma, partículas, moedas e "+ouro".
+- [ ] Inimigo que chega ao Nexus causa dano (número vermelho, cristal pisca, tela treme) e some.
 
 ## Entre ondas
-- [ ] Onda 1 vencida: oferece ovos (criaturas bloqueadas) e “Seu primeiro ovo choca...”.
+- [ ] Onda 1 vencida: oferece só ovos (se houver).
 - [ ] Ondas seguintes: 3 opções entre melhorias e ovos; Nexus cura +10.
-- [ ] Escolher aplica o efeito e inicia a próxima onda.
+- [ ] Escolher aplica o efeito e mostra a faixa da próxima onda.
 
 ## Fim
-- [ ] Onda 10 tem o Rei Ogro (som de chefe, coroa).
+- [ ] Onda 10: faixa "Rei Ogro chegou!", tremor de tela, coroa.
 - [ ] Vitória ao limpar a onda 10; derrota com Nexus a 0.
-- [ ] Tela final mostra abates e Essência ganha (3 × onda + abates/5 + 30 se vencer); Continuar volta ao menu com a Essência somada e salva.
+- [ ] Tela final mostra onda, abates e Essência (3 × onda + abates/5 + 30 se vencer); Continuar volta ao menu com a Essência salva.
 
-## Controles gerais
-- [ ] ⏸, P ou Esc pausam/retomam; “Sair para o menu” funciona.
+## Geral
+- [ ] P/Esc ou botão pausam e retomam; "Sair para o menu" funciona.
 - [ ] 🔊/🔇 alterna o som.
 - [ ] Sem erros no console.
 - [ ] `npm run build` e `npm run preview` funcionam (caminho relativo `base: './'`).
