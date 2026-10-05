@@ -717,3 +717,15 @@ button:disabled {
     display: none;
   }
 }
+
+/* moedas: mesma cor e símbolo em todas as telas */
+.essence-amount {
+  color: #d4b0ff;
+  text-shadow: 0 0 8px #b36bff88;
+  white-space: nowrap;
+}
+
+.gold-amount {
+  color: var(--gold);
+  white-space: nowrap;
+}

@@ -178,7 +178,7 @@ function drawLevelStars(ctx: CanvasRenderingContext2D, x: number, y: number, lev
 function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number): void {
   const { hero } = state;
   if (Math.hypot(hero.target.x - hero.x, hero.target.y - hero.y) > 6) {
-    ctx.strokeStyle = '#7fd8ff99';
+    ctx.strokeStyle = '#ffd25a99';
     ctx.lineWidth = 1.2;
     ctx.setLineDash([3, 3]);
     ctx.beginPath();
@@ -187,15 +187,42 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number):
     ctx.setLineDash([]);
   }
   drawShadow(ctx, hero.x, hero.y + 14, 10);
+  drawHeroRing(ctx, hero.x, hero.y + 14, time);
   ctx.save();
-  ctx.shadowColor = '#7fd8ff';
-  ctx.shadowBlur = 10;
   drawSprite(ctx, 'hero', hero.x, hero.y, 1.05, {
     time,
     facing: hero.facing,
     moving: hero.moving,
     attack: attackStrength(state, hero.lastAttackAt),
   });
+  ctx.restore();
+}
+
+/** Marca do herói: anel rúnico dourado girando sob os pés (ciano fica reservado para lentidão). */
+function drawHeroRing(ctx: CanvasRenderingContext2D, x: number, y: number, time: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(1, 0.38);
+  const glow = ctx.createRadialGradient(0, 0, 4, 0, 0, 20);
+  glow.addColorStop(0, '#ffd25a40');
+  glow.addColorStop(1, '#ffd25a00');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, 20, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = '#ffd25acc';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.arc(0, 0, 16, 0, TAU);
+  ctx.stroke();
+  ctx.rotate(time * 1.2);
+  ctx.strokeStyle = '#ffe9a8';
+  ctx.lineWidth = 2.4;
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.arc(0, 0, 16, (i * TAU) / 4, (i * TAU) / 4 + 0.6);
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
