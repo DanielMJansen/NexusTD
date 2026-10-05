@@ -1,13 +1,11 @@
 import { SoundPlayer } from './audio/audio';
 import { Music } from './audio/music';
 import { GAME_TITLE, SIMULATION } from './data/config';
-import { CREATURE_IDS, type CreatureId } from './data/creatures';
 import { WAVES } from './data/waves';
-import type { MetaUpgradeId } from './data/upgrades';
 import { chooseOption } from './game/choices';
 import { firePulse } from './game/combat';
 import type { GameEvent } from './game/events';
-import { buyMetaUpgrade, runSetup, unlockCreature, type Profile } from './game/profile';
+import { buyTalent, grantStarterCreature, runSetup, toggleTeamMember, unlockCreature, type Profile } from './game/profile';
 import { buyExtraSlot, reroll } from './game/shop';
 import { createRun, type RunState } from './game/state';
 import { startRun, updateRun } from './game/update';
@@ -20,6 +18,7 @@ import { fitArenaCanvas } from './render/viewport';
 import { downloadBackup, importBackup, pickBackupFile } from './save/backup';
 import { loadProfile, saveProfile } from './save/save';
 import { loadSettings, saveSettings, type Settings } from './save/settings';
+import { showCollection } from './ui/collection';
 import { showEntry } from './ui/entry';
 import { updateHud } from './ui/hud';
 import { showMenu } from './ui/menu';
@@ -28,6 +27,9 @@ import { showPause } from './ui/pause';
 import { showRunEnd } from './ui/runEnd';
 import { showSettings } from './ui/settingsScreen';
 import { SidePanel } from './ui/sidePanel';
+import { needsStarter, showStarterPick } from './ui/starterPick';
+import { showTalents } from './ui/talentsScreen';
+import { showTeam } from './ui/teamScreen';
 import { showWaveChoices } from './ui/waveChoices';
 
 type Mode = 'entry' | 'menu' | 'run';
@@ -174,7 +176,7 @@ export class App {
     } else if (key === 'p') {
       this.togglePause();
     } else if (/^[1-9]$/.test(key)) {
-      const id = CREATURE_IDS[Number(key) - 1];
+      const id = this.run.team[Number(key) - 1];
       if (id) this.pointer.toggleCard(id);
     }
   }
@@ -250,18 +252,60 @@ export class App {
     this.run = createRun(runSetup(this.profile));
     this.effects.clear();
     resetInteraction(this.interaction);
+    if (needsStarter(this.profile)) {
+      showStarterPick(this.profile, (id) => {
+        grantStarterCreature(this.profile, id);
+        saveProfile(this.profile);
+        this.sound.play('evolve');
+        this.openMenu();
+      });
+      return;
+    }
     showMenu(this.profile, {
-      onBuyUpgrade: (id: MetaUpgradeId) => this.spendEssence(buyMetaUpgrade(this.profile, id)),
-      onUnlockCreature: (id: CreatureId) => this.spendEssence(unlockCreature(this.profile, id)),
       onPlay: () => this.startRun(),
+      onTeam: () => this.openTeam(),
+      onCollection: () => this.openCollection(),
+      onTalents: () => this.openTalents(),
+      onSettings: () => this.openSettings(),
     });
   }
 
-  private spendEssence(bought: boolean): void {
+  // ---------- telas de meta-progressão ----------
+
+  private openTalents(): void {
+    showTalents(this.profile, {
+      onBuy: (id) => this.afterPurchase(buyTalent(this.profile, id), () => this.openTalents()),
+      onBack: () => this.openMenu(),
+    });
+  }
+
+  private openCollection(): void {
+    showCollection(this.profile, {
+      onBuy: (id) => this.afterPurchase(unlockCreature(this.profile, id), () => this.openCollection()),
+      onBack: () => this.openMenu(),
+    });
+  }
+
+  private openTeam(): void {
+    showTeam(this.profile, {
+      onToggle: (id) => {
+        if (!toggleTeamMember(this.profile, id)) return;
+        saveProfile(this.profile);
+        this.sound.play('place');
+        this.run = createRun(runSetup(this.profile));
+        this.openTeam();
+      },
+      onBack: () => this.openMenu(),
+    });
+  }
+
+  /** Depois de gastar Essência: salva, toca o som e redesenha a tela atual. */
+  private afterPurchase(bought: boolean, redraw: () => void): void {
     if (!bought) return;
     saveProfile(this.profile);
     this.sound.play('coin');
-    this.openMenu();
+    this.run = createRun(runSetup(this.profile));
+    redraw();
   }
 
   private startRun(): void {

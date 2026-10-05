@@ -41,18 +41,18 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
 }
 
 /** Custo para evoluir ao próximo nível; null se já está no máximo. */
-export function evolveCost(creature: Creature): number | null {
+export function evolveCost(creature: Creature, discount = 0): number | null {
   const next = EVOLUTION_LEVELS[creature.level];
-  return next ? Math.round(creature.def.baseCost * next.costMultiplier) : null;
+  return next ? Math.round(creature.def.baseCost * next.costMultiplier * (1 - discount)) : null;
 }
 
 export function canEvolve(state: RunState, creature: Creature): boolean {
-  const cost = evolveCost(creature);
+  const cost = evolveCost(creature, state.talents.evolveDiscount);
   return state.phase === 'playing' && cost !== null && state.gold >= cost;
 }
 
 export function evolveCreature(state: RunState, creature: Creature): boolean {
-  const cost = evolveCost(creature);
+  const cost = evolveCost(creature, state.talents.evolveDiscount);
   if (cost === null || !canEvolve(state, creature)) return false;
   state.gold -= cost;
   creature.paid += cost;

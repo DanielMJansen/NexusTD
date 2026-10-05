@@ -29,6 +29,10 @@ export interface CreatureDef {
   race: string;
   /** Papel na defesa (GDD seção 4). */
   role: string;
+  /** O que faz, em linguagem simples (Coleção e tooltips). */
+  description: string;
+  /** Uma ou duas frases de ambientação. */
+  lore: string;
   icon: string;
   baseCost: number;
   damage: number;
@@ -50,6 +54,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Arqueiro',
     race: 'Humano',
     role: 'DPS à distância',
+    description: 'Atira flechas de longe, um inimigo por vez. Barato e confiável para começar qualquer defesa.',
+    lore: 'Caçador das fronteiras que jurou proteger o Nexus. Nunca erra duas vezes.',
     icon: '🏹',
     baseCost: 15,
     damage: 7,
@@ -65,6 +71,9 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Guarda',
     race: 'Humano',
     role: 'Bloqueio',
+    description:
+      'Fica na linha de frente e segura até 2 inimigos parados enquanto o resto do exército ataca. Chefes passam direto.',
+    lore: 'Veterano da guarda do cristal. O escudo dele já viu mais hordas do que estrelas.',
     icon: '🛡',
     baseCost: 20,
     damage: 5,
@@ -80,6 +89,9 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Duelista',
     race: 'Vampiro',
     role: 'DPS alvo único',
+    description:
+      'Golpes rápidos num só alvo. A cada 6 golpes entra em frenesi: mais dano e ataques ainda mais rápidos por 3 s.',
+    lore: 'Nobre vampiro que transforma cada duelo numa dança — e cada golpe numa sede maior.',
     icon: '🧛',
     baseCost: 20,
     damage: 8,
@@ -98,6 +110,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Sanguinário',
     race: 'Vampiro',
     role: 'Sustento',
+    description: 'Lança orbes de sangue à distância. Cada inimigo que ele derrota devolve vida ao Nexus.',
+    lore: 'Mago de sangue que arranca a vida dos inimigos e a oferece ao cristal.',
     icon: '🩸',
     baseCost: 25,
     damage: 6,
@@ -113,6 +127,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Fogo',
     race: 'Dragão',
     role: 'Área',
+    description: 'Bolas de fogo que explodem e ferem também quem estiver perto do alvo. Ótimo contra bandos.',
+    lore: 'Filhote de dragão de pavio curto e fôlego longo.',
     icon: '🐉',
     baseCost: 30,
     damage: 14,
@@ -128,6 +144,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Gelo',
     race: 'Dragão',
     role: 'Controle',
+    description: 'Pouco dano, mas deixa os inimigos lentos — dá tempo para o resto do exército trabalhar.',
+    lore: 'Nascido nas geleiras do norte, congela tudo o que encara.',
     icon: '🐲',
     baseCost: 25,
     damage: 4,

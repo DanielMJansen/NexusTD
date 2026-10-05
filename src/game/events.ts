@@ -9,7 +9,8 @@ import type { Point, RunResult } from './state';
 export type GameEvent =
   | { type: 'shot'; source: CreatureId | 'hero'; from: Point; to: Point }
   | { type: 'enemyKilled'; enemy: EnemyId; x: number; y: number; gold: number; color: string }
-  | { type: 'pulse'; x: number; y: number }
+  | { type: 'pulse'; x: number; y: number; radius: number }
+  | { type: 'wardBlocked' }
   | { type: 'nexusHit'; damage: number }
   | { type: 'nexusHealed'; amount: number }
   | { type: 'bossSpawned'; enemy: EnemyId }

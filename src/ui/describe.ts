@@ -1,4 +1,6 @@
+import { ECONOMY } from '../data/config';
 import type { CreatureAbility, CreatureDef } from '../data/creatures';
+import type { TalentEffectKind } from '../data/talents';
 
 export const formatNumber = (n: number): string => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
 
@@ -29,4 +31,50 @@ export function creatureStats(def: CreatureDef): [string, string][] {
     ['Recarga', `${formatNumber(def.cooldown)} s`],
     ['Custo', `${def.baseCost} ouro`],
   ];
+}
+
+const pct = (v: number) => `${Math.round(v * 100)}%`;
+
+/** Efeito total de um talento num nível, em texto (ex.: "+30 vida do Nexus"). */
+export function talentEffectText(kind: TalentEffectKind, value: number): string {
+  switch (kind) {
+    case 'nexusMaxHp':
+      return `+${value} de vida do Nexus`;
+    case 'nexusHeal':
+      return `+${value} de cura entre ondas`;
+    case 'nexusRegen':
+      return `${formatNumber(value)} de vida por segundo`;
+    case 'nexusWard':
+      return value > 0 ? 'Anula o 1º golpe de cada onda' : 'Inativa';
+    case 'startGold':
+      return `+${value} de ouro inicial`;
+    case 'incomeInterval':
+      return `+1 ouro a cada ${formatNumber(ECONOMY.passiveIncome.interval - value)} s`;
+    case 'evolveDiscount':
+      return `−${pct(value)} no custo de evoluir`;
+    case 'killGold':
+      return `+${pct(value)} de ouro por abate`;
+    case 'damage':
+      return `+${pct(value)} de dano`;
+    case 'attackSpeed':
+      return `+${pct(value)} de velocidade de ataque`;
+    case 'range':
+      return `+${pct(value)} de alcance`;
+    case 'creatureSlots':
+      return `+${value} vaga de criatura`;
+    case 'heroDamage':
+      return `+${pct(value)} de dano do herói`;
+    case 'pulseCooldown':
+      return `−${pct(value)} na recarga do Pulso`;
+    case 'heroSpeed':
+      return `+${pct(value)} de velocidade do herói`;
+    case 'pulseRadius':
+      return `+${pct(value)} de raio do Pulso`;
+    case 'essenceGain':
+      return `+${pct(value)} de Essência por run`;
+    case 'victoryEssence':
+      return `+${value} de Essência ao vencer`;
+    case 'essencePerWave':
+      return `+${value} de Essência por onda`;
+  }
 }

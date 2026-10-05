@@ -1,6 +1,6 @@
 import { ARENA, ECONOMY, NEXUS, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
-import { offerChoices, offerStartingEggs } from './choices';
+import { offerChoices } from './choices';
 import { applyBlocks, updateCreatures, updateHero } from './combat';
 import { spawnEnemy, spawnInterval, startWave } from './spawning';
 import { createRun, type Point, type RunSetup, type RunState } from './state';
@@ -12,7 +12,7 @@ export interface FrameInput {
 
 export function startRun(setup: RunSetup): RunState {
   const state = createRun(setup);
-  if (!offerStartingEggs(state)) startWave(state);
+  startWave(state);
   return state;
 }
 
@@ -22,12 +22,15 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   state.time += dt;
 
   state.incomeTimer += dt;
-  if (state.incomeTimer > ECONOMY.passiveIncome.interval) {
+  if (state.incomeTimer > ECONOMY.passiveIncome.interval - state.talents.incomeInterval) {
     state.incomeTimer = 0;
     state.gold += ECONOMY.passiveIncome.amount;
   }
 
   state.pulse.remaining = Math.max(0, state.pulse.remaining - dt);
+  if (state.talents.nexusRegen > 0 && state.nexus.hp < state.nexus.maxHp) {
+    state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + state.talents.nexusRegen * dt);
+  }
 
   state.spawnTimer -= dt;
   const next = state.spawnQueue[0];
@@ -62,8 +65,13 @@ function moveEnemies(state: RunState, dt: number): void {
     const length = Math.hypot(dx, dy);
     if (enemy.held) continue;
     if (length < NEXUS.contactRadius) {
-      state.nexus.hp -= enemy.def.nexusDamage;
-      state.events.push({ type: 'nexusHit', damage: enemy.def.nexusDamage });
+      if (state.wardReady) {
+        state.wardReady = false;
+        state.events.push({ type: 'wardBlocked' });
+      } else {
+        state.nexus.hp -= enemy.def.nexusDamage;
+        state.events.push({ type: 'nexusHit', damage: enemy.def.nexusDamage });
+      }
       enemy.dead = true;
       continue;
     }
@@ -79,10 +87,12 @@ function moveEnemies(state: RunState, dt: number): void {
 
 function endRun(state: RunState, victory: boolean): void {
   state.phase = 'ended';
-  const essence =
-    state.wave * REWARDS.essencePerWave +
+  const t = state.talents;
+  const base =
+    state.wave * (REWARDS.essencePerWave + t.essencePerWave) +
     Math.floor(state.kills / REWARDS.killsPerEssence) +
-    (victory ? REWARDS.victoryBonus : 0);
+    (victory ? REWARDS.victoryBonus + t.victoryEssence : 0);
+  const essence = Math.floor(base * (1 + t.essenceGain));
   state.result = { victory, wave: state.wave, kills: state.kills, essence };
   state.events.push({ type: 'runEnded', result: state.result });
 }

@@ -244,7 +244,7 @@ export function inspectButtons(state: RunState, creature: Creature): InspectButt
   const height = 18;
   const y = creature.y - 52;
   const sell = { action: 'sell' as const, label: `Vender +${sellValue(creature)}`, enabled: true };
-  const cost = evolveCost(creature);
+  const cost = evolveCost(creature, state.talents.evolveDiscount);
   if (cost === null) return [{ ...sell, x: creature.x - width / 2, y, width, height }];
   return [
     {

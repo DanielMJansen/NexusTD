@@ -1,4 +1,4 @@
-import { ARENA, PULSE } from '../data/config';
+import { ARENA } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { ENEMIES, type EnemyId } from '../data/enemies';
 import { WAVES } from '../data/waves';
@@ -112,8 +112,8 @@ export class Effects {
         this.text(event.x, event.y - 18, `+${event.gold}`, GOLD, 10);
         break;
       case 'pulse':
-        this.ring(event.x, event.y, PULSE.radius, '#c08cff', 0.45, 6);
-        this.ring(event.x, event.y, PULSE.radius * 0.6, '#ffffff', 0.3, 3);
+        this.ring(event.x, event.y, event.radius, '#c08cff', 0.45, 6);
+        this.ring(event.x, event.y, event.radius * 0.6, '#ffffff', 0.3, 3);
         for (let i = 0; i < 26; i++) {
           const a = (i / 26) * TAU;
           const speed = random(140, 220);
@@ -137,6 +137,10 @@ export class Effects {
         this.shake = Math.max(this.shake, Math.min(7, 2 + event.damage * 0.2));
         this.text(ARENA.center.x, ARENA.center.y - 52, `-${event.damage}`, '#ff5a6a', 13);
         this.burst(ARENA.center.x, ARENA.center.y - 16, 10, '#ff6a7a', 90, 0.5, 2.4, true);
+        break;
+      case 'wardBlocked':
+        this.ring(ARENA.center.x, ARENA.center.y - 10, 40, '#ffd25a', 0.5, 4);
+        this.text(ARENA.center.x, ARENA.center.y - 52, 'Égide!', '#ffd25a', 12);
         break;
       case 'nexusHealed':
         this.text(ARENA.center.x + 14, ARENA.center.y - 46, `+${event.amount}`, '#5af0a0', 11);

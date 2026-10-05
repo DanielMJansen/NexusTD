@@ -37,5 +37,13 @@ export function isOverlayVisible(): boolean {
 }
 
 export function animateOverlay(time: number): void {
-  portraits.forEach((canvas, i) => drawPortrait(canvas, canvas.dataset.sprite as SpriteId, time + i * 0.7));
+  portraits.forEach((canvas, i) =>
+    drawPortrait(
+      canvas,
+      canvas.dataset.sprite as SpriteId,
+      time + i * 0.7,
+      canvas.dataset.silhouette !== undefined,
+      Number(canvas.dataset.level ?? 1),
+    ),
+  );
 }

@@ -43,11 +43,9 @@ export const ECONOMY = {
   sellRefund: 0.6,
 };
 
-/** Escolhas de 1 entre N (ovos e melhorias). */
+/** Escolha de 1 entre N melhorias ao fim de cada onda. */
 export const CHOICES = {
   count: 3,
-  /** A run começa com a escolha de um ovo de criatura mística. */
-  startingEgg: true,
 };
 
 /** Loja entre ondas (na tela de escolha após cada onda vencida). */

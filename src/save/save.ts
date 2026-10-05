@@ -1,26 +1,38 @@
 import { CREATURE_IDS, type CreatureId } from '../data/creatures';
-import { META_UPGRADES, META_UPGRADE_IDS } from '../data/upgrades';
-import { createProfile, type Profile } from '../game/profile';
+import { TALENT_IDS, talentMaxLevel, type TalentId } from '../data/talents';
+import { createProfile, STARTER_CREATURES, TEAM_SIZE, type Profile } from '../game/profile';
 
-const SAVE_KEY = 'nx3';
+const SAVE_KEY = 'nx4';
 /** Versão do formato do perfil (vai junto nos arquivos exportados). */
-export const PROFILE_VERSION = 3;
-/** Save do protótipo v2: { ess, up: { d, h, e }, un: { V, D, G } }. */
-const LEGACY_KEY = 'nx2';
-const LEGACY_UPGRADES = { d: 'damage', h: 'nexusHp', e: 'startGold' } as const;
-const LEGACY_CREATURES: Record<string, CreatureId> = { V: 'duelist', D: 'fireDragon', G: 'iceDragon' };
+export const PROFILE_VERSION = 4;
+
+/** Saves antigos continuam no armazenamento (não são apagados) e são migrados ao carregar. */
+const V3_KEY = 'nx3';
+const V2_KEY = 'nx2';
 
 interface SaveFile {
   version: number;
-  profile: Profile;
+  profile: unknown;
 }
+
+/** Formato v3: melhorias permanentes fixas e criaturas compradas. */
+interface ProfileV3 {
+  essence?: unknown;
+  metaLevels?: { damage?: unknown; nexusHp?: unknown; startGold?: unknown };
+  unlockedCreatures?: unknown;
+}
+
+/** As três melhorias da v3 viraram as raízes da árvore de talentos (mesmo nível). */
+const V3_TO_TALENT = { damage: 'armyDamage', nexusHp: 'nexusVitality', startGold: 'startingGold' } as const;
 
 export function loadProfile(): Profile {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) return sanitize((JSON.parse(raw) as SaveFile).profile);
-    const legacy = localStorage.getItem(LEGACY_KEY);
-    if (legacy) return migrateLegacy(JSON.parse(legacy));
+    const v3 = localStorage.getItem(V3_KEY);
+    if (v3) return migrateV3((JSON.parse(v3) as SaveFile).profile as ProfileV3);
+    const v2 = localStorage.getItem(V2_KEY);
+    if (v2) return migrateV3(v2ToV3(JSON.parse(v2)));
   } catch {
     // Save corrompido ou localStorage bloqueado: começa do zero.
   }
@@ -36,33 +48,56 @@ export function saveProfile(profile: Profile): void {
   }
 }
 
-/** Perfil vindo de um arquivo importado; lança erro legível se for de uma versão mais nova. */
+/** Perfil vindo de um arquivo importado; lança erro legível se a versão não for suportada. */
 export function profileFromData(data: unknown, version: unknown): Profile {
   if (typeof version !== 'number' || version > PROFILE_VERSION) {
     throw new Error('Esse save é de uma versão mais nova do jogo.');
   }
-  return sanitize(data as Partial<Profile>);
+  return version >= 4 ? sanitize(data) : migrateV3(data as ProfileV3);
 }
 
-function migrateLegacy(old: { ess?: unknown; up?: Record<string, unknown>; un?: Record<string, unknown> }): Profile {
-  const profile = createProfile();
-  profile.essence = toNumber(old.ess);
-  for (const [key, id] of Object.entries(LEGACY_UPGRADES)) profile.metaLevels[id] = toNumber(old.up?.[key]);
-  for (const [key, id] of Object.entries(LEGACY_CREATURES)) if (old.un?.[key]) profile.unlockedCreatures.push(id);
-  return sanitize(profile);
+/** Protótipo v2: { ess, up: { d, h, e }, un: { V, D, G } }. */
+function v2ToV3(old: { ess?: unknown; up?: Record<string, unknown>; un?: Record<string, unknown> }): ProfileV3 {
+  const creatures: Record<string, CreatureId> = { V: 'duelist', D: 'fireDragon', G: 'iceDragon' };
+  return {
+    essence: old.ess,
+    metaLevels: { damage: old.up?.d, nexusHp: old.up?.h, startGold: old.up?.e },
+    unlockedCreatures: Object.entries(creatures)
+      .filter(([key]) => old.un?.[key])
+      .map(([, id]) => id),
+  };
 }
 
-/** Garante um perfil válido mesmo com dados velhos ou editados à mão. */
-function sanitize(data: Partial<Profile> | undefined): Profile {
-  const profile = createProfile();
-  profile.essence = toNumber(data?.essence);
-  for (const id of META_UPGRADE_IDS) {
-    const level = Math.floor(toNumber(data?.metaLevels?.[id]));
-    profile.metaLevels[id] = Math.min(META_UPGRADES[id].maxLevel, level);
+function migrateV3(old: ProfileV3 | undefined): Profile {
+  const talents: Partial<Record<TalentId, number>> = {};
+  for (const [oldId, talentId] of Object.entries(V3_TO_TALENT)) {
+    talents[talentId] = toNumber(old?.metaLevels?.[oldId as keyof typeof V3_TO_TALENT]);
   }
-  const unlocked = Array.isArray(data?.unlockedCreatures) ? data.unlockedCreatures : [];
-  profile.unlockedCreatures = CREATURE_IDS.filter((id) => unlocked.includes(id));
+  const owned = [...STARTER_CREATURES, ...(Array.isArray(old?.unlockedCreatures) ? old.unlockedCreatures : [])];
+  return sanitize({ essence: old?.essence, talents, ownedCreatures: owned, team: owned });
+}
+
+/** Garante um perfil válido mesmo com dados velhos, de outra versão ou editados à mão. */
+function sanitize(data: unknown): Profile {
+  const raw = (data ?? {}) as Partial<Record<keyof Profile, unknown>>;
+  const profile = createProfile();
+  profile.essence = Math.floor(toNumber(raw.essence));
+
+  const talents = (raw.talents ?? {}) as Record<string, unknown>;
+  for (const id of TALENT_IDS) {
+    const level = Math.min(talentMaxLevel(id), Math.floor(toNumber(talents[id])));
+    if (level > 0) profile.talents[id] = level;
+  }
+
+  const owned = new Set<CreatureId>([...STARTER_CREATURES, ...validCreatures(raw.ownedCreatures)]);
+  profile.ownedCreatures = CREATURE_IDS.filter((id) => owned.has(id));
+  const team = [...new Set(validCreatures(raw.team))].filter((id) => owned.has(id)).slice(0, TEAM_SIZE);
+  profile.team = team.length ? team : profile.ownedCreatures.slice(0, TEAM_SIZE);
   return profile;
+}
+
+function validCreatures(value: unknown): CreatureId[] {
+  return Array.isArray(value) ? value.filter((id): id is CreatureId => CREATURE_IDS.includes(id)) : [];
 }
 
 function toNumber(value: unknown): number {

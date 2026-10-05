@@ -1,7 +1,8 @@
 import { ARENA, ECONOMY, HERO, NEXUS, PULSE } from '../data/config';
 import type { CreatureDef, CreatureId } from '../data/creatures';
 import type { EnemyDef, EnemyId } from '../data/enemies';
-import { META_UPGRADES, type MetaUpgradeId, type RunUpgradeDef } from '../data/upgrades';
+import type { RunUpgradeDef } from '../data/upgrades';
+import type { TalentBonuses } from './talents';
 import type { GameEvent } from './events';
 
 export interface Point {
@@ -55,7 +56,7 @@ export interface Modifiers {
   attackSpeed: number;
 }
 
-export type Choice = { kind: 'upgrade'; upgrade: RunUpgradeDef } | { kind: 'egg'; creature: CreatureId };
+export type Choice = { kind: 'upgrade'; upgrade: RunUpgradeDef };
 
 export interface RunResult {
   victory: boolean;
@@ -68,8 +69,10 @@ export type Phase = 'playing' | 'choosing' | 'ended';
 
 /** O que vem de fora da run: progresso permanente do jogador. */
 export interface RunSetup {
-  metaLevels: Record<MetaUpgradeId, number>;
-  unlockedCreatures: readonly CreatureId[];
+  /** Soma dos talentos comprados. */
+  talents: TalentBonuses;
+  /** Equipe da run: criaturas disponíveis, na ordem dos atalhos 1–6. */
+  team: readonly CreatureId[];
 }
 
 export interface RunState {
@@ -83,9 +86,15 @@ export interface RunState {
   hero: Hero;
   enemies: Enemy[];
   creatures: Creature[];
+  /** Equipe da run, na ordem dos atalhos. */
+  team: CreatureId[];
   unlocked: Set<CreatureId>;
   modifiers: Modifiers;
-  pulse: { cooldown: number; remaining: number };
+  pulse: { cooldown: number; remaining: number; radius: number };
+  /** Bônus dos talentos que valem a run inteira. */
+  talents: TalentBonuses;
+  /** Égide rúnica: o próximo golpe no Nexus nesta onda é anulado. */
+  wardReady: boolean;
   spawnQueue: EnemyId[];
   spawnTimer: number;
   incomeTimer: number;
@@ -103,28 +112,31 @@ export interface RunState {
 }
 
 export function createRun(setup: RunSetup): RunState {
-  const levels = setup.metaLevels;
-  const maxHp = NEXUS.baseHp + META_UPGRADES.nexusHp.perLevel * levels.nexusHp;
+  const t = setup.talents;
+  const maxHp = NEXUS.baseHp + t.nexusMaxHp;
   const heroStart = { x: ARENA.center.x, y: ARENA.center.y + HERO.startOffsetY };
   return {
     phase: 'playing',
     wave: 0,
     time: 0,
     nexus: { hp: maxHp, maxHp },
-    gold: ECONOMY.startGold + META_UPGRADES.startGold.perLevel * levels.startGold,
+    gold: ECONOMY.startGold + t.startGold,
     kills: 0,
     hero: { ...heroStart, target: { ...heroStart }, attackTimer: 0, facing: 1, lastAttackAt: -Infinity, moving: false },
     enemies: [],
     creatures: [],
-    unlocked: new Set(setup.unlockedCreatures),
-    modifiers: { damage: 1 + META_UPGRADES.damage.perLevel * levels.damage, range: 1, attackSpeed: 1 },
-    pulse: { cooldown: PULSE.cooldown, remaining: 0 },
+    team: [...setup.team],
+    unlocked: new Set(setup.team),
+    modifiers: { damage: 1 + t.damage, range: 1 + t.range, attackSpeed: 1 + t.attackSpeed },
+    pulse: { cooldown: PULSE.cooldown * (1 - t.pulseCooldown), remaining: 0, radius: PULSE.radius * (1 + t.pulseRadius) },
+    talents: { ...t },
+    wardReady: false,
     spawnQueue: [],
     spawnTimer: 0,
     incomeTimer: 0,
     choices: [],
     choiceReason: 'start',
-    creatureLimit: ECONOMY.creatureLimit,
+    creatureLimit: ECONOMY.creatureLimit + t.creatureSlots,
     rerolls: 0,
     extraSlots: 0,
     result: null,

@@ -1,9 +1,7 @@
 import { SHOP } from '../data/config';
-import { CREATURES } from '../data/creatures';
 import type { RunUpgradeEffect } from '../data/upgrades';
 import { canBuyExtraSlot, canReroll, extraSlotCost, rerollCost } from '../game/shop';
 import type { Choice, RunState } from '../game/state';
-import { abilityText } from './describe';
 import { showOverlay } from './overlay';
 
 export type ChoiceReason = 'start' | 'waveCleared';
@@ -25,15 +23,6 @@ const UPGRADE_LOOK: Record<RunUpgradeEffect['kind'], { icon: string; color: stri
 };
 
 function choiceCard(choice: Choice, index: number): string {
-  if (choice.kind === 'egg') {
-    const def = CREATURES[choice.creature];
-    return `<button class="choice" style="--card-color:${def.color}" data-action="choose" data-value="${index}">
-      <canvas data-sprite="${def.id}"></canvas>
-      <span class="choice-kind">Ovo · ${def.race}</span>
-      <span class="choice-name">${def.name}</span>
-      <span class="choice-detail"><i>${def.role}</i><br>${abilityText(def.ability)}</span>
-    </button>`;
-  }
   const look = UPGRADE_LOOK[choice.upgrade.effect.kind];
   return `<button class="choice" style="--card-color:${look.color}" data-action="choose" data-value="${index}">
     <span class="upgrade-icon">${look.icon}</span>
@@ -62,14 +51,8 @@ function shopFooter(run: RunState): string {
 
 /** Escolher 1 entre as opções sorteadas: ovo inicial ou recompensa de fim de onda (com loja). */
 export function showWaveChoices(run: RunState, reason: ChoiceReason, handlers: ChoiceHandlers): void {
-  const onlyEggs = run.choices.every((c) => c.kind === 'egg');
-  const title = reason === 'start' ? 'Escolha seu primeiro ovo' : `Onda ${run.wave} vencida!`;
-  const subtitle =
-    reason === 'start'
-      ? 'Uma criatura mística vai lutar ao seu lado.'
-      : onlyEggs
-        ? 'Um novo ovo está pronto para chocar.'
-        : 'Escolha uma recompensa.';
+  const title = `Onda ${run.wave} vencida!`;
+  const subtitle = 'Escolha uma recompensa.';
   showOverlay(
     `<div class="panel wide">
       <h2>${title}</h2>

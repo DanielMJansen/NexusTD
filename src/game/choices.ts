@@ -1,39 +1,21 @@
 import { CHOICES, NEXUS } from '../data/config';
-import { CREATURE_IDS } from '../data/creatures';
 import { RUN_UPGRADES } from '../data/upgrades';
 import { shuffle } from './random';
 import { startWave } from './spawning';
 import type { Choice, RunState } from './state';
 
-function eggChoices(state: RunState): Choice[] {
-  return CREATURE_IDS.filter((id) => !state.unlocked.has(id)).map((creature) => ({ kind: 'egg', creature }));
-}
-
-/** Início da run: escolher 1 ovo de criatura mística. Devolve false se não houver ovos a oferecer. */
-export function offerStartingEggs(state: RunState): boolean {
-  const eggs = eggChoices(state);
-  if (!CHOICES.startingEgg || !eggs.length) return false;
-  state.phase = 'choosing';
-  state.choiceReason = 'start';
-  state.choices = shuffle(eggs).slice(0, CHOICES.count);
-  state.events.push({ type: 'choicesOffered', reason: 'start', wave: state.wave });
-  return true;
-}
-
-/** Fim de onda: cura o Nexus e sorteia as opções. Após a onda 1, só ovos (se houver). */
+/** Fim de onda: cura o Nexus e sorteia as melhorias oferecidas. */
 export function offerChoices(state: RunState): void {
   state.phase = 'choosing';
   state.choiceReason = 'waveCleared';
-  state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + NEXUS.healBetweenWaves);
+  state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + NEXUS.healBetweenWaves + state.talents.nexusHeal);
   rollWaveChoices(state);
   state.events.push({ type: 'choicesOffered', reason: 'waveCleared', wave: state.wave });
 }
 
-/** Opções possíveis no fim da onda. Após a onda 1, só ovos (se houver). */
-export function waveChoicePool(state: RunState): Choice[] {
-  const eggs = eggChoices(state);
-  const upgrades: Choice[] = RUN_UPGRADES.map((upgrade) => ({ kind: 'upgrade', upgrade }));
-  return state.wave === 1 && eggs.length ? eggs : [...upgrades, ...eggs];
+/** Opções possíveis no fim da onda. */
+export function waveChoicePool(_state: RunState): Choice[] {
+  return RUN_UPGRADES.map((upgrade) => ({ kind: 'upgrade', upgrade }));
 }
 
 export function rollWaveChoices(state: RunState): void {
@@ -41,10 +23,6 @@ export function rollWaveChoices(state: RunState): void {
 }
 
 export function applyChoice(state: RunState, choice: Choice): void {
-  if (choice.kind === 'egg') {
-    state.unlocked.add(choice.creature);
-    return;
-  }
   const effect = choice.upgrade.effect;
   switch (effect.kind) {
     case 'damageMultiplier':

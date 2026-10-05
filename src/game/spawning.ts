@@ -30,6 +30,7 @@ export function startWave(state: RunState): void {
   state.spawnQueue = buildWaveQueue(state.wave);
   state.spawnTimer = 0;
   state.phase = 'playing';
+  state.wardReady = state.talents.nexusWard > 0;
   state.events.push({ type: 'waveStarted', wave: state.wave });
 }
 

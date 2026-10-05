@@ -105,6 +105,7 @@ export class SoundPlayer {
       case 'creaturePlaced':
         this.play('place');
         break;
+      case 'wardBlocked':
       case 'nexusHealed':
         this.play('heal');
         break;

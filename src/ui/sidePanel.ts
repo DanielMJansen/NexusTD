@@ -1,32 +1,44 @@
-import { CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
+import { CREATURES, type CreatureId } from '../data/creatures';
 import { creatureCost } from '../game/economy';
 import type { RunState } from '../game/state';
 import { drawPortrait } from '../render/portrait';
+import { gold } from './currency';
 import { abilityText, creatureStats } from './describe';
 
 interface Card {
   root: HTMLElement;
   portrait: HTMLCanvasElement;
   cost: HTMLElement;
-  lockNote: HTMLElement;
 }
 
 export interface SidePanelHandlers {
-  /** Botão do mouse pressionado sobre uma carta liberada. */
+  /** Botão do mouse pressionado sobre uma carta. */
   onCardPress(id: CreatureId): void;
   onPulse(): void;
 }
 
-/** Painel lateral: cartas das criaturas (bloqueadas aparecem como silhueta) e botão do Pulso. */
+/** Painel lateral: uma carta por criatura da equipe (atalhos 1–6) e o botão do Pulso. */
 export class SidePanel {
   private cards = new Map<CreatureId, Card>();
+  private team: readonly CreatureId[] = [];
+  private list = document.querySelector<HTMLElement>('#card-list')!;
   private pulseButton = document.querySelector<HTMLButtonElement>('#pulse-button')!;
   private pulseFill = this.pulseButton.querySelector<HTMLElement>('.pulse-fill')!;
   private pulseStatus = document.querySelector<HTMLElement>('#pulse-status')!;
 
-  constructor(handlers: SidePanelHandlers) {
-    const list = document.querySelector<HTMLElement>('#card-list')!;
-    CREATURE_IDS.forEach((id, index) => {
+  constructor(private readonly handlers: SidePanelHandlers) {
+    this.pulseButton.addEventListener('click', () => {
+      this.pulseButton.blur();
+      handlers.onPulse();
+    });
+  }
+
+  /** Remonta as cartas quando a equipe muda (nova run ou menu). */
+  private setTeam(team: readonly CreatureId[]): void {
+    this.team = [...team];
+    this.cards.clear();
+    this.list.innerHTML = '';
+    team.forEach((id, index) => {
       const def = CREATURES[id];
       const root = document.createElement('div');
       root.className = 'card';
@@ -45,57 +57,40 @@ export class SidePanel {
         <div class="tooltip">
           <h4>${def.race} ${def.name}</h4>
           <p class="role">${def.role}</p>
+          <p class="special">${def.description}</p>
           <dl>${stats}</dl>
           <p class="special">${abilityText(def.ability)}</p>
           <p class="special evolves">Nível 3: <b>${def.ascended.name}</b>. ${abilityText(def.ascended.ability)}</p>
-          <p class="special lock-note"></p>
         </div>`;
       root.addEventListener('pointerdown', (event) => {
         if (event.button !== 0) return;
         event.preventDefault();
-        handlers.onCardPress(id);
+        this.handlers.onCardPress(id);
       });
-      list.appendChild(root);
-      this.cards.set(id, {
-        root,
-        portrait: root.querySelector('canvas')!,
-        cost: root.querySelector('.card-cost')!,
-        lockNote: root.querySelector('.lock-note')!,
-      });
-    });
-
-    this.pulseButton.addEventListener('click', () => {
-      this.pulseButton.blur();
-      handlers.onPulse();
+      this.list.appendChild(root);
+      this.cards.set(id, { root, portrait: root.querySelector('canvas')!, cost: root.querySelector('.card-cost')! });
     });
   }
 
   update(run: RunState, selected: CreatureId | null, time: number): void {
+    if (run.team.length !== this.team.length || run.team.some((id, i) => id !== this.team[i])) this.setTeam(run.team);
     for (const [id, card] of this.cards) {
-      const unlocked = run.unlocked.has(id);
-      card.root.classList.toggle('locked', !unlocked);
+      const cost = creatureCost(run, id);
       card.root.classList.toggle('selected', selected === id);
-      if (unlocked) {
-        const cost = creatureCost(run, id);
-        setText(card.cost, `◉ ${cost}`);
-        card.cost.classList.toggle('too-expensive', cost > run.gold);
-        setText(card.lockNote, '');
-      } else {
-        setText(card.cost, '🔒 Ovo');
-        card.cost.classList.remove('too-expensive');
-        setText(card.lockNote, 'Bloqueada nesta run: chega por ovo ou desbloqueie com Essência no menu.');
-      }
-      drawPortrait(card.portrait, id, time + id.length, !unlocked);
+      setHtml(card.cost, gold(cost));
+      card.cost.classList.toggle('too-expensive', cost > run.gold);
+      drawPortrait(card.portrait, id, time + id.length);
     }
 
     const { remaining, cooldown } = run.pulse;
     const ready = remaining <= 0 && run.phase === 'playing';
     this.pulseFill.style.transform = `scaleX(${1 - remaining / cooldown})`;
     this.pulseButton.classList.toggle('ready', ready);
-    setText(this.pulseStatus, remaining > 0 ? `recarregando ${Math.ceil(remaining)} s` : 'pronto');
+    const status = remaining > 0 ? `recarregando ${Math.ceil(remaining)} s` : 'pronto';
+    if (this.pulseStatus.textContent !== status) this.pulseStatus.textContent = status;
   }
 }
 
-function setText(element: HTMLElement, text: string): void {
-  if (element.textContent !== text) element.textContent = text;
+function setHtml(element: HTMLElement, html: string): void {
+  if (element.innerHTML !== html) element.innerHTML = html;
 }

@@ -9,7 +9,7 @@ export function damageEnemy(state: RunState, enemy: Enemy, amount: number, sourc
   if (enemy.hp <= 0 && !enemy.dead) {
     enemy.dead = true;
     state.kills++;
-    state.gold += enemy.def.gold;
+    state.gold += Math.round(enemy.def.gold * (1 + state.talents.killGold));
     state.events.push({
       type: 'enemyKilled',
       enemy: enemy.def.id,
@@ -50,16 +50,16 @@ export function firePulse(state: RunState): boolean {
   const { hero } = state;
   state.pulse.remaining = state.pulse.cooldown;
   for (const enemy of state.enemies) {
-    if (distance(enemy, hero) < PULSE.radius) damageEnemy(state, enemy, PULSE.damage);
+    if (distance(enemy, hero) < state.pulse.radius) damageEnemy(state, enemy, PULSE.damage);
   }
-  state.events.push({ type: 'pulse', x: hero.x, y: hero.y });
+  state.events.push({ type: 'pulse', x: hero.x, y: hero.y, radius: state.pulse.radius });
   return true;
 }
 
 /** Move o herói (direção do teclado tem prioridade sobre o alvo de toque) e ataca. */
 export function updateHero(state: RunState, dt: number, direction: Point): void {
   const { hero } = state;
-  const step = HERO.speed * dt;
+  const step = HERO.speed * (1 + state.talents.heroSpeed) * dt;
   const startX = hero.x;
   const startY = hero.y;
   if (direction.x || direction.y) {
@@ -96,7 +96,7 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
     }
   }
   if (!target) return;
-  damageEnemy(state, target, HERO.damage * state.modifiers.damage);
+  damageEnemy(state, target, HERO.damage * state.modifiers.damage * (1 + state.talents.heroDamage));
   hero.attackTimer = HERO.cooldown / state.modifiers.attackSpeed;
   hero.lastAttackAt = state.time;
   if (!hero.moving) hero.facing = target.x >= hero.x ? 1 : -1;
