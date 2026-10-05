@@ -19,7 +19,6 @@ Jogo de **navegador para computador** (paisagem 16:9, mouse e teclado): Tower De
 - `audio/` — WebAudio sintetizado; tabela de sons em `sounds.ts`.
 - `save/` — `localStorage` chave `nx3` (versão 3), migra do `nx2` do protótipo.
 - `app.ts` liga tudo; `main.ts` só inicia.
-- `legacy/index.html` — protótipo antigo de arquivo único, só como referência (está quebrado: `ReferenceError` em `snd0` ao carregar).
 
 ## Regras de trabalho
 1. **Não invente requisitos.** Itens `TBD` ou `PROPOSTA` no GDD exigem perguntar antes de implementar.
