@@ -150,6 +150,17 @@ export class Effects {
         this.burst(event.x, event.y + 6, 14, color, 60, 0.7, 2.2, true, -50);
         break;
       }
+      case 'creatureEvolved': {
+        const def = CREATURES[event.creature];
+        this.ring(event.x, event.y + 6, 34, def.color, 0.6, 4);
+        this.ring(event.x, event.y + 6, 22, '#ffd25a', 0.45, 2.5);
+        this.burst(event.x, event.y, 22, '#ffd25a', 90, 0.8, 2.4, true, -70);
+        this.burst(event.x, event.y, 10, def.color, 60, 0.7, 2.6, true, -40);
+        const label = event.ascended ? `${def.ascended.name}!` : `Nível ${event.level}`;
+        this.text(event.x, event.y - 46, label, '#ffd25a', event.ascended ? 13 : 11);
+        if (event.ascended) this.shake = Math.max(this.shake, 3);
+        break;
+      }
       case 'creatureSold':
         this.burst(event.x, event.y, 12, '#8a80a0', 50, 0.6, 3.5, false, -20);
         this.text(event.x, event.y - 20, `+${event.refund}`, GOLD, 11);

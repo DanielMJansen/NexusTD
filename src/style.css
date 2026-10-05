@@ -658,3 +658,15 @@ button:disabled {
   height: 34px;
   flex: none;
 }
+
+.tooltip .evolves {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #ffffff1a;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.tooltip .evolves b {
+  color: var(--gold);
+}

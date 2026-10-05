@@ -1,6 +1,8 @@
 import { ARENA } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
-import { sellValue } from '../game/economy';
+import { MAX_CREATURE_LEVEL } from '../data/evolution';
+import { creatureName, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
+import { canEvolve, evolveCost, sellValue } from '../game/economy';
 import type { Creature, Enemy, Point, RunState } from '../game/state';
 import { drawAtmosphere, drawBackground, drawNexus } from './arena';
 import type { Effects } from './effects';
@@ -19,8 +21,15 @@ export interface InteractionView {
   placement: { creature: CreatureId; at: Point; valid: boolean } | null;
 }
 
-/** Botão "Vender" acima da criatura (também usado para detectar o clique). */
-export const SELL_BUTTON = { offsetY: -40, width: 64, height: 18 };
+export interface InspectButton {
+  action: 'evolve' | 'sell';
+  label: string;
+  enabled: boolean;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 export function drawFrame(
   ctx: CanvasRenderingContext2D,
@@ -50,7 +59,7 @@ export function drawFrame(
   layers.sort((a, b) => a.y - b.y);
   for (const layer of layers) layer.draw();
 
-  if (interaction.inspected) drawSellPrompt(ctx, state, interaction.inspected);
+  if (interaction.inspected) drawInspectPanel(ctx, state, interaction.inspected);
   if (interaction.placement) drawPlacementPreview(ctx, state, interaction.placement, time);
   effects.drawWorld(ctx, time);
   ctx.restore();
@@ -118,17 +127,42 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
     ctx.ellipse(creature.x, creature.y + 14, 15, 5, 0, 0, TAU);
     ctx.stroke();
   }
-  ctx.save();
-  if (frenzy) {
-    ctx.shadowColor = '#ff2a40';
-    ctx.shadowBlur = 16;
+  const ascended = isAscended(creature);
+  if (ascended) {
+    // aura dourada da forma evoluída
+    const glow = ctx.createRadialGradient(creature.x, creature.y + 4, 2, creature.x, creature.y + 4, 26);
+    glow.addColorStop(0, withAlpha(creature.def.color, 0.35 + Math.sin(time * 3) * 0.1));
+    glow.addColorStop(1, withAlpha(creature.def.color, 0));
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(creature.x, creature.y + 4, 26, 0, TAU);
+    ctx.fill();
   }
-  drawSprite(ctx, creature.def.id, creature.x, creature.y + hover, 1, {
+  ctx.save();
+  if (frenzy || ascended) {
+    ctx.shadowColor = frenzy ? '#ff2a40' : '#ffd25a';
+    ctx.shadowBlur = frenzy ? 16 : 5;
+  }
+  drawSprite(ctx, creature.def.id, creature.x, creature.y + hover, levelInfo(creature).scale, {
     time: time + creature.x * 0.01,
     facing: creature.facing,
     attack: attackStrength(state, creature.lastAttackAt),
+    level: creature.level,
   });
   ctx.restore();
+  if (creature.level > 1) drawLevelStars(ctx, creature.x, creature.y + 20, creature.level);
+}
+
+function drawLevelStars(ctx: CanvasRenderingContext2D, x: number, y: number, level: number): void {
+  ctx.font = '700 7px Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#0a0612';
+  const text = '★'.repeat(level - 1);
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = level >= MAX_CREATURE_LEVEL ? '#ffd25a' : '#e8e0f8';
+  ctx.fillText(text, x, y);
 }
 
 function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number): void {
@@ -167,24 +201,60 @@ function rangeCircle(ctx: CanvasRenderingContext2D, at: Point, radius: number, c
   ctx.setLineDash([]);
 }
 
-function drawSellPrompt(ctx: CanvasRenderingContext2D, state: RunState, creature: Creature): void {
-  rangeCircle(ctx, creature, creature.def.range * state.modifiers.range, '#ffffff88', '#ffffff0c');
+/** Painel sobre a criatura clicada: nome, nível e botões (também usado para detectar o clique). */
+export function inspectButtons(state: RunState, creature: Creature): InspectButton[] {
+  const width = 66;
+  const height = 18;
+  const y = creature.y - 52;
+  const sell = { action: 'sell' as const, label: `Vender +${sellValue(creature)}`, enabled: true };
+  const cost = evolveCost(creature);
+  if (cost === null) return [{ ...sell, x: creature.x - width / 2, y, width, height }];
+  return [
+    {
+      action: 'evolve',
+      label: `Evoluir ◉${cost}`,
+      enabled: canEvolve(state, creature),
+      x: creature.x - width - 2,
+      y,
+      width,
+      height,
+    },
+    { ...sell, x: creature.x + 2, y, width, height },
+  ];
+}
 
-  const { width, height, offsetY } = SELL_BUTTON;
-  const left = creature.x - width / 2;
-  const top = creature.y + offsetY - height / 2;
-  ctx.fillStyle = '#1c1430ee';
-  ctx.strokeStyle = '#f0c35a';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.roundRect(left, top, width, height, 6);
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle = '#ffd25a';
-  ctx.font = '700 9px Cinzel, Georgia, serif';
+function drawInspectPanel(ctx: CanvasRenderingContext2D, state: RunState, creature: Creature): void {
+  rangeCircle(ctx, creature, creatureRange(creature, state.modifiers), '#ffffff88', '#ffffff0c');
+
+  const buttons = inspectButtons(state, creature);
+  const top = buttons[0]!.y;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(`Vender +${sellValue(creature)}`, creature.x, top + height / 2 + 0.5);
+  ctx.lineJoin = 'round';
+  ctx.font = '700 10px Cinzel, Georgia, serif';
+  const stars = '★'.repeat(creature.level) + '☆'.repeat(MAX_CREATURE_LEVEL - creature.level);
+  const title = `${creatureName(creature)}  ${stars}`;
+  ctx.strokeStyle = '#0a0612';
+  ctx.lineWidth = 3;
+  ctx.strokeText(title, creature.x, top - 8);
+  ctx.fillStyle = isAscended(creature) ? '#ffd25a' : '#f0e6ff';
+  ctx.fillText(title, creature.x, top - 8);
+
+  for (const b of buttons) {
+    const evolve = b.action === 'evolve';
+    ctx.globalAlpha = b.enabled ? 1 : 0.5;
+    ctx.fillStyle = evolve ? '#2a1c48ee' : '#1c1430ee';
+    ctx.strokeStyle = evolve ? '#b98cff' : '#f0c35a';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.roundRect(b.x, b.y, b.width, b.height, 6);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = evolve ? '#e2c8ff' : '#ffd25a';
+    ctx.font = '700 8.5px Cinzel, Georgia, serif';
+    ctx.fillText(b.label, b.x + b.width / 2, b.y + b.height / 2 + 0.5);
+  }
+  ctx.globalAlpha = 1;
 }
 
 function drawPlacementPreview(

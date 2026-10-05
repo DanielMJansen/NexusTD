@@ -14,6 +14,7 @@ export type GameEvent =
   | { type: 'bossSpawned'; enemy: EnemyId }
   | { type: 'creaturePlaced'; creature: CreatureId; x: number; y: number }
   | { type: 'creatureSold'; x: number; y: number; refund: number }
+  | { type: 'creatureEvolved'; creature: CreatureId; x: number; y: number; level: number; ascended: boolean }
   | { type: 'choiceMade' }
   | { type: 'waveStarted'; wave: number }
   | { type: 'choicesOffered'; reason: 'start' | 'waveCleared'; wave: number }

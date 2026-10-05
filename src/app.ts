@@ -90,6 +90,8 @@ export class App {
       this.pulse();
     } else if (key === 'escape') {
       if (!this.pointer.cancel()) this.togglePause();
+    } else if (key === 'e') {
+      this.pointer.evolveInspected();
     } else if (key === 'p') {
       this.togglePause();
     } else if (/^[1-9]$/.test(key)) {

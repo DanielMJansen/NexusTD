@@ -13,7 +13,9 @@ export type CreatureAbility =
   /** Inimigos perto do alvo recebem parte do dano. */
   | { kind: 'splash'; radius: number; damageRatio: number }
   /** O alvo fica lento por um tempo. */
-  | { kind: 'slow'; speedMultiplier: number; duration: number };
+  | { kind: 'slow'; speedMultiplier: number; duration: number }
+  /** Ataca vários inimigos de uma vez (os mais próximos do Nexus). */
+  | { kind: 'multishot'; targets: number };
 
 export type CreatureUnlock = { kind: 'start' } | { kind: 'essence'; cost: number };
 
@@ -33,9 +35,11 @@ export interface CreatureDef {
   ability: CreatureAbility;
   /** Como começar a run com ela: já liberada ou comprada com Essência. */
   unlock: CreatureUnlock;
+  /** Forma evoluída no nível máximo: novo nome e habilidade turbinada. */
+  ascended: { name: string; ability: CreatureAbility };
 }
 
-// A ordem aqui é a ordem das cartas na barra.
+// A ordem aqui é a ordem das cartas no painel (e dos atalhos 1, 2, 3...).
 export const CREATURES: Record<CreatureId, CreatureDef> = {
   archer: {
     id: 'archer',
@@ -50,6 +54,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#8cf',
     ability: { kind: 'none' },
     unlock: { kind: 'start' },
+    ascended: { name: 'Patrulheiro', ability: { kind: 'multishot', targets: 2 } },
   },
   duelist: {
     id: 'duelist',
@@ -64,6 +69,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#e33',
     ability: { kind: 'frenzy', hitsToTrigger: 6, duration: 3, damageMultiplier: 1.5, attackSpeedMultiplier: 2 },
     unlock: { kind: 'essence', cost: 40 },
+    ascended: {
+      name: 'Conde Vampiro',
+      ability: { kind: 'frenzy', hitsToTrigger: 4, duration: 4, damageMultiplier: 1.8, attackSpeedMultiplier: 2 },
+    },
   },
   fireDragon: {
     id: 'fireDragon',
@@ -78,6 +87,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#f90',
     ability: { kind: 'splash', radius: 40, damageRatio: 0.6 },
     unlock: { kind: 'essence', cost: 80 },
+    ascended: { name: 'Dragão Ancião', ability: { kind: 'splash', radius: 60, damageRatio: 0.8 } },
   },
   iceDragon: {
     id: 'iceDragon',
@@ -92,7 +102,11 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#6cf',
     ability: { kind: 'slow', speedMultiplier: 0.5, duration: 1.5 },
     unlock: { kind: 'essence', cost: 80 },
+    ascended: { name: 'Dragão Glacial', ability: { kind: 'slow', speedMultiplier: 0.35, duration: 2.5 } },
   },
 };
 
 export const CREATURE_IDS = Object.keys(CREATURES) as CreatureId[];
+
+/** Criaturas místicas são as de raças não humanas (o ovo inicial só oferece estas). */
+export const isMystical = (def: CreatureDef): boolean => def.race !== 'Humano';

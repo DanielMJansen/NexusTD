@@ -64,6 +64,9 @@ export class SoundPlayer {
       case 'creaturePlaced':
         this.play('place');
         break;
+      case 'creatureEvolved':
+        this.play('evolve');
+        break;
       case 'creatureSold':
       case 'choiceMade':
         this.play('coin');

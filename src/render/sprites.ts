@@ -12,6 +12,8 @@ export interface SpritePose {
   /** Força do golpe: 1 no instante do ataque, caindo até 0. */
   attack?: number;
   moving?: boolean;
+  /** Nível de evolução; no nível máximo aparecem os acessórios da forma evoluída. */
+  level?: number;
 }
 
 const TAU = Math.PI * 2;
@@ -29,7 +31,7 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
   ctx.scale(scale * (pose.facing ?? 1), scale);
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
-  const p: Required<SpritePose> = { facing: 1, attack: 0, moving: false, ...pose };
+  const p: Required<SpritePose> = { facing: 1, attack: 0, moving: false, level: 1, ...pose };
   switch (id) {
     case 'hero':
       drawHero(ctx, p);
@@ -163,6 +165,10 @@ function blush(ctx: Ctx, x: number, y: number): void {
   ctx.fill();
 }
 
+/** Forma evoluída (nível máximo). */
+const ascended = (p: Required<SpritePose>) => p.level >= 3;
+const GOLD = '#f0c35a';
+
 const walk = (p: Required<SpritePose>, speed = 12) => (p.moving ? Math.sin(p.time * speed) : 0);
 
 // ---------- herói ----------
@@ -255,6 +261,7 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
   });
   shape(ctx, '#1a2a1e', () => ellipse(ctx, 2.5, hy + 0.5, 5.6, 5.4), 0);
   shape(ctx, radial(ctx, 3, hy + 1, 5, '#ffe2c8', '#e2b08a'), () => ellipse(ctx, 3, hy + 1.2, 4.6, 4.5), 0);
+  if (ascended(p)) shape(ctx, GOLD, () => ctx.roundRect(-6, hy - 5.5, 13, 2.2, 1), 0.8);
   eye(ctx, 1.6, hy + 0.6, 1.6, '#3a7a3a', 0.4);
   eye(ctx, 5, hy + 0.6, 1.6, '#3a7a3a', 0.4);
   blush(ctx, 0.5, hy + 3.4);
@@ -273,7 +280,7 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
   ctx.lineTo(nock.x, nock.y);
   ctx.lineTo(bottom.x, bottom.y);
   ctx.stroke();
-  line(ctx, '#a8703c', 2.4, () => ctx.arc(bx, by, r, -1.2, 1.2));
+  line(ctx, ascended(p) ? GOLD : '#a8703c', 2.4, () => ctx.arc(bx, by, r, -1.2, 1.2));
   if (pull > 0.2) {
     line(ctx, '#d8c8a8', 1.2, () => {
       ctx.moveTo(nock.x, nock.y);
@@ -345,6 +352,11 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
   ctx.stroke();
   shape(ctx, '#ffffff', () => poly(ctx, [2.6, hy + 4.4, 3.6, hy + 4.6, 3.1, hy + 6.2]), 0.5);
   shape(ctx, '#ffffff', () => poly(ctx, [4.6, hy + 4.4, 5.6, hy + 4.2, 5.2, hy + 5.9]), 0.5);
+  if (ascended(p)) {
+    shape(ctx, GOLD, () => poly(ctx, [-4.5, hy - 8, -5, hy - 13, -2, hy - 10.5, 0.5, hy - 14, 3, hy - 10.5, 6, hy - 13, 5.5, hy - 8]), 0.9);
+    shape(ctx, '#e0243a', () => circle(ctx, 0.5, hy - 10, 1), 0.5);
+    shape(ctx, GOLD, () => circle(ctx, 0, -3, 2), 0.8);
+  }
 }
 
 // ---------- dragões ----------
@@ -431,6 +443,13 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     ctx.quadraticCurveTo(2.5, y + 1.2, 6.5, y);
     ctx.stroke();
   }
+  if (ascended(p)) {
+    ctx.save();
+    ctx.shadowColor = c.breath;
+    ctx.shadowBlur = 8;
+    shape(ctx, c.breath, () => poly(ctx, [2.5, -1, 5, 2, 2.5, 5, 0, 2]), 0.8);
+    ctx.restore();
+  }
   dragonWing(ctx, c, flap, true);
 
   // cabeça
@@ -444,8 +463,9 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
       shape(ctx, '#ffffff', () => poly(ctx, [x, y, x - 5, y - 2, x - 1, y - 4]), 1);
     }
   }
-  shape(ctx, c.horn, () => poly(ctx, [-1, hy - 6, -8, hy - 13, 2, hy - 8]), 1);
-  shape(ctx, c.horn, () => poly(ctx, [3, hy - 7, -1, hy - 15, 6, hy - 8]), 1);
+  const horn = ascended(p) ? 1.5 : 1;
+  shape(ctx, ascended(p) ? GOLD : c.horn, () => poly(ctx, [-1, hy - 6, -1 - 7 * horn, hy - 6 - 7 * horn, 2, hy - 8]), 1);
+  shape(ctx, ascended(p) ? GOLD : c.horn, () => poly(ctx, [3, hy - 7, 3 - 4 * horn, hy - 7 - 8 * horn, 6, hy - 8]), 1);
   shape(ctx, radial(ctx, 4, hy, 9, c.body, c.bodyDark), () => circle(ctx, 4, hy, 8.5));
   const jaw = p.attack * 3;
   shape(ctx, radial(ctx, 11, hy + 2, 6, c.body, c.bodyDark), () => ellipse(ctx, 11, hy + 2.5, 6, 4.2));

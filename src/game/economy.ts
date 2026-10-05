@@ -1,5 +1,7 @@
 import { ARENA, ECONOMY, NEXUS } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
+import { EVOLUTION_LEVELS } from '../data/evolution';
+import { isAscended } from './creatureStats';
 import { distance, type Creature, type Point, type RunState } from './state';
 
 /** Custo = base × crescimento^(cópias da mesma classe em campo). Vender reduz o custo da próxima. */
@@ -30,10 +32,40 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
     hitCount: 0,
     frenzyTimer: 0,
     paid: cost,
+    level: 1,
     facing: at.x > ARENA.center.x ? -1 : 1,
     lastAttackAt: -Infinity,
   });
   state.events.push({ type: 'creaturePlaced', creature: id, x: at.x, y: at.y });
+  return true;
+}
+
+/** Custo para evoluir ao próximo nível; null se já está no máximo. */
+export function evolveCost(creature: Creature): number | null {
+  const next = EVOLUTION_LEVELS[creature.level];
+  return next ? Math.round(creature.def.baseCost * next.costMultiplier) : null;
+}
+
+export function canEvolve(state: RunState, creature: Creature): boolean {
+  const cost = evolveCost(creature);
+  return state.phase === 'playing' && cost !== null && state.gold >= cost;
+}
+
+export function evolveCreature(state: RunState, creature: Creature): boolean {
+  const cost = evolveCost(creature);
+  if (cost === null || !canEvolve(state, creature)) return false;
+  state.gold -= cost;
+  creature.paid += cost;
+  creature.level++;
+  creature.hitCount = 0;
+  state.events.push({
+    type: 'creatureEvolved',
+    creature: creature.def.id,
+    x: creature.x,
+    y: creature.y,
+    level: creature.level,
+    ascended: isAscended(creature),
+  });
   return true;
 }
 

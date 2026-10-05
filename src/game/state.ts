@@ -28,8 +28,10 @@ export interface Creature extends Point {
   /** Golpes acumulados para o frenesi. */
   hitCount: number;
   frenzyTimer: number;
-  /** Ouro pago, base do valor de venda. */
+  /** Ouro pago (invocação + evoluções), base do valor de venda. */
   paid: number;
+  /** Nível de evolução, de 1 até MAX_CREATURE_LEVEL. */
+  level: number;
   /** Dicas visuais: lado para onde olha (1 direita, -1 esquerda) e momento do último ataque. */
   facing: 1 | -1;
   lastAttackAt: number;

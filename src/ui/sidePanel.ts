@@ -46,7 +46,8 @@ export class SidePanel {
           <h4>${def.race} ${def.name}</h4>
           <p class="role">${def.role}</p>
           <dl>${stats}</dl>
-          <p class="special">${abilityText(def)}</p>
+          <p class="special">${abilityText(def.ability)}</p>
+          <p class="special evolves">Nível 3: <b>${def.ascended.name}</b>. ${abilityText(def.ascended.ability)}</p>
           <p class="special lock-note"></p>
         </div>`;
       root.addEventListener('pointerdown', (event) => {

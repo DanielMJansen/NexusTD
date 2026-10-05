@@ -23,7 +23,7 @@ function choiceCard(choice: Choice, index: number): string {
       <canvas data-sprite="${def.id}"></canvas>
       <span class="choice-kind">Ovo · ${def.race}</span>
       <span class="choice-name">${def.name}</span>
-      <span class="choice-detail"><i>${def.role}</i><br>${abilityText(def)}</span>
+      <span class="choice-detail"><i>${def.role}</i><br>${abilityText(def.ability)}</span>
     </button>`;
   }
   const look = UPGRADE_LOOK[choice.upgrade.effect.kind];

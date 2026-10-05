@@ -1,8 +1,8 @@
 import { ARENA } from '../data/config';
 import type { CreatureId } from '../data/creatures';
-import { placeCreature, sellCreature } from '../game/economy';
+import { evolveCreature, placeCreature, sellCreature } from '../game/economy';
 import { distance, type Point, type RunState } from '../game/state';
-import { SELL_BUTTON } from '../render/draw';
+import { inspectButtons } from '../render/draw';
 import type { Interaction } from './interaction';
 
 /** Raio do clique para selecionar uma criatura em campo. */
@@ -23,6 +23,8 @@ export interface PointerControls {
   toggleCard(id: CreatureId): void;
   /** Cancela carta escolhida ou criatura inspecionada. Devolve false se não havia nada. */
   cancel(): boolean;
+  /** Evolui a criatura inspecionada (atalho de teclado). */
+  evolveInspected(): void;
 }
 
 /**
@@ -88,8 +90,15 @@ export function attachPointer({ canvas, interaction, getRun, isActive }: Pointer
 
     const inspected = interaction.inspected;
     if (inspected) {
+      const button = inspectButtons(run, inspected).find(
+        (b) => point.x >= b.x && point.x <= b.x + b.width && point.y >= b.y && point.y <= b.y + b.height,
+      );
+      if (button?.action === 'evolve') {
+        evolveCreature(run, inspected);
+        return;
+      }
       interaction.inspected = null;
-      if (isOnSellButton(point, inspected)) {
+      if (button?.action === 'sell') {
         sellCreature(run, inspected);
         return;
       }
@@ -133,13 +142,9 @@ export function attachPointer({ canvas, interaction, getRun, isActive }: Pointer
     pressCard: (id) => select(id, true),
     toggleCard: (id) => select(id, false),
     cancel,
+    evolveInspected: () => {
+      if (isActive() && interaction.inspected) evolveCreature(getRun(), interaction.inspected);
+    },
   };
-}
-
-function isOnSellButton(point: Point, creature: Point): boolean {
-  return (
-    Math.abs(point.x - creature.x) < SELL_BUTTON.width / 2 + 2 &&
-    Math.abs(point.y - (creature.y + SELL_BUTTON.offsetY)) < SELL_BUTTON.height / 2 + 1
-  );
 }
 

@@ -8,7 +8,7 @@ export interface SoundDef {
   wave: OscillatorType;
 }
 
-export type SoundId = CreatureId | 'kill' | 'coin' | 'place' | 'pulse' | 'hurt' | 'boss';
+export type SoundId = CreatureId | 'kill' | 'coin' | 'place' | 'pulse' | 'hurt' | 'boss' | 'evolve';
 
 export const SOUNDS: Record<SoundId, SoundDef> = {
   archer: { from: 600, to: 300, duration: 0.05, wave: 'triangle' },
@@ -21,4 +21,5 @@ export const SOUNDS: Record<SoundId, SoundDef> = {
   pulse: { from: 100, to: 500, duration: 0.3, wave: 'sawtooth' },
   hurt: { from: 90, to: 50, duration: 0.2, wave: 'sawtooth' },
   boss: { from: 70, to: 40, duration: 0.5, wave: 'sawtooth' },
+  evolve: { from: 440, to: 1760, duration: 0.4, wave: 'triangle' },
 };

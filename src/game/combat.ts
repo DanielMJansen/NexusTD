@@ -1,4 +1,5 @@
 import { ARENA, HERO, PULSE } from '../data/config';
+import { creatureAbility, creatureDamage, creatureRange } from './creatureStats';
 import { distance, type Enemy, type Point, type RunState } from './state';
 
 /** Aplica um golpe, já descontando a armadura. Dá a recompensa só uma vez. */
@@ -79,7 +80,10 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
   state.events.push({ type: 'shot', source: 'hero', from: { x: hero.x, y: hero.y }, to: { x: target.x, y: target.y } });
 }
 
-/** Cada criatura ataca o inimigo mais próximo do Nexus dentro do seu alcance. */
+/**
+ * Cada criatura ataca o inimigo mais próximo do Nexus dentro do seu alcance
+ * (ou os N mais próximos, com multi-tiro).
+ */
 export function updateCreatures(state: RunState, dt: number): void {
   const { modifiers } = state;
   for (const creature of state.creatures) {
@@ -88,24 +92,19 @@ export function updateCreatures(state: RunState, dt: number): void {
     if (creature.attackTimer > 0) continue;
 
     const { def } = creature;
-    const range = def.range * modifiers.range;
-    let target: Enemy | null = null;
-    let best = Infinity;
-    for (const enemy of state.enemies) {
-      if (enemy.dead || distance(enemy, creature) > range) continue;
-      const toNexus = distance(enemy, ARENA.center);
-      if (toNexus < best) {
-        best = toNexus;
-        target = enemy;
-      }
-    }
+    const ability = creatureAbility(creature);
+    const range = creatureRange(creature, modifiers);
+    const inRange = state.enemies
+      .filter((enemy) => !enemy.dead && distance(enemy, creature) <= range)
+      .sort((a, b) => distance(a, ARENA.center) - distance(b, ARENA.center));
+    const targets = inRange.slice(0, ability.kind === 'multishot' ? ability.targets : 1);
+    const target = targets[0];
     if (!target) continue;
 
-    const ability = def.ability;
     const inFrenzy = ability.kind === 'frenzy' && creature.frenzyTimer > 0;
-    const damage = def.damage * modifiers.damage * (inFrenzy ? ability.damageMultiplier : 1);
+    const damage = creatureDamage(creature, modifiers) * (inFrenzy ? ability.damageMultiplier : 1);
     creature.attackTimer = def.cooldown / modifiers.attackSpeed / (inFrenzy ? ability.attackSpeedMultiplier : 1);
-    damageEnemy(state, target, damage);
+    for (const t of targets) damageEnemy(state, t, damage);
     creature.lastAttackAt = state.time;
     creature.facing = target.x >= creature.x ? 1 : -1;
 
@@ -127,15 +126,18 @@ export function updateCreatures(state: RunState, dt: number): void {
           creature.frenzyTimer = ability.duration;
         }
         break;
+      case 'multishot':
       case 'none':
         break;
     }
 
-    state.events.push({
-      type: 'shot',
-      source: def.id,
-      from: { x: creature.x, y: creature.y },
-      to: { x: target.x, y: target.y },
-    });
+    for (const t of targets) {
+      state.events.push({
+        type: 'shot',
+        source: def.id,
+        from: { x: creature.x, y: creature.y },
+        to: { x: t.x, y: t.y },
+      });
+    }
   }
 }
