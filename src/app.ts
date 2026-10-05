@@ -103,9 +103,9 @@ export class App {
     this.effects.handle(event);
     this.sound.handle(event);
     switch (event.type) {
-      case 'waveCleared':
+      case 'choicesOffered':
         resetInteraction(this.interaction);
-        showWaveChoices(this.run, (index) => {
+        showWaveChoices(this.run, event.reason, (index) => {
           chooseOption(this.run, index);
           hideOverlay();
         });

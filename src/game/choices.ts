@@ -1,22 +1,33 @@
-import { BETWEEN_WAVES, NEXUS } from '../data/config';
+import { CHOICES, NEXUS } from '../data/config';
 import { CREATURE_IDS } from '../data/creatures';
 import { RUN_UPGRADES } from '../data/upgrades';
 import { shuffle } from './random';
 import { startWave } from './spawning';
 import type { Choice, RunState } from './state';
 
+function eggChoices(state: RunState): Choice[] {
+  return CREATURE_IDS.filter((id) => !state.unlocked.has(id)).map((creature) => ({ kind: 'egg', creature }));
+}
+
+/** Início da run: escolher 1 ovo de criatura mística. Devolve false se não houver ovos a oferecer. */
+export function offerStartingEggs(state: RunState): boolean {
+  const eggs = eggChoices(state);
+  if (!CHOICES.startingEgg || !eggs.length) return false;
+  state.phase = 'choosing';
+  state.choices = shuffle(eggs).slice(0, CHOICES.count);
+  state.events.push({ type: 'choicesOffered', reason: 'start', wave: state.wave });
+  return true;
+}
+
 /** Fim de onda: cura o Nexus e sorteia as opções. Após a onda 1, só ovos (se houver). */
 export function offerChoices(state: RunState): void {
   state.phase = 'choosing';
   state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + NEXUS.healBetweenWaves);
-  const eggs: Choice[] = CREATURE_IDS.filter((id) => !state.unlocked.has(id)).map((creature) => ({
-    kind: 'egg',
-    creature,
-  }));
+  const eggs = eggChoices(state);
   const upgrades: Choice[] = RUN_UPGRADES.map((upgrade) => ({ kind: 'upgrade', upgrade }));
   const pool = state.wave === 1 && eggs.length ? eggs : [...upgrades, ...eggs];
-  state.choices = shuffle(pool).slice(0, BETWEEN_WAVES.choices);
-  state.events.push({ type: 'waveCleared', wave: state.wave });
+  state.choices = shuffle(pool).slice(0, CHOICES.count);
+  state.events.push({ type: 'choicesOffered', reason: 'waveCleared', wave: state.wave });
 }
 
 export function applyChoice(state: RunState, choice: Choice): void {

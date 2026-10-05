@@ -15,5 +15,5 @@ export type GameEvent =
   | { type: 'creatureSold'; x: number; y: number; refund: number }
   | { type: 'choiceMade' }
   | { type: 'waveStarted'; wave: number }
-  | { type: 'waveCleared'; wave: number }
+  | { type: 'choicesOffered'; reason: 'start' | 'waveCleared'; wave: number }
   | { type: 'runEnded'; result: RunResult };

@@ -1,6 +1,6 @@
 import { ARENA, ECONOMY, NEXUS, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
-import { offerChoices } from './choices';
+import { offerChoices, offerStartingEggs } from './choices';
 import { updateCreatures, updateHero } from './combat';
 import { spawnEnemy, spawnInterval, startWave } from './spawning';
 import { createRun, type Point, type RunSetup, type RunState } from './state';
@@ -12,7 +12,7 @@ export interface FrameInput {
 
 export function startRun(setup: RunSetup): RunState {
   const state = createRun(setup);
-  startWave(state);
+  if (!offerStartingEggs(state)) startWave(state);
   return state;
 }
 

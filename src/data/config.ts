@@ -42,8 +42,11 @@ export const ECONOMY = {
   sellRefund: 0.6,
 };
 
-export const BETWEEN_WAVES = {
-  choices: 3,
+/** Escolhas de 1 entre N (ovos e melhorias). */
+export const CHOICES = {
+  count: 3,
+  /** A run começa com a escolha de um ovo de criatura mística. */
+  startingEgg: true,
 };
 
 /** Essência = 3 × onda + 1 a cada 5 abates + 30 se vencer. */
