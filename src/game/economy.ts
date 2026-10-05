@@ -30,8 +30,10 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
     hitCount: 0,
     frenzyTimer: 0,
     paid: cost,
+    facing: at.x > ARENA.center.x ? -1 : 1,
+    lastAttackAt: -Infinity,
   });
-  state.events.push({ type: 'creaturePlaced', x: at.x, y: at.y });
+  state.events.push({ type: 'creaturePlaced', creature: id, x: at.x, y: at.y });
   return true;
 }
 

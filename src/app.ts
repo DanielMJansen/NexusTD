@@ -1,6 +1,6 @@
 import { SoundPlayer } from './audio/audio';
-import { SIMULATION } from './data/config';
-import type { CreatureId } from './data/creatures';
+import { GAME_TITLE, SIMULATION } from './data/config';
+import { CREATURE_IDS, type CreatureId } from './data/creatures';
 import type { MetaUpgradeId } from './data/upgrades';
 import { chooseOption } from './game/choices';
 import { firePulse } from './game/combat';
@@ -10,16 +10,17 @@ import { createRun, type RunState } from './game/state';
 import { startRun, updateRun } from './game/update';
 import { createInteraction, interactionView, resetInteraction } from './input/interaction';
 import { Keyboard } from './input/keyboard';
-import { attachPointer } from './input/pointer';
+import { attachPointer, type PointerControls } from './input/pointer';
 import { drawFrame } from './render/draw';
 import { Effects } from './render/effects';
+import { fitArenaCanvas } from './render/viewport';
 import { loadProfile, saveProfile } from './save/save';
-import { CardBar } from './ui/cards';
 import { updateHud } from './ui/hud';
 import { showMenu } from './ui/menu';
-import { hideOverlay } from './ui/overlay';
+import { animateOverlay, hideOverlay } from './ui/overlay';
 import { showPause } from './ui/pause';
 import { showRunEnd } from './ui/runEnd';
+import { SidePanel } from './ui/sidePanel';
 import { showWaveChoices } from './ui/waveChoices';
 
 type Mode = 'menu' | 'run';
@@ -32,43 +33,43 @@ export class App {
   private paused = false;
   private lastFrame = 0;
 
+  private readonly canvas: HTMLCanvasElement;
   private readonly ctx: CanvasRenderingContext2D;
   private readonly effects = new Effects();
   private readonly interaction = createInteraction();
   private readonly sound = new SoundPlayer();
   private readonly keyboard: Keyboard;
-  private readonly cards: CardBar;
+  private readonly pointer: PointerControls;
+  private readonly panel: SidePanel;
   private readonly muteButton: HTMLButtonElement;
 
   constructor() {
-    const canvas = document.querySelector<HTMLCanvasElement>('#arena')!;
-    this.ctx = canvas.getContext('2d')!;
+    this.canvas = document.querySelector<HTMLCanvasElement>('#arena')!;
+    this.ctx = this.canvas.getContext('2d')!;
     this.run = createRun(runSetup(this.profile));
+    document.querySelector('#brand')!.textContent = GAME_TITLE;
 
-    this.keyboard = new Keyboard((key) => {
-      this.sound.unlock();
-      if (key === 'p' || key === 'escape') this.togglePause();
-    });
-    addEventListener('pointerdown', () => this.sound.unlock());
-
-    attachPointer({
-      canvas,
+    this.pointer = attachPointer({
+      canvas: this.canvas,
       interaction: this.interaction,
       getRun: () => this.run,
       isActive: () => this.isPlaying(),
     });
+    this.keyboard = new Keyboard((key, event) => this.onKey(key, event));
+    addEventListener('pointerdown', () => this.sound.unlock());
 
-    this.cards = new CardBar(
-      document.querySelector<HTMLElement>('#card-bar')!,
-      (id) => this.selectCard(id),
-      () => {
-        if (this.isPlaying()) firePulse(this.run);
-      },
-    );
+    this.panel = new SidePanel({
+      onCardPress: (id) => this.pointer.pressCard(id),
+      onPulse: () => this.pulse(),
+    });
 
-    document.querySelector('#pause-button')!.addEventListener('click', () => this.togglePause());
+    document.querySelector('#pause-button')!.addEventListener('click', (event) => {
+      (event.currentTarget as HTMLElement).blur();
+      this.togglePause();
+    });
     this.muteButton = document.querySelector<HTMLButtonElement>('#mute-button')!;
     this.muteButton.addEventListener('click', () => {
+      this.muteButton.blur();
       this.muteButton.textContent = this.sound.toggleMute() ? '🔇' : '🔊';
     });
   }
@@ -82,6 +83,25 @@ export class App {
     return this.mode === 'run' && this.run.phase === 'playing' && !this.paused;
   }
 
+  private onKey(key: string, event: KeyboardEvent): void {
+    this.sound.unlock();
+    if (key === ' ') {
+      event.preventDefault();
+      this.pulse();
+    } else if (key === 'escape') {
+      if (!this.pointer.cancel()) this.togglePause();
+    } else if (key === 'p') {
+      this.togglePause();
+    } else if (/^[1-9]$/.test(key)) {
+      const id = CREATURE_IDS[Number(key) - 1];
+      if (id) this.pointer.toggleCard(id);
+    }
+  }
+
+  private pulse(): void {
+    if (this.isPlaying()) firePulse(this.run);
+  }
+
   private frame(now: number): void {
     const dt = Math.min(SIMULATION.maxFrameTime, (now - this.lastFrame) / 1000 || 0);
     this.lastFrame = now;
@@ -93,9 +113,11 @@ export class App {
     }
     for (const event of this.run.events.splice(0)) this.handleEvent(event);
 
-    drawFrame(this.ctx, this.run, this.effects, interactionView(this.interaction), time);
+    fitArenaCanvas(this.canvas, this.ctx);
+    drawFrame(this.ctx, this.run, this.effects, interactionView(this.interaction, this.run), time);
     updateHud(this.run);
-    this.cards.update(this.run, this.interaction.selectedCard, time);
+    this.panel.update(this.run, this.interaction.selectedCard, time);
+    animateOverlay(time);
     requestAnimationFrame((t) => this.frame(t));
   }
 
@@ -124,7 +146,7 @@ export class App {
   private openMenu(): void {
     this.mode = 'menu';
     this.paused = false;
-    // Arena vazia ao fundo, já com as criaturas iniciais do perfil nas cartas.
+    // Arena vazia ao fundo, já com as criaturas iniciais do perfil no painel.
     this.run = createRun(runSetup(this.profile));
     this.effects.clear();
     resetInteraction(this.interaction);
@@ -143,15 +165,11 @@ export class App {
   }
 
   private startRun(): void {
-    this.run = startRun(runSetup(this.profile));
-    this.mode = 'run';
     this.effects.clear();
     resetInteraction(this.interaction);
     hideOverlay();
-  }
-
-  private selectCard(id: CreatureId): void {
-    this.interaction.selectedCard = this.interaction.selectedCard === id ? null : id;
+    this.mode = 'run';
+    this.run = startRun(runSetup(this.profile));
   }
 
   private togglePause(): void {

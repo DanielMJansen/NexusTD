@@ -2,10 +2,11 @@
 
 export const GAME_TITLE = 'NEXUS';
 
+/** Mundo do jogo em unidades lógicas (16:9); o canvas escala para a tela. */
 export const ARENA = {
-  width: 360,
-  height: 480,
-  center: { x: 180, y: 240 },
+  width: 640,
+  height: 360,
+  center: { x: 320, y: 180 },
 };
 
 export const NEXUS = {

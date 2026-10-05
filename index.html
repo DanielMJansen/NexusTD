@@ -2,22 +2,57 @@
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Nexus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap"
+    />
   </head>
   <body>
-    <header id="top-bar">
-      <span id="hud"></span>
-      <span class="top-buttons">
-        <button id="pause-button" type="button" aria-label="Pausar">⏸</button>
-        <button id="mute-button" type="button" aria-label="Som">🔊</button>
-      </span>
-    </header>
-    <main id="stage">
-      <canvas id="arena" width="360" height="480"></canvas>
-      <div id="overlay"></div>
-    </main>
-    <nav id="card-bar"></nav>
+    <div id="app">
+      <header id="top-bar">
+        <div id="brand"></div>
+        <div id="hud">
+          <div class="chip" title="Onda"><span class="chip-icon">☠</span><span id="hud-wave"></span></div>
+          <div class="chip gold" title="Ouro"><span class="chip-icon">◉</span><span id="hud-gold"></span></div>
+          <div class="chip nexus" title="Vida do Nexus">
+            <span class="chip-icon">◆</span>
+            <div class="bar"><div id="hud-nexus-bar"></div><span id="hud-nexus"></span></div>
+          </div>
+          <div class="chip" title="Criaturas em campo"><span class="chip-icon">✦</span><span id="hud-creatures"></span></div>
+        </div>
+        <div class="top-buttons">
+          <button id="pause-button" class="icon-button" type="button" title="Pausar (P / Esc)">❚❚</button>
+          <button id="mute-button" class="icon-button" type="button" title="Som">🔊</button>
+        </div>
+      </header>
+      <div id="layout">
+        <main id="stage">
+          <canvas id="arena"></canvas>
+          <div id="overlay"></div>
+        </main>
+        <aside id="side-panel">
+          <h2>Criaturas</h2>
+          <div id="card-list"></div>
+          <button id="pulse-button" type="button" title="Pulso do herói (Espaço)">
+            <span class="pulse-fill"></span>
+            <span class="pulse-label"><b>Pulso</b><small id="pulse-status"></small></span>
+            <kbd>Espaço</kbd>
+          </button>
+          <dl class="controls">
+            <dt>WASD / setas</dt><dd>mover o herói</dd>
+            <dt>Clique no chão</dt><dd>guiar o herói</dd>
+            <dt>1–4 ou arrastar</dt><dd>invocar criatura</dd>
+            <dt>Clique na criatura</dt><dd>vender</dd>
+            <dt>Botão direito</dt><dd>cancelar</dd>
+            <dt>P / Esc</dt><dd>pausar</dd>
+          </dl>
+        </aside>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

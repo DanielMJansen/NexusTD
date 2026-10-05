@@ -4,11 +4,19 @@ import { distance, type Enemy, type Point, type RunState } from './state';
 /** Aplica um golpe, já descontando a armadura. Dá a recompensa só uma vez. */
 export function damageEnemy(state: RunState, enemy: Enemy, amount: number): void {
   enemy.hp -= Math.max(1, amount - enemy.def.armor);
+  enemy.lastHitAt = state.time;
   if (enemy.hp <= 0 && !enemy.dead) {
     enemy.dead = true;
     state.kills++;
     state.gold += enemy.def.gold;
-    state.events.push({ type: 'enemyKilled', x: enemy.x, y: enemy.y, gold: enemy.def.gold, color: enemy.def.color });
+    state.events.push({
+      type: 'enemyKilled',
+      enemy: enemy.def.id,
+      x: enemy.x,
+      y: enemy.y,
+      gold: enemy.def.gold,
+      color: enemy.def.color,
+    });
   }
 }
 
@@ -28,6 +36,8 @@ export function firePulse(state: RunState): boolean {
 export function updateHero(state: RunState, dt: number, direction: Point): void {
   const { hero } = state;
   const step = HERO.speed * dt;
+  const startX = hero.x;
+  const startY = hero.y;
   if (direction.x || direction.y) {
     const length = Math.hypot(direction.x, direction.y);
     hero.x += (direction.x / length) * step;
@@ -45,6 +55,9 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
   const margin = HERO.edgeMargin;
   hero.x = Math.min(ARENA.width - margin, Math.max(margin, hero.x));
   hero.y = Math.min(ARENA.height - margin, Math.max(margin, hero.y));
+  const movedX = hero.x - startX;
+  hero.moving = Math.hypot(movedX, hero.y - startY) > 0.01;
+  if (Math.abs(movedX) > 0.01) hero.facing = movedX > 0 ? 1 : -1;
 
   hero.attackTimer -= dt;
   if (hero.attackTimer > 0) return;
@@ -61,6 +74,8 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
   if (!target) return;
   damageEnemy(state, target, HERO.damage * state.modifiers.damage);
   hero.attackTimer = HERO.cooldown / state.modifiers.attackSpeed;
+  hero.lastAttackAt = state.time;
+  if (!hero.moving) hero.facing = target.x >= hero.x ? 1 : -1;
   state.events.push({ type: 'shot', source: 'hero', from: { x: hero.x, y: hero.y }, to: { x: target.x, y: target.y } });
 }
 
@@ -91,6 +106,8 @@ export function updateCreatures(state: RunState, dt: number): void {
     const damage = def.damage * modifiers.damage * (inFrenzy ? ability.damageMultiplier : 1);
     creature.attackTimer = def.cooldown / modifiers.attackSpeed / (inFrenzy ? ability.attackSpeedMultiplier : 1);
     damageEnemy(state, target, damage);
+    creature.lastAttackAt = state.time;
+    creature.facing = target.x >= creature.x ? 1 : -1;
 
     switch (ability.kind) {
       case 'splash':

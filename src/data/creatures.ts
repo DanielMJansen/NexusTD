@@ -21,6 +21,8 @@ export interface CreatureDef {
   id: CreatureId;
   name: string;
   race: string;
+  /** Papel na defesa (GDD seção 4). */
+  role: string;
   icon: string;
   baseCost: number;
   damage: number;
@@ -39,6 +41,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     id: 'archer',
     name: 'Arqueiro',
     race: 'Humano',
+    role: 'DPS à distância',
     icon: '🏹',
     baseCost: 15,
     damage: 7,
@@ -52,6 +55,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     id: 'duelist',
     name: 'Duelista',
     race: 'Vampiro',
+    role: 'DPS alvo único',
     icon: '🧛',
     baseCost: 20,
     damage: 8,
@@ -65,6 +69,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     id: 'fireDragon',
     name: 'Fogo',
     race: 'Dragão',
+    role: 'Área',
     icon: '🐉',
     baseCost: 30,
     damage: 14,
@@ -78,6 +83,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     id: 'iceDragon',
     name: 'Gelo',
     race: 'Dragão',
+    role: 'Controle',
     icon: '🐲',
     baseCost: 25,
     damage: 4,

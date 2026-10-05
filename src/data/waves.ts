@@ -16,8 +16,8 @@ export interface WaveRules {
   fallbackEnemy: EnemyId;
   /** Inimigos extras adicionados ao fim da fila de uma onda. */
   bosses: { wave: number; enemy: EnemyId }[];
-  /** Distância do Nexus em que os inimigos surgem (fora da tela). */
-  spawnRadius: number;
+  /** Distância além da borda da tela em que os inimigos surgem. */
+  spawnMargin: number;
 }
 
 export const WAVES: WaveRules = {
@@ -31,5 +31,5 @@ export const WAVES: WaveRules = {
   ],
   fallbackEnemy: 'zombie',
   bosses: [{ wave: 10, enemy: 'ogreKing' }],
-  spawnRadius: 270,
+  spawnMargin: 24,
 };

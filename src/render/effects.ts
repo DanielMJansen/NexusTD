@@ -1,9 +1,13 @@
-import { PULSE } from '../data/config';
-import type { CreatureId } from '../data/creatures';
+import { ARENA, PULSE } from '../data/config';
+import { CREATURES, type CreatureId } from '../data/creatures';
+import { ENEMIES, type EnemyId } from '../data/enemies';
+import { WAVES } from '../data/waves';
 import type { GameEvent } from '../game/events';
 import type { Point } from '../game/state';
+import { drawSprite } from './sprites';
 
 const TAU = Math.PI * 2;
+const GOLD = '#ffd25a';
 
 interface Shot {
   source: CreatureId | 'hero';
@@ -11,77 +15,144 @@ interface Shot {
   to: Point;
   duration: number;
   remaining: number;
-}
-
-interface Ring extends Point {
-  duration: number;
-  remaining: number;
+  trailTimer: number;
 }
 
 interface Particle extends Point {
   vx: number;
   vy: number;
-  remaining: number;
+  life: number;
+  maxLife: number;
+  size: number;
   color: string;
+  gravity: number;
+  /** Mistura aditiva (brilho). */
+  glow: boolean;
+}
+
+interface Ring extends Point {
+  life: number;
+  maxLife: number;
+  radius: number;
+  color: string;
+  width: number;
+}
+
+interface Corpse extends Point {
+  enemy: EnemyId;
+  life: number;
+  maxLife: number;
 }
 
 interface FloatingText extends Point {
   text: string;
   color: string;
-  remaining: number;
+  life: number;
+  maxLife: number;
+  size: number;
 }
 
-const GOLD_COLOR = '#fc6';
+interface Banner {
+  text: string;
+  subtitle: string;
+  color: string;
+  life: number;
+  maxLife: number;
+}
 
-/** Efeitos puramente visuais (projéteis, partículas, textos), alimentados pelos eventos da simulação. */
+const random = (min: number, max: number) => min + Math.random() * (max - min);
+
+/** Efeitos puramente visuais, alimentados pelos eventos da simulação. */
 export class Effects {
   private shots: Shot[] = [];
-  private rings: Ring[] = [];
   private particles: Particle[] = [];
+  private rings: Ring[] = [];
+  private corpses: Corpse[] = [];
   private texts: FloatingText[] = [];
+  private banners: Banner[] = [];
+  private shake = 0;
+  /** 1 logo após o Nexus levar dano, caindo até 0. */
+  nexusHurt = 0;
 
   clear(): void {
     this.shots = [];
-    this.rings = [];
     this.particles = [];
+    this.rings = [];
+    this.corpses = [];
     this.texts = [];
+    this.banners = [];
+    this.shake = 0;
+    this.nexusHurt = 0;
   }
 
   handle(event: GameEvent): void {
     switch (event.type) {
       case 'shot': {
-        const duration = event.source === 'hero' ? 0.12 : 0.2;
-        this.shots.push({ source: event.source, from: event.from, to: event.to, duration, remaining: duration });
+        const duration = event.source === 'hero' || event.source === 'duelist' ? 0.16 : 0.22;
+        this.shots.push({ ...event, duration, remaining: duration, trailTimer: 0 });
         break;
       }
       case 'enemyKilled':
-        this.texts.push({ x: event.x, y: event.y, text: `+${event.gold}`, color: GOLD_COLOR, remaining: 1 });
-        for (let i = 0; i < 3; i++) {
-          this.particles.push({
-            x: event.x,
-            y: event.y,
-            vx: (Math.random() - 0.5) * 60,
-            vy: -40 - Math.random() * 40,
-            remaining: 0.7,
-            color: '#fc3',
-          });
-        }
-        for (let i = 0; i < 7; i++) {
-          this.particles.push({
-            x: event.x,
-            y: event.y,
-            vx: (Math.random() - 0.5) * 120,
-            vy: (Math.random() - 0.5) * 120,
-            remaining: 0.5,
-            color: event.color,
-          });
-        }
+        this.corpses.push({ enemy: event.enemy, x: event.x, y: event.y, life: 0.45, maxLife: 0.45 });
+        this.burst(event.x, event.y - 6, 8, event.color, 70, 0.45, 2.2, false);
+        this.burst(event.x, event.y - 6, 4, GOLD, 50, 0.7, 2, true, -60, 160);
+        this.particles.push({
+          x: event.x,
+          y: event.y - 10,
+          vx: random(-6, 6),
+          vy: -30,
+          life: 0.9,
+          maxLife: 0.9,
+          size: 3.5,
+          color: '#c8b0ff',
+          gravity: 0,
+          glow: true,
+        });
+        this.text(event.x, event.y - 18, `+${event.gold}`, GOLD, 10);
         break;
       case 'pulse':
-        this.rings.push({ x: event.x, y: event.y, duration: 0.3, remaining: 0.3 });
+        this.ring(event.x, event.y, PULSE.radius, '#c08cff', 0.45, 6);
+        this.ring(event.x, event.y, PULSE.radius * 0.6, '#ffffff', 0.3, 3);
+        for (let i = 0; i < 26; i++) {
+          const a = (i / 26) * TAU;
+          const speed = random(140, 220);
+          this.particles.push({
+            x: event.x,
+            y: event.y,
+            vx: Math.cos(a) * speed,
+            vy: Math.sin(a) * speed,
+            life: 0.45,
+            maxLife: 0.45,
+            size: 2.4,
+            color: '#c99bff',
+            gravity: 0,
+            glow: true,
+          });
+        }
+        this.shake = Math.max(this.shake, 3);
         break;
+      case 'nexusHit':
+        this.nexusHurt = 1;
+        this.shake = Math.max(this.shake, Math.min(7, 2 + event.damage * 0.2));
+        this.text(ARENA.center.x, ARENA.center.y - 52, `-${event.damage}`, '#ff5a6a', 13);
+        this.burst(ARENA.center.x, ARENA.center.y - 16, 10, '#ff6a7a', 90, 0.5, 2.4, true);
+        break;
+      case 'bossSpawned':
+        this.shake = Math.max(this.shake, 9);
+        this.banner(`${ENEMIES[event.enemy].name} chegou!`, 'Chefe', '#ff5a5a', 2.6);
+        break;
+      case 'waveStarted':
+        this.banner(`Onda ${event.wave}`, event.wave === WAVES.total ? 'Onda final' : `de ${WAVES.total}`, '#e2c8ff', 1.8);
+        break;
+      case 'creaturePlaced': {
+        const color = CREATURES[event.creature].color;
+        this.ring(event.x, event.y + 12, 26, color, 0.5, 3);
+        this.burst(event.x, event.y + 6, 14, color, 60, 0.7, 2.2, true, -50);
+        break;
+      }
       case 'creatureSold':
-        this.texts.push({ x: event.x, y: event.y, text: `+${event.refund}`, color: GOLD_COLOR, remaining: 1 });
+        this.burst(event.x, event.y, 12, '#8a80a0', 50, 0.6, 3.5, false, -20);
+        this.text(event.x, event.y - 20, `+${event.refund}`, GOLD, 11);
         break;
       default:
         break;
@@ -89,104 +160,307 @@ export class Effects {
   }
 
   update(dt: number): void {
-    for (const s of this.shots) s.remaining -= dt;
-    for (const r of this.rings) r.remaining -= dt;
-    for (const p of this.particles) {
-      p.remaining -= dt;
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-    }
-    for (const t of this.texts) {
-      t.remaining -= dt;
-      t.y -= 22 * dt;
+    for (const shot of this.shots) {
+      shot.remaining -= dt;
+      shot.trailTimer -= dt;
+      if (shot.trailTimer <= 0) {
+        shot.trailTimer = 0.016;
+        this.trail(shot);
+      }
+      if (shot.remaining <= 0) this.impact(shot);
     }
     this.shots = this.shots.filter((s) => s.remaining > 0);
-    this.rings = this.rings.filter((r) => r.remaining > 0);
-    this.particles = this.particles.filter((p) => p.remaining > 0);
-    this.texts = this.texts.filter((t) => t.remaining > 0);
+
+    for (const p of this.particles) {
+      p.life -= dt;
+      p.vy += p.gravity * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= 1 - 2 * dt;
+      p.vy *= 1 - (p.gravity ? 0.5 : 2) * dt;
+    }
+    this.particles = this.particles.filter((p) => p.life > 0);
+    for (const r of this.rings) r.life -= dt;
+    this.rings = this.rings.filter((r) => r.life > 0);
+    for (const c of this.corpses) c.life -= dt;
+    this.corpses = this.corpses.filter((c) => c.life > 0);
+    for (const t of this.texts) {
+      t.life -= dt;
+      t.y -= 20 * dt;
+    }
+    this.texts = this.texts.filter((t) => t.life > 0);
+    for (const b of this.banners) b.life -= dt;
+    this.banners = this.banners.filter((b) => b.life > 0);
+    this.shake = Math.max(0, this.shake - dt * 18);
+    this.nexusHurt = Math.max(0, this.nexusHurt - dt * 3);
   }
 
-  draw(ctx: CanvasRenderingContext2D): void {
-    for (const ring of this.rings) {
-      ctx.strokeStyle = '#b36bff';
-      ctx.lineWidth = 3;
+  /** Deslocamento da câmera pelo tremor de tela. */
+  shakeOffset(): Point {
+    if (this.shake <= 0) return { x: 0, y: 0 };
+    return { x: random(-1, 1) * this.shake, y: random(-1, 1) * this.shake };
+  }
+
+  /** Efeitos no mundo (projéteis, partículas, anéis, cadáveres, números). */
+  drawWorld(ctx: CanvasRenderingContext2D, time: number): void {
+    for (const c of this.corpses) {
+      const fade = c.life / c.maxLife;
+      const def = ENEMIES[c.enemy];
+      ctx.save();
+      ctx.globalAlpha = fade;
+      ctx.translate(c.x, c.y);
+      ctx.rotate((1 - fade) * 0.5);
+      ctx.filter = 'brightness(1.8) saturate(0.3)';
+      drawSprite(ctx, c.enemy, 0, (1 - fade) * 4, def.scale * (0.6 + fade * 0.4), { time });
+      ctx.restore();
+    }
+
+    for (const r of this.rings) {
+      const progress = 1 - r.life / r.maxLife;
+      ctx.globalAlpha = 1 - progress;
+      ctx.strokeStyle = r.color;
+      ctx.lineWidth = r.width * (1 - progress * 0.6);
       ctx.beginPath();
-      ctx.arc(ring.x, ring.y, PULSE.radius * (1 - ring.remaining / ring.duration), 0, TAU);
+      ctx.ellipse(r.x, r.y, r.radius * (0.2 + progress * 0.8), r.radius * (0.2 + progress * 0.8) * 0.8, 0, 0, TAU);
       ctx.stroke();
     }
-    ctx.lineWidth = 1;
+    ctx.globalAlpha = 1;
 
     for (const shot of this.shots) drawShot(ctx, shot);
 
     for (const p of this.particles) {
-      ctx.globalAlpha = Math.max(0, Math.min(1, p.remaining * 2));
+      const fade = p.life / p.maxLife;
+      ctx.globalCompositeOperation = p.glow ? 'lighter' : 'source-over';
+      ctx.globalAlpha = Math.min(1, fade * 1.5);
       ctx.fillStyle = p.color;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 2.5, 0, TAU);
+      ctx.arc(p.x, p.y, p.size * (0.4 + fade * 0.6), 0, TAU);
       ctx.fill();
     }
+    ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = 1;
 
-    ctx.font = 'bold 12px Georgia';
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineJoin = 'round';
     for (const t of this.texts) {
-      ctx.globalAlpha = Math.min(1, t.remaining * 2);
+      const fade = t.life / t.maxLife;
+      const pop = 1 + Math.max(0, fade - 0.8) * 2;
+      ctx.globalAlpha = Math.min(1, fade * 2.5);
+      ctx.font = `700 ${t.size * pop}px Cinzel, Georgia, serif`;
+      ctx.strokeStyle = '#0a0612';
+      ctx.lineWidth = 3;
+      ctx.strokeText(t.text, t.x, t.y);
       ctx.fillStyle = t.color;
       ctx.fillText(t.text, t.x, t.y);
     }
     ctx.globalAlpha = 1;
   }
+
+  /** Faixas de anúncio no centro da tela ("Onda 3", chefe). */
+  drawBanners(ctx: CanvasRenderingContext2D): void {
+    const banner = this.banners[this.banners.length - 1];
+    if (!banner) return;
+    const age = banner.maxLife - banner.life;
+    const alpha = Math.min(1, age / 0.25, banner.life / 0.5);
+    const pop = 1 + Math.max(0, 0.25 - age) * 1.2;
+    const x = ARENA.width / 2;
+    const y = ARENA.height * 0.17;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const band = ctx.createLinearGradient(0, 0, ARENA.width, 0);
+    band.addColorStop(0, '#0a061200');
+    band.addColorStop(0.5, '#0a0612bb');
+    band.addColorStop(1, '#0a061200');
+    ctx.fillStyle = band;
+    ctx.fillRect(0, y - 30, ARENA.width, 60);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `600 10px Cinzel, Georgia, serif`;
+    ctx.fillStyle = '#a898c4';
+    ctx.fillText(banner.subtitle.toUpperCase(), x, y - 17);
+    ctx.font = `900 ${30 * pop}px 'Cinzel Decorative', Cinzel, Georgia, serif`;
+    ctx.shadowColor = banner.color;
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = banner.color;
+    ctx.fillText(banner.text, x, y + 6);
+    ctx.restore();
+  }
+
+  // ---------- auxiliares ----------
+
+  private text(x: number, y: number, text: string, color: string, size: number): void {
+    this.texts.push({ x, y, text, color, size, life: 0.9, maxLife: 0.9 });
+  }
+
+  private ring(x: number, y: number, radius: number, color: string, life: number, width: number): void {
+    this.rings.push({ x, y, radius, color, life, maxLife: life, width });
+  }
+
+  private banner(text: string, subtitle: string, color: string, life: number): void {
+    this.banners.push({ text, subtitle, color, life, maxLife: life });
+  }
+
+  private burst(
+    x: number,
+    y: number,
+    count: number,
+    color: string,
+    speed: number,
+    life: number,
+    size: number,
+    glow: boolean,
+    lift = 0,
+    gravity = 0,
+  ): void {
+    for (let i = 0; i < count; i++) {
+      const a = random(0, TAU);
+      const s = random(speed * 0.4, speed);
+      this.particles.push({
+        x,
+        y,
+        vx: Math.cos(a) * s,
+        vy: Math.sin(a) * s + lift,
+        life: random(life * 0.6, life),
+        maxLife: life,
+        size,
+        color,
+        gravity,
+        glow,
+      });
+    }
+  }
+
+  private trail(shot: Shot): void {
+    const pos = shotPosition(shot);
+    if (shot.source === 'fireDragon') {
+      this.burst(pos.x, pos.y, 2, Math.random() < 0.5 ? '#ffb040' : '#ff5a1a', 20, 0.35, 2.6, true, -10);
+    } else if (shot.source === 'iceDragon') {
+      this.burst(pos.x, pos.y, 1, '#dff6ff', 12, 0.4, 1.8, true);
+    }
+  }
+
+  private impact(shot: Shot): void {
+    const { x, y } = shot.to;
+    switch (shot.source) {
+      case 'fireDragon': {
+        const ability = CREATURES.fireDragon.ability;
+        const radius = ability.kind === 'splash' ? ability.radius : 40;
+        this.ring(x, y, radius, '#ff8a2a', 0.35, 4);
+        this.burst(x, y, 16, '#ffb040', 110, 0.45, 3, true);
+        this.burst(x, y, 6, '#4a3a3a', 40, 0.7, 4, false, -30);
+        break;
+      }
+      case 'iceDragon':
+        this.ring(x, y, 18, '#bff0ff', 0.3, 2.5);
+        this.burst(x, y, 9, '#e8faff', 70, 0.5, 2, true);
+        break;
+      case 'archer':
+        this.burst(x, y, 4, '#ffe9a8', 60, 0.25, 1.6, true);
+        break;
+      case 'duelist':
+        this.burst(x, y, 6, '#ff3a50', 80, 0.3, 1.8, true);
+        break;
+      case 'hero':
+        this.burst(x, y, 4, '#e8f6ff', 70, 0.25, 1.6, true);
+        break;
+    }
+  }
 }
 
-/** Projétil viajando de `from` até `to` conforme o progresso; o visual depende de quem atirou. */
+function shotPosition(shot: Shot): Point {
+  const progress = 1 - shot.remaining / shot.duration;
+  return {
+    x: shot.from.x + (shot.to.x - shot.from.x) * progress,
+    y: shot.from.y - 8 + (shot.to.y - shot.from.y + 8) * progress,
+  };
+}
+
 function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
   const progress = 1 - shot.remaining / shot.duration;
-  const { from, to } = shot;
-  const x = from.x + (to.x - from.x) * progress;
-  const y = from.y + (to.y - from.y) * progress;
-
+  const { x, y } = shotPosition(shot);
+  const angle = Math.atan2(shot.to.y - shot.from.y + 8, shot.to.x - shot.from.x);
+  ctx.save();
   switch (shot.source) {
     case 'archer':
-      ctx.strokeStyle = '#ffe9a8';
-      ctx.lineWidth = 2;
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.strokeStyle = '#ffe9a855';
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x - (to.x - from.x) * 0.15, y - (to.y - from.y) * 0.15);
+      ctx.moveTo(-22, 0);
+      ctx.lineTo(-8, 0);
       ctx.stroke();
-      break;
-    case 'fireDragon':
-      ctx.shadowColor = '#f80';
-      ctx.shadowBlur = 14;
-      ctx.fillStyle = '#ffb040';
+      ctx.strokeStyle = '#8a5a32';
+      ctx.lineWidth = 1.6;
       ctx.beginPath();
-      ctx.arc(x, y, 5, 0, TAU);
+      ctx.moveTo(-9, 0);
+      ctx.lineTo(4, 0);
+      ctx.stroke();
+      ctx.fillStyle = '#e0e8f4';
+      ctx.beginPath();
+      ctx.moveTo(7, 0);
+      ctx.lineTo(3, -2.2);
+      ctx.lineTo(3, 2.2);
       ctx.fill();
-      ctx.shadowBlur = 0;
-      if (progress > 0.8) {
-        ctx.strokeStyle = '#f60';
-        ctx.beginPath();
-        ctx.arc(to.x, to.y, (progress - 0.8) * 200, 0, TAU);
-        ctx.stroke();
-      }
+      ctx.fillStyle = '#f4f0e8';
+      ctx.beginPath();
+      ctx.moveTo(-9, 0);
+      ctx.lineTo(-12, -2.5);
+      ctx.lineTo(-7, 0);
+      ctx.lineTo(-12, 2.5);
+      ctx.fill();
       break;
+    case 'fireDragon': {
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, 10);
+      glow.addColorStop(0, '#fff2c0');
+      glow.addColorStop(0.35, '#ffb040');
+      glow.addColorStop(1, '#ff4a1a00');
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, TAU);
+      ctx.fill();
+      break;
+    }
     case 'iceDragon':
-      ctx.fillStyle = '#bdf';
+      ctx.translate(x, y);
+      ctx.rotate(progress * 10);
+      ctx.shadowColor = '#bff0ff';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = '#e8faff';
+      ctx.strokeStyle = '#4aa8e8';
+      ctx.lineWidth = 0.8;
       ctx.beginPath();
-      ctx.moveTo(x, y - 5);
-      ctx.lineTo(x + 3, y);
-      ctx.lineTo(x, y + 5);
-      ctx.lineTo(x - 3, y);
+      ctx.moveTo(0, -5);
+      ctx.lineTo(2.5, 0);
+      ctx.lineTo(0, 5);
+      ctx.lineTo(-2.5, 0);
+      ctx.closePath();
       ctx.fill();
+      ctx.stroke();
       break;
     case 'duelist':
-    case 'hero':
-      // Golpe corpo a corpo: um corte em arco sobre o alvo.
-      ctx.strokeStyle = shot.source === 'duelist' ? '#f33' : '#fff';
+    case 'hero': {
+      // corte em meia-lua sobre o alvo
+      const color = shot.source === 'duelist' ? '#ff3a50' : '#e8f6ff';
+      const start = -1.6 + progress * 2.4;
+      ctx.translate(shot.to.x, shot.to.y - 6);
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 8;
+      ctx.strokeStyle = color;
+      ctx.globalAlpha = 1 - progress * 0.6;
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(to.x, to.y, 10, progress * 3, progress * 3 + 2);
+      ctx.arc(0, 0, 12, start, start + 1.8);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 12, start + 0.3, start + 1.5);
       ctx.stroke();
       break;
+    }
   }
-  ctx.lineWidth = 1;
+  ctx.restore();
 }

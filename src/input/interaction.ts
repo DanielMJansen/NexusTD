@@ -1,30 +1,44 @@
 import type { CreatureId } from '../data/creatures';
-import type { Creature, Point } from '../game/state';
+import { canPlaceCreature } from '../game/economy';
+import type { Creature, Point, RunState } from '../game/state';
 import type { InteractionView } from '../render/draw';
 
-/** Estado da interação na arena: carta escolhida, arrasto, criatura tocada. */
+/** Estado da interação na arena: carta escolhida, arrasto, criatura inspecionada. */
 export interface Interaction {
   selectedCard: CreatureId | null;
-  /** Arrastando a carta escolhida pela arena. */
-  dragging: boolean;
-  /** Dedo/mouse pressionado guiando o herói. */
+  /** Carta sendo arrastada do painel (solta na arena = posiciona). */
+  draggingCard: boolean;
+  /** Botão pressionado no chão, guiando o herói. */
   holding: boolean;
+  /** Última posição do mouse, em coordenadas da arena. */
   pointer: Point;
+  pointerInArena: boolean;
   inspected: Creature | null;
 }
 
 export function createInteraction(): Interaction {
-  return { selectedCard: null, dragging: false, holding: false, pointer: { x: 0, y: 0 }, inspected: null };
+  return {
+    selectedCard: null,
+    draggingCard: false,
+    holding: false,
+    pointer: { x: 0, y: 0 },
+    pointerInArena: false,
+    inspected: null,
+  };
 }
 
+/** Limpa seleção e arrasto, mantendo a posição do mouse. */
 export function resetInteraction(interaction: Interaction): void {
-  Object.assign(interaction, createInteraction());
+  Object.assign(interaction, { selectedCard: null, draggingCard: false, holding: false, inspected: null });
 }
 
-export function interactionView(interaction: Interaction): InteractionView {
-  const { selectedCard, dragging, pointer, inspected } = interaction;
+export function interactionView(interaction: Interaction, run: RunState): InteractionView {
+  const { selectedCard, pointer, pointerInArena, inspected } = interaction;
   return {
     inspected,
-    placement: dragging && selectedCard ? { creature: selectedCard, at: pointer } : null,
+    placement:
+      selectedCard && pointerInArena
+        ? { creature: selectedCard, at: pointer, valid: canPlaceCreature(run, selectedCard, pointer) }
+        : null,
   };
 }

@@ -17,6 +17,8 @@ export interface Enemy extends Point {
   slowMultiplier: number;
   /** Defasagem aleatória da animação e do zigue-zague. */
   animationOffset: number;
+  /** Momento (state.time) do último golpe sofrido; só para o visual. */
+  lastHitAt: number;
   dead: boolean;
 }
 
@@ -28,11 +30,18 @@ export interface Creature extends Point {
   frenzyTimer: number;
   /** Ouro pago, base do valor de venda. */
   paid: number;
+  /** Dicas visuais: lado para onde olha (1 direita, -1 esquerda) e momento do último ataque. */
+  facing: 1 | -1;
+  lastAttackAt: number;
 }
 
 export interface Hero extends Point {
   target: Point;
   attackTimer: number;
+  /** Dicas visuais, como nas criaturas. */
+  facing: 1 | -1;
+  lastAttackAt: number;
+  moving: boolean;
 }
 
 /** Multiplicadores vindos das melhorias (permanentes e da run). */
@@ -93,7 +102,7 @@ export function createRun(setup: RunSetup): RunState {
     nexus: { hp: maxHp, maxHp },
     gold: ECONOMY.startGold + META_UPGRADES.startGold.perLevel * levels.startGold,
     kills: 0,
-    hero: { ...heroStart, target: { ...heroStart }, attackTimer: 0 },
+    hero: { ...heroStart, target: { ...heroStart }, attackTimer: 0, facing: 1, lastAttackAt: -Infinity, moving: false },
     enemies: [],
     creatures: [],
     unlocked: new Set(setup.unlockedCreatures),
