@@ -19,10 +19,14 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Herói anda com WASD/setas e com clique/segurar no chão; vira para o lado do movimento; não sai da arena.
 - [ ] Herói ataca sozinho o inimigo mais próximo (alcance 60), com animação de espada.
 - [ ] Arrastar uma carta do painel até a arena posiciona a criatura; soltar fora da arena deixa a carta escolhida.
-- [ ] Tecla 1–4 escolhe a carta; clicar na arena posiciona; a prévia segue o mouse e fica vermelha onde não pode (sem ouro, limite de 5, em cima do Nexus).
+- [ ] Tecla 1–6 escolhe a carta; clicar na arena posiciona; a prévia segue o mouse e fica vermelha onde não pode (sem ouro, limite de 5, em cima do Nexus).
 - [ ] Botão direito ou Esc cancelam a carta escolhida.
 - [ ] Custo da próxima cópia sobe ×1,5 e fica vermelho quando falta ouro.
-- [ ] Clicar numa criatura mostra alcance e "Vender +X"; clicar no botão vende por 60%.
+- [ ] Clicar numa criatura mostra nome, estrelas de nível, alcance e os botões "Evoluir ◉X" e "Vender +X".
+- [ ] Evoluir (botão ou tecla E) desconta ouro, mostra efeito e "Nível 2"; no nível 3 aparece o nome da forma evoluída, aura e acessório (coroa, chifres dourados, arco dourado, auréola, orbes).
+- [ ] Vender devolve 60% de tudo que foi pago (invocação + evoluções).
+- [ ] Guarda segura até 2 inimigos (anel tracejado sob eles); o chefe passa direto. Paladino segura 4.
+- [ ] Abates do Sanguinário curam o Nexus ("+2" verde).
 - [ ] Tooltip ao passar o mouse na carta: atributos e habilidade.
 - [ ] Pulso (Espaço ou botão): onda de choque ao redor do herói; botão mostra recarga.
 - [ ] Arqueiro (flecha), Duelista (corte; Frenesi com aura vermelha após 6 golpes), Fogo (bola de fogo e explosão em área), Gelo (estilhaço e lentidão com brilho azul).
@@ -33,6 +37,7 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 ## Entre ondas
 - [ ] Onda 1 vencida: oferece só ovos (se houver).
 - [ ] Ondas seguintes: 3 opções entre melhorias e ovos; Nexus cura +10.
+- [ ] Loja no rodapé: "Sortear de novo" (10, depois 20, 30...) troca as opções; desabilitado quando não há outras opções. "+1 vaga" (60, 120, 240) aumenta o limite no HUD.
 - [ ] Escolher aplica o efeito e mostra a faixa da próxima onda.
 
 ## Fim
