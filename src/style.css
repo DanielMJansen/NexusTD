@@ -38,6 +38,12 @@ body {
   box-sizing: border-box;
 }
 
+.top-buttons {
+  display: flex;
+  flex: none;
+  gap: 4px;
+}
+
 #top-bar button {
   flex: none;
   width: 38px;
@@ -130,6 +136,8 @@ button i {
 
 button canvas {
   display: block;
+  width: 48px;
+  height: 44px;
   margin: 0 auto;
 }
 
