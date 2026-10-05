@@ -1,4 +1,4 @@
-export type CreatureId = 'archer' | 'duelist' | 'fireDragon' | 'iceDragon';
+export type CreatureId = 'archer' | 'guard' | 'duelist' | 'sanguine' | 'fireDragon' | 'iceDragon';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -15,7 +15,11 @@ export type CreatureAbility =
   /** O alvo fica lento por um tempo. */
   | { kind: 'slow'; speedMultiplier: number; duration: number }
   /** Ataca vários inimigos de uma vez (os mais próximos do Nexus). */
-  | { kind: 'multishot'; targets: number };
+  | { kind: 'multishot'; targets: number }
+  /** Segura até N inimigos (exceto chefes) dentro do raio: eles param de andar. */
+  | { kind: 'block'; radius: number; capacity: number }
+  /** Cada abate desta criatura cura o Nexus. */
+  | { kind: 'lifesteal'; healPerKill: number };
 
 export type CreatureUnlock = { kind: 'start' } | { kind: 'essence'; cost: number };
 
@@ -56,6 +60,21 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     unlock: { kind: 'start' },
     ascended: { name: 'Patrulheiro', ability: { kind: 'multishot', targets: 2 } },
   },
+  guard: {
+    id: 'guard',
+    name: 'Guarda',
+    race: 'Humano',
+    role: 'Bloqueio',
+    icon: '🛡',
+    baseCost: 20,
+    damage: 5,
+    range: 45,
+    cooldown: 0.8,
+    color: '#c9d4e8',
+    ability: { kind: 'block', radius: 30, capacity: 2 },
+    unlock: { kind: 'essence', cost: 30 },
+    ascended: { name: 'Paladino', ability: { kind: 'block', radius: 36, capacity: 4 } },
+  },
   duelist: {
     id: 'duelist',
     name: 'Duelista',
@@ -73,6 +92,21 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
       name: 'Conde Vampiro',
       ability: { kind: 'frenzy', hitsToTrigger: 4, duration: 4, damageMultiplier: 1.8, attackSpeedMultiplier: 2 },
     },
+  },
+  sanguine: {
+    id: 'sanguine',
+    name: 'Sanguinário',
+    race: 'Vampiro',
+    role: 'Sustento',
+    icon: '🩸',
+    baseCost: 25,
+    damage: 6,
+    range: 100,
+    cooldown: 0.8,
+    color: '#d0304a',
+    ability: { kind: 'lifesteal', healPerKill: 2 },
+    unlock: { kind: 'essence', cost: 50 },
+    ascended: { name: 'Lorde de Sangue', ability: { kind: 'lifesteal', healPerKill: 4 } },
   },
   fireDragon: {
     id: 'fireDragon',

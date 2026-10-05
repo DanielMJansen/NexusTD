@@ -39,8 +39,14 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
     case 'archer':
       drawArcher(ctx, p);
       break;
+    case 'guard':
+      drawGuard(ctx, p);
+      break;
     case 'duelist':
       drawVampire(ctx, p);
+      break;
+    case 'sanguine':
+      drawBloodMage(ctx, p);
       break;
     case 'fireDragon':
       drawDragon(ctx, p, FIRE_DRAGON);
@@ -289,6 +295,120 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
     shape(ctx, '#cfd8e8', () => poly(ctx, [nock.x + 15, nock.y - 2, nock.x + 19, nock.y, nock.x + 15, nock.y + 2]), 0.8);
   }
   shape(ctx, '#f2cfae', () => circle(ctx, nock.x, nock.y, 1.9), 0.9);
+}
+
+// ---------- guarda (humano) ----------
+
+function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
+  const thrust = p.attack * 6;
+  const sway = Math.sin(p.time * 2) * 0.5;
+  const trim = ascended(p) ? GOLD : '#8a96b0';
+
+  // pernas e corpo com armadura
+  shape(ctx, '#4a5068', () => ctx.roundRect(-5, 7, 4.5, 7, 1.5));
+  shape(ctx, '#4a5068', () => ctx.roundRect(0.5, 7, 4.5, 7, 1.5));
+  shape(ctx, vertical(ctx, -9, 9, '#d8e0ee', '#8a96b0'), () => ctx.roundRect(-7, -9 + sway, 14, 17, [5, 5, 3, 3]));
+  shape(ctx, vertical(ctx, -6, 9, '#4a6ad0', '#2a3a8a'), () => poly(ctx, [-4, -6 + sway, 4, -6 + sway, 5, 9, -5, 9]), 1);
+  shape(ctx, trim, () => ctx.rect(-7, 2, 14, 2.4), 0.8);
+
+  // lança: horizontal à frente, estoca no ataque
+  line(ctx, '#7a4a2a', 1.8, () => {
+    ctx.moveTo(-6 + thrust, -1);
+    ctx.lineTo(20 + thrust, -1);
+  });
+  shape(ctx, '#e8f0ff', () => poly(ctx, [20 + thrust, -3.2, 26 + thrust, -1, 20 + thrust, 1.2]), 1);
+
+  // elmo com viseira e pluma
+  const hy = -16 + sway;
+  shape(ctx, ascended(p) ? GOLD : '#e0243a', () => {
+    ctx.moveTo(-2, hy - 8);
+    ctx.quadraticCurveTo(-10, hy - 16, -12, hy - 6);
+    ctx.quadraticCurveTo(-7, hy - 10, -3, hy - 6);
+    ctx.closePath();
+  });
+  shape(ctx, radial(ctx, 0, hy, 9, '#f0f4fa', '#9aa6c0'), () => circle(ctx, 0, hy, 8.5));
+  shape(ctx, '#1a1428', () => ctx.roundRect(-1, hy - 2, 9, 4.2, 2), 0.8);
+  glowingEye(ctx, 2.3, hy, 1.1, '#9fdcff');
+  glowingEye(ctx, 5.6, hy, 1.1, '#9fdcff');
+  shape(ctx, trim, () => ctx.rect(-0.8, hy - 8.5, 1.6, 6), 0.6);
+
+  // escudo grande na frente
+  ctx.save();
+  ctx.translate(6, 2);
+  shape(ctx, vertical(ctx, -10, 12, ascended(p) ? '#fff0b0' : '#c8d2e6', ascended(p) ? '#c8901a' : '#6a7896'), () => {
+    ctx.moveTo(-6, -9);
+    ctx.lineTo(6, -9);
+    ctx.lineTo(6, 3);
+    ctx.quadraticCurveTo(6, 10, 0, 13);
+    ctx.quadraticCurveTo(-6, 10, -6, 3);
+    ctx.closePath();
+  });
+  shape(ctx, ascended(p) ? '#e0243a' : '#3a5ab0', () => poly(ctx, [-1.2, -6, 1.2, -6, 1.2, -1, 4, -1, 4, 1.4, 1.2, 1.4, 1.2, 8, -1.2, 8, -1.2, 1.4, -4, 1.4, -4, -1, -1.2, -1]), 0.6);
+  ctx.restore();
+
+  if (ascended(p)) {
+    ctx.strokeStyle = '#ffe48a';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.ellipse(0, hy - 12, 6, 2, 0, 0, TAU);
+    ctx.stroke();
+  }
+}
+
+// ---------- vampiro sanguinário ----------
+
+function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
+  const float = Math.sin(p.time * 2.5) * 1.2;
+  const cast = p.attack;
+
+  // manto longo
+  shape(ctx, vertical(ctx, -10, 14, '#8a1a30', '#3a0a18'), () => {
+    ctx.moveTo(-5, -9);
+    ctx.lineTo(5, -9);
+    ctx.quadraticCurveTo(10, 4, 11, 14);
+    ctx.lineTo(-11, 14);
+    ctx.quadraticCurveTo(-10, 4, -5, -9);
+    ctx.closePath();
+  });
+  shape(ctx, '#1a0a14', () => poly(ctx, [-1.5, -8, 1.5, -8, 2.5, 14, -2.5, 14]), 0);
+  shape(ctx, GOLD, () => ctx.rect(-8, 4, 16, 1.6), 0.6);
+
+  // capuz e rosto
+  const hy = -15;
+  shape(ctx, vertical(ctx, hy - 11, hy + 8, '#a02040', '#5a0c20'), () => {
+    ctx.moveTo(-8.5, hy + 7);
+    ctx.quadraticCurveTo(-11, hy - 8, 0, hy - 10.5);
+    ctx.quadraticCurveTo(11, hy - 8, 8.5, hy + 7);
+    ctx.closePath();
+  });
+  if (ascended(p)) {
+    shape(ctx, '#1a0a14', () => poly(ctx, [-6, hy - 6, -10, hy - 16, -3, hy - 9]), 1);
+    shape(ctx, '#1a0a14', () => poly(ctx, [6, hy - 6, 10, hy - 16, 3, hy - 9]), 1);
+  }
+  shape(ctx, '#1a0812', () => ellipse(ctx, 1.5, hy + 0.5, 6, 6), 0);
+  shape(ctx, radial(ctx, 2, hy + 1, 5, '#fbf6ff', '#cdbfe0'), () => ellipse(ctx, 2, hy + 1.2, 4.8, 5), 0);
+  glowingEye(ctx, 0.6, hy + 0.4, 1.3, '#ff2040');
+  glowingEye(ctx, 4.2, hy + 0.4, 1.3, '#ff2040');
+  shape(ctx, '#ffffff', () => poly(ctx, [1.4, hy + 3.6, 2.2, hy + 3.6, 1.8, hy + 5]), 0.4);
+  shape(ctx, '#ffffff', () => poly(ctx, [3.2, hy + 3.6, 4, hy + 3.6, 3.6, hy + 5]), 0.4);
+
+  // mão e orbe de sangue (cresce ao lançar)
+  shape(ctx, '#e8dff0', () => circle(ctx, 9, 0 + float, 2), 0.8);
+  ctx.save();
+  ctx.shadowColor = '#ff2040';
+  ctx.shadowBlur = 10;
+  shape(ctx, radial(ctx, 12, -5 + float, 4, '#ff8090', '#a00c24'), () => circle(ctx, 12, -5 + float, 3 + cast * 1.5), 0.8);
+  ctx.restore();
+
+  if (ascended(p)) {
+    for (let i = 0; i < 3; i++) {
+      const a = p.time * 2 + (i * TAU) / 3;
+      ctx.fillStyle = '#e0243a';
+      ctx.beginPath();
+      circle(ctx, Math.cos(a) * 13, -6 + Math.sin(a) * 5, 1.6);
+      ctx.fill();
+    }
+  }
 }
 
 // ---------- vampiro duelista ----------

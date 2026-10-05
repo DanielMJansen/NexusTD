@@ -64,6 +64,9 @@ export class SoundPlayer {
       case 'creaturePlaced':
         this.play('place');
         break;
+      case 'nexusHealed':
+        this.play('heal');
+        break;
       case 'creatureEvolved':
         this.play('evolve');
         break;

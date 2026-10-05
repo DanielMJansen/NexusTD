@@ -11,6 +11,7 @@ export type GameEvent =
   | { type: 'enemyKilled'; enemy: EnemyId; x: number; y: number; gold: number; color: string }
   | { type: 'pulse'; x: number; y: number }
   | { type: 'nexusHit'; damage: number }
+  | { type: 'nexusHealed'; amount: number }
   | { type: 'bossSpawned'; enemy: EnemyId }
   | { type: 'creaturePlaced'; creature: CreatureId; x: number; y: number }
   | { type: 'creatureSold'; x: number; y: number; refund: number }

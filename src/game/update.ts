@@ -1,7 +1,7 @@
 import { ARENA, ECONOMY, NEXUS, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
 import { offerChoices, offerStartingEggs } from './choices';
-import { updateCreatures, updateHero } from './combat';
+import { applyBlocks, updateCreatures, updateHero } from './combat';
 import { spawnEnemy, spawnInterval, startWave } from './spawning';
 import { createRun, type Point, type RunSetup, type RunState } from './state';
 
@@ -38,6 +38,7 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   }
 
   updateHero(state, dt, input.direction);
+  applyBlocks(state);
   moveEnemies(state, dt);
   updateCreatures(state, dt);
   state.enemies = state.enemies.filter((e) => !e.dead);
@@ -59,6 +60,7 @@ function moveEnemies(state: RunState, dt: number): void {
     const dx = center.x - enemy.x;
     const dy = center.y - enemy.y;
     const length = Math.hypot(dx, dy);
+    if (enemy.held) continue;
     if (length < NEXUS.contactRadius) {
       state.nexus.hp -= enemy.def.nexusDamage;
       state.events.push({ type: 'nexusHit', damage: enemy.def.nexusDamage });

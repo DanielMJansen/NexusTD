@@ -13,6 +13,10 @@ export function abilityText(a: CreatureAbility): string {
       return `Lentidão: o alvo fica ${Math.round((1 - a.speedMultiplier) * 100)}% mais lento por ${formatNumber(a.duration)} s.`;
     case 'multishot':
       return `Multi-tiro: ataca ${a.targets} inimigos de uma vez.`;
+    case 'block':
+      return `Bloqueio: segura até ${a.capacity} inimigos num raio de ${a.radius} (chefes não param).`;
+    case 'lifesteal':
+      return `Sustento: cada abate desta criatura cura ${a.healPerKill} de vida do Nexus.`;
     case 'none':
       return 'Alvo único, alcance alto.';
   }

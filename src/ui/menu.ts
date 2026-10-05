@@ -48,7 +48,7 @@ export function showMenu(profile: Profile, handlers: MenuHandlers): void {
       <p>${goal} Cada run começa com um <b>ovo de criatura mística</b>; outros surgem entre as ondas.</p>
       <div class="columns">
         <div><h3>Melhorias permanentes</h3>${upgrades}</div>
-        <div><h3>Começar a run com</h3>${creatures}</div>
+        <div><h3>Começar a run com</h3><div class="unlock-grid">${creatures}</div></div>
       </div>
       <button class="play-button" data-action="play">▶ Jogar</button>
     </div>`,

@@ -75,6 +75,16 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
   const { scale } = enemy.def;
   const flying = enemy.def.zigzag !== null;
   drawShadow(ctx, enemy.x, enemy.y + 14 * scale, (flying ? 6 : 9) * scale);
+  if (enemy.held) {
+    // segurado por um Guarda
+    ctx.strokeStyle = '#c9d4e8bb';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([3, 2]);
+    ctx.beginPath();
+    ctx.ellipse(enemy.x, enemy.y + 14 * scale, 11 * scale, 4 * scale, 0, 0, TAU);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
 
   ctx.save();
   if (enemy.slowTimer > 0) {

@@ -197,7 +197,7 @@ body {
 #card-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .card {
@@ -206,7 +206,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 10px 6px 6px;
+  padding: 3px 10px 3px 4px;
   border: 1px solid var(--line);
   border-radius: 12px;
   background:
@@ -242,8 +242,8 @@ body {
 }
 
 .card canvas {
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   flex: none;
 }
 
@@ -696,4 +696,24 @@ button:disabled {
 .shop-button b {
   color: var(--gold);
   margin-left: 4px;
+}
+
+.unlock-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.unlock-grid .shop-item {
+  margin: 0;
+  padding: 5px 8px;
+  gap: 6px;
+  font-size: 15px;
+}
+
+/* telas baixas: esconde a lista de controles do painel */
+@media (max-height: 760px) {
+  .controls {
+    display: none;
+  }
 }

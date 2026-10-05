@@ -61,6 +61,7 @@ export function spawnEnemy(state: RunState, id: EnemyId, angle?: number): void {
     slowMultiplier: 1,
     animationOffset: random() * 6,
     lastHitAt: -Infinity,
+    held: false,
     dead: false,
   });
   if (isLeader && def.pack && random() < def.pack.chance) {

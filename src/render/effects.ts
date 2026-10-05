@@ -88,7 +88,8 @@ export class Effects {
   handle(event: GameEvent): void {
     switch (event.type) {
       case 'shot': {
-        const duration = event.source === 'hero' || event.source === 'duelist' ? 0.16 : 0.22;
+        const melee = event.source === 'hero' || event.source === 'duelist' || event.source === 'guard';
+        const duration = melee ? 0.16 : 0.22;
         this.shots.push({ ...event, duration, remaining: duration, trailTimer: 0 });
         break;
       }
@@ -136,6 +137,10 @@ export class Effects {
         this.shake = Math.max(this.shake, Math.min(7, 2 + event.damage * 0.2));
         this.text(ARENA.center.x, ARENA.center.y - 52, `-${event.damage}`, '#ff5a6a', 13);
         this.burst(ARENA.center.x, ARENA.center.y - 16, 10, '#ff6a7a', 90, 0.5, 2.4, true);
+        break;
+      case 'nexusHealed':
+        this.text(ARENA.center.x + 14, ARENA.center.y - 46, `+${event.amount}`, '#5af0a0', 11);
+        this.burst(ARENA.center.x, ARENA.center.y - 16, 6, '#5af0a0', 40, 0.6, 2, true, -40);
         break;
       case 'bossSpawned':
         this.shake = Math.max(this.shake, 9);
@@ -346,6 +351,8 @@ export class Effects {
     const pos = shotPosition(shot);
     if (shot.source === 'fireDragon') {
       this.burst(pos.x, pos.y, 2, Math.random() < 0.5 ? '#ffb040' : '#ff5a1a', 20, 0.35, 2.6, true, -10);
+    } else if (shot.source === 'sanguine') {
+      this.burst(pos.x, pos.y, 1, '#ff3050', 14, 0.35, 2, true);
     } else if (shot.source === 'iceDragon') {
       this.burst(pos.x, pos.y, 1, '#dff6ff', 12, 0.4, 1.8, true);
     }
@@ -371,6 +378,12 @@ export class Effects {
         break;
       case 'duelist':
         this.burst(x, y, 6, '#ff3a50', 80, 0.3, 1.8, true);
+        break;
+      case 'sanguine':
+        this.burst(x, y, 8, '#ff3050', 70, 0.4, 2, true);
+        break;
+      case 'guard':
+        this.burst(x, y, 5, '#e8f0ff', 60, 0.25, 1.6, true);
         break;
       case 'hero':
         this.burst(x, y, 4, '#e8f6ff', 70, 0.25, 1.6, true);
@@ -451,7 +464,20 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       ctx.fill();
       ctx.stroke();
       break;
+    case 'sanguine': {
+      const orb = ctx.createRadialGradient(x, y, 0, x, y, 7);
+      orb.addColorStop(0, '#ffd0d8');
+      orb.addColorStop(0.4, '#ff3050');
+      orb.addColorStop(1, '#a00c2400');
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = orb;
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, TAU);
+      ctx.fill();
+      break;
+    }
     case 'duelist':
+    case 'guard':
     case 'hero': {
       // corte em meia-lua sobre o alvo
       const color = shot.source === 'duelist' ? '#ff3a50' : '#e8f6ff';

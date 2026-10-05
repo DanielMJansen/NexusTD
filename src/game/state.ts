@@ -19,6 +19,8 @@ export interface Enemy extends Point {
   animationOffset: number;
   /** Momento (state.time) do último golpe sofrido; só para o visual. */
   lastHitAt: number;
+  /** Segurado por um Guarda neste quadro (não anda). */
+  held: boolean;
   dead: boolean;
 }
 
