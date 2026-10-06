@@ -1,3 +1,4 @@
+import type { WaveKind } from '../data/stages';
 import type { CreatureId } from '../data/creatures';
 import type { EnemyId } from '../data/enemies';
 import type { HeroId, PulseEffect } from '../data/heroes';
@@ -71,7 +72,7 @@ export type GameEvent =
   | { type: 'creatureEvolved'; creature: CreatureId; x: number; y: number; level: number; ascended: boolean; name: string }
   | { type: 'choiceMade' }
   | { type: 'shopPurchase'; item: 'reroll' | 'extraSlot' }
-  | { type: 'waveStarted'; wave: number }
+  | { type: 'waveStarted'; wave: number; total: number; kind: WaveKind; title?: string }
   | { type: 'choicesOffered'; reason: 'start' | 'waveCleared'; wave: number }
   | { type: 'runEnded'; result: RunResult }
   | { type: 'heroLevelUp'; level: number }

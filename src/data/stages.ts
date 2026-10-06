@@ -1,5 +1,6 @@
 import type { NexusModelId } from './nexusSkins';
 import type { EnemyId } from './enemies';
+import { WAVES } from './waves';
 import type { BossEntry, WaveEntry } from './waves';
 
 export type StageId = 'graveyard' | 'swamp';
@@ -34,6 +35,32 @@ export interface Entrance {
   path: { x: number; y: number }[];
 }
 
+/** Tipo de onda do roteiro (muda a faixa e o que acontece). */
+export type WaveKind = 'normal' | 'horde' | 'elite' | 'event' | 'boss' | 'truce';
+
+/** Grupo de inimigos de uma onda roteirizada. */
+export interface WaveGroup {
+  enemy: EnemyId;
+  count: number;
+  /** Entrada (índice) por onde vêm; padrão: sorteada. */
+  entrance?: number;
+  /** Todos vêm como elite. */
+  elite?: boolean;
+}
+
+/** Onda roteirizada: tipo, título e conteúdo próprios. */
+export interface ScriptedWave {
+  kind: WaveKind;
+  /** Nome na faixa (ex.: "Matilha"). */
+  title?: string;
+  /** Grupos fixos (chefes também entram aqui). */
+  groups?: WaveGroup[];
+  /** Inimigos sorteados da composição da fase, como fração da quantidade normal da onda (padrão: 1 se não houver grupos). */
+  rolls?: number;
+  /** Segundos entre inimigos (padrão: a fórmula). */
+  interval?: number;
+}
+
 export const DEFAULT_MAP: StageMap = { width: 640, height: 360, nexus: { x: 320, y: 180 } };
 
 /** Fase: bioma, inimigos e chefes próprios; as regras de onda (quantidade, escala, elites) são globais. */
@@ -62,6 +89,8 @@ export interface StageDef {
   map?: StageMap;
   /** Entradas com trilhas (padrão: inimigos vêm de todas as bordas, em linha reta). */
   entrances?: Entrance[];
+  /** Roteiro de ondas (padrão: WAVES.total ondas pela fórmula, chefes em `bosses`). */
+  script?: ScriptedWave[];
   /** Fase que precisa ser vencida para liberar esta (null = aberta desde o início). */
   requires: StageId | null;
 }
@@ -140,3 +169,9 @@ export const STAGES: Record<StageId, StageDef> = {
 
 export const STAGE_IDS = Object.keys(STAGES) as StageId[];
 export const FIRST_STAGE: StageId = 'graveyard';
+
+/** Número de ondas da fase (roteiro ou o padrão). */
+export const stageWaveCount = (id: StageId): number => STAGES[id].script?.length ?? WAVES.total;
+
+/** Onda roteirizada (null nas fases sem roteiro e no Sem Fim). */
+export const scriptedWave = (id: StageId, wave: number): ScriptedWave | null => STAGES[id].script?.[wave - 1] ?? null;

@@ -1,11 +1,10 @@
 import { isAltarUnlocked } from '../game/altar';
-import { FIRST_STAGE, STAGES } from '../data/stages';
+import { FIRST_STAGE, stageWaveCount, STAGES } from '../data/stages';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
 import { GAME_TITLE } from '../data/config';
 import { CREATURE_IDS } from '../data/creatures';
 import { ENEMIES } from '../data/enemies';
 import { HEROES } from '../data/heroes';
-import { WAVES } from '../data/waves';
 import { hasSanctuary, heroSkin, TEAM_SIZE, type Profile, runSetup } from '../game/profile';
 import type { SavedRunSummary } from '../save/runSave';
 import { essence } from './currency';
@@ -35,8 +34,8 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
   const stage = STAGES[runSetup(profile).stage ?? FIRST_STAGE];
   const finalBoss = stage.bosses.at(-1);
   const goal = finalBoss
-    ? `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${WAVES.total} ondas e vença o chefe final, <b>${ENEMIES[finalBoss.enemy].name}</b>.`
-    : `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${WAVES.total} ondas.`;
+    ? `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${stageWaveCount(stage.id)} ondas e vença o chefe final, <b>${ENEMIES[finalBoss.enemy].name}</b>.`
+    : `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${stageWaveCount(stage.id)} ondas.`;
   const hero = `<canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas>`;
   const team = hero + profile.team.map((id) => `<canvas class="team-mini" data-sprite="${id}"></canvas>`).join('');
 

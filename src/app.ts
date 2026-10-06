@@ -3,12 +3,11 @@ import { buyNexusColor, selectNexusLook } from './game/nexusSkins';
 import { showNexusSkins } from './ui/nexusScreen';
 import { rollAltar, selectVariant, type AltarResult } from './game/altar';
 import { showAltar } from './ui/altarScreen';
-import { STAGE_IDS, STAGES, type StageId } from './data/stages';
+import { STAGE_IDS, stageWaveCount, STAGES, type StageId } from './data/stages';
 import type { CreatureId } from './data/creatures';
 import { SoundPlayer } from './audio/audio';
 import { Music } from './audio/music';
 import { GAME_TITLE, SIMULATION } from './data/config';
-import { WAVES } from './data/waves';
 import { checkAchievements, recordRun } from './game/achievements';
 import { chooseChest, chooseOption } from './game/choices';
 import { buyNexusUpgrade } from './game/nexus';
@@ -433,7 +432,7 @@ export class App {
       case 'waveStarted':
         // depois de uma onda de chefe, volta a trilha normal
         this.music.play('run');
-        this.music.setIntensity(Math.min(1, (event.wave - 1) / (WAVES.total - 1)));
+        this.music.setIntensity(Math.min(1, (event.wave - 1) / (event.total - 1)));
         break;
       case 'bossSpawned':
         this.music.play('boss');
@@ -732,7 +731,7 @@ export class App {
     this.camera.snap(run);
     this.mode = 'run';
     this.music.play(waveBoss(run.stage, run.wave) && run.phase === 'playing' ? 'boss' : 'run');
-    this.music.setIntensity(Math.min(1, (run.wave - 1) / (WAVES.total - 1)));
+    this.music.setIntensity(Math.min(1, (run.wave - 1) / (stageWaveCount(run.stage) - 1)));
     if (run.heroChoices.length || run.chestChoices.length || run.phase === 'choosing') {
       this.paused = false;
       this.showPendingChoices();

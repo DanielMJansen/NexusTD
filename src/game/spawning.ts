@@ -1,10 +1,10 @@
 import { entrances, joinNearestPath } from './paths';
 
 import { ENEMIES, type EnemyId } from '../data/enemies';
-import { STAGES, type StageDef, type StageId } from '../data/stages';
+import { scriptedWave, stageWaveCount, STAGES, type StageDef, type StageId } from '../data/stages';
 import { WAVES } from '../data/waves';
 import { random } from './random';
-import type { Enemy, Point, RunState } from './state';
+import type { Enemy, Point, RunState, SpawnItem } from './state';
 
 export function waveEnemyCount(wave: number): number {
   return Math.round(WAVES.enemyCount.base + WAVES.enemyCount.perWave * wave);
@@ -20,7 +20,7 @@ export function waveScaling(wave: number, stage: StageDef = STAGES.graveyard): {
   const s = WAVES.scaling;
   const o = Math.max(0, wave - 1);
   // Sem Fim: escalada exponencial por onda além da última
-  const extra = Math.max(0, wave - WAVES.total);
+  const extra = Math.max(0, wave - stageWaveCount(stage.id));
   return {
     hp: (1 + s.hp.linear * o + s.hp.quadratic * o * o) * (1 + WAVES.endless.hpGrowth) ** extra * stage.power.hp,
     speed: 1 + Math.min(s.maxSpeedBonus, s.speedPerWave * o),
@@ -49,16 +49,35 @@ function rollEnemy(stage: StageId, wave: number): EnemyId {
 
 /** Chefe da onda: os fixos da run e, no Sem Fim, um a cada `bossEvery` ondas em rodízio. */
 export function waveBoss(stage: StageId, wave: number): EnemyId | null {
+  const scripted = scriptedWave(stage, wave);
+  if (scripted) return scripted.groups?.find((g) => ENEMIES[g.enemy].isBoss)?.enemy ?? null;
   const fixed = STAGES[stage].bosses.find((b) => b.wave === wave);
   if (fixed) return fixed.enemy;
   const { bossEvery } = WAVES.endless;
   const bosses = STAGES[stage].endlessBosses;
-  const extra = wave - WAVES.total;
+  const extra = wave - stageWaveCount(stage);
   if (extra > 0 && extra % bossEvery === 0) return bosses[(extra / bossEvery - 1) % bosses.length] ?? null;
   return null;
 }
 
-export function buildWaveQueue(stage: StageId, wave: number): EnemyId[] {
+export function buildWaveQueue(stage: StageId, wave: number): SpawnItem[] {
+  const scripted = scriptedWave(stage, wave);
+  if (scripted?.kind === 'truce') return [];
+  if (scripted) {
+    // grupos fixos (embaralhados entre si, chefes no fim) + sorteios da composição
+    const fixed: SpawnItem[] = [];
+    const bosses: SpawnItem[] = [];
+    for (const g of scripted.groups ?? []) {
+      for (let i = 0; i < g.count; i++) (ENEMIES[g.enemy].isBoss ? bosses : fixed).push({ enemy: g.enemy, entrance: g.entrance, elite: g.elite });
+    }
+    const rolls = scripted.rolls ?? (scripted.groups?.length ? 0 : 1);
+    for (let i = 0; i < Math.round(waveEnemyCount(wave) * rolls); i++) fixed.push(rollEnemy(stage, wave));
+    for (let i = fixed.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [fixed[i], fixed[j]] = [fixed[j]!, fixed[i]!];
+    }
+    return [...fixed, ...bosses];
+  }
   const queue = Array.from({ length: waveEnemyCount(wave) }, () => rollEnemy(stage, wave));
   const boss = waveBoss(stage, wave);
   if (boss) queue.push(boss);
@@ -70,10 +89,12 @@ export function startWave(state: RunState): void {
   state.waveKills = 0;
   for (const creature of state.creatures) creature.killStacks = 0;
   state.spawnQueue = buildWaveQueue(state.stage, state.wave);
+  state.spawnIntervalOverride = scriptedWave(state.stage, state.wave)?.interval ?? null;
   state.spawnTimer = 0;
   state.phase = 'playing';
   state.wardReady = state.talents.nexusWard > 0;
-  state.events.push({ type: 'waveStarted', wave: state.wave });
+  const scripted = scriptedWave(state.stage, state.wave);
+  state.events.push({ type: 'waveStarted', wave: state.wave, total: stageWaveCount(state.stage), kind: scripted?.kind ?? 'normal', title: scripted?.title });
 }
 
 /** Ponto logo fora da borda da tela, na direção do ângulo a partir do Nexus. */
@@ -89,10 +110,10 @@ function spawnPoint(state: RunState, angle: number): Point {
   return { x: nx + dx * distance, y: ny + dy * distance };
 }
 
-function eliteChance(wave: number): number {
+function eliteChance(state: RunState, wave: number): number {
   const e = WAVES.elites;
   if (wave < e.fromWave) return 0;
-  const max = wave > WAVES.total ? WAVES.endless.eliteChance : e.maxChance;
+  const max = wave > stageWaveCount(state.stage) ? WAVES.endless.eliteChance : e.maxChance;
   return Math.min(max, e.chance + e.chancePerWave * (wave - e.fromWave));
 }
 
@@ -158,10 +179,10 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
 }
 
 /** Cria um inimigo fora da tela. Sem ângulo, sorteia um e pode trazer o bando junto. */
-export function spawnEnemy(state: RunState, id: EnemyId, angle?: number, entrance?: number): void {
+export function spawnEnemy(state: RunState, id: EnemyId, angle?: number, entrance?: number, forceElite = false): void {
   const def = ENEMIES[id];
   const isLeader = angle === undefined;
-  const elite = !def.isBoss && random() < eliteChance(state.wave);
+  const elite = !def.isBoss && (forceElite || random() < eliteChance(state, state.wave));
   if (def.isBoss) state.events.push({ type: 'bossSpawned', enemy: id });
   const gates = entrances(state);
   if (gates.length) {

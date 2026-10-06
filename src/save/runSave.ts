@@ -70,6 +70,7 @@ function deserialize(raw: Record<string, unknown>): RunState {
     ...raw,
     events: [],
     waveKills: typeof raw.waveKills === 'number' ? raw.waveKills : 0,
+    spawnIntervalOverride: typeof raw.spawnIntervalOverride === 'number' ? raw.spawnIntervalOverride : null,
     // saves antigos: Nexus no centro da tela
     nexus: { x: DEFAULT_MAP.nexus.x, y: DEFAULT_MAP.nexus.y, ...(raw.nexus as object) },
     map: (raw.map as RunState['map'] | undefined) ?? { width: DEFAULT_MAP.width, height: DEFAULT_MAP.height },

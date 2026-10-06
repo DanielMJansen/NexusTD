@@ -2,7 +2,6 @@ import { ARENA } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { ENEMIES, type EnemyId } from '../data/enemies';
 import { HEROES, type HeroId } from '../data/heroes';
-import { WAVES } from '../data/waves';
 import type { GameEvent } from '../game/events';
 import type { Point } from '../game/state';
 import { drawSprite } from './sprites';
@@ -486,12 +485,12 @@ export class Effects {
         this.banner(`${ENEMIES[event.enemy].name} chegou!`, 'Chefe', '#ff5a5a', 2.6);
         break;
       case 'waveStarted':
-        this.banner(
-          `Onda ${event.wave}`,
-          event.wave === WAVES.total ? 'Onda final' : event.wave > WAVES.total ? 'Sem Fim' : `de ${WAVES.total}`,
-          '#e2c8ff',
-          1.8,
-        );
+        {
+          // onda roteirizada: título e cor pelo tipo
+          const colors: Record<string, string> = { normal: '#e2c8ff', horde: '#ffb84a', elite: '#ffd25a', event: '#7ad8ff', boss: '#ff5a5a', truce: '#7af0b0' };
+          const sub = event.wave === event.total ? 'Onda final' : event.wave > event.total ? 'Sem Fim' : `de ${event.total}`;
+          this.banner(event.title ? `${event.title}` : `Onda ${event.wave}`, event.title ? `Onda ${event.wave} · ${sub}` : sub, colors[event.kind] ?? '#e2c8ff', event.title ? 2.4 : 1.8);
+        }
         break;
       case 'creaturePlaced': {
         const color = CREATURES[event.creature].color;

@@ -252,6 +252,9 @@ export interface RunResult {
   previousKills: number;
 }
 
+/** Inimigo na fila de entrada. */
+export type SpawnItem = EnemyId | { enemy: EnemyId; entrance?: number; elite?: boolean };
+
 export type Phase = 'playing' | 'choosing' | 'ended';
 
 /** O que vem de fora da run: progresso permanente do jogador. */
@@ -319,7 +322,10 @@ export interface RunState {
   /** Estatísticas da run para conquistas. */
   lowestNexusRatio: number;
   ascendedPeak: number;
-  spawnQueue: EnemyId[];
+  /** Fila de entrada da onda: id simples ou com entrada/elite (ondas roteirizadas). */
+  spawnQueue: SpawnItem[];
+  /** Segundos entre inimigos nesta onda (roteiro), ou null para a fórmula. */
+  spawnIntervalOverride: number | null;
   spawnTimer: number;
   incomeTimer: number;
   choices: Choice[];
@@ -457,6 +463,7 @@ export function createRun(setup: RunSetup): RunState {
     lowestNexusRatio: 1,
     ascendedPeak: 0,
     spawnQueue: [],
+    spawnIntervalOverride: null,
     spawnTimer: 0,
     incomeTimer: 0,
     choices: [],

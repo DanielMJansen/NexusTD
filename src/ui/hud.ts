@@ -1,4 +1,4 @@
-import { WAVES } from '../data/waves';
+import { stageWaveCount } from '../data/stages';
 import { xpToNextLevel } from '../data/heroUpgrades';
 import { heroMaxHp } from '../game/hero';
 import { CREATURE_IDS } from '../data/creatures';
@@ -22,7 +22,7 @@ const heroChip = document.querySelector<HTMLElement>('.hero-chip')!;
 const heroSheet = document.querySelector<HTMLElement>('#hero-sheet')!;
 
 export function updateHud(run: RunState): void {
-  setText(wave, run.endless ? `${run.wave} · Sem Fim` : `${Math.max(1, run.wave)} de ${WAVES.total}`);
+  setText(wave, run.endless ? `${run.wave} · Sem Fim` : `${Math.max(1, run.wave)} de ${stageWaveCount(run.stage)}`);
   setText(gold, `${run.gold}`);
   const hp = Math.max(0, Math.trunc(run.nexus.hp));
   const ratio = hp / run.nexus.maxHp;

@@ -1,6 +1,5 @@
-import { STAGE_IDS, STAGES, type StageId } from '../data/stages';
+import { STAGE_IDS, stageWaveCount, STAGES, type StageId } from '../data/stages';
 import { ENEMIES } from '../data/enemies';
-import { WAVES } from '../data/waves';
 import { isStageUnlocked, type Profile } from '../game/profile';
 import { showOverlay } from './overlay';
 
@@ -16,7 +15,10 @@ export function showStages(profile: Profile, handlers: StageHandlers): void {
     const unlocked = isStageUnlocked(profile, id);
     const selected = profile.selectedStage === id;
     const record = profile.stageRecords[id];
-    const bosses = def.bosses.map((b) => `onda ${b.wave}: ${ENEMIES[b.enemy].name}`).join(' · ');
+    const bosses = (def.script
+      ? def.script.flatMap((w, i) => (w.groups ?? []).filter((g) => ENEMIES[g.enemy].isBoss).map((g) => `onda ${i + 1}: ${ENEMIES[g.enemy].name}`))
+      : def.bosses.map((b) => `onda ${b.wave}: ${ENEMIES[b.enemy].name}`)
+    ).join(' · ');
     const status = record?.wins ? `✓ Vencida ${record.wins}×` : record?.bestWave ? `Melhor onda ${record.bestWave}` : 'Ainda não jogada';
     let footer: string;
     if (!unlocked) footer = `<span class="cc-tag locked-tag">🔒 Vença a Fase ${STAGES[def.requires!].number}</span>`;
@@ -26,8 +28,8 @@ export function showStages(profile: Profile, handlers: StageHandlers): void {
       <div class="cc-body">
         <div class="cc-head"><b>Fase ${def.number} · ${def.name}</b><span>${status}</span></div>
         <p class="cc-desc">${def.description}</p>
-        <p class="cc-ability">${WAVES.total} ondas · chefes — ${bosses}</p>
-        ${record?.bestWave ? `<p class="cc-ability">Recorde: onda ${record.bestWave}${record.bestWave > WAVES.total ? ' (Sem Fim)' : ''}</p>` : ''}
+        <p class="cc-ability">${stageWaveCount(id)} ondas · chefes — ${bosses}</p>
+        ${record?.bestWave ? `<p class="cc-ability">Recorde: onda ${record.bestWave}${record.bestWave > stageWaveCount(id) ? ' (Sem Fim)' : ''}</p>` : ''}
         <div class="cc-footer">${footer}</div>
       </div>
     </div>`;

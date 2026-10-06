@@ -1,5 +1,5 @@
 import { SANCTUARY } from '../data/sanctuary';
-import { STAGES } from '../data/stages';
+import { stageWaveCount, STAGES } from '../data/stages';
 import { ECONOMY, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
 import { offerChoices } from './choices';
@@ -47,8 +47,9 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   const next = state.spawnQueue[0];
   if (next && state.spawnTimer <= 0) {
     state.spawnQueue.shift();
-    spawnEnemy(state, next);
-    state.spawnTimer = spawnInterval(state.wave);
+    if (typeof next === 'string') spawnEnemy(state, next);
+    else spawnEnemy(state, next.enemy, undefined, next.entrance, next.elite);
+    state.spawnTimer = state.spawnIntervalOverride ?? spawnInterval(state.wave);
   }
 
   updateHeroVitals(state, dt);
@@ -65,7 +66,7 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
 
   if (state.nexus.hp <= 0) endRun(state, false);
   else if (!state.spawnQueue.length && !state.enemies.length) {
-    if (state.wave >= WAVES.total && !state.endless) endRun(state, true);
+    if (state.wave >= stageWaveCount(state.stage) && !state.endless) endRun(state, true);
     else offerChoices(state);
   }
 }
@@ -83,7 +84,7 @@ function endRun(state: RunState, victory: boolean): void {
   state.phase = 'ended';
   const t = state.talents;
   // No Sem Fim, a Essência das 20 ondas já foi paga na vitória: conta só o que veio depois.
-  const waves = state.endless ? state.wave - WAVES.total : state.wave;
+  const waves = state.endless ? state.wave - stageWaveCount(state.stage) : state.wave;
   const kills = state.kills - (state.endless ? state.endlessKills : 0);
   const base =
     waves * (REWARDS.essencePerWave + t.essencePerWave) +
@@ -95,7 +96,7 @@ function endRun(state: RunState, victory: boolean): void {
   const stage = STAGES[state.stage];
   if (stage.fragments) {
     const cleared = victory ? state.wave : state.wave - 1;
-    const from = state.endless ? WAVES.total : 0;
+    const from = state.endless ? stageWaveCount(state.stage) : 0;
     const bosses = state.endless
       ? Math.floor(Math.max(0, cleared - from) / WAVES.endless.bossEvery)
       : stage.bosses.filter((b) => b.wave <= cleared).length;

@@ -1,3 +1,4 @@
+import { scriptedWave, stageWaveCount } from '../data/stages';
 import { LOOT } from '../data/nexusUpgrades';
 import { CHOICES, NEXUS } from '../data/config';
 import { CREATURES } from '../data/creatures';
@@ -9,7 +10,6 @@ import {
   type Tier,
   type UpgradeFamily,
 } from '../data/upgrades';
-import { WAVES } from '../data/waves';
 import { promoteCreature } from './economy';
 import { random } from './random';
 import { startWave } from './spawning';
@@ -47,7 +47,7 @@ function isAvailable(state: RunState, family: UpgradeFamily): boolean {
 }
 
 function rollTier(state: RunState, minTier = 0): Tier {
-  const progress = (state.wave - 1) / Math.max(1, WAVES.total - 1);
+  const progress = (state.wave - 1) / Math.max(1, stageWaveCount(state.stage) - 1);
   const weights = tierWeights(progress).map((w, i) => (i < minTier ? 0 : w));
   let roll = random() * weights.reduce((a, b) => a + b, 0);
   for (let i = 0; i < TIER_ORDER.length; i++) {
@@ -92,7 +92,9 @@ function rollHand(state: RunState, minTier = 0): Choice[] {
 }
 
 export function rollWaveChoices(state: RunState): void {
-  state.choices = rollHand(state);
+  // depois de uma trégua do roteiro, a loja só tem melhorias Raras ou melhores
+  const truce = scriptedWave(state.stage, state.wave)?.kind === 'truce';
+  state.choices = rollHand(state, truce ? TIER_ORDER.indexOf('rare') : 0);
 }
 
 /** Baú: 3 melhorias de tier alto (Rara ou melhor). */
