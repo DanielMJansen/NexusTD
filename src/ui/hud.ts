@@ -17,25 +17,31 @@ const enemies = document.querySelector<HTMLElement>('#hud-enemies')!;
 const heroLevel = document.querySelector<HTMLElement>('#hud-hero-level')!;
 const heroHp = document.querySelector<HTMLElement>('#hud-hero-hp')!;
 const heroXp = document.querySelector<HTMLElement>('#hud-hero-xp')!;
+const heroHpText = document.querySelector<HTMLElement>('#hud-hero-hp-text')!;
+const heroXpText = document.querySelector<HTMLElement>('#hud-hero-xp-text')!;
 const heroChip = document.querySelector<HTMLElement>('.hero-chip')!;
 const heroSheet = document.querySelector<HTMLElement>('#hero-sheet')!;
 
 export function updateHud(run: RunState): void {
-  setText(wave, run.endless ? `Onda ${run.wave} · Sem Fim` : `Onda ${Math.max(1, run.wave)}/${WAVES.total}`);
+  setText(wave, run.endless ? `${run.wave} · Sem Fim` : `${Math.max(1, run.wave)} de ${WAVES.total}`);
   setText(gold, `${run.gold}`);
   const hp = Math.max(0, Math.trunc(run.nexus.hp));
   const ratio = hp / run.nexus.maxHp;
   setText(nexusText, `${hp}/${run.nexus.maxHp}`);
   nexusBar.style.width = `${ratio * 100}%`;
   nexusBar.classList.toggle('low', ratio < 0.3);
-  setText(creatures, `${run.creatures.length}/${run.creatureLimit}`);
+  setText(creatures, `${run.creatures.length} de ${run.creatureLimit}`);
   // restantes = vivos (sem aliados) + ainda por entrar; total = restantes + abatidos (inclui divisões e invocados)
   const remaining = run.enemies.filter((e) => !e.dead && e.allyTimer <= 0).length + run.spawnQueue.length;
-  setText(enemies, run.phase === 'playing' ? `${remaining}/${remaining + run.waveKills}` : '—');
+  setText(enemies, run.phase === 'playing' ? `${remaining} de ${remaining + run.waveKills}` : 'entre ondas');
   const hero = run.hero;
-  setText(heroLevel, hero.dead ? `Nv ${hero.level} · ${Math.ceil(hero.respawnTimer)}s` : `Nv ${hero.level}`);
-  heroHp.style.width = `${(hero.hp / heroMaxHp(run)) * 100}%`;
-  heroXp.style.width = `${(hero.xp / xpToNextLevel(hero.level)) * 100}%`;
+  setText(heroLevel, hero.dead ? `nível ${hero.level} · volta em ${Math.ceil(hero.respawnTimer)} s` : `nível ${hero.level}`);
+  const maxHp = heroMaxHp(run);
+  const nextXp = xpToNextLevel(hero.level);
+  heroHp.style.width = `${(hero.hp / maxHp) * 100}%`;
+  heroXp.style.width = `${(hero.xp / nextXp) * 100}%`;
+  setText(heroHpText, `♥ ${Math.ceil(Math.max(0, hero.hp))}/${Math.round(maxHp)}`);
+  setText(heroXpText, `XP ${Math.floor(hero.xp)}/${nextXp} → nível ${hero.level + 1}`);
   // ficha do herói só é montada enquanto o mouse está no chip
   if (heroChip.matches(':hover')) {
     const html = `<h4>${hero.def.name}</h4>${heroSheetHtml(run)}`;

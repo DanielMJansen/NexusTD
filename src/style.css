@@ -100,8 +100,8 @@ body {
 
 .chip.nexus .bar {
   position: relative;
-  width: 170px;
-  height: 18px;
+  width: 120px;
+  height: 16px;
   border-radius: 9px;
   background: #07040d;
   border: 1px solid #ffffff1a;
@@ -1723,19 +1723,32 @@ button.danger {
   color: var(--muted);
 }
 
-/* chip do herói: nível, vida e XP */
+/* chip do herói: nível, vida e XP (com números) */
 .hero-chip .hero-bars {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  width: 70px;
+  width: 150px;
 }
 
 .hero-bars > div {
-  height: 5px;
-  border-radius: 3px;
+  position: relative;
+  height: 14px;
+  border-radius: 7px;
   background: #07040d;
+  border: 1px solid #ffffff14;
   overflow: hidden;
+}
+
+.hero-bars span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 700 10.5px var(--font-label);
+  letter-spacing: 0.3px;
+  color: #fff;
+  text-shadow: 0 1px 2px #000, 0 0 2px #000;
 }
 
 #hud-hero-hp {
@@ -2558,4 +2571,31 @@ body:not([data-mode='run']) #side-panel {
 
 .altar-result small {
   color: var(--muted);
+}
+
+/* HUD: rótulo pequeno em cima, valor embaixo */
+.chip-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+  gap: 1px;
+}
+
+.chip-label {
+  font: 600 10px var(--font-label);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+#hud {
+  gap: 6px;
+  min-width: 0;
+}
+
+#hud .chip {
+  padding: 4px 10px;
+  gap: 6px;
+  font-size: 15px;
 }

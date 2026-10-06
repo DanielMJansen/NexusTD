@@ -23,19 +23,25 @@
           <div class="chip" title="Runs vencidas / jogadas"><span class="chip-icon">♛</span><span id="menu-wins"></span></div>
         </div>
         <div id="hud">
-          <div class="chip" title="Onda"><span class="chip-icon">☠</span><span id="hud-wave"></span></div>
-          <div class="chip gold" title="Ouro"><span class="chip-icon">◉</span><span id="hud-gold"></span></div>
-          <div class="chip nexus" title="Vida do Nexus">
+          <div class="chip" title="Onda atual / total de ondas da fase"><span class="chip-icon">☠</span><div class="chip-stack"><small class="chip-label">Onda</small><span id="hud-wave"></span></div></div>
+          <div class="chip gold" title="Ouro da run: invocar, evoluir, melhorar o Nexus"><span class="chip-icon">◉</span><div class="chip-stack"><small class="chip-label">Ouro</small><span id="hud-gold"></span></div></div>
+          <div class="chip nexus" title="Vida do Nexus: se chegar a zero, a run acaba">
             <span class="chip-icon">◆</span>
-            <div class="bar"><div id="hud-nexus-bar"></div><span id="hud-nexus"></span></div>
+            <div class="chip-stack"><small class="chip-label">Vida do Nexus</small><div class="bar"><div id="hud-nexus-bar"></div><span id="hud-nexus"></span></div></div>
           </div>
           <div class="chip hero-chip">
-            <span class="chip-icon">✪</span><span id="hud-hero-level"></span>
-            <div class="hero-bars"><div class="bar-hp"><div id="hud-hero-hp"></div></div><div class="bar-xp"><div id="hud-hero-xp"></div></div></div>
+            <span class="chip-icon">✪</span>
+            <div class="chip-stack">
+              <small class="chip-label">Herói · <span id="hud-hero-level"></span></small>
+              <div class="hero-bars">
+                <div class="bar-hp"><div id="hud-hero-hp"></div><span id="hud-hero-hp-text"></span></div>
+                <div class="bar-xp"><div id="hud-hero-xp"></div><span id="hud-hero-xp-text"></span></div>
+              </div>
+            </div>
             <div id="hero-sheet"></div>
           </div>
-          <div class="chip" title="Criaturas em campo"><span class="chip-icon">✦</span><span id="hud-creatures"></span></div>
-          <div class="chip" title="Inimigos restantes na onda / total da onda"><span class="chip-icon">☗</span><span id="hud-enemies"></span></div>
+          <div class="chip" title="Criaturas em campo / limite de vagas (compre mais vagas entre ondas)"><span class="chip-icon">✦</span><div class="chip-stack"><small class="chip-label">Criaturas</small><span id="hud-creatures"></span></div></div>
+          <div class="chip" title="Inimigos ainda vivos nesta onda (incluindo os que ainda vão entrar) / total da onda"><span class="chip-icon">☗</span><div class="chip-stack"><small class="chip-label">Inimigos vivos</small><span id="hud-enemies"></span></div></div>
         </div>
         <div class="top-buttons">
           <button id="pause-button" class="icon-button" type="button" title="Pausar (P / Esc)">❚❚</button>
