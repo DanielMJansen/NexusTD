@@ -10,8 +10,8 @@ const NEXUS_CLICK_RADIUS = 20;
 
 export interface PointerContext {
   canvas: HTMLCanvasElement;
-  /** Deslocamento da câmera (o mouse vira coordenada do mundo). */
-  camera: { x: number; y: number };
+  /** Câmera (o mouse vira coordenada do mundo; guiar o herói volta a segui-lo). */
+  camera: { x: number; y: number; follow: boolean };
   interaction: Interaction;
   getRun(): RunState;
   /** Só aceita comandos durante uma onda, sem pausa. */
@@ -44,7 +44,8 @@ export function attachPointer({ canvas, camera, interaction, getRun, isActive }:
       x: ((event.clientX - rect.left) * ARENA.width) / rect.width,
       y: ((event.clientY - rect.top) * ARENA.height) / rect.height,
     };
-    interaction.viewPointer = inside ? view : null;
+    // rolagem pela borda só com o mouse sobre a arena (não sobre o HUD)
+    interaction.viewPointer = inside && event.target === canvas ? view : null;
     return { point: { x: view.x + camera.x, y: view.y + camera.y }, inside };
   };
 
@@ -110,6 +111,7 @@ export function attachPointer({ canvas, camera, interaction, getRun, isActive }:
     }
 
     run.hero.target = point;
+    camera.follow = true;
     interaction.holding = true;
   });
 

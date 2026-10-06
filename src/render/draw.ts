@@ -55,7 +55,9 @@ export function drawFrame(
   // mundo: câmera (e tremor) aplicados; atmosfera e faixas ficam presas à tela
   const shake = effects.shakeOffset();
   ctx.save();
-  ctx.translate(shake.x - camera.x, shake.y - camera.y);
+  // alinha a câmera a pixels inteiros da tela (o cenário em cache não treme)
+  const px = ctx.getTransform().a || 1;
+  ctx.translate(shake.x - Math.round(camera.x * px) / px, shake.y - Math.round(camera.y * px) / px);
   drawBackground(ctx, time, STAGES[state.stage], state.map, state.nexus);
 
   drawNexusGround(ctx, state, !!interaction.nexusOpen, time);
