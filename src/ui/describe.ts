@@ -87,6 +87,16 @@ export function talentEffectText(kind: TalentEffectKind, value: number): string 
       return `${formatNumber(value)} de vida por segundo`;
     case 'nexusWard':
       return value > 0 ? 'Anula o 1º golpe de cada onda' : 'Inativa';
+    case 'nexusUpgradeDiscount':
+      return `−${pct(value)} no custo das melhorias do Nexus`;
+    case 'startNexusBolt':
+      return value > 0 ? 'Raio do Nexus nível 1 desde o início' : 'Inativo';
+    case 'startNexusField':
+      return value > 0 ? 'Campo de Lentidão nível 1 desde o início' : 'Inativo';
+    case 'startNexusShield':
+      return value > 0 ? 'Escudo do Nexus nível 1 desde o início' : 'Inativo';
+    case 'heroMaxHp':
+      return `+${value} de vida do herói`;
     case 'startGold':
       return `+${value} de ouro inicial`;
     case 'incomeInterval':

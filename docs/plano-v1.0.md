@@ -96,10 +96,11 @@ Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de le
 - **Loot:** moedas e baús caindo no chão, coletados pelo herói.
 - **Feito:** evolução por cópia, Nexus com 5 melhorias (quadro no painel lateral; clique no Nexus ou tecla N), moedas e baús (baú = 1 entre 3 melhorias Raras ou melhores), melhoria do herói Ímã. **Consumíveis ficaram de fora** (decisão D4/D7). O loot não é recolhido sozinho no fim da onda (recompensa mover o herói). Recalibrado: vida dos inimigos 0,15·o + 0,013·o²; bot ~69% de vitórias.
 
-### F7. Meta-progressão 2.0 `[ ]` — D8
+### F7. Meta-progressão 2.0 `[x]` — D8
 - Árvore de talentos em **cadeia vertical**, com cor por ramo, ícones e linhas de verdade entre pai e filho.
 - Ramo **Nexus+** (habilidades do Nexus começando já desbloqueadas ou mais fortes).
 - Talentos do herói: renascimento mais rápido, XP extra, vida do herói.
+- **Feito:** 6 ramos em cadeia (os requisitos que pulavam nós foram refeitos para seguir a coluna). Nexus+: Engenharia Arcana (−8%/nível no custo das melhorias do Nexus), Raio Desperto, Campo Gélido e Escudo Ancestral (cada um começa a run com a habilidade no nível 1). Herói: Vigor, Renascer, Sabedoria. Quem já tinha talentos mantém os níveis; um nó cujo novo requisito não foi cumprido só não pode subir mais até cumprir.
 
 ### F8. Conteúdo: raças e classes `[ ]`
 Uma terceira classe para cada raça atual e 2 raças novas (cada uma com 2 classes e herói):

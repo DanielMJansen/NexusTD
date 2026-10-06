@@ -87,7 +87,7 @@ Cada tipo cria um problema novo, não só mais vida.
 
 **Permanente** `FEITO`
 - **Essência** ganha ao fim de toda run (mesmo perdendo).
-- **Árvore de talentos** em 5 ramos (Nexus, Ouro, Exército, Herói, Essência), com nós filhos que exigem nível no pai (modelo do Myth TD).
+- **Árvore de talentos** em 6 ramos (Nexus, Nexus+, Ouro, Exército, Herói, Essência), cada um uma **cadeia vertical**: cada nó exige um nível mínimo no de cima. Cor e ícone por ramo; a linha entre os nós acende quando o requisito é cumprido.
 - **Coleção** de criaturas e **heróis**, comprados com Essência; **equipe** de 6.
 - **Conquistas** (estatísticas de todas as runs) liberam **skins** dos heróis.
 - Salvamento local no navegador (chave `nx4`, migra saves antigos) e **exportar/importar** o progresso em arquivo JSON nas Configurações.
@@ -188,22 +188,29 @@ Dano por golpe contra armadura = `max(1, dano − armadura)`; veneno e poças ig
 | Nexus | **Vitalidade do Nexus** | 5 | 20, 40, 60, 80, 100 | +15 de vida máxima |
 | Nexus | Restauração (Vitalidade 2) | 3 | 40, 80, 120 | +5 de cura entre ondas |
 | Nexus | Pulsar Vital (Restauração 1) | 2 | 100, 200 | +0,25 de vida/s |
-| Nexus | Égide Rúnica (Vitalidade 5) | 1 | 250 | anula o 1º golpe de cada onda |
+| Nexus | Égide Rúnica (Pulsar Vital 1) | 1 | 250 | anula o 1º golpe de cada onda |
+| Nexus+ | **Engenharia Arcana** | 3 | 40, 80, 120 | −8% no custo das melhorias do Nexus |
+| Nexus+ | Raio Desperto (Engenharia 1) | 1 | 150 | começa a run com o Raio do Nexus nível 1 |
+| Nexus+ | Campo Gélido (Raio Desperto 1) | 1 | 200 | começa a run com o Campo de Lentidão nível 1 |
+| Nexus+ | Escudo Ancestral (Campo Gélido 1) | 1 | 250 | começa a run com o Escudo nível 1 |
 | Ouro | **Tesouro Inicial** | 5 | 15, 30, 45, 60, 75 | +10 de ouro inicial |
 | Ouro | Fluxo Dourado (Tesouro 2) | 2 | 60, 120 | renda 0,25 s mais rápida |
-| Ouro | Alquimia (Tesouro 3) | 3 | 50, 100, 150 | −10% no custo de evoluir |
-| Ouro | Recompensa (Fluxo 1) | 2 | 100, 200 | +20% de ouro por abate |
+| Ouro | Alquimia (Fluxo 1) | 3 | 50, 100, 150 | −10% no custo de evoluir |
+| Ouro | Recompensa (Alquimia 1) | 2 | 100, 200 | +20% de ouro por abate |
 | Exército | **Fúria do Exército** | 5 | 20, 40, 60, 80, 100 | +8% de dano |
 | Exército | Prontidão (Fúria 2) | 3 | 60, 120, 180 | +6% vel. de ataque |
-| Exército | Olhos Atentos (Fúria 2) | 3 | 60, 120, 180 | +6% de alcance |
-| Exército | Legião (Prontidão 2) | 1 | 300 | +1 vaga de criatura |
+| Exército | Olhos Atentos (Prontidão 1) | 3 | 60, 120, 180 | +6% de alcance |
+| Exército | Legião (Olhos Atentos 2) | 1 | 300 | +1 vaga de criatura |
 | Herói | **Força do Herói** | 3 | 30, 60, 90 | +15% de dano do herói |
-| Herói | Foco do Pulso (Força 1) | 3 | 50, 100, 150 | −10% na recarga do Pulso |
-| Herói | Passos Leves (Força 1) | 2 | 40, 80 | +10% de velocidade |
-| Herói | Pulso Amplo (Foco 2) | 1 | 200 | +20% de raio/alcance do Pulso |
-| Essência | **Colheita de Almas** | 5 | 30, 60, 90, 120, 150 | +10% de Essência |
+| Herói | Vigor (Força 1) | 3 | 30, 60, 90 | +15 de vida do herói |
+| Herói | Foco do Pulso (Vigor 1) | 3 | 50, 100, 150 | −10% na recarga do Pulso |
+| Herói | Passos Leves (Foco 1) | 2 | 40, 80 | +10% de velocidade do herói |
+| Herói | Renascer (Passos Leves 1) | 2 | 60, 120 | renasce 20% mais rápido |
+| Herói | Sabedoria (Renascer 1) | 3 | 50, 100, 150 | +10% de XP do herói |
+| Herói | Pulso Amplo (Sabedoria 2) | 1 | 200 | +20% de raio do Pulso |
+| Essência | **Colheita de Almas** | 5 | 30, 60, 90, 120, 150 | +10% de Essência por run |
 | Essência | Dízimo da Vitória (Colheita 2) | 2 | 80, 160 | +20 de Essência ao vencer |
-| Essência | Veterano (Colheita 3) | 2 | 100, 200 | +1 de Essência por onda |
+| Essência | Veterano (Dízimo 1) | 2 | 100, 200 | +1 de Essência por onda |
 
 As 3 melhorias permanentes antigas viraram as raízes (mesmo nível): dano → Fúria do Exército, vida → Vitalidade do Nexus, ouro → Tesouro Inicial.
 
@@ -260,6 +267,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 06/10/2026 | Herói vivo: vida, dano de contato, renascimento em 8 s, XP por abate e melhorias só do herói a cada nível; conquista "Sem Torres" |
 | 06/10/2026 | Run de 20 ondas com chefes nas ondas 7 (Rei Ogro), 14 (Rainha Aranha) e 20 (Lich); escalonamento de vida, velocidade e dano; elites; 7 inimigos novos com habilidades; códex; modo Sem Fim; curva de XP do herói mais íngreme |
 | 06/10/2026 | Ouro com destino: evolução proporcional ao custo da cópia, Nexus upável (Vitalidade, Muralha, Raio, Escudo, Campo de Lentidão), moedas e baús no chão coletados pelo herói, melhoria Ímã; vida dos inimigos sobe mais rápido para compensar |
+| 06/10/2026 | Talentos 2.0: ramos em cadeia vertical com cor e ícone; ramo Nexus+ (desconto e habilidades do Nexus desde o início); Herói ganha Vigor, Renascer e Sabedoria |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.

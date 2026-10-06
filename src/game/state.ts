@@ -267,7 +267,7 @@ export function createRun(setup: RunSetup): RunState {
       facing: 1,
       lastAttackAt: -Infinity,
       moving: false,
-      hp: heroDef.maxHp,
+      hp: heroDef.maxHp + t.heroMaxHp,
       dead: false,
       respawnTimer: 0,
       level: 1,
@@ -280,7 +280,8 @@ export function createRun(setup: RunSetup): RunState {
     heroUpgradePicks: {},
     creaturesPlaced: 0,
     seenEnemies: [],
-    nexusLevels: noNexusLevels(),
+    // Nexus+: habilidades que já começam no nível 1
+    nexusLevels: { ...noNexusLevels(), bolt: t.startNexusBolt > 0 ? 1 : 0, slowField: t.startNexusField > 0 ? 1 : 0, shield: t.startNexusShield > 0 ? 1 : 0 },
     nexusShield: { active: 0, cooldown: 0 },
     nexusBoltTimer: 0,
     loot: [],

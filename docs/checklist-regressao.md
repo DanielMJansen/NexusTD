@@ -11,7 +11,8 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Exportar save baixa `nexus-save-AAAA-MM-DD.json`; importar pede confirmação, substitui tudo e recarrega; arquivo inválido mostra erro e não quebra nada.
 
 ## Meta-progressão
-- [ ] Talentos: 5 colunas; nós bloqueados mostram o pré-requisito; comprar desconta Essência, mostra "Atual → Próximo" e persiste.
+- [ ] Talentos: 6 colunas em cadeia (cor e ícone por ramo); a linha entre os nós mostra "Nv N" até cumprir o requisito e depois acende com ✓; nós bloqueados ficam cinza; comprar desconta Essência, mostra "Atual / Próximo" e persiste.
+- [ ] Nexus+: Raio Desperto / Campo Gélido / Escudo Ancestral fazem a run começar com a habilidade no nível 1; Engenharia Arcana baixa os preços no quadro do Nexus.
 - [ ] Coleção: ficha de cada criatura (descrição, lore, atributos, habilidade, forma evoluída com retrato); bloqueadas em silhueta com preço; comprar adiciona à equipe se houver vaga.
 - [ ] Equipe: 6 vagas; clicar adiciona/remove; "Jogar" desabilita com equipe vazia; ordem da equipe = atalhos 1–6.
 - [ ] Heróis: comprar e escolher; descrição de ataque, Pulso e bônus de raça; skins liberadas por conquista são selecionáveis e aparecem na run.

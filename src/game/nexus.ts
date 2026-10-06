@@ -11,9 +11,10 @@ export function nexusLevel<K extends NexusLevel['kind']>(state: RunState, id: K)
   return level > 0 ? (findNexusUpgrade(id).levels[level - 1] as Extract<NexusLevel, { kind: K }>) : null;
 }
 
-/** Custo do próximo nível; null se já está no máximo. */
+/** Custo do próximo nível (com o desconto do Nexus+); null se já está no máximo. */
 export function nexusUpgradeCost(state: RunState, id: NexusUpgradeId): number | null {
-  return findNexusUpgrade(id).costs[state.nexusLevels[id]] ?? null;
+  const cost = findNexusUpgrade(id).costs[state.nexusLevels[id]];
+  return cost === undefined ? null : Math.round(cost * (1 - state.talents.nexusUpgradeDiscount));
 }
 
 export function canBuyNexusUpgrade(state: RunState, id: NexusUpgradeId): boolean {
@@ -37,7 +38,7 @@ export function buyNexusUpgrade(state: RunState, id: NexusUpgradeId): boolean {
   return true;
 }
 
-/** Ouro total gasto no Nexus nesta run. */
+/** Ouro total (sem desconto) correspondente aos níveis do Nexus nesta run (simulação). */
 export const nexusInvestment = (state: RunState): number =>
   NEXUS_UPGRADES.reduce((sum, u) => sum + u.costs.slice(0, state.nexusLevels[u.id]).reduce((a, b) => a + b, 0), 0);
 

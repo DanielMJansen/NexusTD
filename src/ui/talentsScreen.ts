@@ -16,46 +16,61 @@ function nodeHtml(profile: Profile, id: TalentId): string {
   const cost = talentCost(profile, id);
   const available = isTalentAvailable(profile, id);
   const { kind, perLevel } = def.effect;
-  const now = level > 0 ? talentEffectText(kind, perLevel * level) : '—';
+  const now = level > 0 ? talentEffectText(kind, perLevel * level) : null;
   const next = level < max ? talentEffectText(kind, perLevel * (level + 1)) : null;
-  const pips = '●'.repeat(level) + '○'.repeat(max - level);
+  const pips = '<i class="on"></i>'.repeat(level) + '<i></i>'.repeat(max - level);
 
   let footer: string;
   if (cost === null) footer = '<span class="node-max">Máximo</span>';
-  else if (!available && def.requires) {
-    footer = `<span class="node-lock">🔒 Requer ${TALENTS[def.requires.id].name} nível ${def.requires.level}</span>`;
-  } else {
+  else if (!available) footer = '<span class="node-lock">🔒 Bloqueado</span>';
+  else {
     footer = `<button class="node-buy" data-action="buy" data-value="${id}"${canBuyTalent(profile, id) ? '' : ' disabled'}>
-      Melhorar ${essence(cost)}</button>`;
+      ${level ? 'Melhorar' : 'Aprender'} ${essence(cost)}</button>`;
   }
 
   const classes = ['talent-node', level > 0 ? 'owned' : '', !available ? 'locked' : '', cost === null ? 'maxed' : '']
     .filter(Boolean)
     .join(' ');
   return `<div class="${classes}">
-    <div class="node-head"><b>${def.name}</b><span class="pips">${pips}</span></div>
+    <div class="node-head">
+      <span class="node-icon">${def.icon}</span>
+      <div><b>${def.name}</b><span class="node-pips">${pips}</span></div>
+    </div>
     <div class="node-desc">${def.description}</div>
-    <div class="node-effect">Atual: <b>${now}</b>${next ? `<br>Próximo: <b>${next}</b>` : ''}</div>
+    <div class="node-effect">${now ? `Atual: <b>${now}</b>` : ''}${now && next ? '<br>' : ''}${next ? `${now ? 'Próximo' : 'Nível 1'}: <b>${next}</b>` : ''}</div>
     ${footer}
   </div>`;
 }
 
-/** Árvore de talentos: uma coluna por ramo; nós filhos exigem nível no pai. */
+/** Ligação entre um nó e o de baixo: acesa quando o requisito já foi cumprido. */
+function linkHtml(profile: Profile, child: TalentId): string {
+  const req = TALENTS[child].requires;
+  if (!req) return '';
+  const met = isTalentAvailable(profile, child);
+  return `<div class="node-link${met ? ' met' : ''}"><span>${met ? '✓' : `Nv ${req.level}`}</span></div>`;
+}
+
+/** Árvore de talentos: uma coluna por ramo, em cadeia vertical (cada nó exige o de cima). */
 export function showTalents(profile: Profile, handlers: TalentHandlers): void {
   const columns = TALENT_BRANCHES.map((branch) => {
-    const nodes = TALENT_IDS.filter((id) => TALENTS[id].branch === branch.id)
-      .map((id) => nodeHtml(profile, id))
-      .join('<div class="node-link"></div>');
-    return `<div class="talent-branch"><h3>${branch.icon} ${branch.name}</h3>${nodes}</div>`;
+    const ids = TALENT_IDS.filter((id) => TALENTS[id].branch === branch.id);
+    const spent = ids.reduce((sum, id) => sum + TALENTS[id].costs.slice(0, talentLevel(profile, id)).reduce((a, b) => a + b, 0), 0);
+    const nodes = ids.map((id) => linkHtml(profile, id) + nodeHtml(profile, id)).join('');
+    return `<div class="talent-branch" style="--branch-color:${branch.color}">
+      <h3><span class="branch-icon">${branch.icon}</span>${branch.name}</h3>
+      <small class="branch-spent">${spent ? `${spent} investidos` : '&nbsp;'}</small>
+      ${nodes}
+    </div>`;
   }).join('');
 
   showOverlay(
-    `<div class="panel screen">
+    `<div class="panel screen talents-screen">
       <div class="screen-head">
         <button data-action="back">← Voltar</button>
         <h2>Talentos</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>
+      <p class="subtitle">Cada ramo é uma trilha: aprenda o talento de cima para liberar o de baixo.</p>
       <div class="talent-tree">${columns}</div>
     </div>`,
     { buy: (id) => handlers.onBuy(id as TalentId), back: () => handlers.onBack() },

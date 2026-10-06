@@ -13,7 +13,8 @@ import { distance, type RunState } from './state';
 
 // Vida, XP e níveis do herói durante a run.
 
-export const heroMaxHp = (state: RunState): number => state.hero.def.maxHp + state.heroStats.maxHp;
+export const heroMaxHp = (state: RunState): number =>
+  state.hero.def.maxHp + state.talents.heroMaxHp + state.heroStats.maxHp;
 
 /** Cura o herói (sem passar do máximo). */
 export function healHero(state: RunState, amount: number): void {
