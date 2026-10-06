@@ -2599,3 +2599,17 @@ body:not([data-mode='run']) #side-panel {
   gap: 6px;
   font-size: 15px;
 }
+
+#menu-hud {
+  gap: 6px;
+}
+
+#menu-hud .chip {
+  padding: 4px 12px;
+  gap: 7px;
+  font-size: 15px;
+}
+
+#menu-hud .chip[hidden] {
+  display: none;
+}

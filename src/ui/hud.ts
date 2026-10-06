@@ -3,8 +3,7 @@ import { xpToNextLevel } from '../data/heroUpgrades';
 import { heroMaxHp } from '../game/hero';
 import { CREATURE_IDS } from '../data/creatures';
 import { HERO_IDS } from '../data/heroes';
-import type { Profile } from '../game/profile';
-import { essence } from './currency';
+import { hasSanctuary, type Profile } from '../game/profile';
 import { heroSheetHtml } from './describe';
 import type { RunState } from '../game/state';
 
@@ -54,15 +53,20 @@ const menuBest = document.querySelector<HTMLElement>('#menu-best')!;
 const menuCollection = document.querySelector<HTMLElement>('#menu-collection')!;
 const menuHeroes = document.querySelector<HTMLElement>('#menu-heroes')!;
 const menuWins = document.querySelector<HTMLElement>('#menu-wins')!;
+const menuFragments = document.querySelector<HTMLElement>('#menu-fragments')!;
+const menuFragmentsChip = document.querySelector<HTMLElement>('#menu-fragments-chip')!;
 
 /** Fora da run, o topo mostra o progresso permanente em vez dos dados da run. */
 export function updateMenuHud(profile: Profile): void {
-  const html = essence(profile.essence);
-  if (menuEssence.innerHTML !== html) menuEssence.innerHTML = html;
-  setText(menuBest, profile.bestWave > 0 ? `Melhor onda ${profile.bestWave}` : 'Sem runs ainda');
-  setText(menuCollection, `${profile.ownedCreatures.length}/${CREATURE_IDS.length}`);
-  setText(menuHeroes, `${profile.ownedHeroes.length}/${HERO_IDS.length}`);
-  setText(menuWins, `${profile.stats.wins}/${profile.stats.runs} vitórias`);
+  setText(menuEssence, `${profile.essence}`);
+  const fragmentTotal = Object.values(profile.fragments).reduce((a, b) => a + b, 0);
+  const showFragments = hasSanctuary(profile);
+  if (menuFragmentsChip.hidden === showFragments) menuFragmentsChip.hidden = !showFragments;
+  setText(menuFragments, `${fragmentTotal}`);
+  setText(menuBest, profile.bestWave > 0 ? `onda ${profile.bestWave}` : 'nenhuma ainda');
+  setText(menuCollection, `${profile.ownedCreatures.length} de ${CREATURE_IDS.length}`);
+  setText(menuHeroes, `${profile.ownedHeroes.length} de ${HERO_IDS.length}`);
+  setText(menuWins, `${profile.stats.wins} de ${profile.stats.runs} runs`);
 }
 
 function setText(element: HTMLElement, text: string): void {

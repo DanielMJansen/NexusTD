@@ -50,13 +50,13 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
         <button class="${saved ? '' : 'play-button'}" data-action="play"${profile.team.length ? '' : ' disabled'}>${saved ? 'Nova run' : '▶ Jogar'}</button>
         <button data-action="stages">Fase <small>${stage.number} · ${stage.name}</small></button>
         <button data-action="heroes">Herói <small>${HEROES[profile.selectedHero].name}</small></button>
-        <button data-action="team">Equipe <small>${profile.team.length}/${TEAM_SIZE}</small></button>
-        <button data-action="collection">Coleção <small>${profile.ownedCreatures.length}/${CREATURE_IDS.length}</small></button>
+        <button data-action="team">Equipe <small>${profile.team.length} de ${TEAM_SIZE}</small></button>
+        <button data-action="collection">Coleção <small>${profile.ownedCreatures.length} de ${CREATURE_IDS.length}</small></button>
         <button data-action="talents">Talentos</button>
         ${isAltarUnlocked(profile) ? '<button data-action="altar">Altar de Variantes</button>' : ''}
-        ${hasSanctuary(profile) ? `<button data-action="sanctuary">Santuário <small>${Object.values(profile.fragments).reduce((a, b) => a + b, 0)} ❖</small></button>` : ''}
-        <button data-action="achievements">Conquistas <small>${profile.achievements.length}/${ACHIEVEMENT_IDS.length}</small></button>
-        <button data-action="codex">Códex <small>${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length}/${CODEX_ENEMIES.length}</small></button>
+        ${hasSanctuary(profile) ? `<button data-action="sanctuary">Santuário <small>${Object.values(profile.fragments).reduce((a, b) => a + b, 0)} ❖ para gastar</small></button>` : ''}
+        <button data-action="achievements">Conquistas <small>${profile.achievements.length} de ${ACHIEVEMENT_IDS.length}</small></button>
+        <button data-action="codex">Códex <small>${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length} de ${CODEX_ENEMIES.length} vistos</small></button>
         <button data-action="settings">⚙ Configurações</button>
       </div>
     </div>`,
