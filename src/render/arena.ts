@@ -122,7 +122,7 @@ export function drawBackground(
   }
   ctx.drawImage(cache, 0, 0, world.width, world.height);
 
-  if (stage.biome === 'swamp') drawSwampLife(ctx, time, stage.terrain, world);
+  if (stage.biome === 'swamp') drawSwampLife(ctx, time, stage.terrain?.kind === 'mud' ? stage.terrain : undefined, world);
   drawRuneCircle(ctx, time, nexus);
   if (stage.biome === 'graveyard') for (const candle of graveyardLayout(stage, world, nexus).candles) drawCandle(ctx, candle.x, candle.y, time + candle.phase);
 }

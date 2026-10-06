@@ -52,6 +52,11 @@ export interface Enemy extends Point {
   poisonDps: number;
   /** Com medo: anda para longe do Nexus enquanto o tempo durar. */
   fearTimer: number;
+  /** Segundos desde o último golpe de fogo (corta a regeneração do Troll). */
+  fireHitTimer?: number;
+  /** Mergulho do Wyrm: submerso agora e tempo até trocar. */
+  diving?: boolean;
+  diveTime?: number;
   /** Trilha seguida (índice da entrada da fase) e próximo ponto dela; sem trilha, vai direto ao Nexus. */
   path?: number;
   waypoint?: number;
@@ -143,6 +148,8 @@ export interface Creature extends Point {
   sanctuary?: number;
   /** Variante cosmética do Altar (só visual). */
   variant?: VariantTier;
+  /** Atordoada por congelamento (bloco de gelo em vez de estrelas). */
+  frozen?: boolean;
   /** Visual da lentidão: teia (Aranha) ou praga (Bruxa do Brejo). */
   webLook?: 'web' | 'curse';
   /** Engolida pelo Rei Sapo: fora de combate (segundos restantes). */
@@ -289,6 +296,10 @@ export interface RunState {
   guards: { name: string; x: number; y: number; hp: number; maxHp: number; vital: boolean; lastHitAt: number }[];
   /** Escolta: parada atual do Nexus. */
   escortStop: number;
+  /** Lago congelado: cansaço e buracos por célula (fases com gelo). */
+  ice: { stress: number[]; holes: number[]; cols: number; rows: number; x0: number; y0: number } | null;
+  /** Avalanche em andamento (evento da onda). */
+  avalanche: { entrance: number; t: number; delay: number; duration: number; width: number } | null;
   /** Objetos interativos do mapa (estado da run). */
   interactables: { kind: 'brazier'; x: number; y: number; radius: number; lit: boolean; progress: number }[];
   /** Clima: ativo agora, segundos até mudar, se já avisou e se a onda forçou. */
@@ -407,6 +418,8 @@ export function createRun(setup: RunSetup): RunState {
     map: { width: geometry.width, height: geometry.height },
     guards: (STAGES[setup.stage ?? FIRST_STAGE].guards ?? []).map((g) => ({ ...g, maxHp: g.hp, lastHitAt: -Infinity })),
     escortStop: 0,
+    ice: null,
+    avalanche: null,
     interactables: (STAGES[setup.stage ?? FIRST_STAGE].interactables ?? []).map((o) => ({ ...o, lit: true, progress: 0 })),
     weather: { active: false, timer: STAGES[setup.stage ?? FIRST_STAGE].weather?.every ?? 0, warned: false, forced: false },
     gold: ECONOMY.startGold + t.startGold,

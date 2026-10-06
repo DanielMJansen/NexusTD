@@ -107,6 +107,11 @@ export function startWave(state: RunState): void {
   state.wardReady = state.talents.nexusWard > 0;
   const scripted = scriptedWave(state.stage, state.wave);
   if (scripted?.weather) startWeather(state, true);
+  if (scripted?.event?.kind === 'avalanche') {
+    const { entrance, delay, duration, width } = scripted.event;
+    state.avalanche = { entrance, t: 0, delay, duration, width };
+    state.events.push({ type: 'avalancheWarning', entrance, seconds: Math.ceil(delay) });
+  }
   state.events.push({ type: 'waveStarted', wave: state.wave, total: stageWaveCount(state.stage), kind: scripted?.kind ?? 'normal', title: scripted?.title });
 }
 

@@ -21,7 +21,15 @@ export type EnemyId =
   | 'wisp'
   | 'toadKing'
   | 'elderCroc'
-  | 'hydra';
+  | 'hydra'
+  | 'frostWolf'
+  | 'snowGolem'
+  | 'snowball'
+  | 'iceSpirit'
+  | 'glacierTroll'
+  | 'kobold'
+  | 'yetiElder'
+  | 'frostWyrm';
 
 /** Habilidades e passivas dos inimigos (cada uma tem seu próprio tempo de recarga). */
 export type EnemyTrait =
@@ -45,6 +53,12 @@ export type EnemyTrait =
   | { kind: 'swallow'; range: number; cooldown: number; duration: number; breakDamage: number }
   /** Mergulha (intocável por `hide` s) e reaparece a `landAt` do Nexus, já em investida. */
   | { kind: 'burrow'; cooldown: number; hide: number; landAt: number }
+  /** Congela criaturas (toque ou bola de neve): ficam paradas por `duration` s. */
+  | { kind: 'freeze'; range: number; cooldown: number; duration: number; targets: number }
+  /** Regenera `perSecond` da vida máxima por segundo, a não ser que tenha levado dano de fogo há pouco. */
+  | { kind: 'regen'; perSecond: number }
+  /** Mergulha sob o gelo (intocável e mais rápido) e emerge rachando o gelo e congelando criaturas próximas. */
+  | { kind: 'dive'; surface: number; dive: number; radius: number; freeze: number }
   /** Cabeças: cada uma é uma barra de vida; cabeças cortadas renascem em dobro após `regrow` s (até `max`). */
   | { kind: 'heads'; start: number; max: number; regrow: number }
   /** Ergue outros inimigos ao redor de si. */
@@ -90,6 +104,8 @@ export interface EnemyDef {
   isBoss: boolean;
   /** Só aparece por invocação ou divisão (fica fora do códex). */
   minion?: boolean;
+  /** Inimigo de gelo: leva +25% de dano de criaturas de fogo. */
+  frost?: boolean;
 }
 
 const base = {
@@ -501,6 +517,155 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     traits: [
       { kind: 'heads', start: 3, max: 5, regrow: 10 },
       { kind: 'ranged', range: 120, damage: 6, cooldown: 1.8 },
+    ],
+  },
+  // ---------- Tundra (Fase 3) ----------
+  frostWolf: {
+    ...base,
+    id: 'frostWolf',
+    name: 'Lobo Gélido',
+    description: 'Rápido e fraco; caça em matilha.',
+    hp: 15,
+    speed: 56,
+    radius: 7,
+    scale: 0.95,
+    color: '#cfe6ff',
+    nexusDamage: 4,
+    heroDps: 7,
+    gold: 2,
+    xp: 2,
+    frost: true,
+    pack: { chance: 0.7, angleOffsets: [0.08, -0.08, 0.16] },
+  },
+  snowGolem: {
+    ...base,
+    id: 'snowGolem',
+    name: 'Golem de Neve',
+    description: 'Lento e resistente; ao morrer se desfaz em bolas de neve que rolam rápido.',
+    hp: 70,
+    speed: 18,
+    radius: 11,
+    scale: 1.25,
+    color: '#e8f4ff',
+    nexusDamage: 10,
+    heroDps: 10,
+    gold: 6,
+    xp: 6,
+    armor: 2,
+    frost: true,
+    traits: [{ kind: 'split', into: 'snowball', count: 3 }],
+  },
+  snowball: {
+    ...base,
+    id: 'snowball',
+    name: 'Bola de Neve',
+    description: 'Rola rápido até o Nexus.',
+    hp: 10,
+    speed: 64,
+    radius: 5,
+    scale: 0.7,
+    color: '#ffffff',
+    nexusDamage: 3,
+    heroDps: 4,
+    gold: 1,
+    xp: 1,
+    frost: true,
+    minion: true,
+  },
+  iceSpirit: {
+    ...base,
+    id: 'iceSpirit',
+    name: 'Espírito do Gelo',
+    description: 'Voa até as criaturas e congela a que tocar.',
+    hp: 24,
+    speed: 32,
+    radius: 6,
+    color: '#9adcff',
+    nexusDamage: 5,
+    heroDps: 4,
+    gold: 4,
+    xp: 3,
+    flying: true,
+    frost: true,
+    zigzag: { lateralSpeed: 20, frequency: 2.5 },
+    traits: [{ kind: 'freeze', range: 26, cooldown: 6, duration: 2, targets: 1 }],
+  },
+  glacierTroll: {
+    ...base,
+    id: 'glacierTroll',
+    name: 'Troll da Geleira',
+    description: 'Tanque que regenera a vida, a não ser que leve dano de fogo.',
+    hp: 150,
+    speed: 16,
+    radius: 12,
+    scale: 1.35,
+    color: '#7a90a8',
+    nexusDamage: 14,
+    heroDps: 14,
+    gold: 9,
+    xp: 8,
+    armor: 3,
+    frost: true,
+    traits: [{ kind: 'regen', perSecond: 0.04 }],
+  },
+  kobold: {
+    ...base,
+    id: 'kobold',
+    name: 'Kobold Escavador',
+    description: 'Cava por baixo da neve e surge perto do Nexus, longe das trilhas.',
+    hp: 28,
+    speed: 26,
+    radius: 7,
+    scale: 0.85,
+    color: '#b87a4a',
+    nexusDamage: 5,
+    heroDps: 6,
+    gold: 4,
+    xp: 3,
+    traits: [{ kind: 'burrow', cooldown: 14, hide: 2, landAt: 120 }],
+  },
+  yetiElder: {
+    ...base,
+    id: 'yetiElder',
+    name: 'Yeti Ancião',
+    description: 'Chefe. Arremessa bolas de neve que congelam criaturas e pisa no chão.',
+    hp: 620,
+    speed: 13,
+    radius: 18,
+    scale: 2.2,
+    color: '#e8f0f8',
+    nexusDamage: 35,
+    heroDps: 35,
+    gold: 40,
+    xp: 50,
+    armor: 3,
+    frost: true,
+    isBoss: true,
+    traits: [
+      { kind: 'freeze', range: 150, cooldown: 4.5, duration: 2.2, targets: 2 },
+      { kind: 'stomp', radius: 70, stun: 1, cooldown: 9 },
+    ],
+  },
+  frostWyrm: {
+    ...base,
+    id: 'frostWyrm',
+    name: 'Wyrm de Gelo',
+    description: 'Chefe final. Nada sob o gelo do lago, intocável, e emerge rachando o gelo e congelando as criaturas.',
+    hp: 1500,
+    speed: 12,
+    radius: 20,
+    scale: 2.2,
+    color: '#7ab8e8',
+    nexusDamage: 70,
+    heroDps: 40,
+    gold: 100,
+    xp: 120,
+    armor: 5,
+    frost: true,
+    isBoss: true,
+    traits: [
+      { kind: 'dive', surface: 6, dive: 4, radius: 80, freeze: 1.8 },
+      { kind: 'ranged', range: 120, damage: 10, cooldown: 2 },
     ],
   },
 };

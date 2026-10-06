@@ -1,3 +1,4 @@
+import { avalanchePosition } from '../game/mapEvents';
 import { ARENA, INTERACT } from '../data/config';
 import { resolveNexus } from './nexusLook';
 import { VARIANTS } from '../data/altar';
@@ -60,6 +61,8 @@ export function drawFrame(
   ctx.translate(shake.x - Math.round(camera.x * px) / px, shake.y - Math.round(camera.y * px) / px);
   drawBackground(ctx, time, STAGES[state.stage], state.map, state.nexus);
 
+  drawIce(ctx, state, time);
+  drawAvalancheWarning(ctx, state, time);
   drawNexusGround(ctx, state, !!interaction.nexusOpen, time);
   for (const pool of state.pools) drawPool(ctx, pool, time);
   for (const strike of state.pulseFx.strikes) drawStrikeWarning(ctx, strike, time);
@@ -90,6 +93,7 @@ export function drawFrame(
 
   if (interaction.inspected) drawInspectRange(ctx, state, interaction.inspected, interaction.hoverBranch ?? null);
   if (interaction.placement) drawPlacementPreview(ctx, state, interaction.placement, time);
+  drawAvalanche(ctx, state, time);
   effects.drawWorld(ctx, time);
   ctx.restore();
   if (state.weather.active) drawBlizzard(ctx, time);
@@ -351,7 +355,10 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
     if (creature.webLook === 'curse') drawCurse(ctx, creature.x, creature.y - 4, Math.min(1, creature.webTimer * 2), time);
     else drawWeb(ctx, creature.x, creature.y - 4, Math.min(1, creature.webTimer * 2));
   }
-  if (creature.stunTimer > 0) drawStunStars(ctx, creature.x, creature.y - 26, time);
+  if (creature.stunTimer > 0) {
+    if (creature.frozen) drawFrozenBlock(ctx, creature.x, creature.y - 6);
+    else drawStunStars(ctx, creature.x, creature.y - 26, time);
+  }
   if (creature.level > 1) drawLevelStars(ctx, creature.x, creature.y + 20, creature.level);
   if (canEvolve(state, creature)) drawEvolveHint(ctx, creature.x, creature.y - 30 * levelInfo(creature).scale, time);
 }
@@ -946,4 +953,97 @@ function drawBlizzard(ctx: CanvasRenderingContext2D, time: number): void {
     ctx.fill();
   }
   ctx.restore();
+}
+
+/** Lago: rachaduras onde o gelo cansou e buracos de água escura (fecham aos poucos). */
+function drawIce(ctx: CanvasRenderingContext2D, state: RunState, time: number): void {
+  const terrain = STAGES[state.stage].terrain;
+  const g = state.ice;
+  if (terrain?.kind !== 'ice' || !g) return;
+  const size = terrain.cell;
+  for (let i = 0; i < g.holes.length; i++) {
+    const x = g.x0 + ((i % g.cols) + 0.5) * size;
+    const y = g.y0 + (Math.floor(i / g.cols) + 0.5) * size;
+    const hole = g.holes[i]!;
+    if (hole > 0) {
+      const closing = Math.min(1, hole / 3);
+      ctx.fillStyle = `rgba(14, 40, 70, ${0.85 * closing})`;
+      ctx.beginPath();
+      ctx.ellipse(x, y, size * 0.55, size * 0.4, 0, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = `rgba(200, 236, 255, ${0.8 * closing})`;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(120, 190, 230, ${0.4 * closing})`;
+      ctx.beginPath();
+      ctx.ellipse(x + Math.sin(time * 2 + i) * 2, y, size * 0.3, size * 0.18, 0, 0, TAU);
+      ctx.stroke();
+      continue;
+    }
+    const stress = g.stress[i]! / terrain.crackAt;
+    if (stress < 0.35) continue;
+    // rachaduras crescem com o cansaço
+    ctx.strokeStyle = `rgba(90, 140, 190, ${0.25 + stress * 0.55})`;
+    ctx.lineWidth = 0.8 + stress;
+    ctx.beginPath();
+    for (let k = 0; k < 3; k++) {
+      const a = k * 2.1 + i;
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + Math.cos(a) * size * 0.5 * stress, y + Math.sin(a) * size * 0.4 * stress);
+    }
+    ctx.stroke();
+  }
+}
+
+/** Aviso da avalanche: a trilha pisca em vermelho antes de descer. */
+function drawAvalancheWarning(ctx: CanvasRenderingContext2D, state: RunState, time: number): void {
+  const a = state.avalanche;
+  if (!a || a.t >= a.delay) return;
+  const path = STAGES[state.stage].entrances?.[a.entrance]?.path;
+  if (!path) return;
+  ctx.save();
+  ctx.strokeStyle = `rgba(255, 90, 90, ${0.25 + 0.25 * Math.sin(time * 10)})`;
+  ctx.lineWidth = a.width * 2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  path.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Avalanche descendo: massa de neve com nuvem de pó. */
+function drawAvalanche(ctx: CanvasRenderingContext2D, state: RunState, time: number): void {
+  const at = avalanchePosition(state);
+  const a = state.avalanche;
+  if (!at || !a) return;
+  for (let k = 0; k < 14; k++) {
+    const ang = (k / 14) * TAU + time * 3;
+    const r = a.width * (0.5 + 0.4 * Math.sin(time * 7 + k));
+    ctx.fillStyle = k % 2 ? 'rgba(255, 255, 255, 0.9)' : 'rgba(210, 228, 245, 0.85)';
+    ctx.beginPath();
+    ctx.arc(at.x + Math.cos(ang) * r * 0.6, at.y + Math.sin(ang) * r * 0.45, a.width * 0.45, 0, TAU);
+    ctx.fill();
+  }
+}
+
+/** Criatura congelada: bloco de gelo translúcido. */
+function drawFrozenBlock(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+  ctx.fillStyle = 'rgba(180, 225, 255, 0.45)';
+  ctx.strokeStyle = 'rgba(230, 248, 255, 0.9)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(x - 13, y + 18);
+  ctx.lineTo(x - 15, y - 12);
+  ctx.lineTo(x - 4, y - 22);
+  ctx.lineTo(x + 12, y - 16);
+  ctx.lineTo(x + 15, y + 16);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.beginPath();
+  ctx.moveTo(x - 9, y - 10);
+  ctx.lineTo(x - 5, y - 16);
+  ctx.stroke();
 }

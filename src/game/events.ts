@@ -15,9 +15,15 @@ export type GameEvent =
   | { type: 'heroAttack'; hero: HeroId; from: Point; to: Point; cone: number | null; range: number }
   | { type: 'enemyKilled'; enemy: EnemyId; x: number; y: number; gold: number; color: string; elite: boolean }
   /** Tiro de inimigo: flecha/raio no herói ou teia numa criatura. */
-  | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web' | 'curse' | 'acid'; from: Point; to: Point }
+  | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web' | 'curse' | 'acid' | 'snowball'; from: Point; to: Point }
   | { type: 'enemyLeap'; x: number; y: number }
   | { type: 'pulseReady'; x: number; y: number }
+  | { type: 'iceCracked'; x: number; y: number }
+  | { type: 'enemyFell'; x: number; y: number }
+  | { type: 'creatureFrozen'; x: number; y: number }
+  | { type: 'wyrmSurfaced'; x: number; y: number; radius: number }
+  | { type: 'avalancheWarning'; entrance: number; seconds: number }
+  | { type: 'avalancheEnded' }
   | { type: 'guardHit'; x: number; y: number; damage: number }
   | { type: 'guardDestroyed'; name: string; x: number; y: number }
   | { type: 'caravanMoved'; from: Point; to: Point }

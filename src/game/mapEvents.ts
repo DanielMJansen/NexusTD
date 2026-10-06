@@ -20,7 +20,53 @@ export function endWeather(state: RunState): void {
   state.events.push({ type: 'weatherEnded', kind: rule.kind });
 }
 
-export function updateMapEvents(state: RunState, dt: number): void {
+/** Ponto ao longo da trilha (0 = começo, 1 = fim). */
+function pointOnPath(path: { x: number; y: number }[], t: number): { x: number; y: number } {
+  const lengths = path.slice(1).map((p, i) => Math.hypot(p.x - path[i]!.x, p.y - path[i]!.y));
+  let d = lengths.reduce((a, b) => a + b, 0) * Math.max(0, Math.min(1, t));
+  for (let i = 0; i < lengths.length; i++) {
+    if (d <= lengths[i]!) {
+      const f = d / (lengths[i]! || 1);
+      return { x: path[i]!.x + (path[i + 1]!.x - path[i]!.x) * f, y: path[i]!.y + (path[i + 1]!.y - path[i]!.y) * f };
+    }
+    d -= lengths[i]!;
+  }
+  return path[path.length - 1]!;
+}
+
+/** Posição atual da avalanche (null antes de descer ou sem avalanche). */
+export function avalanchePosition(state: RunState): { x: number; y: number } | null {
+  const a = state.avalanche;
+  if (!a || a.t < a.delay) return null;
+  const path = STAGES[state.stage].entrances?.[a.entrance]?.path;
+  return path ? pointOnPath(path, (a.t - a.delay) / a.duration) : null;
+}
+
+/** Avalanche: desce pela trilha esmagando inimigos comuns e congelando criaturas no caminho. */
+function updateAvalanche(state: RunState, dt: number, crush: (index: number) => void): void {
+  const a = state.avalanche;
+  if (!a) return;
+  a.t += dt;
+  const at = avalanchePosition(state);
+  if (at) {
+    state.enemies.forEach((e, i) => {
+      if (!e.dead && e.allyTimer <= 0 && !e.def.isBoss && !e.def.flying && distance(e, at) <= a.width) crush(i);
+    });
+    for (const c of state.creatures) {
+      if (distance(c, at) <= a.width) {
+        c.stunTimer = Math.max(c.stunTimer, 2.5);
+        c.frozen = true;
+      }
+    }
+  }
+  if (a.t >= a.delay + a.duration) {
+    state.avalanche = null;
+    state.events.push({ type: 'avalancheEnded' });
+  }
+}
+
+export function updateMapEvents(state: RunState, dt: number, crush: (index: number) => void = () => {}): void {
+  updateAvalanche(state, dt, crush);
   const rule = STAGES[state.stage].weather;
   if (rule && !state.weather.forced) {
     state.weather.timer -= dt;

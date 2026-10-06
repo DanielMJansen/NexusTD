@@ -1,3 +1,4 @@
+import { drawFrostWolf, drawFrostWyrm, drawGlacierTroll, drawIceSpirit, drawKobold, drawSnowball, drawSnowGolem, drawYeti } from './spritesTundra';
 import type { CreatureId } from '../data/creatures';
 import type { EnemyId } from '../data/enemies';
 import type { HeroId } from '../data/heroes';
@@ -279,6 +280,30 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'hydra':
       drawHydra(ctx, p);
+      break;
+    case 'frostWolf':
+      drawFrostWolf(ctx, p);
+      break;
+    case 'snowGolem':
+      drawSnowGolem(ctx, p);
+      break;
+    case 'snowball':
+      drawSnowball(ctx, p);
+      break;
+    case 'iceSpirit':
+      drawIceSpirit(ctx, p);
+      break;
+    case 'glacierTroll':
+      drawGlacierTroll(ctx, p);
+      break;
+    case 'kobold':
+      drawKobold(ctx, p);
+      break;
+    case 'yetiElder':
+      drawYeti(ctx, p);
+      break;
+    case 'frostWyrm':
+      drawFrostWyrm(ctx, p);
       break;
   }
   ctx.restore();

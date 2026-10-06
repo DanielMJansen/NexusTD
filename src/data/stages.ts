@@ -17,7 +17,22 @@ export interface MudTerrain {
   heroSlow: number;
 }
 
-export type Terrain = MudTerrain;
+/** Lago congelado: inimigos deslizam (mais rápidos, não podem ser segurados); onde muitos passam, o gelo racha e vira buraco. */
+export interface IceTerrain {
+  kind: 'ice';
+  lake: { x: number; y: number; rx: number; ry: number };
+  /** Ilha de pedra (sem gelo) onde fica o Nexus. */
+  island: { x: number; y: number; r: number };
+  /** Multiplicador de velocidade no gelo. */
+  slide: number;
+  /** Tamanho da célula da grade de rachaduras e "cansaço" (segundos×inimigo) para rachar. */
+  cell: number;
+  crackAt: number;
+  /** Segundos até o buraco congelar de novo. */
+  holeTime: number;
+}
+
+export type Terrain = MudTerrain | IceTerrain;
 
 /** Geometria do mapa: tamanho do mundo e posição do Nexus (padrão: a tela, Nexus no centro). */
 export interface StageMap {
@@ -106,6 +121,8 @@ export interface ScriptedWave {
   entrances?: number[];
   /** Força o clima da fase durante a onda inteira (ex.: Nevasca Eterna). */
   weather?: boolean;
+  /** Evento da onda: avalanche que desce por uma entrada (avisada antes). */
+  event?: { kind: 'avalanche'; entrance: number; delay: number; duration: number; width: number };
 }
 
 export const DEFAULT_MAP: StageMap = { width: 640, height: 360, nexus: { x: 320, y: 180 } };

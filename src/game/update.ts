@@ -1,3 +1,4 @@
+import { updateIce } from './ice';
 import { vitalGuardLost } from './objectives';
 import { updateMapEvents } from './mapEvents';
 import { SANCTUARY } from '../data/sanctuary';
@@ -5,7 +6,7 @@ import { stageWaveCount, STAGES } from '../data/stages';
 import { ECONOMY, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
 import { offerChoices } from './choices';
-import { applyBlocks, updateCreatures, updateDamageOverTime, updateHero } from './combat';
+import { applyBlocks, updateCreatures, updateDamageOverTime, updateHero, damageEnemy } from './combat';
 import { updateEnemies } from './enemies';
 import { updatePulses } from './pulses';
 import { updateLoot } from './loot';
@@ -57,7 +58,18 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
     state.spawnTimer = state.spawnIntervalOverride ?? spawnInterval(state.wave);
   }
 
-  updateMapEvents(state, dt);
+  // quem cai num buraco do gelo ou é esmagado pela avalanche morre (com recompensa)
+  const kill = (index: number) => {
+    const e = state.enemies[index];
+    if (!e || e.dead) return;
+    damageEnemy(state, e, e.hp + 1e6, undefined, { ignoreArmor: true });
+  };
+  updateMapEvents(state, dt, kill);
+  updateIce(state, dt, (index) => {
+    const e = state.enemies[index];
+    if (e && !e.dead) state.events.push({ type: 'enemyFell', x: e.x, y: e.y });
+    kill(index);
+  });
   updateHeroVitals(state, dt);
   updatePulses(state, dt, input.aim);
   // deslizando (Travessia), o herói não anda nem ataca por conta própria

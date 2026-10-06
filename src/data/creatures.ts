@@ -153,6 +153,8 @@ export interface AscendedForm {
 export type CreatureUnlock = { kind: 'start' } | { kind: 'essence'; cost: number };
 
 export interface CreatureDef {
+  /** Elemento (fogo: +25% de dano em inimigos de gelo e corta a regeneração deles). */
+  element?: 'fire';
   id: CreatureId;
   name: string;
   race: string;
@@ -309,6 +311,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
   },
   fireDragon: {
     id: 'fireDragon',
+    element: 'fire',
     name: 'Fogo',
     race: 'Dragão',
     role: 'Área',
@@ -660,6 +663,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
   },
   magmaGolem: {
     id: 'magmaGolem',
+    element: 'fire',
     name: 'Magma',
     race: 'Golem',
     role: 'Área ao redor',
@@ -807,6 +811,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
   },
   imp: {
     id: 'imp',
+    element: 'fire',
     name: 'Diabrete',
     race: 'Demônio',
     role: 'DPS barato e rápido',
@@ -850,6 +855,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
   },
   infernal: {
     id: 'infernal',
+    element: 'fire',
     name: 'Infernal',
     race: 'Demônio',
     role: 'Área pesada',

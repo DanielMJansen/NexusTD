@@ -5,6 +5,7 @@ import { updateAlly, updateStatusTimers } from './hitEffects';
 import { damageNexus, nexusSlowFactor } from './nexus';
 import { spawnEnemyAt } from './spawning';
 import { inMud } from './terrain';
+import { breakIce, iceSpeed, onIce } from './ice';
 import { enemyGoal, joinNearestPath } from './paths';
 import { damageGuard, defendTarget } from './objectives';
 import { distance, type Enemy, type RunState } from './state';
@@ -128,6 +129,50 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         state.events.push({ type: 'enemyBurrow', x: enemy.x, y: enemy.y, surfacing: false });
         break;
       }
+      case 'freeze': {
+        // congela as criaturas mais próximas (toque ou bola de neve)
+        if (!ready || !onScreen(state, enemy)) break;
+        const targets = state.creatures
+          .filter((c) => c.stunTimer <= 0 && distance(c, enemy) <= trait.range)
+          .sort((a, b) => distance(a, enemy) - distance(b, enemy))
+          .slice(0, trait.targets);
+        if (!targets.length) break;
+        for (const c of targets) {
+          c.stunTimer = trait.duration;
+          c.frozen = true;
+          markAttack(enemy, state.time, c);
+          if (trait.range > 50) state.events.push({ type: 'enemyShot', kind: 'snowball', from: { x: enemy.x, y: enemy.y - 10 }, to: { x: c.x, y: c.y - 6 } });
+          state.events.push({ type: 'creatureFrozen', x: c.x, y: c.y });
+        }
+        enemy.timers[i] = trait.cooldown;
+        break;
+      }
+      case 'regen':
+        enemy.fireHitTimer = Math.max(0, (enemy.fireHitTimer ?? 0) - dt);
+        if (enemy.fireHitTimer <= 0 && enemy.hp < enemy.maxHp) enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * trait.perSecond * dt);
+        break;
+      case 'dive': {
+        // só mergulha sobre o gelo; ao emergir racha o gelo e congela quem estiver perto
+        enemy.diveTime = (enemy.diveTime ?? trait.surface) - dt;
+        if (enemy.diving && !onIce(state, enemy)) enemy.diveTime = 0;
+        if (enemy.diveTime > 0) break;
+        if (enemy.diving) {
+          enemy.diving = false;
+          enemy.diveTime = trait.surface;
+          breakIce(state, enemy, trait.radius * 0.6);
+          for (const c of state.creatures) {
+            if (distance(c, enemy) <= trait.radius) {
+              c.stunTimer = Math.max(c.stunTimer, trait.freeze);
+              c.frozen = true;
+            }
+          }
+          state.events.push({ type: 'wyrmSurfaced', x: enemy.x, y: enemy.y, radius: trait.radius });
+        } else if (onIce(state, enemy)) {
+          enemy.diving = true;
+          enemy.diveTime = trait.dive;
+        } else enemy.diveTime = 0.5;
+        break;
+      }
       case 'heads':
         // cabeças cortadas renascem em dobro se a Hidra não morrer a tempo
         if ((enemy.cutHeads ?? 0) > 0) {
@@ -224,7 +269,7 @@ export function updateEnemies(state: RunState, dt: number): void {
     // sapo: sem habilidades e bem devagar
     const pace = enemy.hexTimer > 0 ? 0.4 : useTraits(state, enemy, dt);
     // Pântano: intocável na lama (Crocodilo) ou mergulhado (Crocodilo Ancião)
-    enemy.submerged = (enemy.burrowTime ?? 0) > 0 || (!!findTrait(enemy, 'submerge') && inMud(state, enemy));
+    enemy.submerged = (enemy.burrowTime ?? 0) > 0 || !!enemy.diving || (!!findTrait(enemy, 'submerge') && inMud(state, enemy));
     // salto: avança por cima de bloqueios, sem parar por atordoamento
     if ((enemy.leapTime ?? 0) > 0) {
       const leap = findTrait(enemy, 'leap');
@@ -245,7 +290,7 @@ export function updateEnemies(state: RunState, dt: number): void {
     const charge = enemy.charging > 0 ? findTrait(enemy, 'charge') : undefined;
     const enrage = enemy.enraged ? findTrait(enemy, 'enrage') : undefined;
     const speedFactor =
-      (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace * nexusSlowFactor(state, enemy) * (1 - enemy.weakenSlow);
+      (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace * nexusSlowFactor(state, enemy) * (1 - enemy.weakenSlow) * iceSpeed(state, enemy) * (enemy.diving ? 1.5 : 1);
     // alvo a defender mais próximo (Nexus ou ponto extra)
     const target = defendTarget(state, enemy);
     const dx = target.at.x - enemy.x;

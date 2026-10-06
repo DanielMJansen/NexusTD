@@ -36,7 +36,7 @@ function distToLine(path: Pt[], x: number, y: number): number {
 }
 
 function buildProps(stage: StageDef, world: World, nexus: Pt): SwampProp[] {
-  const pools = stage.terrain?.pools ?? [];
+  const pools = (stage.terrain?.kind === 'mud' ? stage.terrain.pools : []);
   const rand = seeded(11);
   const props: SwampProp[] = [];
   const target = Math.round((26 * world.width * world.height) / (W * H));
@@ -56,8 +56,7 @@ function buildProps(stage: StageDef, world: World, nexus: Pt): SwampProp[] {
 
 /** Parte estática do Pântano (vai para o cache do cenário). */
 export function paintSwampStatic(ctx: CanvasRenderingContext2D, stage: StageDef, world: World = { width: W, height: H }, nexus: Pt = center): void {
-  const terrain = stage.terrain;
-  const pools = terrain?.pools ?? [];
+  const pools = stage.terrain?.kind === 'mud' ? stage.terrain.pools : [];
   const ground = ctx.createRadialGradient(nexus.x, nexus.y, 30, nexus.x, nexus.y, Math.max(world.width, world.height) * 0.6);
   ground.addColorStop(0, '#24321f');
   ground.addColorStop(0.55, '#16241a');

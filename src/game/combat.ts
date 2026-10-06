@@ -1,3 +1,4 @@
+import { onIce } from './ice';
 import { weatherRangeFactor } from './mapEvents';
 import { HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureCooldown, creatureDamage, creatureRange, killHaste } from './creatureStats';
@@ -104,7 +105,7 @@ export function applyBlocks(state: RunState): void {
     const ability = creatureAbility(creature);
     if (ability.kind !== 'block') continue;
     const caught = state.enemies
-      .filter((e) => isHostile(e) && !e.held && !e.def.isBoss && distance(e, creature) < ability.radius)
+      .filter((e) => isHostile(e) && !e.held && !e.def.isBoss && !onIce(state, e) && distance(e, creature) < ability.radius)
       .sort((a, b) => distance(a, creature) - distance(b, creature))
       .slice(0, ability.capacity);
     for (const enemy of caught) enemy.held = true;
@@ -311,6 +312,7 @@ export function updateCreatures(state: RunState, dt: number): void {
     if (creature.stunTimer > 0) {
       // atordoada: não ataca nem recarrega
       creature.stunTimer -= dt;
+      if (creature.stunTimer <= 0) creature.frozen = false;
       continue;
     }
     creature.attackTimer -= dt * (creature.webTimer > 0 ? 1 - creature.webSlow : 1) * terrainAttackFactor(state, creature);

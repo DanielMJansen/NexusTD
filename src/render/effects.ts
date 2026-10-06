@@ -35,7 +35,7 @@ const MELEE: Partial<Record<CreatureId, string>> = {
 };
 
 /** Tiros de inimigos: flecha, raio do Lich e teia. */
-type EnemyShotKind = 'enemyArrow' | 'enemyBolt' | 'web' | 'curse' | 'acid';
+type EnemyShotKind = 'enemyArrow' | 'enemyBolt' | 'web' | 'curse' | 'acid' | 'snowball';
 
 interface Shot {
   source: CreatureId | 'hero' | EnemyShotKind;
@@ -210,6 +210,28 @@ export class Effects {
       case 'caravanMoved':
         this.banner('A caravana avançou', 'Nova parada · reposicione a defesa se precisar', '#ffd25a', 2.2);
         this.ring(event.to.x, event.to.y, 60, '#ffd25a', 0.7, 3);
+        break;
+      case 'iceCracked':
+        this.burst(event.x, event.y, 10, '#d8f0ff', 60, 0.5, 2, false, -10, 100);
+        break;
+      case 'enemyFell':
+        this.ring(event.x, event.y, 16, '#5a9ad0', 0.5, 2);
+        this.burst(event.x, event.y, 12, '#8ac8f0', 70, 0.5, 2, false, -40, 160);
+        this.text(event.x, event.y - 16, 'Caiu no gelo!', '#bfe4ff', 9);
+        break;
+      case 'creatureFrozen':
+        this.burst(event.x, event.y - 8, 10, '#bfe8ff', 50, 0.5, 2, true);
+        break;
+      case 'wyrmSurfaced':
+        this.ring(event.x, event.y, event.radius, '#bfe8ff', 0.7, 5);
+        this.burst(event.x, event.y, 30, '#e8f8ff', 140, 0.8, 3, false, -60, 200);
+        this.shake = Math.max(this.shake, 9);
+        break;
+      case 'avalancheWarning':
+        this.banner('Avalanche!', `desce pela passagem em ${event.seconds} s · saia do caminho`, '#ff8a8a', 2.4);
+        break;
+      case 'avalancheEnded':
+        this.shake = Math.max(this.shake, 4);
         break;
       case 'pulseReady':
         this.ring(event.x, event.y + 6, 34, '#e2c8ff', 0.6, 3);
@@ -1060,6 +1082,16 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       ctx.beginPath();
       ctx.arc(x, y, 1.3, 0, TAU);
       ctx.fill();
+      break;
+    case 'snowball':
+      // bola de neve do Yeti (sobe em arco)
+      ctx.fillStyle = '#f4faff';
+      ctx.strokeStyle = '#8ab0d0';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x, y - Math.sin(progress * Math.PI) * 18, 4, 0, TAU);
+      ctx.fill();
+      ctx.stroke();
       break;
     case 'acid':
       // cuspe de ácido da Hidra

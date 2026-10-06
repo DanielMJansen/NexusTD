@@ -187,6 +187,14 @@ export function enemyTraitText(t: EnemyTrait): string {
       return `Engolir: a cada ${formatNumber(t.cooldown)} s, engole a criatura mais próxima (alcance ${t.range}), que fica fora de combate por ${formatNumber(t.duration)} s ou até ele levar ${Math.round(t.breakDamage * 100)}% da vida em dano.`;
     case 'burrow':
       return `Mergulho: a cada ${formatNumber(t.cooldown)} s, some na lama por ${formatNumber(t.hide)} s e reaparece perto do Nexus em investida.`;
+    case 'freeze':
+      return t.range > 50
+        ? `Bola de neve: a cada ${formatNumber(t.cooldown)} s, congela ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}) por ${formatNumber(t.duration)} s.`
+        : `Toque gélido: a cada ${formatNumber(t.cooldown)} s, congela a criatura que tocar por ${formatNumber(t.duration)} s.`;
+    case 'regen':
+      return `Regeneração: recupera ${Math.round(t.perSecond * 100)}% da vida por segundo, a não ser que leve dano de fogo.`;
+    case 'dive':
+      return `Mergulho: nada sob o gelo (intocável) e emerge rachando o gelo e congelando as criaturas num raio de ${t.radius} por ${formatNumber(t.freeze)} s.`;
     case 'heads':
       return `Cabeças: nasce com ${t.start}; cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro após ${formatNumber(t.regrow)} s (até ${t.max}), a não ser que a Hidra morra antes.`;
   }
