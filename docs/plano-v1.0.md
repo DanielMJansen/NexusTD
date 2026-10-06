@@ -11,7 +11,16 @@
 - **Herói sem risco.** Não tem vida, nenhum inimigo o ataca e não há progressão dentro da run.
 - **Pouca leitura do combate.** Não há números de dano, atributos da criatura ao clicar nem alcance do herói.
 
-## 2. Decisões para você
+## 2. Decisões
+
+**Respostas (06/10/2026):**
+- **D1 + D2:** XP por abate → nível do herói com melhorias só dele; herói com vida, dano de contato e renascimento (~8 s).
+- **D3:** run mais longa — **20 ondas, 3 chefes**, inimigos novos com habilidades e escalonamento; **modo Sem Fim** após a vitória.
+- **D4 + D7:** **loot** dos inimigos, **Nexus upável** com ouro e **evolução progressiva**. Consumíveis ficam de fora.
+- **D5 + D6:** em aberto (resposta "Other" sem texto) — perguntar de novo antes do F3.
+- **D8:** cadeia vertical + visual por ramo (pedido direto do playtest).
+
+Propostas originais:
 
 | # | Pergunta | Recomendação |
 |---|---|---|
