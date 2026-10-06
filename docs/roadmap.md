@@ -92,6 +92,10 @@ Dividida em três entregas, cada uma jogável ao fim:
   - **Conquistas**: Prata Lunar (Intocável), Sangue (Exterminador), Ouro Real (Campeão), Obsidiana (Colecionador).
   - **Altar**: cores exclusivas Vazio (Épica) e Aurora (Lendária, animada). Quando sai Épica/Lendária, 20% de chance de vir a cor do Nexus dessa raridade (se ainda não tiver).
 
+### F13.95. Interface 2.0 `[~]` (pedido de 07/10/2026; referência: Soulstone Survivors)
+- **I1 — HUD da run** `[x]`: arena em tela cheia (16:9, sem painel lateral); topo central com onda, ouro e inimigos; canto superior esquerdo com a vida do Nexus e as melhorias dele; canto superior direito com botões e minimapa; barra inferior com o herói (vida e XP grandes), as criaturas da equipe como "habilidades" (retrato, tecla, custo; tooltip abre para cima) e o Pulso. Controles foram para a tela de pausa.
+- **I2 — Menus como páginas** `[ ]`: menu e telas de meta-progressão em página cheia com fundo próprio (sem a arena atrás e sem caixa com rolagem); telas longas com abas (ex.: Coleção por raça); "Jogar" leva à run.
+
 > **Biomas revistos em 07/10/2026:** o jogo estava escuro/gótico demais; as próximas fases vão do escuro para a luz — **Neve → Deserto → Céu**. As mecânicas destravadas continuam as mesmas.
 
 ### F13.9. Motor de mapas `[x]` — feito em 07/10/2026 (M1–M6); Cemitério e Pântano são revistos com ele depois

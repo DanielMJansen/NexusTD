@@ -1,21 +1,11 @@
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { creatureCost } from '../game/economy';
 import { pulsePower } from '../game/pulses';
-import type { Creature, RunState } from '../game/state';
+import type { RunState } from '../game/state';
 import type { Interaction } from '../input/interaction';
-import { MAX_CREATURE_LEVEL } from '../data/evolution';
-import {
-  creatureAbility,
-  creatureEffects,
-  creatureAttacksPerSecond,
-  creatureDamage,
-  creatureName,
-  creatureRange,
-} from '../game/creatureStats';
-import { evolveCost, needsBranchChoice, sellValue } from '../game/economy';
 import { drawPortrait } from '../render/portrait';
 import { gold } from './currency';
-import { abilityText, ascendedFormsHtml, creatureStats, formatNumber, pulseText, raceBonusText } from './describe';
+import { abilityText, ascendedFormsHtml, creatureStats, pulseText, raceBonusText } from './describe';
 import type { HeroDef, HeroId } from '../data/heroes';
 
 interface Card {
@@ -42,7 +32,6 @@ export class SidePanel {
   private pulseName = this.pulseButton.querySelector<HTMLElement>('.pulse-label b')!;
   private pulseTooltip = this.pulseButton.querySelector<HTMLElement>('.pulse-tooltip')!;
   private pulseKey = '';
-  private selectionInfo = document.querySelector<HTMLElement>('#selection-info')!;
 
   constructor(private readonly handlers: SidePanelHandlers) {
     this.pulseButton.addEventListener('click', () => {
@@ -114,7 +103,6 @@ export class SidePanel {
       card.cost.classList.toggle('too-expensive', !affordable);
       drawPortrait(card.portrait, id, time + id.length);
     }
-    this.updateSelection(run, interaction.nexusOpen ? null : interaction.inspected);
 
     const { remaining, cooldown } = run.pulse;
     const ready = remaining <= 0 && run.phase === 'playing';
@@ -132,32 +120,6 @@ export class SidePanel {
     const name = run.hero.def.pulse.name;
     if (this.pulseName.textContent !== name) this.pulseName.textContent = name;
     if (this.pulseStatus.textContent !== status) this.pulseStatus.textContent = status;
-  }
-
-  /** Quadro com os atributos efetivos da criatura clicada na arena. */
-  private updateSelection(run: RunState, creature: Creature | null): void {
-    if (!creature || !run.creatures.includes(creature)) {
-      this.selectionInfo.hidden = true;
-      return;
-    }
-    const m = run.modifiers;
-    const next = evolveCost(creature, run.talents.evolveDiscount);
-    const stars =
-      '<span class="star-on">' + '★'.repeat(creature.level) + '</span><span class="star-off">' + '★'.repeat(MAX_CREATURE_LEVEL - creature.level) + '</span>';
-    const html = `<h4>${creatureName(creature)} <span class="stars">${stars}</span></h4>
-      <dl>
-        <dt>Dano</dt><dd>${formatNumber(Math.round(creatureDamage(creature, m) * 10) / 10)}</dd>
-        <dt>Ataques/s</dt><dd>${formatNumber(Math.round(creatureAttacksPerSecond(creature, m) * 100) / 100)}${creature.auraBonus > 0 ? ' <small>(aura)</small>' : ''}</dd>
-        <dt>Alcance</dt><dd>${Math.round(creatureRange(creature, m))}</dd>
-        <dt>Investido</dt><dd>${gold(creature.paid)}</dd>
-        <dt>Venda</dt><dd>${gold(sellValue(creature))}</dd>
-        <dt>Evoluir</dt><dd>${next === null ? 'máximo' : gold(next)}</dd>
-      </dl>
-      <p class="special">${abilityText(creatureAbility(creature), creatureEffects(creature))}</p>
-      ${needsBranchChoice(creature) ? `<p class="special branch-hint">Próxima evolução: escolha a vertente no quadro sobre a criatura.</p>${ascendedFormsHtml(creature.def, 'special evolves')}` : ''}`;
-    this.selectionInfo.style.setProperty('--card-color', creature.def.color);
-    setHtml(this.selectionInfo, html);
-    this.selectionInfo.hidden = false;
   }
 }
 

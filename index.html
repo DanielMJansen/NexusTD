@@ -26,22 +26,6 @@
         <div id="hud">
           <div class="chip" title="Onda atual / total de ondas da fase"><span class="chip-icon">☠</span><div class="chip-stack"><small class="chip-label">Onda</small><span id="hud-wave"></span></div></div>
           <div class="chip gold" title="Ouro da run: invocar, evoluir, melhorar o Nexus"><span class="chip-icon">◉</span><div class="chip-stack"><small class="chip-label">Ouro</small><span id="hud-gold"></span></div></div>
-          <div class="chip nexus" title="Vida do Nexus: se chegar a zero, a run acaba">
-            <span class="chip-icon">◆</span>
-            <div class="chip-stack"><small class="chip-label">Vida do Nexus</small><div class="bar"><div id="hud-nexus-bar"></div><span id="hud-nexus"></span></div></div>
-          </div>
-          <div class="chip hero-chip">
-            <span class="chip-icon">✪</span>
-            <div class="chip-stack">
-              <small class="chip-label">Herói · <span id="hud-hero-level"></span></small>
-              <div class="hero-bars">
-                <div class="bar-hp"><div id="hud-hero-hp"></div><span id="hud-hero-hp-text"></span></div>
-                <div class="bar-xp"><div id="hud-hero-xp"></div><span id="hud-hero-xp-text"></span></div>
-              </div>
-            </div>
-            <div id="hero-sheet"></div>
-          </div>
-          <div class="chip" title="Criaturas em campo / limite de vagas (compre mais vagas entre ondas)"><span class="chip-icon">✦</span><div class="chip-stack"><small class="chip-label">Criaturas</small><span id="hud-creatures"></span></div></div>
           <div class="chip" title="Inimigos ainda vivos nesta onda (incluindo os que ainda vão entrar) / total da onda"><span class="chip-icon">☗</span><div class="chip-stack"><small class="chip-label">Inimigos vivos</small><span id="hud-enemies"></span></div></div>
         </div>
         <div class="top-buttons">
@@ -54,35 +38,44 @@
       <div id="layout">
         <main id="stage">
           <canvas id="arena"></canvas>
+          <div id="hud-nexus-block">
+            <div class="chip nexus" title="Vida do Nexus: se chegar a zero, a run acaba">
+            <span class="chip-icon">◆</span>
+            <div class="chip-stack"><small class="chip-label">Vida do Nexus</small><div class="bar"><div id="hud-nexus-bar"></div><span id="hud-nexus"></span></div></div>
+          </div>
+            <button id="nexus-button" type="button" title="Melhorias do Nexus com ouro (N ou clique no Nexus)"><span>◆ Melhorar</span><kbd>N</kbd></button>
+            <div id="nexus-panel" hidden></div>
+          </div>
+          <div id="hud-bottom">
+            <div id="hud-hero">
+              <div class="chip hero-chip">
+            <span class="chip-icon">✪</span>
+            <div class="chip-stack">
+              <small class="chip-label">Herói · <span id="hud-hero-level"></span></small>
+              <div class="hero-bars">
+                <div class="bar-hp"><div id="hud-hero-hp"></div><span id="hud-hero-hp-text"></span></div>
+                <div class="bar-xp"><div id="hud-hero-xp"></div><span id="hud-hero-xp-text"></span></div>
+              </div>
+            </div>
+            <div id="hero-sheet"></div>
+          </div>
+            </div>
+            <div id="hud-creatures-block">
+              <div class="hud-creatures-head" title="Criaturas em campo / limite de vagas (compre mais vagas entre ondas)">Criaturas <span id="hud-creatures"></span> · arraste ou aperte 1–8</div>
+              <div id="card-list"></div>
+            </div>
+            <button id="pulse-button" type="button">
+              <span class="tooltip pulse-tooltip"></span>
+              <span class="pulse-fill"></span>
+              <span class="pulse-label"><b>Pulso</b><small id="pulse-status"></small></span>
+              <kbd>Espaço</kbd>
+            </button>
+          </div>
           <div id="freeze-badge" hidden>❄ Tempo parado · F ou 0 para voltar</div>
           <div id="creature-popup" hidden></div>
           <canvas id="minimap" hidden title="Minimapa: clique para mover a vista · C volta ao herói"></canvas>
           <div id="overlay"></div>
         </main>
-        <aside id="side-panel">
-          <h2>Criaturas</h2>
-          <div id="card-list"></div>
-          <div id="selection-info" hidden></div>
-          <div id="nexus-panel" hidden></div>
-          <button id="nexus-button" type="button"><span>◆ Melhorar o Nexus</span><kbd>N</kbd></button>
-          <button id="pulse-button" type="button">
-            <span class="tooltip pulse-tooltip"></span>
-            <span class="pulse-fill"></span>
-            <span class="pulse-label"><b>Pulso</b><small id="pulse-status"></small></span>
-            <kbd>Espaço</kbd>
-          </button>
-          <dl class="controls">
-            <dt>WASD / setas</dt><dd>mover o herói</dd>
-            <dt>Clique no chão</dt><dd>guiar o herói</dd>
-            <dt>1–8 ou arrastar</dt><dd>invocar criatura</dd>
-            <dt>Clique na criatura</dt><dd>evoluir / vender</dd>
-            <dt>E</dt><dd>evoluir a selecionada</dd>
-            <dt>N / clique no Nexus</dt><dd>melhorar o Nexus</dd>
-            <dt>Botão direito</dt><dd>cancelar</dd>
-            <dt>P / Esc</dt><dd>pausar</dd>
-            <dt>F / 0</dt><dd>velocidade / congelar</dd>
-          </dl>
-        </aside>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
