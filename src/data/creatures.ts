@@ -22,7 +22,10 @@ export type CreatureId =
   | 'lumina'
   | 'stoneWall'
   | 'crystalGolem'
-  | 'magmaGolem';
+  | 'magmaGolem'
+  | 'skeletonWarrior'
+  | 'reaper'
+  | 'drainer';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -664,6 +667,68 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ascended: [
       { name: 'Vulcão', description: 'Área maior e queimadura mais forte.', ability: { kind: 'nova', radius: 65 }, effects: [{ kind: 'poison', dps: 7, duration: 2.5 }], stats: { range: 1.4 }, color: '#ffd25a', icon: '🌋' },
       { name: 'Lava Viva', description: 'Arremessa lava que vira poça no chão.', ability: { kind: 'pool', radius: 30, duration: 3, dps: 18 }, effects: [], stats: { range: 1.8 }, color: '#ff8a2a', icon: '♨' },
+    ],
+  },
+  skeletonWarrior: {
+    id: 'skeletonWarrior',
+    name: 'Esqueleto',
+    race: 'Necromante',
+    role: 'Corpo a corpo barato',
+    description: 'Guerreiro de ossos barato e incansável. Bom para encher a linha de frente.',
+    lore: 'Já morreu uma vez. Não tem medo de repetir.',
+    icon: '💀',
+    baseCost: 15,
+    damage: 7,
+    range: 45,
+    cooldown: 0.7,
+    color: '#e8e0c8',
+    ability: { kind: 'none' },
+    unlock: { kind: 'essence', cost: 70 },
+    ascended: [
+      { name: 'Cavaleiro da Morte', description: 'Mais dano e ignora armadura.', ability: { kind: 'pierceArmor', bonusVsArmored: 0 }, stats: { damage: 1.5 }, color: '#5adca0', icon: '♞' },
+      { name: 'Legião de Ossos', description: 'Abates podem erguer um esqueleto aliado temporário.', ability: { kind: 'none' }, effects: [{ kind: 'raiseOnKill', chance: 0.35, duration: 6 }], color: '#c86aff', icon: '☠' },
+    ],
+  },
+  reaper: {
+    id: 'reaper',
+    name: 'Ceifador',
+    race: 'Necromante',
+    role: 'Executor',
+    description: 'A foice termina o serviço: inimigos comuns com pouca vida morrem na hora.',
+    lore: 'Não tem pressa. Todo mundo chega até ele um dia.',
+    icon: '⚰',
+    baseCost: 30,
+    damage: 8,
+    range: 60,
+    cooldown: 0.9,
+    color: '#8a8aa8',
+    ability: { kind: 'none' },
+    effects: [{ kind: 'execute', below: 0.15 }],
+    unlock: { kind: 'essence', cost: 90 },
+    ascended: [
+      { name: 'Ceifador Sombrio', description: 'Executa abaixo de 25% de vida.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.25 }], color: '#c86aff', icon: '☾' },
+      { name: 'Colhedor de Almas', description: 'Cada execução rende ouro.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.15 }, { kind: 'goldOnKill', gold: 3, when: 'executed' }], stats: { damage: 1.3 }, color: '#7affb0', icon: '◉' },
+    ],
+  },
+  drainer: {
+    id: 'drainer',
+    name: 'Drenador',
+    race: 'Necromante',
+    role: 'Controle (enfraquecer)',
+    description: 'Suga a força do alvo: ele anda mais devagar e causa menos dano ao Nexus.',
+    lore: 'Bebe o vigor dos vivos. Eles reclamam, mas cada vez mais baixo.',
+    icon: '🕸',
+    baseCost: 25,
+    damage: 5,
+    range: 100,
+    cooldown: 1,
+    color: '#b86aff',
+    ability: { kind: 'none' },
+    effects: [{ kind: 'weaken', slow: 0.25, damage: 0.3, duration: 3 }],
+    unlock: { kind: 'essence', cost: 80 },
+    ascended: [
+      { name: 'Sanguessuga', description: 'Enfraquecimento mais forte e longo.', ability: { kind: 'none' }, effects: [{ kind: 'weaken', slow: 0.4, damage: 0.5, duration: 3.5 }], color: '#ff3a5a', icon: '♦' },
+      { name: 'Corruptor', description: 'Também corrói a armadura.', ability: { kind: 'none' }, effects: [{ kind: 'weaken', slow: 0.25, damage: 0.3, duration: 3 }, { kind: 'corrode', armor: 3, duration: 3 }], stats: { damage: 1.3 }, color: '#9aff3a', icon: '☣' },
     ],
   },
 };

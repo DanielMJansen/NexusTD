@@ -46,6 +46,7 @@ import {
   drawSpider,
 } from './spritesEnemies';
 import { drawBatSwarm, drawCleric, drawHerbalist, drawPossessor } from './spritesClasses';
+import { drawDeathLord, drawDrainer, drawReaper, drawSkeletonWarrior } from './spritesNecro';
 import { drawColossus, drawCrystalGolem, drawMagmaGolem, drawWall } from './spritesGolem';
 import { drawEnchantress, drawFaeQueen, drawLumina, drawTrickster } from './spritesFae';
 
@@ -126,6 +127,21 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'cleric':
       drawCleric(ctx, p);
+      break;
+    case 'skeletonWarrior':
+      drawSkeletonWarrior(ctx, p);
+      break;
+    case 'boneWarrior':
+      drawSkeletonWarrior(ctx, p, true);
+      break;
+    case 'reaper':
+      drawReaper(ctx, p);
+      break;
+    case 'drainer':
+      drawDrainer(ctx, p);
+      break;
+    case 'deathLord':
+      drawDeathLord(ctx, p);
       break;
     case 'stoneWall':
       drawWall(ctx, p);

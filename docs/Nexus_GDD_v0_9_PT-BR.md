@@ -72,11 +72,15 @@ Gacha com dinheiro real: ver seção 10.
 | Golem | Muralha | Bloqueio (atordoar) | Segura 3 (raio 32); golpes com 25% de atordoar 1 s; 30 ouro, 90 ✦ | Fortaleza (segura 6, raio 40) · Avalanche (golpe em área raio 50, 40% de atordoar 1,2 s, +60% dano) |
 | Golem | Cristal | Raio em linha | Raio que atravessa tudo (largura 10); dano 9, alcance 120; 35 ouro, 100 ✦ | Prisma (3 raios em leque) · Amplificador (aura: +1× dano crítico às criaturas próximas) |
 | Golem | Magma | Área ao redor | Golpe em área raio 45 + queimadura 4/s por 2 s; 30 ouro, 90 ✦ | Vulcão (raio 65, queimadura 7/s) · Lava Viva (arremessa lava: poça raio 30, 18/s por 3 s) |
+| Necromante | Esqueleto | Corpo a corpo barato | Dano 7 a cada 0,7 s, alcance 45; 15 ouro, 70 ✦ | Cavaleiro da Morte (+50% dano, ignora armadura) · Legião de Ossos (35% de erguer esqueleto aliado por 6 s ao abater) |
+| Necromante | Ceifador | Executor | Executa inimigos comuns abaixo de 15% de vida; 30 ouro, 90 ✦ | Ceifador Sombrio (abaixo de 25%) · Colhedor de Almas (+3 ouro por execução, +30% dano) |
+| Necromante | Drenador | Controle (enfraquecer) | Enfraquece por 3 s: 25% mais lento e −30% de dano ao Nexus; 25 ouro, 80 ✦ | Sanguessuga (40% lento, −50% dano, 3,5 s) · Corruptor (também corrói 3 de armadura) |
 <!-- f10-rows -->
 
 **Heróis novos:**
 - **Rainha Fada** (Fada, 240 ✦): vida 85, vel. 130; pó mágico 7 a cada 0,45 s, alcance 95; Pulso **Bênção Feérica**: 15 de dano (raio 90) e todas as criaturas +50% de vel. de ataque por 5 s (recarga 14 s); bônus: Fadas +12% de alcance.
 - **Colosso** (Golem, 260 ✦): vida 220, vel. 85; esmaga em leque 12 a cada 0,9 s, alcance 45; Pulso **Terremoto**: 25 de dano (raio 100) e atordoa 1,8 s (recarga 13 s); bônus: Golems +12% de dano.
+- **Senhor dos Mortos** (Necromante, 260 ✦): vida 110, vel. 110; foice em leque 9 a cada 0,6 s, alcance 55; Pulso **Erguer Mortos**: 10 de dano (raio 80) e 3 esqueletos aliados por 8 s (recarga 14 s); bônus: Necromantes +12% de vel. de ataque.
 <!-- f10-heroes -->
 
 **Efeitos de golpe** `FEITO` (combináveis, reaproveitados pelas raças novas): dano contínuo, atordoar/raízes/petrificar, medo/confusão, marca (+dano recebido, pode explodir), vulnerável, corrosão de armadura, enfraquecer (lento e menos dano ao Nexus), puxar, possuir (aliado temporário), executar, +dano contra fortes, acúmulo por abate (velocidade ou dano), roubar ouro, ouro ao abater, erguer esqueleto aliado. Padrões de ataque novos: **bênção** (aura de dano/alcance/velocidade/crítico/proteção), **golpe em área ao redor de si** e **raio que atravessa em linha**.
@@ -327,6 +331,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | F9: terceira classe de cada raça (Clériga, Enxame, Tempestade, Uivador, Possessor, Herbalista), sem cura do Nexus; sistema de efeitos de golpe; equipe de 8 |
 | 07/10/2026 | F10: raça Fada (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Golem (3 classes com vertentes + herói) |
+| 07/10/2026 | F10: raça Necromante (3 classes com vertentes + herói) |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.

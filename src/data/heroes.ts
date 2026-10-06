@@ -1,7 +1,7 @@
 // Heróis jogáveis: um por raça. O Cavaleiro (Humano) é o inicial; os outros custam Essência.
 // Valores PROPOSTA: calibrar em playtest.
 
-export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus';
+export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus' | 'deathLord';
 
 export type HeroAttack = {
   damage: number;
@@ -190,6 +190,19 @@ export const HEROES: Record<HeroId, HeroDef> = {
     raceBonus: { kind: 'damage', value: 0.12 },
     color: '#c8a070',
     maxHp: 220,
+    cost: 260,
+  },
+  deathLord: {
+    id: 'deathLord',
+    name: 'Senhor dos Mortos',
+    race: 'Necromante',
+    description: 'Corta em leque com a foice. O Pulso ergue esqueletos que lutam do seu lado.',
+    speed: 110,
+    attack: { damage: 9, range: 55, cooldown: 0.6, pattern: { kind: 'cone', halfAngle: 0.7 }, healPerHit: 0 },
+    pulse: { name: 'Erguer Mortos', damage: 10, radius: 80, cooldown: 14, healPerEnemy: 0, raise: { count: 3, duration: 8 } },
+    raceBonus: { kind: 'attackSpeed', value: 0.12 },
+    color: '#7affb0',
+    maxHp: 110,
     cost: 260,
   },
 };
