@@ -1,52 +1,41 @@
 # Checklist de regressão manual
 
-Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com mouse e teclado. Testar também uma janela menor (ex.: 1280×720) e uma tela de alta densidade, se houver.
+Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com mouse e teclado. Testar também uma janela menor (ex.: 1366×768) e um save antigo (ver "Save").
 
-## Menu
-- [ ] Título, Essência, objetivo da run e as duas colunas (melhorias permanentes, criaturas iniciais) cabem sem rolagem.
-- [ ] Melhorias mostram nível (●○) e custo; desabilitadas sem Essência ou no nível máximo (MÁX).
-- [ ] Comprar melhoria ou criatura inicial desconta Essência, toca som e persiste após recarregar.
-- [ ] ▶ Jogar abre a escolha do primeiro ovo.
+## Entrada, menu e configurações
+- [ ] Tela "Clique para começar" (ou Enter/Espaço) leva ao menu e a música do menu começa.
+- [ ] Jogador novo: aparece "Escolha seu primeiro companheiro" (só criaturas místicas); a escolhida entra na coleção e na equipe; não aparece de novo.
+- [ ] Menu: Essência, herói + equipe em miniatura, botões Jogar / Herói / Equipe / Coleção / Talentos / Conquistas / Configurações.
+- [ ] Essência sempre com ✦ lilás e ouro sempre com ◉ dourado, em todas as telas.
+- [ ] ⚙ (topo, menu ou pausa): sliders de música e efeitos mudam o volume ao vivo; "Silenciar tudo" e o botão 🔊 ficam sincronizados; tudo persiste ao recarregar.
+- [ ] Exportar save baixa `nexus-save-AAAA-MM-DD.json`; importar pede confirmação, substitui tudo e recarrega; arquivo inválido mostra erro e não quebra nada.
 
-## Início da run
-- [ ] "Escolha seu primeiro ovo" mostra até 3 criaturas místicas ainda bloqueadas, com retrato animado, papel e habilidade.
-- [ ] Ao escolher, a carta dela sai da silhueta no painel e aparece a faixa "Onda 1".
-- [ ] Se todas já estiverem desbloqueadas no perfil, a run começa direto na onda 1.
+## Meta-progressão
+- [ ] Talentos: 5 colunas; nós bloqueados mostram o pré-requisito; comprar desconta Essência, mostra "Atual → Próximo" e persiste.
+- [ ] Coleção: ficha de cada criatura (descrição, lore, atributos, habilidade, forma evoluída com retrato); bloqueadas em silhueta com preço; comprar adiciona à equipe se houver vaga.
+- [ ] Equipe: 6 vagas; clicar adiciona/remove; "Jogar" desabilita com equipe vazia; ordem da equipe = atalhos 1–6.
+- [ ] Heróis: comprar e escolher; descrição de ataque, Pulso e bônus de raça; skins liberadas por conquista são selecionáveis e aparecem na run.
+- [ ] Conquistas: lista com progresso (abates, runs, vitórias, coleção) e a skin que cada uma libera.
 
-## Durante a onda
-- [ ] HUD: onda, ouro, barra de vida do Nexus (vermelha abaixo de 30%) e criaturas em campo.
-- [ ] Renda passiva: +1 ouro a cada 2 s.
-- [ ] Herói anda com WASD/setas e com clique/segurar no chão; vira para o lado do movimento; não sai da arena.
-- [ ] Herói ataca sozinho o inimigo mais próximo (alcance 60), com animação de espada.
-- [ ] Arrastar uma carta do painel até a arena posiciona a criatura; soltar fora da arena deixa a carta escolhida.
-- [ ] Tecla 1–6 escolhe a carta; clicar na arena posiciona; a prévia segue o mouse e fica vermelha onde não pode (sem ouro, limite de 5, em cima do Nexus).
-- [ ] Botão direito ou Esc cancelam a carta escolhida.
-- [ ] Custo da próxima cópia sobe ×1,5 e fica vermelho quando falta ouro.
-- [ ] Clicar numa criatura mostra nome, estrelas de nível, alcance e os botões "Evoluir ◉X" e "Vender +X".
-- [ ] Evoluir (botão ou tecla E) desconta ouro, mostra efeito e "Nível 2"; no nível 3 aparece o nome da forma evoluída, aura e acessório (coroa, chifres dourados, arco dourado, auréola, orbes).
-- [ ] Vender devolve 60% de tudo que foi pago (invocação + evoluções).
-- [ ] Guarda segura até 2 inimigos (anel tracejado sob eles); o chefe passa direto. Paladino segura 4.
-- [ ] Abates do Sanguinário curam o Nexus ("+2" verde).
-- [ ] Tooltip ao passar o mouse na carta: atributos e habilidade.
-- [ ] Pulso (Espaço ou botão): onda de choque ao redor do herói; botão mostra recarga.
-- [ ] Arqueiro (flecha), Duelista (corte; Frenesi com aura vermelha após 6 golpes), Fogo (bola de fogo e explosão em área), Gelo (estilhaço e lentidão com brilho azul).
-- [ ] Morcegos em zigue-zague a partir da onda 2; Ogros a partir da onda 4; zumbis às vezes em bando de 3.
-- [ ] Inimigos piscam ao levar dano; ao morrer: fantasma, partículas, moedas e "+ouro".
-- [ ] Inimigo que chega ao Nexus causa dano (número vermelho, cristal pisca, tela treme) e some.
+## Run
+- [ ] Começa direto na onda 1 (sem ovos), com faixa "Onda 1" e música da run acelerando a cada onda; música do chefe na onda 10.
+- [ ] HUD: onda, ouro, vida do Nexus, criaturas/limite. Renda +1 ouro a cada 2 s (talentos aceleram).
+- [ ] Herói anda com WASD/setas e clique/segurar; anel sob os pés na cor do herói (sem brilho ciano).
+- [ ] Painel mostra só a equipe; tooltip com descrição, atributos, habilidade, forma evoluída e bônus do herói (em dourado) quando a raça bate.
+- [ ] Arrastar a carta ou tecla 1–6 + clique posiciona; prévia vermelha onde não pode; botão direito/Esc cancelam.
+- [ ] Clicar numa criatura: nome, estrelas, "Evoluir ◉X" (ou E) e "Vender +X"; nível 3 mostra nome da forma evoluída, aura e acessório.
+- [ ] Pulso (Espaço) com o nome do Pulso do herói: Onda de Choque, Revoada (cura), Rugido (raio maior), Uivo (inimigos com "!" fogem), Travessia (herói atravessa o campo), Maldição (veneno com bolhas verdes).
+- [ ] Habilidades: Guarda segura 2 (anel tracejado), Sanguinário cura, Caçador salta entre alvos, Alfa mostra a aura e acelera vizinhos, Assombração ignora armadura, Banshee grita em leque e empurra, Feiticeira envenena, Caldeirão cria poças.
+- [ ] Inimigos piscam ao levar dano (veneno e poças não piscam); morte com fantasma, moedas e "+ouro".
 
-## Entre ondas
-- [ ] Onda 1 vencida: oferece só ovos (se houver).
-- [ ] Ondas seguintes: 3 opções entre melhorias e ovos; Nexus cura +10.
-- [ ] Loja no rodapé: "Sortear de novo" (10, depois 20, 30...) troca as opções; desabilitado quando não há outras opções. "+1 vaga" (60, 120, 240) aumenta o limite no HUD.
-- [ ] Escolher aplica o efeito e mostra a faixa da próxima onda.
+## Entre ondas e fim
+- [ ] 3 melhorias + loja (sortear 10/20/30…, +1 vaga 60/120/240).
+- [ ] Fim: onda, abates, Essência e conquistas novas com as skins liberadas; Continuar volta ao menu com tudo salvo.
 
-## Fim
-- [ ] Onda 10: faixa "Rei Ogro chegou!", tremor de tela, coroa.
-- [ ] Vitória ao limpar a onda 10; derrota com Nexus a 0.
-- [ ] Tela final mostra onda, abates e Essência (3 × onda + abates/5 + 30 se vencer); Continuar volta ao menu com a Essência salva.
+## Save
+- [ ] Save `nx3` (ou `nx2`) antigo abre com a mesma Essência; melhorias antigas viram as raízes da árvore no mesmo nível; criaturas compradas continuam na coleção.
 
 ## Geral
-- [ ] P/Esc ou botão pausam e retomam; "Sair para o menu" funciona.
-- [ ] 🔊/🔇 alterna o som.
+- [ ] P/Esc pausam; "Sair para o menu" funciona.
 - [ ] Sem erros no console.
-- [ ] `npm run build` e `npm run preview` funcionam (caminho relativo `base: './'`).
+- [ ] `npm run build` e `npm run preview` funcionam.

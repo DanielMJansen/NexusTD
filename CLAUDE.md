@@ -1,32 +1,33 @@
 # Nexus — instruções para o Claude Code
 
 ## Projeto
-Jogo de **navegador para computador** (paisagem 16:9, mouse e teclado): Tower Defense + Survivor + Roguelite + Coleção de Criaturas místicas. TypeScript + Vite + Canvas 2D, publicado no GitHub Pages. O nome "Nexus" é provisório.
-**Fonte de verdade do design:** `docs/Nexus_GDD_v0_8_PT-BR.md` (valores numéricos na seção 9).
+Jogo de **navegador para computador** (paisagem 16:9, mouse e teclado): Tower Defense + Survivor + Roguelite + Coleção de Criaturas místicas. TypeScript + Vite + Canvas 2D, publicado no GitHub Pages (https://danielmjansen.github.io/NexusTD/, repositório `DanielMJansen/NexusTD`). O nome "Nexus" é provisório.
+**Fonte de verdade do design:** `docs/Nexus_GDD_v0_9_PT-BR.md` (valores numéricos na seção 9).
+**Plano em andamento:** `docs/plano-v0.9.md` (etapas com status).
 
 ## Comandos
 - `npm install` · `npm run dev` (http://localhost:5173) · `npm run typecheck` · `npm run build` (typecheck + build) · `npm run preview`
-- Deploy: push na branch `main` (workflow em `.github/workflows/deploy.yml`).
+- Deploy: push na branch `main` (workflow em `.github/workflows/deploy.yml`, Node 24).
 - Em `npm run dev`, o app fica em `window.nexus` no console (ex.: `nexus.run.gold = 999`) para testes.
 - Regressão manual: `docs/checklist-regressao.md`.
 
 ## Arquitetura (`src/`)
-- `data/` — tudo que é balanceamento: `config` (arena, herói, Pulso, economia, recompensas), `creatures`, `evolution`, `enemies`, `waves`, `upgrades`. Habilidades e efeitos são dados com parâmetros (uniões discriminadas), não `if` espalhado.
-- `game/` — simulação pura, sem DOM: `state` (tipos e `createRun`), `update` (loop), `combat`, `creatureStats` (atributos por nível), `spawning`, `economy` (invocar, evoluir, vender), `shop`, `choices`, `profile` (progresso permanente). A simulação só registra **eventos** em `state.events` (`events.ts`); render, áudio e UI reagem a eles.
-- `render/` — `draw` (quadro, ordem por profundidade), `sprites` (personagens vetoriais), `arena` (cenário e Nexus), `effects` (partículas, projéteis, faixas, tremor), `portrait`, `viewport` (HiDPI).
-- `input/` — `pointer` (mouse: arrastar carta, clicar, vender), `keyboard`, `interaction` (estado da seleção).
-- `ui/` — DOM: `hud`, `sidePanel` (cartas + Pulso), `overlay` + telas (`menu`, `waveChoices`, `pause`, `runEnd`), `describe` (textos gerados dos dados).
-- `audio/` — WebAudio sintetizado; tabela de sons em `sounds.ts`.
-- `save/` — `localStorage` chave `nx3` (versão 3), migra do `nx2` do protótipo.
+- `data/` — tudo que é conteúdo e balanceamento, como dados: `config` (arena, Nexus, economia, loja, recompensas), `creatures` (12 criaturas, habilidades como uniões discriminadas, forma evoluída, descrição/lore), `evolution`, `heroes` (um por raça: ataque, Pulso, bônus de raça), `enemies`, `waves`, `upgrades` (melhorias da run), `talents` (árvore), `achievements`, `skins`.
+- `game/` — simulação pura, sem DOM: `state` (tipos e `createRun`), `update` (loop), `combat` (golpes, habilidades, Pulso, veneno/poças, auras, bloqueio), `creatureStats`, `spawning`, `economy` (invocar, evoluir, vender), `shop`, `choices`, `talents` (soma dos bônus), `profile` (progresso permanente: talentos, coleção, equipe, heróis, skins), `achievements`. A simulação só registra **eventos** em `state.events` (`events.ts`); render, áudio e UI reagem a eles.
+- `render/` — `draw` (quadro, ordem por profundidade), `sprites` (despacho) + `spriteKit` (ferramentas de desenho) + `spritesMystic` (Lobisomem, Fantasma, Bruxa), `arena` (cenário e Nexus), `effects` (partículas, projéteis, faixas, tremor), `portrait`, `viewport` (HiDPI).
+- `input/` — `pointer` (mouse), `keyboard`, `interaction` (estado da seleção).
+- `ui/` — DOM: telas no overlay (`entry`, `menu`, `heroesScreen`, `teamScreen`, `collection`, `talentsScreen`, `achievementsScreen`, `settingsScreen`, `starterPick`, `waveChoices`, `pause`, `runEnd`), `hud`, `sidePanel`, `describe` (textos gerados dos dados), `currency` (Essência ✦ lilás e ouro ◉ dourado iguais em todas as telas).
+- `audio/` — `audio` (efeitos, barramentos de música/efeitos com limitador), `sounds` (tabela), `music` (sequenciador procedural), `songs` (trilhas menu/run/chefe).
+- `save/` — `save` (perfil em `localStorage` chave `nx4`, versão 4; migra `nx3`/`nx2` sem apagá-las), `settings` (chave `nexus-settings-v1`), `backup` (exportar/importar JSON `nexus-save`).
 - `app.ts` liga tudo; `main.ts` só inicia.
 
 ## Regras de trabalho
 1. **Não invente requisitos.** Itens `TBD` ou `PROPOSTA` no GDD exigem perguntar antes de implementar.
 2. **Incrementos pequenos.** Uma mudança por vez, e o jogo deve continuar rodando ao fim de cada passo (`npm run build` sem erro).
-3. **Dirigido por dados.** Criaturas, inimigos, melhorias e ondas ficam em `src/data/`. Mudar balanceamento não deve exigir mexer em sistemas.
+3. **Dirigido por dados.** Criaturas, heróis, inimigos, melhorias, ondas, talentos, conquistas e skins ficam em `src/data/`. Mudar balanceamento não deve exigir mexer em sistemas.
 4. **Separar responsabilidades:** dados · estado · simulação · renderização · entrada · áudio · interface · persistência. A simulação não toca DOM, som nem efeitos visuais.
 5. **Computador primeiro:** paisagem 16:9, mouse (arrastar, clicar, botão direito, hover/tooltip) e teclado (WASD, 1–6, E, Espaço, Esc, P). Celular fora do escopo.
 6. **Sem dependências desnecessárias.** TypeScript + Vite puro. Arte vetorial desenhada em código e áudio sintetizado; única exceção externa: fontes do Google Fonts (Cinzel, Cinzel Decorative, Crimson Pro).
-7. **Persistência:** `localStorage` com chave versionada (hoje `nx3`). Ao mudar o formato, migrar ou versionar.
-8. **Atualizar o GDD** (seção 9 e Registro de Decisões) sempre que uma mudança alterar valores ou regras.
+7. **Persistência:** `localStorage` com chave versionada (hoje `nx4`). Ao mudar o formato, migrar ou versionar; campos novos entram com padrão no `sanitize`.
+8. **Atualizar o GDD** (seção 9 e Registro de Decisões) sempre que uma mudança alterar valores ou regras. Para balancear, simular várias runs com a simulação real (30+ por variante) antes de mexer em números.
 9. **Idioma:** conversar em português do Brasil; código e nomes de variáveis em inglês; textos do jogo em português.

@@ -1,6 +1,8 @@
 # Plano v0.9 — o que trazer do Myth TD, heróis por raça e novas raças
 
 > Documento de trabalho para seguirmos em etapas. Cada etapa termina com o jogo rodando (`npm run build` sem erro), commit próprio, teste no navegador e atualização do GDD/CLAUDE.md quando mudar regra ou valor.
+> **Situação (05/10/2026):** E0–E10 feitas (E3+E5+E6+E7 num commit só). Foi acrescentado um primeiro companheiro místico grátis para quem não tem nenhum, consequência de remover os ovos. Próximo: playtest e escolher os extras da E11.
+>
 > Status das etapas: `[ ]` a fazer · `[~]` em andamento · `[x]` feita.
 
 ## 1. O que analisei no Myth TD (`D:\Games\myth-td`)
@@ -75,12 +77,12 @@ Texto original das propostas, para referência:
 
 Ordem pensada para destravar dependências: primeiro áudio e configurações, depois o novo formato de save (que tudo usa), depois as telas de meta-progressão e por fim o conteúdo novo.
 
-### E0. Ajustes rápidos `[ ]`
+### E0. Ajustes rápidos `[x]`
 - Essência com símbolo e cor únicos em menu, custos, fim de run e tooltips.
 - Herói sem brilho ciano: anel rúnico dourado sob os pés (a cor da raça entra na E8).
 - **Pronto quando:** nenhum ciano no herói; Essência idêntica em todas as telas.
 
-### E1. Configurações e volumes `[ ]`
+### E1. Configurações e volumes `[x]`
 - `src/settings/settings.ts` (chave `nexus-settings-v1`): `musicVolume`, `sfxVolume` (0–1), `muted`.
 - `SoundPlayer` com barramentos separados (mestre → música / efeitos), volumes aplicados ao vivo.
 - Tela **Configurações** (botão ⚙ no topo e no menu): dois sliders, "Silenciar tudo" e os botões de exportar/importar (ligados na E4). O botão 🔊 continua como atalho do mudo.
@@ -88,12 +90,12 @@ Ordem pensada para destravar dependências: primeiro áudio e configurações, d
 - Intervalo mínimo entre sons de tiro/acerto; o "pop" de abate sobe de tom em combos.
 - **Pronto quando:** volumes independentes persistem após recarregar; sem som "metralhadora" na onda 10.
 
-### E2. Música procedural `[ ]`
+### E2. Música procedural `[x]`
 - `src/audio/music.ts`: sequenciador com lookahead (como o `AudioEngine` do Myth TD), fade entre trilhas.
 - Trilhas em `src/audio/songs.ts` (dados: acordes, baixo, melodia, BPM mín./máx., instrumentos): **menu**, **run** (intensidade = onda/10) e **chefe**.
 - **Pronto quando:** a música do menu toca desde a tela de entrada; a da run acelera ao longo das ondas; troca suave entre telas; o volume de música respeita a configuração.
 
-### E3. Perfil v4 e migração do save `[ ]`
+### E3. Perfil v4 e migração do save `[x]`
 Pré-requisito de E4–E10. Novo formato (chave `nx4`), com migração automática do `nx3` (e do `nx2` via `nx3`):
 
 ```ts
@@ -112,46 +114,46 @@ interface ProfileV4 {
 - O `nx3` não é apagado (rollback possível).
 - **Pronto quando:** um save `nx3` real abre no `nx4` com a mesma Essência, os mesmos níveis e as mesmas criaturas.
 
-### E4. Exportar/importar save `[ ]`
+### E4. Exportar/importar save `[x]`
 - `src/save/backup.ts`: arquivo `nexus-save-AAAA-MM-DD.json` = `{ format: "nexus-save", version, exportedAt, data: { profile, settings } }`.
 - Importar: valida (JSON, formato, versão não mais nova, perfil presente), pede confirmação ("substitui todo o progresso"), grava, recarrega. Mensagens de erro legíveis.
 - Botões na tela Configurações.
 - **Pronto quando:** exportar → limpar o navegador → importar restaura tudo; arquivo inválido mostra erro sem quebrar nada.
 
-### E5. Coleção (fichas das criaturas) `[ ]`
+### E5. Coleção (fichas das criaturas) `[x]`
 - Dados novos em `src/data/creatures.ts`: `lore` (1–2 frases de flavor) e `description` (o que faz, em linguagem simples).
 - Tela **Coleção**: cartas agrupadas por raça, com retrato animado, papel, atributos, habilidade e forma evoluída (com retrato no nível 3). Bloqueadas aparecem esmaecidas com o preço; comprar com Essência.
 - Substitui a coluna "Começar a run com" do menu atual.
 - **Pronto quando:** toda criatura tem ficha; comprar atualiza a Coleção e salva.
 
-### E6. Equipe (roster da run) `[ ]` — D1 = B
+### E6. Equipe (roster da run) `[x]` — D1 = B
 - Tela **Equipe**: 6 vagas; clicar na carta adiciona/remove; "Jogar" fica desabilitado se a equipe estiver vazia.
 - Na run, o painel lateral mostra só a equipe (atalhos 1–6 na ordem da equipe), todas disponíveis desde o início.
 - Remover os ovos: sem escolha inicial; escolhas entre ondas só com melhorias.
 - Resolve o crescimento do painel com 12+ criaturas.
 - **Pronto quando:** runs diferentes com equipes diferentes; o ovo nunca oferece criatura fora da equipe.
 
-### E7. Árvore de talentos `[ ]` — depende de D5
+### E7. Árvore de talentos `[x]` — depende de D5
 - `src/data/talents.ts` (ramos, nós, pré-requisitos, custos, efeitos como dados); `src/game/talents.ts` resolve os modificadores (como o `MetaModifiers` do Myth TD).
 - Tela **Talentos**: colunas por ramo, nós com nível em bolinhas, custo, efeito no nível atual → próximo, bloqueio por pré-requisito.
 - Os efeitos novos (regeneração, escudo, desconto de evolução etc.) entram na simulação via `RunSetup`.
 - **Pronto quando:** níveis migrados aparecem certos; cada nó comprado altera a run como descrito.
 
-### E8. Heróis por raça `[ ]` — depende de D2
+### E8. Heróis por raça `[x]` — depende de D2
 - `src/data/heroes.ts`: atributos, tipo de ataque, Pulso (parâmetros), bônus de raça, cor da aura, preço. `HERO` de `config.ts` vira o Cavaleiro.
 - Simulação: ataque e Pulso dirigidos por dados (cone, linha, drenar, assustar, veneno), como já é com as habilidades das criaturas.
 - Tela **Heróis** (ou aba na Coleção): retrato animado, descrição, comprar e selecionar.
 - Sprites: Nobre Vampiro e Draconato nesta etapa; os heróis de Lobisomem, Fantasma e Bruxa entram junto com cada raça na E10.
 - **Pronto quando:** dá para jogar uma run inteira com cada herói disponível; o bônus de raça aparece no tooltip das criaturas.
 
-### E9. Conquistas e skins `[ ]` — D3 = por conquista
+### E9. Conquistas e skins `[x]` — D3 = por conquista
 - `src/data/achievements.ts`: conquistas como dados (ex.: vencer com cada herói, evoluir 3 criaturas ao nível 3 numa run, vencer sem o Nexus cair abaixo de 50%); progresso salvo no perfil; aviso ao desbloquear; lista no menu.
 - Cada skin aponta para a conquista que a libera.
 - `src/data/skins.ts`: por herói, paleta e acessório; os sprites leem cores da skin em vez de constantes.
 - Seleção na tela de Heróis; prévia animada; compra com Essência.
 - **Pronto quando:** cada herói tem a skin padrão + 2 alternativas selecionáveis e salvas.
 
-### E10. Novas raças `[ ]`
+### E10. Novas raças `[x]`
 Uma sub-etapa por raça, cada uma com 2 classes (dados, mecânica, sprite níveis 1 e 3, efeitos, som, ficha da Coleção) + o herói da raça (E8):
 - **E10a Lobisomem:** Caçador (salta entre alvos) · Alfa (aura que acelera criaturas próximas).
 - **E10b Fantasma:** Assombração (dano que ignora armadura) · Banshee (grito em cone que empurra).
