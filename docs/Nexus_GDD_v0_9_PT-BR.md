@@ -62,6 +62,19 @@ Gacha com dinheiro real: ver seção 10.
 | Fantasma | Possessor | Controle (possessão) | O inimigo possuído luta contra os outros | Marionetista (2 de uma vez) · Devorador (possuído explode) |
 | Bruxa | Herbalista | Controle (raízes) | Raízes prendem o alvo | Jardim Venenoso (raízes envenenam) · Guardiã do Bosque (raízes em área) |
 
+**Raças novas do F10** `FEITO` (3 classes com 2 vertentes + herói cada):
+
+| Raça | Classe | Papel | Mecânica | Vertentes (nível 3) |
+|---|---|---|---|---|
+| Fada | Encantadora | Suporte (bênção) | Bênção raio 85: +12% dano, +10% alcance (voa); 30 ouro, 90 ✦ | Rainha das Flores (raio 110, +20% dano, +15% alcance) · Fada Guerreira (pó de estrelas em 3 alvos, +140% dano) |
+| Fada | Travessa | Controle (confusão) | 30% de confundir (anda para trás) por 1,6 s; 25 ouro, 80 ✦ | Pregadora de Peças (confusão em área raio 35) · Ladra de Ouro (confusos que morrem: +3 ouro) |
+| Fada | Lumina | Suporte (marca) | Marca: +20% de dano recebido por 3 s; 30 ouro, 90 ✦ | Farol (marca 3 alvos, +25%) · Estrela Cadente (marcados explodem ao morrer) |
+<!-- f10-rows -->
+
+**Heróis novos:**
+- **Rainha Fada** (Fada, 240 ✦): vida 85, vel. 130; pó mágico 7 a cada 0,45 s, alcance 95; Pulso **Bênção Feérica**: 15 de dano (raio 90) e todas as criaturas +50% de vel. de ataque por 5 s (recarga 14 s); bônus: Fadas +12% de alcance.
+<!-- f10-heroes -->
+
 **Efeitos de golpe** `FEITO` (combináveis, reaproveitados pelas raças novas): dano contínuo, atordoar/raízes/petrificar, medo/confusão, marca (+dano recebido, pode explodir), vulnerável, corrosão de armadura, enfraquecer (lento e menos dano ao Nexus), puxar, possuir (aliado temporário), executar, +dano contra fortes, acúmulo por abate (velocidade ou dano), roubar ouro, ouro ao abater, erguer esqueleto aliado. Padrões de ataque novos: **bênção** (aura de dano/alcance/velocidade/crítico/proteção), **golpe em área ao redor de si** e **raio que atravessa em linha**.
 
 **Depois** `PROPOSTA`: Fada (Encantadora: aura de dano/alcance; Travessa: confunde inimigos), Golem, Necromante, Medusa. Banco de 24 ideias antigas: v0.4.
@@ -308,6 +321,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 06/10/2026 | Vertentes de evolução: no nível 3 o jogador escolhe entre duas formas evoluídas por criatura (novas habilidades: crítico, atordoar, pavor, poça dourada) |
 | 06/10/2026 | Próximas etapas: terceira classe das raças atuais, equipe de 8 e 12 raças novas com 3 classes + herói cada (Necromante, Golem, Fada, Górgona, Demônios, Anjos, Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais) |
 | 07/10/2026 | F9: terceira classe de cada raça (Clériga, Enxame, Tempestade, Uivador, Possessor, Herbalista), sem cura do Nexus; sistema de efeitos de golpe; equipe de 8 |
+| 07/10/2026 | F10: raça Fada (3 classes com vertentes + herói) |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.

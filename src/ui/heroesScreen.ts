@@ -27,7 +27,11 @@ export function raceBonusText(race: string, bonus: RaceBonus): string {
     case 'armorPierce':
       return `${plural}: ignoram ${bonus.value} de armadura.`;
     case 'poisonDuration':
-      return `${plural}: venenos e poças duram +${bonus.value} s.`;
+      return `${plural}: venenos, poças e efeitos de golpe duram +${bonus.value} s.`;
+    case 'critChance':
+      return `${plural}: +${Math.round(bonus.value * 100)}% de chance de crítico.`;
+    case 'vsStrong':
+      return `${plural}: +${Math.round(bonus.value * 100)}% de dano contra elites e chefes.`;
   }
 }
 
@@ -45,11 +49,20 @@ export function pulseText(def: HeroDef): string {
   const heal = p.healPerEnemy > 0 ? ` Cura ${p.healPerEnemy} do Nexus por inimigo atingido.` : '';
   const fear = p.fear ? ` Inimigos fogem do Nexus por ${p.fear} s.` : '';
   const poison = p.poison ? ` Envenena: ${p.poison.dps}/s por ${p.poison.duration} s.` : '';
+  const stun = p.stun ? ` ${p.stun.look === 'stone' ? 'Petrifica' : 'Atordoa'} por ${formatNumber(p.stun.duration)} s (chefes resistem).` : '';
+  const haste = p.haste ? ` Todas as criaturas atacam ${Math.round(p.haste.amount * 100)}% mais rápido por ${formatNumber(p.haste.duration)} s.` : '';
+  const raise = p.raise ? ` Ergue ${p.raise.count} esqueletos aliados por ${formatNumber(p.raise.duration)} s.` : '';
+  const cost = p.selfDamage ? ` Custa ${Math.round(p.selfDamage * 100)}% da vida do herói.` : '';
   const area =
     p.shape?.kind === 'dash'
       ? `investida de ${p.shape.length} que atravessa o campo`
-      : `raio de ${p.radius}`;
-  return `<b>${p.name}</b>: ${p.damage} de dano, ${area}, recarga ${p.cooldown} s.${heal}${fear}${poison}`;
+      : p.shape?.kind === 'cone'
+        ? `leque à frente (alcance ${p.shape.length})`
+        : p.shape?.kind === 'beam'
+          ? `raio em linha (alcance ${p.shape.length})`
+          : `raio de ${p.radius}`;
+  const damage = p.damage > 0 ? `${p.damage} de dano, ` : '';
+  return `<b>${p.name}</b>: ${damage}${area}, recarga ${p.cooldown} s.${heal}${fear}${poison}${stun}${haste}${raise}${cost}`;
 }
 
 /** Skins do herói: liberadas por conquistas; clicar escolhe. */

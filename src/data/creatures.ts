@@ -16,7 +16,10 @@ export type CreatureId =
   | 'storm'
   | 'howler'
   | 'possessor'
-  | 'herbalist';
+  | 'herbalist'
+  | 'enchantress'
+  | 'trickster'
+  | 'lumina';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -531,6 +534,71 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ascended: [
       { name: 'Jardim Venenoso', description: 'As raízes têm espinhos que envenenam.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.4, duration: 1.5, look: 'root' }, { kind: 'poison', dps: 10, duration: 3 }], color: '#b86aff', icon: '❀' },
       { name: 'Guardiã do Bosque', description: 'Raízes brotam em área e prendem vários de uma vez.', ability: { kind: 'splash', radius: 40, damageRatio: 0.6 }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.4, look: 'root' }], color: '#5ad85a', icon: '♣' },
+    ],
+  },
+  enchantress: {
+    id: 'enchantress',
+    name: 'Encantadora',
+    race: 'Fada',
+    role: 'Suporte (bênção)',
+    description: 'Abençoa as criaturas ao redor: causam mais dano e alcançam mais longe.',
+    lore: 'Canta para as flores e para as flechas. As duas obedecem.',
+    icon: '✿',
+    baseCost: 30,
+    damage: 5,
+    range: 95,
+    cooldown: 1,
+    color: '#ff8ad0',
+    flying: true,
+    ability: { kind: 'bless', radius: 85, damage: 0.12, range: 0.1 },
+    unlock: { kind: 'essence', cost: 90 },
+    ascended: [
+      { name: 'Rainha das Flores', description: 'Bênção maior e mais forte.', ability: { kind: 'bless', radius: 110, damage: 0.2, range: 0.15 }, color: '#ffd25a', icon: '❀' },
+      { name: 'Fada Guerreira', description: 'Troca a bênção por pó de estrelas em 3 alvos.', ability: { kind: 'multishot', targets: 3 }, stats: { damage: 2.4 }, color: '#ffb84a', icon: '⚔' },
+    ],
+  },
+  trickster: {
+    id: 'trickster',
+    name: 'Travessa',
+    race: 'Fada',
+    role: 'Controle (confusão)',
+    description: 'Joga pó de confusão: o inimigo atingido pode se perder e andar para trás.',
+    lore: 'Troca o caminho dos monstros por diversão. Às vezes troca o seu também.',
+    icon: '✧',
+    baseCost: 25,
+    damage: 6,
+    range: 100,
+    cooldown: 0.8,
+    color: '#7ad85a',
+    flying: true,
+    ability: { kind: 'none' },
+    effects: [{ kind: 'fear', chance: 0.3, duration: 1.6, look: 'confuse' }],
+    unlock: { kind: 'essence', cost: 80 },
+    ascended: [
+      { name: 'Pregadora de Peças', description: 'O pó se espalha: confunde em área.', ability: { kind: 'splash', radius: 35, damageRatio: 0.5 }, effects: [{ kind: 'fear', chance: 0.35, duration: 1.8, look: 'confuse' }], color: '#ff8ad0', icon: '♣' },
+      { name: 'Ladra de Ouro', description: 'Inimigos confusos que morrem rendem ouro extra.', ability: { kind: 'none' }, effects: [{ kind: 'fear', chance: 0.35, duration: 1.6, look: 'confuse' }, { kind: 'goldOnKill', gold: 3, when: 'feared' }], stats: { damage: 1.3 }, color: '#f0c35a', icon: '◉' },
+    ],
+  },
+  lumina: {
+    id: 'lumina',
+    name: 'Lumina',
+    race: 'Fada',
+    role: 'Suporte (marca)',
+    description: 'Ilumina o alvo: inimigos marcados recebem mais dano de todas as criaturas.',
+    lore: 'Onde ela aponta, ninguém consegue se esconder — nem dos golpes.',
+    icon: '✦',
+    baseCost: 30,
+    damage: 6,
+    range: 110,
+    cooldown: 0.9,
+    color: '#fff0a0',
+    flying: true,
+    ability: { kind: 'none' },
+    effects: [{ kind: 'mark', amount: 0.2, duration: 3 }],
+    unlock: { kind: 'essence', cost: 90 },
+    ascended: [
+      { name: 'Farol', description: 'Marca 3 inimigos de uma vez, com marca mais forte.', ability: { kind: 'multishot', targets: 3 }, effects: [{ kind: 'mark', amount: 0.25, duration: 3.5 }], color: '#ffd25a', icon: '☀' },
+      { name: 'Estrela Cadente', description: 'Marcados explodem em luz ao morrer.', ability: { kind: 'none' }, effects: [{ kind: 'mark', amount: 0.2, duration: 3, explode: { radius: 40, ratio: 0.4 } }], stats: { damage: 1.4 }, color: '#bfe8ff', icon: '★' },
     ],
   },
 };

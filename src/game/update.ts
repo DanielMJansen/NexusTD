@@ -33,6 +33,7 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   }
 
   state.pulse.remaining = Math.max(0, state.pulse.remaining - dt);
+  state.haste.remaining = Math.max(0, state.haste.remaining - dt);
   if (state.talents.nexusRegen > 0 && state.nexus.hp < state.nexus.maxHp) {
     state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + state.talents.nexusRegen * dt);
   }

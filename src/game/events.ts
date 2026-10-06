@@ -22,7 +22,16 @@ export type GameEvent =
   | { type: 'bossShield'; x: number; y: number }
   | { type: 'bossEnraged'; enemy: EnemyId; x: number; y: number }
   /** Pulso do herói; `to` existe quando é uma investida em linha. */
-  | { type: 'pulse'; hero: HeroId; x: number; y: number; radius: number; to?: Point }
+  | {
+      type: 'pulse';
+      hero: HeroId;
+      x: number;
+      y: number;
+      radius: number;
+      to?: Point;
+      cone?: { angle: number; halfAngle: number; length: number };
+      beam?: boolean;
+    }
   /** Grito em leque (Banshee). */
   | { type: 'screech'; x: number; y: number; angle: number; halfAngle: number; range: number }
   | { type: 'poolCreated'; x: number; y: number; radius: number }

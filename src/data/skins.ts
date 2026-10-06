@@ -16,6 +16,7 @@ export interface SkinDef {
 }
 
 export const SKINS: SkinDef[] = [
+  { id: 'faeQueen-default', hero: 'faeQueen', name: 'Primavera', palette: {}, unlockedBy: null },
   { id: 'knight-sentinel', hero: 'knight', name: 'Sentinela', palette: {}, unlockedBy: null },
   {
     id: 'knight-templar',

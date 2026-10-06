@@ -216,6 +216,8 @@ export interface RunState {
   unlocked: Set<CreatureId>;
   modifiers: Modifiers;
   pulse: { cooldown: number; remaining: number; radius: number };
+  /** Aceleração de todas as criaturas dada pelo Pulso (Bênção Feérica). */
+  haste: { amount: number; remaining: number };
   /** Bônus dos talentos que valem a run inteira. */
   talents: TalentBonuses;
   /** Poças de dano no chão (Caldeirão). */
@@ -345,6 +347,7 @@ export function createRun(setup: RunSetup): RunState {
       radius: heroDef.pulse.radius * (1 + t.pulseRadius),
     },
     talents: { ...t },
+    haste: { amount: 0, remaining: 0 },
     pools: [],
     wardReady: false,
     lowestNexusRatio: 1,

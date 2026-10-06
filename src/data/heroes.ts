@@ -1,7 +1,7 @@
 // Heróis jogáveis: um por raça. O Cavaleiro (Humano) é o inicial; os outros custam Essência.
 // Valores PROPOSTA: calibrar em playtest.
 
-export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch';
+export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen';
 
 export type HeroAttack = {
   damage: number;
@@ -23,8 +23,23 @@ export type HeroPulse = {
   cooldown: number;
   /** Cura do Nexus por inimigo atingido. */
   healPerEnemy: number;
-  /** Formato: círculo ao redor do herói ou investida em linha (o herói atravessa o campo). */
-  shape?: { kind: 'circle' } | { kind: 'dash'; length: number; width: number };
+  /**
+   * Formato: círculo ao redor do herói, investida em linha (o herói atravessa o campo),
+   * leque à frente ou raio em linha (o herói fica parado).
+   */
+  shape?:
+    | { kind: 'circle' }
+    | { kind: 'dash'; length: number; width: number }
+    | { kind: 'cone'; length: number; halfAngle: number }
+    | { kind: 'beam'; length: number; width: number };
+  /** Todas as criaturas atacam mais rápido por um tempo. */
+  haste?: { amount: number; duration: number };
+  /** Inimigos atingidos ficam parados (atordoados ou petrificados) por um tempo (s). */
+  stun?: { duration: number; look: 'stun' | 'stone' };
+  /** Ergue esqueletos aliados temporários ao redor do herói. */
+  raise?: { count: number; duration: number };
+  /** Custa esta fração da vida máxima do herói (não o derruba). */
+  selfDamage?: number;
   /** Inimigos atingidos fogem do Nexus por um tempo (s). */
   fear?: number;
   /** Inimigos atingidos ficam envenenados. */
@@ -40,8 +55,12 @@ export type RaceBonus =
   | { kind: 'attackSpeed'; value: number }
   /** Ignoram mais pontos de armadura. */
   | { kind: 'armorPierce'; value: number }
-  /** Venenos duram mais segundos. */
-  | { kind: 'poisonDuration'; value: number };
+  /** Efeitos de golpe (veneno, raízes, petrificação, marca...) duram mais segundos. */
+  | { kind: 'poisonDuration'; value: number }
+  /** Chance extra de golpe crítico. */
+  | { kind: 'critChance'; value: number }
+  /** Dano extra contra elites e chefes. */
+  | { kind: 'vsStrong'; value: number };
 
 export interface HeroDef {
   id: HeroId;
@@ -146,6 +165,19 @@ export const HEROES: Record<HeroId, HeroDef> = {
     color: '#7ad85a',
     maxHp: 90,
     cost: 220,
+  },
+  faeQueen: {
+    id: 'faeQueen',
+    name: 'Rainha Fada',
+    race: 'Fada',
+    description: 'Frágil, mas rápida. A Bênção Feérica faz todas as criaturas atacarem muito mais rápido por alguns segundos.',
+    speed: 130,
+    attack: { damage: 7, range: 95, cooldown: 0.45, pattern: { kind: 'single' }, healPerHit: 0 },
+    pulse: { name: 'Bênção Feérica', damage: 15, radius: 90, cooldown: 14, healPerEnemy: 0, haste: { amount: 0.5, duration: 5 } },
+    raceBonus: { kind: 'range', value: 0.12 },
+    color: '#ff8ad0',
+    maxHp: 85,
+    cost: 240,
   },
 };
 export const HERO_IDS = Object.keys(HEROES) as HeroId[];

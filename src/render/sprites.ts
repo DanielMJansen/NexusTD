@@ -46,6 +46,7 @@ import {
   drawSpider,
 } from './spritesEnemies';
 import { drawBatSwarm, drawCleric, drawHerbalist, drawPossessor } from './spritesClasses';
+import { drawEnchantress, drawFaeQueen, drawLumina, drawTrickster } from './spritesFae';
 
 export type SpriteId = HeroId | CreatureId | EnemyId;
 export type { SpritePose };
@@ -124,6 +125,18 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'cleric':
       drawCleric(ctx, p);
+      break;
+    case 'enchantress':
+      drawEnchantress(ctx, p);
+      break;
+    case 'trickster':
+      drawTrickster(ctx, p);
+      break;
+    case 'lumina':
+      drawLumina(ctx, p);
+      break;
+    case 'faeQueen':
+      drawFaeQueen(ctx, p);
       break;
     case 'batSwarm':
       drawBatSwarm(ctx, p);

@@ -1,9 +1,9 @@
 import { ARENA, HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureCooldown, creatureDamage, creatureRange, killHaste } from './creatureStats';
-import { applyHitEffects, isHostile, onEnemyKilled, sourceDamageMultiplier, vulnerability } from './hitEffects';
+import { applyHitEffects, isHostile, onEnemyKilled, raiseSkeleton, sourceDamageMultiplier, vulnerability } from './hitEffects';
 import { WAVES } from '../data/waves';
 import { enemyArmor, shieldFactor } from './enemies';
-import { grantXp, healHero } from './hero';
+import { grantXp, healHero, heroMaxHp } from './hero';
 import { dropLoot } from './loot';
 import { spawnEnemyAt } from './spawning';
 import { random } from './random';
@@ -43,6 +43,10 @@ export function damageEnemy(
   if (ability?.kind === 'pierceArmor' && enemyArmor(enemy) > 0) amount *= 1 + ability.bonusVsArmored;
   // marca/vulnerável (todas as fontes) e bônus da criatura (contra fortes, abates acumulados)
   amount *= vulnerability(enemy) * (source ? sourceDamageMultiplier(source, enemy) : 1);
+  const raceBonus = state.modifiers.raceBonus;
+  if (source && raceBonus.bonus.kind === 'vsStrong' && source.def.race === raceBonus.race && (enemy.elite || enemy.def.isBoss)) {
+    amount *= 1 + raceBonus.bonus.value;
+  }
   const reduced = (amount - effectiveArmor(state, enemy, source, options)) * shieldFactor(enemy);
   const dealt = options.overTime ? Math.max(0, reduced) : Math.max(1, reduced);
   enemy.hp -= dealt;
@@ -111,6 +115,9 @@ export function poisonEnemy(enemy: Enemy, dps: number, duration: number): void {
   enemy.poisonTimer = Math.max(enemy.poisonTimer, duration);
 }
 
+/** Ângulo entre a direção (de → para) e outra direção, em radianos (0–π). */
+const angleDiff = (a: number, b: number) => Math.abs(((a - b + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);
+
 /** Distância de um ponto ao segmento a–b. */
 function distanceToSegment(p: Point, a: Point, b: Point): number {
   const dx = b.x - a.x;
@@ -136,6 +143,8 @@ export function firePulse(state: RunState, aim?: Point): boolean {
   state.pulse.remaining = state.pulse.cooldown;
   const start = { x: hero.x, y: hero.y };
   let end: Point | undefined;
+  let cone: { angle: number; halfAngle: number; length: number } | undefined;
+  let beam = false;
   let isHit: (e: Enemy) => boolean;
 
   if (pulse.shape?.kind === 'dash') {
@@ -151,6 +160,23 @@ export function firePulse(state: RunState, aim?: Point): boolean {
     hero.x = end.x;
     hero.y = end.y;
     hero.target = { ...end };
+  } else if (pulse.shape?.kind === 'cone' || pulse.shape?.kind === 'beam') {
+    // leque ou raio em linha na direção da mira (ou do inimigo mais próximo); o herói fica parado
+    const nearest = state.enemies.filter(isHostile).sort((a, b) => distance(a, hero) - distance(b, hero))[0];
+    const target = aim ?? nearest;
+    const angle = target ? Math.atan2(target.y - hero.y, target.x - hero.x) : hero.facing > 0 ? 0 : Math.PI;
+    const length = pulse.shape.length * (1 + state.talents.pulseRadius);
+    if (pulse.shape.kind === 'cone') {
+      const half = pulse.shape.halfAngle;
+      isHit = (e) => distance(e, hero) <= length && angleDiff(Math.atan2(e.y - hero.y, e.x - hero.x), angle) <= half;
+      cone = { angle, halfAngle: half, length };
+    } else {
+      end = { x: hero.x + Math.cos(angle) * length, y: hero.y + Math.sin(angle) * length };
+      const halfWidth = pulse.shape.width / 2;
+      const segmentEnd = end;
+      isHit = (e) => distanceToSegment(e, start, segmentEnd) <= halfWidth + e.def.radius * 0.5;
+      beam = true;
+    }
   } else {
     isHit = (e) => distance(e, hero) < state.pulse.radius;
   }
@@ -163,10 +189,17 @@ export function firePulse(state: RunState, aim?: Point): boolean {
     });
     if (pulse.fear && !enemy.def.isBoss) enemy.fearTimer = Math.max(enemy.fearTimer, pulse.fear);
     if (pulse.poison) poisonEnemy(enemy, pulse.poison.dps * (1 + state.talents.heroDamage), pulse.poison.duration);
+    if (pulse.stun && !enemy.def.isBoss && !enemy.dead) {
+      enemy.stunTimer = Math.max(enemy.stunTimer, pulse.stun.duration);
+      enemy.stunLook = pulse.stun.look;
+    }
     hit++;
   }
+  if (pulse.haste) state.haste = { amount: pulse.haste.amount, remaining: pulse.haste.duration };
+  if (pulse.raise) for (let i = 0; i < pulse.raise.count; i++) raiseSkeleton(state, hero, pulse.raise.duration);
+  if (pulse.selfDamage) hero.hp = Math.max(1, hero.hp - heroMaxHp(state) * pulse.selfDamage);
   if (pulse.healPerEnemy > 0 && hit > 0) healNexus(state, pulse.healPerEnemy * hit);
-  state.events.push({ type: 'pulse', hero: hero.def.id, x: start.x, y: start.y, radius: state.pulse.radius, to: end });
+  state.events.push({ type: 'pulse', hero: hero.def.id, x: start.x, y: start.y, radius: state.pulse.radius, to: end, cone, beam });
   return true;
 }
 
@@ -310,9 +343,6 @@ export function updateDamageOverTime(state: RunState, dt: number): void {
   }
 }
 
-/** Ângulo entre a direção (de → para) e outra direção, em radianos (0–π). */
-const angleDiff = (a: number, b: number) => Math.abs(((a - b + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);
-
 /** Escolhe os alvos no alcance: os mais perto do Nexus (padrão) ou os mais fortes primeiro. */
 function pickTargets(state: RunState, creature: Creature, range: number, count: number): Enemy[] {
   const strongest = creature.def.targeting === 'strongest';
@@ -356,13 +386,14 @@ export function updateCreatures(state: RunState, dt: number): void {
     const inFrenzy = ability.kind === 'frenzy' && creature.frenzyTimer > 0;
     // crítico: chance das melhorias + da vertente (Atirador de Elite, Lâmina Carmesim) e dano crítico de auras
     const critBonus = ability.kind === 'crit' ? ability : null;
-    const crit = random() < modifiers.critChance + (critBonus?.chance ?? 0);
+    const raceCrit = bonus.kind === 'critChance' && def.race === race ? bonus.value : 0;
+    const crit = random() < modifiers.critChance + (critBonus?.chance ?? 0) + raceCrit;
     const critMultiplier = (critBonus ? critBonus.multiplier : 2) + creature.blessCrit;
     const damage = creatureDamage(creature, modifiers) * (inFrenzy ? ability.damageMultiplier : 1) * (crit ? critMultiplier : 1);
     const raceSpeed = bonus.kind === 'attackSpeed' && def.race === race ? bonus.value : 0;
     const speed =
       modifiers.attackSpeed *
-      (1 + raceSpeed + creature.auraBonus + killHaste(creature)) *
+      (1 + raceSpeed + creature.auraBonus + killHaste(creature) + (state.haste.remaining > 0 ? state.haste.amount : 0)) *
       (inFrenzy ? ability.attackSpeedMultiplier : 1);
     creature.attackTimer = creatureCooldown(creature) / speed;
     creature.lastAttackAt = state.time;

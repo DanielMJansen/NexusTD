@@ -12,6 +12,7 @@ const GOLD = '#ffd25a';
 
 /** Cores do Pulso de cada herói. */
 const PULSE_LOOK: Record<HeroId, { ring: string; inner: string; particle: string }> = {
+  faeQueen: { ring: '#ff8ad0', inner: '#ffffff', particle: '#ffd0f4' },
   knight: { ring: '#c08cff', inner: '#ffffff', particle: '#c99bff' },
   vampireLord: { ring: '#ff3a50', inner: '#2a1040', particle: '#3a1a50' },
   draconian: { ring: '#ff8a2a', inner: '#ffd25a', particle: '#ff5a1a' },
@@ -315,6 +316,19 @@ export class Effects {
         break;
       case 'pulse': {
         const look = PULSE_LOOK[event.hero];
+        if (event.cone) {
+          // leque à frente do herói
+          this.waves.push({ x: event.x, y: event.y, angle: event.cone.angle, halfAngle: event.cone.halfAngle, range: event.cone.length, life: 0.5, maxLife: 0.5 });
+          this.shake = Math.max(this.shake, 3);
+          break;
+        }
+        if (event.beam && event.to) {
+          // raio em linha a partir do herói
+          this.beams.push({ from: { x: event.x, y: event.y }, to: event.to, width: 14, color: look.ring, life: 0.35, maxLife: 0.35 });
+          this.burst(event.to.x, event.to.y, 16, look.particle, 90, 0.5, 2.6, true);
+          this.shake = Math.max(this.shake, 4);
+          break;
+        }
         if (event.to) {
           // investida em linha: rastro de partículas ao longo do caminho
           for (let i = 0; i <= 24; i++) {
@@ -891,6 +905,20 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       ctx.beginPath();
       ctx.arc(0, 0, 12, start + 0.3, start + 1.5);
       ctx.stroke();
+      break;
+    }
+    default: {
+      // criaturas sem projétil próprio: orbe brilhante na cor da criatura
+      const color = shot.source in CREATURES ? CREATURES[shot.source as CreatureId].color : '#ffffff';
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, 6);
+      glow.addColorStop(0, '#ffffff');
+      glow.addColorStop(0.4, color);
+      glow.addColorStop(1, '#00000000');
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, 6, 0, TAU);
+      ctx.fill();
       break;
     }
   }
