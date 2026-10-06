@@ -17,6 +17,10 @@ export type GameEvent =
   /** Tiro de inimigo: flecha/raio no herói ou teia numa criatura. */
   | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web' | 'curse' | 'acid'; from: Point; to: Point }
   | { type: 'enemyLeap'; x: number; y: number }
+  | { type: 'weatherWarning'; kind: 'blizzard'; seconds: number }
+  | { type: 'weatherStarted'; kind: 'blizzard'; forced: boolean }
+  | { type: 'weatherEnded'; kind: 'blizzard' }
+  | { type: 'interactableActivated'; kind: 'brazier'; x: number; y: number }
   | { type: 'creatureSwallowed'; x: number; y: number }
   | { type: 'creatureReleased'; x: number; y: number }
   | { type: 'enemyBurrow'; x: number; y: number; surfacing: boolean }

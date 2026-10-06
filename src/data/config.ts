@@ -51,6 +51,12 @@ export const SHOP = {
 };
 
 /** Essência = 3 × onda + 1 a cada 5 abates + 30 se vencer. */
+/** Objetos do mapa: distância para o herói ativar e tempo parado perto para ativar. */
+export const INTERACT = {
+  reach: 24,
+  time: 2,
+};
+
 /** Equipes salvas: grátis, máximo e preço de cada vaga extra (Essência). */
 export const LOADOUTS = {
   free: 3,

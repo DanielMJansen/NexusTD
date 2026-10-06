@@ -1,3 +1,4 @@
+import { updateMapEvents } from './mapEvents';
 import { SANCTUARY } from '../data/sanctuary';
 import { stageWaveCount, STAGES } from '../data/stages';
 import { ECONOMY, REWARDS } from '../data/config';
@@ -52,6 +53,7 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
     state.spawnTimer = state.spawnIntervalOverride ?? spawnInterval(state.wave);
   }
 
+  updateMapEvents(state, dt);
   updateHeroVitals(state, dt);
   updatePulses(state, dt, input.aim);
   // deslizando (Travessia), o herói não anda nem ataca por conta própria

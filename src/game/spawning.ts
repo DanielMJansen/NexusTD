@@ -1,3 +1,4 @@
+import { startWeather } from './mapEvents';
 import { entrances, joinNearestPath } from './paths';
 
 import { ENEMIES, type EnemyId } from '../data/enemies';
@@ -94,6 +95,7 @@ export function startWave(state: RunState): void {
   state.phase = 'playing';
   state.wardReady = state.talents.nexusWard > 0;
   const scripted = scriptedWave(state.stage, state.wave);
+  if (scripted?.weather) startWeather(state, true);
   state.events.push({ type: 'waveStarted', wave: state.wave, total: stageWaveCount(state.stage), kind: scripted?.kind ?? 'normal', title: scripted?.title });
 }
 

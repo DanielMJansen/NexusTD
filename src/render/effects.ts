@@ -198,6 +198,20 @@ export class Effects {
         this.burst(event.x, event.y + 8, 12, event.color, 50, 0.6, 2.2, true, -30);
         this.burst(event.x, event.y + 10, 6, '#4a3a2a', 40, 0.5, 3, false, -20, 120);
         break;
+      case 'weatherWarning':
+        this.banner('Nevasca chegando', `em ${event.seconds} s · fique perto das fogueiras`, '#bfe4ff', 2.2);
+        break;
+      case 'weatherStarted':
+        this.banner(event.forced ? 'Nevasca Eterna' : 'Nevasca!', 'Alcance −30% longe das fogueiras · reacenda com o herói', '#e8f4ff', 2.4);
+        break;
+      case 'weatherEnded':
+        this.banner('A nevasca passou', '', '#bfe4ff', 1.4);
+        break;
+      case 'interactableActivated':
+        this.ring(event.x, event.y - 10, 30, '#ffb85a', 0.6, 3);
+        this.burst(event.x, event.y - 14, 14, '#ffd27a', 60, 0.6, 2.2, true, -40);
+        this.text(event.x, event.y - 32, 'Fogueira acesa!', '#ffd27a', 10);
+        break;
       case 'enemyLeap':
         this.burst(event.x, event.y + 10, 8, '#6a5a3a', 50, 0.4, 2.4, false, -10, 100);
         break;

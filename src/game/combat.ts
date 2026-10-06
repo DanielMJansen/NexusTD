@@ -1,3 +1,4 @@
+import { weatherRangeFactor } from './mapEvents';
 import { HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureCooldown, creatureDamage, creatureRange, killHaste } from './creatureStats';
 import { applyHitEffects, isHostile, onEnemyKilled, sourceDamageMultiplier, vulnerability } from './hitEffects';
@@ -322,7 +323,7 @@ export function updateCreatures(state: RunState, dt: number): void {
 
     const { def } = creature;
     const ability = creatureAbility(creature);
-    const range = creatureRange(creature, modifiers);
+    const range = creatureRange(creature, modifiers) * weatherRangeFactor(state, creature);
     const reach = ability.kind === 'nova' ? Math.min(range, ability.radius) : range;
     const targets = pickTargets(state, creature, reach, ability.kind === 'multishot' ? ability.targets : 1);
     const target = targets[0];

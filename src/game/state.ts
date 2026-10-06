@@ -285,6 +285,10 @@ export interface RunState {
   nexus: { hp: number; maxHp: number; x: number; y: number };
   /** Tamanho do mundo (pode ser maior que a tela). */
   map: { width: number; height: number };
+  /** Objetos interativos do mapa (estado da run). */
+  interactables: { kind: 'brazier'; x: number; y: number; radius: number; lit: boolean; progress: number }[];
+  /** Clima: ativo agora, segundos até mudar, se já avisou e se a onda forçou. */
+  weather: { active: boolean; timer: number; warned: boolean; forced: boolean };
   gold: number;
   /** Fase da run (inimigos, chefes e cenário). */
   stage: StageId;
@@ -397,6 +401,8 @@ export function createRun(setup: RunSetup): RunState {
     time: 0,
     nexus: { hp: maxHp, maxHp, x: geometry.nexus.x, y: geometry.nexus.y },
     map: { width: geometry.width, height: geometry.height },
+    interactables: (STAGES[setup.stage ?? FIRST_STAGE].interactables ?? []).map((o) => ({ ...o, lit: true, progress: 0 })),
+    weather: { active: false, timer: STAGES[setup.stage ?? FIRST_STAGE].weather?.every ?? 0, warned: false, forced: false },
     gold: ECONOMY.startGold + t.startGold,
     stage: setup.stage ?? FIRST_STAGE,
     sanctuary: { ...(setup.sanctuary ?? {}) },

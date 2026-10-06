@@ -35,6 +35,26 @@ export interface Entrance {
   path: { x: number; y: number }[];
 }
 
+/** Objeto do mapa que o herói ativa ficando perto (fogueira: protege criaturas do clima ao redor). */
+export interface Interactable {
+  kind: 'brazier';
+  x: number;
+  y: number;
+  /** Raio protegido quando acesa. */
+  radius: number;
+}
+
+/** Clima periódico da fase (nevasca: alcance das criaturas cai, fogueiras apagam). */
+export interface WeatherRule {
+  kind: 'blizzard';
+  /** Segundos entre um clima e outro, duração e aviso antes de começar. */
+  every: number;
+  duration: number;
+  warning: number;
+  /** Multiplicador de alcance das criaturas fora das fogueiras acesas. */
+  rangeMultiplier: number;
+}
+
 /** Tipo de onda do roteiro (muda a faixa e o que acontece). */
 export type WaveKind = 'normal' | 'horde' | 'elite' | 'event' | 'boss' | 'truce';
 
@@ -59,6 +79,8 @@ export interface ScriptedWave {
   rolls?: number;
   /** Segundos entre inimigos (padrão: a fórmula). */
   interval?: number;
+  /** Força o clima da fase durante a onda inteira (ex.: Nevasca Eterna). */
+  weather?: boolean;
 }
 
 export const DEFAULT_MAP: StageMap = { width: 640, height: 360, nexus: { x: 320, y: 180 } };
@@ -91,6 +113,10 @@ export interface StageDef {
   entrances?: Entrance[];
   /** Roteiro de ondas (padrão: WAVES.total ondas pela fórmula, chefes em `bosses`). */
   script?: ScriptedWave[];
+  /** Objetos interativos do mapa. */
+  interactables?: Interactable[];
+  /** Clima periódico. */
+  weather?: WeatherRule;
   /** Fase que precisa ser vencida para liberar esta (null = aberta desde o início). */
   requires: StageId | null;
 }

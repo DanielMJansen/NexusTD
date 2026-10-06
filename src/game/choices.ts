@@ -1,3 +1,4 @@
+import { endWeather } from './mapEvents';
 import { scriptedWave, stageWaveCount } from '../data/stages';
 import { LOOT } from '../data/nexusUpgrades';
 import { CHOICES, NEXUS } from '../data/config';
@@ -17,6 +18,7 @@ import type { Choice, RunState } from './state';
 
 /** Fim de onda: cura o Nexus e sorteia as melhorias oferecidas. */
 export function offerChoices(state: RunState): void {
+  if (state.weather.forced) endWeather(state);
   state.phase = 'choosing';
   state.choiceReason = 'waveCleared';
   state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + NEXUS.healBetweenWaves + state.talents.nexusHeal);

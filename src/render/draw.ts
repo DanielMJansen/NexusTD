@@ -1,3 +1,4 @@
+import { ARENA, INTERACT } from '../data/config';
 import { resolveNexus } from './nexusLook';
 import { VARIANTS } from '../data/altar';
 
@@ -71,6 +72,7 @@ export function drawFrame(
       },
     },
   ];
+  for (const o of state.interactables) layers.push({ y: o.y, draw: () => drawInteractable(ctx, o, time, state.weather.active) });
   for (const enemy of state.enemies) layers.push({ y: enemy.y, draw: () => drawEnemy(ctx, state, enemy, time) });
   for (const creature of state.creatures) {
     layers.push({ y: creature.y, draw: () => drawCreature(ctx, state, creature, time) });
@@ -83,6 +85,7 @@ export function drawFrame(
   if (interaction.placement) drawPlacementPreview(ctx, state, interaction.placement, time);
   effects.drawWorld(ctx, time);
   ctx.restore();
+  if (state.weather.active) drawBlizzard(ctx, time);
 
   drawAtmosphere(ctx, time);
   effects.drawBanners(ctx);
@@ -839,4 +842,90 @@ function drawVariantSparkles(ctx: CanvasRenderingContext2D, x: number, y: number
     ctx.closePath();
     ctx.fill();
   }
+}
+
+/** Fogueira: bacia de pedra; acesa, chama e círculo de calor; apagada, anel de progresso do herói. */
+function drawInteractable(
+  ctx: CanvasRenderingContext2D,
+  o: RunState['interactables'][number],
+  time: number,
+  storm: boolean,
+): void {
+  const { x, y } = o;
+  if (o.lit && storm) {
+    // área protegida da nevasca
+    ctx.strokeStyle = 'rgba(255, 170, 80, 0.45)';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.ellipse(x, y, o.radius, o.radius * 0.72, 0, 0, TAU);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.fillStyle = '#3a3448';
+  ctx.strokeStyle = '#0a0612';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 10, 4.5, 0, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#5a5470';
+  ctx.beginPath();
+  ctx.moveTo(x - 9, y - 1);
+  ctx.lineTo(x - 6, y - 8);
+  ctx.lineTo(x + 6, y - 8);
+  ctx.lineTo(x + 9, y - 1);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  if (o.lit) {
+    const flick = Math.sin(time * 12) * 1.5;
+    const glow = ctx.createRadialGradient(x, y - 12, 1, x, y - 12, 26);
+    glow.addColorStop(0, '#ffd27a99');
+    glow.addColorStop(1, '#ff8a3a00');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y - 12, 26, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#ff8a3a';
+    ctx.beginPath();
+    ctx.moveTo(x - 5, y - 8);
+    ctx.quadraticCurveTo(x - 4, y - 18 - flick, x, y - 24 - flick);
+    ctx.quadraticCurveTo(x + 4, y - 18 + flick, x + 5, y - 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#ffe08a';
+    ctx.beginPath();
+    ctx.ellipse(x, y - 12, 2.5, 4.5, 0, 0, TAU);
+    ctx.fill();
+  } else {
+    // fumaça e anel de progresso (herói perto reacende)
+    ctx.fillStyle = 'rgba(160, 160, 180, 0.35)';
+    ctx.beginPath();
+    ctx.arc(x + Math.sin(time * 2) * 2, y - 14 - ((time * 8) % 8), 3, 0, TAU);
+    ctx.fill();
+    if (o.progress > 0) {
+      ctx.strokeStyle = '#ffd27a';
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.arc(x, y - 12, 12, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, o.progress / INTERACT.time));
+      ctx.stroke();
+    }
+  }
+}
+
+/** Nevasca: véu branco e flocos na tela inteira (espaço da tela). */
+function drawBlizzard(ctx: CanvasRenderingContext2D, time: number): void {
+  ctx.save();
+  ctx.fillStyle = 'rgba(220, 235, 255, 0.18)';
+  ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  for (let i = 0; i < 90; i++) {
+    const fx = (i * 73.7 + time * (60 + (i % 5) * 25)) % (ARENA.width + 40) - 20;
+    const fy = (i * 41.3 + time * (90 + (i % 7) * 18)) % (ARENA.height + 40) - 20;
+    ctx.beginPath();
+    ctx.arc(fx, fy, 0.8 + (i % 3) * 0.5, 0, TAU);
+    ctx.fill();
+  }
+  ctx.restore();
 }
