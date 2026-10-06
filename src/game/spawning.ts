@@ -1,5 +1,6 @@
 import { ARENA } from '../data/config';
 import { ENEMIES, type EnemyId } from '../data/enemies';
+import { STAGES, type StageDef, type StageId } from '../data/stages';
 import { WAVES } from '../data/waves';
 import { random } from './random';
 import type { Enemy, Point, RunState } from './state';
@@ -13,29 +14,29 @@ export function spawnInterval(wave: number): number {
   return Math.max(rule.min, rule.base + rule.perWave * wave);
 }
 
-/** Multiplicadores de força dos inimigos na onda. */
-export function waveScaling(wave: number): { hp: number; speed: number; damage: number } {
+/** Multiplicadores de força dos inimigos na onda (com a força base da fase). */
+export function waveScaling(wave: number, stage: StageDef = STAGES.graveyard): { hp: number; speed: number; damage: number } {
   const s = WAVES.scaling;
   const o = Math.max(0, wave - 1);
   // Sem Fim: escalada exponencial por onda além da última
   const extra = Math.max(0, wave - WAVES.total);
   return {
-    hp: (1 + s.hp.linear * o + s.hp.quadratic * o * o) * (1 + WAVES.endless.hpGrowth) ** extra,
+    hp: (1 + s.hp.linear * o + s.hp.quadratic * o * o) * (1 + WAVES.endless.hpGrowth) ** extra * stage.power.hp,
     speed: 1 + Math.min(s.maxSpeedBonus, s.speedPerWave * o),
-    damage: (1 + s.damagePerWave * o) * (1 + WAVES.endless.damageGrowth) ** extra,
+    damage: (1 + s.damagePerWave * o) * (1 + WAVES.endless.damageGrowth) ** extra * stage.power.damage,
   };
 }
 
 /** Peso de cada inimigo no sorteio da onda (0 = ainda não aparece). */
-export function compositionWeights(wave: number): { enemy: EnemyId; weight: number }[] {
-  return WAVES.composition
+export function compositionWeights(stage: StageId, wave: number): { enemy: EnemyId; weight: number }[] {
+  return STAGES[stage].composition
     .filter((e) => wave >= e.fromWave)
     .map((e) => ({ enemy: e.enemy, weight: Math.max(e.minWeight ?? 0, e.weight + e.perWave * (wave - e.fromWave)) }))
     .filter((e) => e.weight > 0);
 }
 
-function rollEnemy(wave: number): EnemyId {
-  const weights = compositionWeights(wave);
+function rollEnemy(stage: StageId, wave: number): EnemyId {
+  const weights = compositionWeights(stage, wave);
   const total = weights.reduce((sum, e) => sum + e.weight, 0);
   let roll = random() * total;
   for (const e of weights) {
@@ -46,18 +47,19 @@ function rollEnemy(wave: number): EnemyId {
 }
 
 /** Chefe da onda: os fixos da run e, no Sem Fim, um a cada `bossEvery` ondas em rodízio. */
-export function waveBoss(wave: number): EnemyId | null {
-  const fixed = WAVES.bosses.find((b) => b.wave === wave);
+export function waveBoss(stage: StageId, wave: number): EnemyId | null {
+  const fixed = STAGES[stage].bosses.find((b) => b.wave === wave);
   if (fixed) return fixed.enemy;
-  const { bossEvery, bosses } = WAVES.endless;
+  const { bossEvery } = WAVES.endless;
+  const bosses = STAGES[stage].endlessBosses;
   const extra = wave - WAVES.total;
   if (extra > 0 && extra % bossEvery === 0) return bosses[(extra / bossEvery - 1) % bosses.length] ?? null;
   return null;
 }
 
-export function buildWaveQueue(wave: number): EnemyId[] {
-  const queue = Array.from({ length: waveEnemyCount(wave) }, () => rollEnemy(wave));
-  const boss = waveBoss(wave);
+export function buildWaveQueue(stage: StageId, wave: number): EnemyId[] {
+  const queue = Array.from({ length: waveEnemyCount(wave) }, () => rollEnemy(stage, wave));
+  const boss = waveBoss(stage, wave);
   if (boss) queue.push(boss);
   return queue;
 }
@@ -66,7 +68,7 @@ export function startWave(state: RunState): void {
   state.wave++;
   state.waveKills = 0;
   for (const creature of state.creatures) creature.killStacks = 0;
-  state.spawnQueue = buildWaveQueue(state.wave);
+  state.spawnQueue = buildWaveQueue(state.stage, state.wave);
   state.spawnTimer = 0;
   state.phase = 'playing';
   state.wardReady = state.talents.nexusWard > 0;
@@ -95,7 +97,7 @@ function eliteChance(wave: number): number {
 /** Cria um inimigo já com a força da onda (e talvez elite). */
 function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): Enemy {
   const def = ENEMIES[id];
-  const scaling = waveScaling(state.wave);
+  const scaling = waveScaling(state.wave, STAGES[state.stage]);
   const e = WAVES.elites;
   const hp = def.hp * scaling.hp * (elite ? e.hp : 1);
   const damage = scaling.damage * (elite ? e.damage : 1);

@@ -1,3 +1,4 @@
+import type { Biome } from '../data/stages';
 import { ARENA } from '../data/config';
 
 const TAU = Math.PI * 2;
@@ -70,8 +71,8 @@ const fog = Array.from({ length: 7 }, () => ({
 
 let cache: HTMLCanvasElement | null = null;
 
-/** Chão, props estáticos e névoa. A parte estática é desenhada uma vez em cache. */
-export function drawBackground(ctx: CanvasRenderingContext2D, time: number): void {
+/** Chão, props estáticos e névoa do bioma. A parte estática é desenhada uma vez em cache. */
+export function drawBackground(ctx: CanvasRenderingContext2D, time: number, _biome: Biome = 'graveyard'): void {
   const target = ctx.canvas;
   if (!cache || cache.width !== target.width || cache.height !== target.height) {
     cache = document.createElement('canvas');

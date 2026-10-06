@@ -10,6 +10,7 @@ import { HERO_IDS, HEROES } from '../src/data/heroes';
 import { LOOT, NEXUS_UPGRADES } from '../src/data/nexusUpgrades';
 import { TALENT_BRANCHES, TALENT_IDS, TALENTS } from '../src/data/talents';
 import { WAVES } from '../src/data/waves';
+import { STAGES } from '../src/data/stages';
 import { waveEnemyCount, waveScaling } from '../src/game/spawning';
 import { abilityText, attackText, enemyTraitText, formatNumber, pulseText, raceBonusText, talentEffectText } from '../src/ui/describe';
 import { nexusLevelText } from '../src/ui/nexusPanel';
@@ -88,7 +89,7 @@ out();
 
 out('## Ondas');
 const s = WAVES.scaling;
-out(`- ${WAVES.total} ondas; quantidade = ${WAVES.enemyCount.base} + ${n(WAVES.enemyCount.perWave)} × onda; chefes: ${WAVES.bosses.map((b) => `onda ${b.wave} ${ENEMIES[b.enemy].name}`).join(', ')}.`);
+out(`- ${WAVES.total} ondas; quantidade = ${WAVES.enemyCount.base} + ${n(WAVES.enemyCount.perWave)} × onda; chefes (Fase 1): ${STAGES.graveyard.bosses.map((b) => `onda ${b.wave} ${ENEMIES[b.enemy].name}`).join(', ')}.`);
 out(`- Força (o = onda − 1): vida × (1 + ${n(s.hp.linear)}·o + ${n(s.hp.quadratic)}·o²); velocidade +${pct(s.speedPerWave)} por onda (máx. +${pct(s.maxSpeedBonus)}); dano +${pct(s.damagePerWave)} por onda.`);
 const e = WAVES.elites;
 out(`- Elites a partir da onda ${e.fromWave}: chance ${pct(e.chance)} (+${pct(e.chancePerWave)}/onda, máx. ${pct(e.maxChance)}); vida ×${n(e.hp)}, dano ×${n(e.damage)}, recompensa ×${n(e.reward)}.`);

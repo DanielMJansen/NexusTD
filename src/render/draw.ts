@@ -1,4 +1,5 @@
 import { ARENA } from '../data/config';
+import { STAGES } from '../data/stages';
 import { WAVES } from '../data/waves';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { MAX_CREATURE_LEVEL } from '../data/evolution';
@@ -38,7 +39,7 @@ export function drawFrame(
   interaction: InteractionView,
   time: number,
 ): void {
-  drawBackground(ctx, time);
+  drawBackground(ctx, time, STAGES[state.stage].biome);
 
   const shake = effects.shakeOffset();
   ctx.save();

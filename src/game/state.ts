@@ -1,3 +1,4 @@
+import { FIRST_STAGE, type StageId } from '../data/stages';
 import { ARENA, ECONOMY, HERO_PLACEMENT, NEXUS } from '../data/config';
 import { HEROES, type HeroDef, type HeroId, type RaceBonus } from '../data/heroes';
 import type { CreatureDef, CreatureId } from '../data/creatures';
@@ -205,6 +206,7 @@ export interface Modifiers {
 export type Choice = { kind: 'upgrade'; upgrade: OfferedUpgrade };
 
 export interface RunResult {
+  stage: StageId;
   victory: boolean;
   wave: number;
   kills: number;
@@ -227,6 +229,8 @@ export type Phase = 'playing' | 'choosing' | 'ended';
 
 /** O que vem de fora da run: progresso permanente do jogador. */
 export interface RunSetup {
+  /** Fase da run (padrão: a primeira). */
+  stage?: StageId;
   /** Soma dos talentos comprados. */
   talents: TalentBonuses;
   /** Equipe da run: criaturas disponíveis, na ordem dos atalhos 1–8. */
@@ -243,6 +247,8 @@ export interface RunState {
   time: number;
   nexus: { hp: number; maxHp: number };
   gold: number;
+  /** Fase da run (inimigos, chefes e cenário). */
+  stage: StageId;
   kills: number;
   /** Inimigos abatidos na onda atual (contador "restantes/total" do HUD). */
   waveKills: number;
@@ -340,6 +346,7 @@ export function createRun(setup: RunSetup): RunState {
     time: 0,
     nexus: { hp: maxHp, maxHp },
     gold: ECONOMY.startGold + t.startGold,
+    stage: setup.stage ?? FIRST_STAGE,
     kills: 0,
     waveKills: 0,
     hero: {

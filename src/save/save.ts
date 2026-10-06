@@ -1,3 +1,4 @@
+import { FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
 import { CREATURE_IDS, type CreatureId } from '../data/creatures';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
 import { ENEMY_IDS } from '../data/enemies';
@@ -119,6 +120,17 @@ function sanitize(data: unknown): Profile {
   const seen = Array.isArray(raw.seenEnemies) ? raw.seenEnemies : [];
   profile.seenEnemies = ENEMY_IDS.filter((id) => seen.includes(id));
   profile.bestWave = Math.floor(toNumber(raw.bestWave));
+  // fases (campos novos: padrão sem recordes; a Fase 1 herda as vitórias e o recorde antigos)
+  const records = (raw.stageRecords ?? {}) as Record<string, Record<string, unknown> | undefined>;
+  for (const id of STAGE_IDS) {
+    const r = records[id];
+    if (r) profile.stageRecords[id] = { wins: Math.floor(toNumber(r.wins)), bestWave: Math.floor(toNumber(r.bestWave)) };
+  }
+  if (!raw.stageRecords && (profile.stats.wins > 0 || profile.bestWave > 0)) {
+    profile.stageRecords[FIRST_STAGE] = { wins: profile.stats.wins, bestWave: profile.bestWave };
+  }
+  const stage = raw.selectedStage as StageId;
+  profile.selectedStage = STAGE_IDS.includes(stage) ? stage : FIRST_STAGE;
   const skins = (raw.selectedSkins ?? {}) as Record<string, unknown>;
   for (const hero of HERO_IDS) {
     const skin = findSkin(String(skins[hero] ?? ''));

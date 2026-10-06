@@ -153,7 +153,7 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 | Lich (chefe) | 800 | 12 | 4 | 60 | 40 | 80 | 100 | Tiro: com o herói a até 120, avança devagar e atira (14 de dano a cada 1,4 s). Invocação: a cada 8 s, ergue 2 Esqueleto Arqueiros. Escudo: a cada 12 s, reduz o dano recebido em 80% por 3 s. Fúria: abaixo de 50% da vida, fica 40% mais rápido e usa habilidades mais vezes. |
 
 ## Ondas
-- 20 ondas; quantidade = 4 + 3 × onda; chefes: onda 7 Rei Ogro, onda 14 Rainha Aranha, onda 20 Lich.
+- 20 ondas; quantidade = 4 + 3 × onda; chefes (Fase 1): onda 7 Rei Ogro, onda 14 Rainha Aranha, onda 20 Lich.
 - Força (o = onda − 1): vida × (1 + 0,18·o + 0,02·o²); velocidade +2% por onda (máx. +40%); dano +6% por onda.
 - Elites a partir da onda 8: chance 5% (+1%/onda, máx. 25%); vida ×2,5, dano ×1,5, recompensa ×2.
 - Sem Fim: chefe a cada 5 ondas; por onda além da 20, vida ×1,08 e dano ×1,05 a mais (exponencial); elites até 35%.

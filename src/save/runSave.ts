@@ -1,3 +1,4 @@
+import { FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
 // Run em andamento salva no navegador: automaticamente a cada onda vencida, ao fechar a aba
 // e no "Salvar e sair" da pausa. As referências a dados (criaturas, inimigos, herói, melhorias)
 // viram ids no arquivo e são reconstruídas ao carregar.
@@ -69,6 +70,7 @@ function deserialize(raw: Record<string, unknown>): RunState {
     ...raw,
     events: [],
     waveKills: typeof raw.waveKills === 'number' ? raw.waveKills : 0,
+    stage: STAGE_IDS.includes(raw.stage as StageId) ? (raw.stage as StageId) : FIRST_STAGE,
     result: null,
     hero: {
       ...hero,

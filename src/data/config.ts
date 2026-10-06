@@ -1,6 +1,6 @@
 // Regras gerais e números soltos. Valores de referência: GDD seção 9.
 
-export const GAME_TITLE = 'NEXUS';
+export const GAME_TITLE = 'NEXUS TD';
 
 /** Mundo do jogo em unidades lógicas (16:9); o canvas escala para a tela. */
 export const ARENA = {

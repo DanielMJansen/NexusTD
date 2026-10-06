@@ -1,3 +1,4 @@
+import { FIRST_STAGE, STAGES, type StageId } from '../data/stages';
 import type { EnemyId } from '../data/enemies';
 import { CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
 import type { AchievementId } from '../data/achievements';
@@ -30,6 +31,10 @@ export interface Profile {
   seenEnemies: EnemyId[];
   /** Onda mais alta alcançada (inclui o Sem Fim). */
   bestWave: number;
+  /** Fase escolhida para a próxima run. */
+  selectedStage: StageId;
+  /** Recordes por fase (vitórias e onda mais alta). */
+  stageRecords: Partial<Record<StageId, StageRecord>>;
 }
 
 /** Criaturas que já vêm na coleção. */
@@ -48,6 +53,8 @@ export function createProfile(): Profile {
     stats: { runs: 0, wins: 0, kills: 0 },
     seenEnemies: [],
     bestWave: 0,
+    selectedStage: FIRST_STAGE,
+    stageRecords: {},
   };
 }
 
@@ -149,8 +156,26 @@ export function selectSkin(profile: Profile, skinId: string): boolean {
   return true;
 }
 
+export interface StageRecord {
+  wins: number;
+  bestWave: number;
+}
+
+/** Fase liberada: aberta desde o início ou a anterior já foi vencida. */
+export function isStageUnlocked(profile: Profile, id: StageId): boolean {
+  const required = STAGES[id].requires;
+  return required === null || (profile.stageRecords[required]?.wins ?? 0) > 0;
+}
+
+export function selectStage(profile: Profile, id: StageId): boolean {
+  if (!isStageUnlocked(profile, id)) return false;
+  profile.selectedStage = id;
+  return true;
+}
+
 export function runSetup(profile: Profile): RunSetup {
   return {
+    stage: isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE,
     talents: talentBonuses(profile.talents),
     team: profile.team.filter((id) => ownsCreature(profile, id)),
     hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,

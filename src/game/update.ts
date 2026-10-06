@@ -89,6 +89,7 @@ function endRun(state: RunState, victory: boolean): void {
     (victory ? REWARDS.victoryBonus + t.victoryEssence : 0);
   const essence = Math.floor(base * (1 + t.essenceGain));
   state.result = {
+    stage: state.stage,
     victory,
     wave: state.wave,
     kills: state.kills,

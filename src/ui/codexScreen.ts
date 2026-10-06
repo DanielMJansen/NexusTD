@@ -1,5 +1,5 @@
 import { ENEMIES, ENEMY_IDS, type EnemyDef, type EnemyId } from '../data/enemies';
-import { WAVES } from '../data/waves';
+import { STAGE_IDS, STAGES } from '../data/stages';
 import type { Profile } from '../game/profile';
 import { enemyTraitText, formatNumber } from './describe';
 import { showOverlay } from './overlay';
@@ -7,11 +7,15 @@ import { showOverlay } from './overlay';
 /** Inimigos do códex (sem os que só surgem por invocação ou divisão). */
 export const CODEX_ENEMIES = ENEMY_IDS.filter((id) => !ENEMIES[id].minion);
 
-/** Primeira onda em que o inimigo aparece numa run normal. */
+/** Primeira onda em que o inimigo aparece (na primeira fase em que ele existe). */
 function firstWave(id: EnemyId): number | null {
-  const boss = WAVES.bosses.find((b) => b.enemy === id);
-  if (boss) return boss.wave;
-  return WAVES.composition.find((c) => c.enemy === id)?.fromWave ?? null;
+  for (const stage of STAGE_IDS.map((s) => STAGES[s])) {
+    const boss = stage.bosses.find((b) => b.enemy === id);
+    if (boss) return boss.wave;
+    const entry = stage.composition.find((c) => c.enemy === id);
+    if (entry) return entry.fromWave;
+  }
+  return null;
 }
 
 function entry(def: EnemyDef, seen: boolean): string {

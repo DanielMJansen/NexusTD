@@ -1,10 +1,11 @@
+import { FIRST_STAGE, STAGES } from '../data/stages';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
 import { GAME_TITLE } from '../data/config';
 import { CREATURE_IDS } from '../data/creatures';
 import { ENEMIES } from '../data/enemies';
 import { HEROES } from '../data/heroes';
 import { WAVES } from '../data/waves';
-import { heroSkin, TEAM_SIZE, type Profile } from '../game/profile';
+import { heroSkin, TEAM_SIZE, type Profile, runSetup } from '../game/profile';
 import type { SavedRunSummary } from '../save/runSave';
 import { essence } from './currency';
 import { CODEX_ENEMIES } from './codexScreen';
@@ -19,16 +20,18 @@ export interface MenuHandlers {
   onTalents(): void;
   onAchievements(): void;
   onCodex(): void;
+  onStages(): void;
   onSettings(): void;
 }
 
 /** Menu principal: atalhos para jogar e para as telas de meta-progressão. */
 /** `saved`: run em andamento salva (mostra "Continuar run"). */
 export function showMenu(profile: Profile, saved: SavedRunSummary | null, handlers: MenuHandlers): void {
-  const finalBoss = WAVES.bosses.at(-1);
+  const stage = STAGES[runSetup(profile).stage ?? FIRST_STAGE];
+  const finalBoss = stage.bosses.at(-1);
   const goal = finalBoss
-    ? `Proteja o Nexus por ${WAVES.total} ondas e derrote o <b>${ENEMIES[finalBoss.enemy].name}</b>.`
-    : `Proteja o Nexus por ${WAVES.total} ondas.`;
+    ? `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${WAVES.total} ondas e derrote o <b>${ENEMIES[finalBoss.enemy].name}</b>.`
+    : `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${WAVES.total} ondas.`;
   const hero = `<canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas>`;
   const team = hero + profile.team.map((id) => `<canvas class="team-mini" data-sprite="${id}"></canvas>`).join('');
 
@@ -42,6 +45,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       <div class="hub-buttons">
         ${saved ? `<button class="play-button" data-action="continue">▶ Continuar run <small>onda ${saved.wave} · ${HEROES[saved.hero].name}</small></button>` : ''}
         <button class="${saved ? '' : 'play-button'}" data-action="play"${profile.team.length ? '' : ' disabled'}>${saved ? 'Nova run' : '▶ Jogar'}</button>
+        <button data-action="stages">Fase <small>${stage.number} · ${stage.name}</small></button>
         <button data-action="heroes">Herói <small>${HEROES[profile.selectedHero].name}</small></button>
         <button data-action="team">Equipe <small>${profile.team.length}/${TEAM_SIZE}</small></button>
         <button data-action="collection">Coleção <small>${profile.ownedCreatures.length}/${CREATURE_IDS.length}</small></button>
@@ -55,6 +59,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       play: () => handlers.onPlay(),
       continue: () => handlers.onContinue(),
       team: () => handlers.onTeam(),
+      stages: () => handlers.onStages(),
       heroes: () => handlers.onHeroes(),
       collection: () => handlers.onCollection(),
       talents: () => handlers.onTalents(),

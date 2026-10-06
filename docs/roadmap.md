@@ -22,14 +22,14 @@ Regras e valores do jogo ficam no [GDD](GDD.md); números exatos em [valores.md]
 - **Fases antes da Ascensão.** Cada fase nova traz um bioma, inimigos e chefes próprios **e destrava uma mecânica nova para o jogo todo** — a sensação de progressão vem de "o jogo cresce", não só de "mais uma fase para vencer".
 - **Moedas novas** entram junto com as fases (Fragmentos a partir de uma fase intermediária).
 - **Steam fica para depois**, quando houver conteúdo suficiente. Até lá: web (GitHub Pages; itch.io quando fizer sentido).
-- Nome: "Nexus TD" é o candidato (ver pergunta em 5).
+- Nome: **Nexus TD** (adotado em 07/10/2026; pode mudar antes de lojas).
 
 ## 3. Próximas etapas
 
 ### F11. Organização `[x]`
 Documentação unificada: GDD + este roadmap + checklist + valores. Planos e propostas antigos em `docs/arquivo/`.
 
-### F12. Estrutura de fases `[ ]`
+### F12. Estrutura de fases `[x]`
 Sem conteúdo novo; prepara o terreno.
 - Dados de fase em `src/data/stages.ts`: cenário, composição de ondas, chefes, regra de mapa, força base, recompensa e o que destrava.
 - A run atual vira a **Fase 1 — Cemitério**, sem mudar nada no jogo.
@@ -37,7 +37,7 @@ Sem conteúdo novo; prepara o terreno.
 - Perfil: progresso por fase (campo novo com padrão no `sanitize`, sem trocar a chave `nx4`); a run salva guarda a fase.
 - Render do cenário parametrizado por bioma; bot de calibragem recebe a fase.
 
-### F13. Fase 2 — Pântano + Fragmentos de raça `[ ]` — PROPOSTA
+### F13. Fase 2 — Pântano + Fragmentos de raça + Altar de Variantes `[ ]` — conteúdo em PROPOSTA
 - Regra de mapa: **poças de lama** que deixam criaturas e herói mais lentos; inimigos do pântano as ignoram.
 - 4 inimigos novos e 3 chefes (Hidra como chefe final; cabeças que renascem).
 - Destrava **Fragmentos de raça**: caem só a partir da Fase 2, um tipo por raça, ao jogar com criaturas daquela raça. Usados no **Santuário** (nível permanente das criaturas, pequeno: ex. +3% por nível, até 5).
@@ -56,7 +56,6 @@ Sem conteúdo novo; prepara o terreno.
 
 ### Em paralelo (encaixar entre fases)
 - **Raças novas** `[ ]` — PROPOSTA por lote: Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais. Ideia: cada fase libera 1–2 raças ligadas ao bioma (ex.: Sereia no Pântano, Goblin na Forja).
-- **Altar de Variantes** `[ ]` — PROPOSTA (ver 4).
 - **Playtest** com outras pessoas pelo GitHub Pages a cada fase nova.
 
 ### Depois
@@ -78,9 +77,9 @@ Sem conteúdo novo; prepara o terreno.
 - Há um contador de garantia (pity): na N-ésima tentativa sem raridade alta, a próxima é garantida.
 - Dá o "frio na barriga" da roleta e um objetivo de coleção, sem prender a estratégia à sorte. Liga-se ao item "variantes", que estava em aberto no GDD.
 
-## 5. Perguntas em aberto
-
-1. Cada fase com 20 ondas e 3 chefes próprios, ou 2 chefes reaproveitados + 1 chefe novo por fase (menos conteúdo, sai mais rápido)?
-2. A ordem de mecânicas (Fragmentos → Sinergias → Relíquias → Ascensão) está boa?
-3. Nome: adotar "Nexus TD" no jogo e na página agora?
-4. Altar de Variantes: entra, e depois de qual fase?
+## 5. Decisões de 07/10/2026
+- Cada fase: **20 ondas e 3 chefes novos** (identidade completa, como a Fase 1).
+- Ordem das mecânicas **aprovada**: Pântano → Fragmentos/Santuário; Floresta → Sinergias; Forja → Relíquias; Cidadela → Ascensão e Desafio diário.
+- Nome **Nexus TD** no jogo e na página.
+- **Altar de Variantes** entra **depois da Fase 2**, junto com os Fragmentos (repetidas viram Fragmentos).
+- Conteúdo de cada fase (inimigos, chefes, regra de mapa em detalhe) continua **PROPOSTA**: apresentar antes de implementar cada fase.

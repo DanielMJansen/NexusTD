@@ -18,6 +18,7 @@ import {
   runSetup,
   selectHero,
   selectSkin,
+  selectStage,
   toggleTeamMember,
   unlockCreature,
   type Profile,
@@ -43,6 +44,7 @@ import { showEntry } from './ui/entry';
 import { showHeroLevelUp } from './ui/heroLevelUp';
 import { chooseHeroUpgrade } from './game/hero';
 import { showHeroes, type HeroScreenOptions } from './ui/heroesScreen';
+import { showStages } from './ui/stagesScreen';
 import { updateHud, updateMenuHud } from './ui/hud';
 import { showMenu } from './ui/menu';
 import { animateOverlay, hideOverlay } from './ui/overlay';
@@ -500,6 +502,7 @@ export class App {
       onTalents: () => this.openTalents(),
       onAchievements: () => showAchievements(this.profile, () => this.openMenu()),
       onCodex: () => showCodex(this.profile, () => this.openMenu()),
+      onStages: () => this.openStages(),
       onSettings: () => this.openSettings(),
     });
   }
@@ -509,6 +512,19 @@ export class App {
   private openTalents(): void {
     showTalents(this.profile, {
       onBuy: (id) => this.afterPurchase(buyTalent(this.profile, id), () => this.openTalents()),
+      onBack: () => this.openMenu(),
+    });
+  }
+
+  private openStages(): void {
+    showStages(this.profile, {
+      onSelect: (id) => {
+        if (!selectStage(this.profile, id)) return;
+        saveProfile(this.profile);
+        this.sound.play('place');
+        this.run = createRun(runSetup(this.profile));
+        this.openStages();
+      },
       onBack: () => this.openMenu(),
     });
   }
@@ -587,7 +603,7 @@ export class App {
     resetInteraction(this.interaction);
     this.run = run;
     this.mode = 'run';
-    this.music.play(waveBoss(run.wave) && run.phase === 'playing' ? 'boss' : 'run');
+    this.music.play(waveBoss(run.stage, run.wave) && run.phase === 'playing' ? 'boss' : 'run');
     this.music.setIntensity(Math.min(1, (run.wave - 1) / (WAVES.total - 1)));
     if (run.heroChoices.length || run.chestChoices.length || run.phase === 'choosing') {
       this.paused = false;

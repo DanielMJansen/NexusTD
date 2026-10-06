@@ -11,6 +11,9 @@ export function recordRun(profile: Profile, result: RunResult): void {
   if (result.victory) profile.stats.wins++;
   for (const id of result.seenEnemies) if (!profile.seenEnemies.includes(id)) profile.seenEnemies.push(id);
   profile.bestWave = Math.max(profile.bestWave, result.wave);
+  const record = (profile.stageRecords[result.stage] ??= { wins: 0, bestWave: 0 });
+  if (result.victory) record.wins++;
+  record.bestWave = Math.max(record.bestWave, result.wave);
 }
 
 function isMet(profile: Profile, def: AchievementDef, result: RunResult | null): boolean {
