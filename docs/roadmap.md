@@ -94,18 +94,46 @@ Dividida em três entregas, cada uma jogável ao fim:
 
 > **Biomas revistos em 07/10/2026:** o jogo estava escuro/gótico demais; as próximas fases vão do escuro para a luz — **Neve → Deserto → Céu**. As mecânicas destravadas continuam as mesmas.
 
-### F14. Fase 3 — Tundra Gelada + Sinergias `[ ]` — PROPOSTA
-- Cenário claro (branco e azul-gelo). Regra de mapa: **gelo** — inimigos deslizam (difíceis de segurar) e **nevascas** periódicas reduzem o alcance de todos.
-- Destrava **Sinergias de raça**: 2 ou 3 criaturas da mesma raça em campo dão um bônus de raça (estilo TFT).
-- Nexus temático: **Pináculo Glacial**.
+### F13.9. Motor de mapas — PROPOSTA (pedido de 07/10/2026: sair do molde "20 ondas, 3 chefes, inimigos de todas as bordas")
+Hoje o mapa é uma imagem fixa de 640×360, desenhada uma vez; inimigos nascem nas bordas e andam em linha reta até o Nexus; toda fase usa a mesma fórmula de quantidade e 20 ondas com 3 chefes. Para fases realmente diferentes, o motor precisa de:
+1. **Mundo maior que a tela + câmera**: mapas de tamanhos e formatos variados (ex.: 2–3 telas de largura), câmera que segue o herói (com arrastar/rolar e minimapa). Mapas pequenos continuam possíveis.
+2. **Trilhas e entradas**: cada mapa define de onde os inimigos vêm (bordas em 360°, 2–3 passagens, rios, portais) e por onde andam (trilhas com curvas, gargalos, pontes). Criaturas perto de gargalos passam a valer mais.
+3. **Roteiro de ondas por dados**: cada onda tem tipo e conteúdo próprios — normal, **horda** (muitos fracos), **elite** (poucos fortes), **evento** (avalanche, tempestade), **chefe**, **trégua** (loja/descanso). Número de ondas e de chefes livre por fase.
+4. **Objetos interativos do mapa**: coisas que o herói ativa ao ficar perto (fogueiras, alavancas, pontes), terreno que muda durante a fase (gelo que racha, areia que cobre trilhas).
+5. **Objetivos variados**: além de "defenda o Nexus", ex.: escoltar uma caravana, defender dois pontos, sobreviver a um tempo, destruir ninhos.
+
+### F14. Fase 3 — Tundra Gelada + Sinergias `[ ]` — PROPOSTA (primeira fase "fora do molde")
+**Mapa: o Lago Congelado** — 2 telas de largura, com câmera.
+- O Nexus (Pináculo Glacial) fica numa ilha de pedra no centro de um **lago congelado**; inimigos chegam por **3 passagens nas montanhas** (norte, leste e oeste) e seguem trilhas até o lago — não mais de todas as bordas.
+- **Gelo**: no lago, inimigos **deslizam** (mais rápidos, não podem ser segurados por bloqueio). Onde muitos inimigos passam, o gelo **racha** e, depois de rachado, vira **buraco de água**: inimigos comuns que caem morrem; o buraco congela de novo depois de um tempo. Dá para "guiar" a destruição com o posicionamento.
+- **Nevasca**: a cada ~60 s, 12 s de nevasca — névoa branca, **alcance de todas as criaturas −30%**. Há **3 fogueiras** no mapa: criaturas perto de uma fogueira acesa ignoram a nevasca. Fogueiras **apagam** na nevasca; o **herói reacende** ficando 2 s perto. O herói ganha um papel novo: correr entre fogueiras.
+- **Fogo vs. gelo**: criaturas de fogo (Dragão de Fogo, Infernal, Magma, Diabrete…) causam +25% de dano a inimigos de gelo — times diferentes brilham aqui.
+
+**Roteiro: a Expedição** — 15 ondas, não 20:
+| Ondas | Conteúdo |
+|---|---|
+| 1–4 | normais, poucos inimigos |
+| 5 | **Matilha**: 30+ Lobos Gélidos rápidos e fracos, todos pela mesma passagem |
+| 6 | **Chefe: Yeti Ancião** — arremessa bolas de neve que congelam criaturas (param 2 s) |
+| 7–9 | normais + elites |
+| 10 | **Avalanche** (evento, sem chefe): uma onda gigante desce por uma passagem e esmaga tudo no caminho, inclusive inimigos; avisada 5 s antes |
+| 11 | **Trégua**: loja com melhorias raras, sem inimigos |
+| 12–14 | **Gigantes**: poucos inimigos enormes e lentos |
+| 15 | **Chefe final: Wyrm de Gelo** — nada sob o gelo do lago, emerge rachando o gelo perto das criaturas, depois volta a mergulhar |
+
+**Inimigos novos**: Lobo Gélido (matilha), Golem de Neve (ao morrer vira bolas de neve que rolam), Espírito do Gelo (voador; encosta numa criatura e a congela), Troll da Geleira (regenera, a menos que leve dano de fogo), Kobold Escavador (atravessa o gelo por baixo e surge longe das trilhas).
+
+**Destrava Sinergias de raça**: com 2 ou 3 criaturas da mesma raça em campo, a raça ganha um bônus (2 = pequeno, 3 = forte), mostrado no painel. Exemplos (proposta por raça antes de implementar): Vampiro 2/3 = +5%/+12% de roubo de vida no herói; Dragão 2/3 = +10%/+25% de área; Fantasma 2/3 = ignora 2/5 de armadura.
 
 ### F15. Fase 4 — Deserto Dourado + Relíquias `[ ]` — PROPOSTA
 - Cenário de areia e sol. Regra de mapa: **tempestade de areia** (inimigos ficam ocultos até chegar perto) e **oásis** que curam o herói.
+- Ideia de modo diferente: **escoltar uma caravana** que atravessa o deserto (o Nexus anda), com paradas para montar defesas.
 - Destrava **Relíquias**: chefes deixam relíquias (itens permanentes com efeito); o herói equipa 1 a 3 antes da run.
 - Nexus temático: **Obelisco Solar**.
 
 ### F16. Fase 5 — Cidadela Celeste + Ascensão e Desafio diário `[ ]` — PROPOSTA
 - Nuvens, luz e ruínas brancas. Regra de mapa: **ventos** que desviam projéteis e empurram inimigos voadores.
+- Ideia de modo diferente: **ilhas flutuantes** ligadas por pontes; defender **dois Nexus** ao mesmo tempo.
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).
 - Nexus temático: **Olho Celeste**.
 
