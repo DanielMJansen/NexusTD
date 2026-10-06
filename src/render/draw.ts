@@ -1,3 +1,4 @@
+import { resolveNexus } from './nexusLook';
 import { VARIANTS } from '../data/altar';
 import { ARENA } from '../data/config';
 import { STAGES } from '../data/stages';
@@ -57,7 +58,7 @@ export function drawFrame(
     {
       y: ARENA.center.y + 10,
       draw: () => {
-        drawNexus(ctx, state.nexus.hp, state.nexus.maxHp, time, effects.nexusHurt);
+        drawNexus(ctx, state.nexus.hp, state.nexus.maxHp, time, effects.nexusHurt, resolveNexus(state.nexusLook, state.stage));
         drawNexusOverlay(ctx, state, time);
       },
     },

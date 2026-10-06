@@ -1,3 +1,4 @@
+import type { NexusLook } from '../data/nexusSkins';
 import type { VariantTier } from '../data/altar';
 import { FIRST_STAGE, type StageId } from '../data/stages';
 import { ARENA, ECONOMY, HERO_PLACEMENT, NEXUS } from '../data/config';
@@ -258,6 +259,8 @@ export interface RunSetup {
   sanctuary?: Partial<Record<CreatureId, number>>;
   /** Variantes cosméticas escolhidas no Altar (só visual). */
   variants?: Partial<Record<CreatureId, VariantTier>>;
+  /** Aparência do Nexus (só visual). */
+  nexusLook?: NexusLook;
   /** Soma dos talentos comprados. */
   talents: TalentBonuses;
   /** Equipe da run: criaturas disponíveis, na ordem dos atalhos 1–8. */
@@ -282,6 +285,8 @@ export interface RunState {
   racePlacements: Record<string, number>;
   /** Variantes cosméticas (só visual). */
   variants: Partial<Record<CreatureId, VariantTier>>;
+  /** Aparência do Nexus (só visual). */
+  nexusLook: NexusLook;
   kills: number;
   /** Inimigos abatidos na onda atual (contador "restantes/total" do HUD). */
   waveKills: number;
@@ -383,6 +388,7 @@ export function createRun(setup: RunSetup): RunState {
     sanctuary: { ...(setup.sanctuary ?? {}) },
     racePlacements: {},
     variants: { ...(setup.variants ?? {}) },
+    nexusLook: { ...(setup.nexusLook ?? { model: 'map', color: 'original' }) },
     kills: 0,
     waveKills: 0,
     hero: {

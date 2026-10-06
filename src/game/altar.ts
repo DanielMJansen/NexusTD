@@ -1,3 +1,4 @@
+import { ALTAR_NEXUS_CHANCE, NEXUS_COLORS } from '../data/nexusSkins';
 import { ALTAR, VARIANT_TIERS, type VariantTier } from '../data/altar';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { STAGES } from '../data/stages';
@@ -8,6 +9,7 @@ import type { Profile } from './profile';
 export type AltarResult =
   | { kind: 'refund'; amount: number }
   | { kind: 'fragments'; race: string; amount: number }
+  | { kind: 'nexusColor'; tier: 'epic' | 'legendary'; color: string }
   | { kind: 'variant'; tier: VariantTier; creature: CreatureId; duplicate: false }
   | { kind: 'variant'; tier: VariantTier; creature: CreatureId; duplicate: true; race: string; amount: number };
 
@@ -56,6 +58,16 @@ export function rollAltar(profile: Profile, random: () => number = Math.random):
     return { kind: 'fragments', race, amount: outcome.amount };
   }
   const tier = outcome.tier;
+  // Épica/Lendária: às vezes vem a cor exclusiva do Nexus dessa raridade (se ainda não tiver)
+  if (tier !== 'rare') {
+    const nexusColor = NEXUS_COLORS.find((c) => c.unlock.kind === 'altar' && c.unlock.tier === tier && !profile.nexusColors.includes(c.id));
+    if (nexusColor && random() < ALTAR_NEXUS_CHANCE) {
+      pity.epic = 0;
+      if (tier === 'legendary') pity.legendary = 0;
+      profile.nexusColors.push(nexusColor.id);
+      return { kind: 'nexusColor', tier, color: nexusColor.id };
+    }
+  }
   // Épica zera a garantia de Épica; Lendária zera as duas (Rara não conta)
   if (tier !== 'rare') pity.epic = 0;
   if (tier === 'legendary') pity.legendary = 0;

@@ -22,6 +22,7 @@ export interface MenuHandlers {
   onAchievements(): void;
   onCodex(): void;
   onStages(): void;
+  onNexus(): void;
   onSelectLoadout(index: number): void;
   onSanctuary(): void;
   onAltar(): void;
@@ -55,6 +56,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
         <button data-action="team">Equipes <small>${profile.loadouts[profile.activeLoadout]?.name ?? ''} · ${profile.team.length} de ${TEAM_SIZE}</small></button>
         <button data-action="collection">Coleção <small>${profile.ownedCreatures.length} de ${CREATURE_IDS.length}</small></button>
         <button data-action="talents">Talentos</button>
+        <button data-action="nexus">Nexus <small>modelo e cor</small></button>
         ${isAltarUnlocked(profile) ? '<button data-action="altar">Altar de Variantes</button>' : ''}
         ${hasSanctuary(profile) ? `<button data-action="sanctuary">Santuário <small>${Object.values(profile.fragments).reduce((a, b) => a + b, 0)} ❖ para gastar</small></button>` : ''}
         <button data-action="achievements">Conquistas <small>${profile.achievements.length} de ${ACHIEVEMENT_IDS.length}</small></button>
@@ -68,6 +70,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       team: () => handlers.onTeam(),
       loadout: (i) => handlers.onSelectLoadout(Number(i)),
       stages: () => handlers.onStages(),
+      nexus: () => handlers.onNexus(),
       sanctuary: () => handlers.onSanctuary(),
       altar: () => handlers.onAltar(),
       heroes: () => handlers.onHeroes(),

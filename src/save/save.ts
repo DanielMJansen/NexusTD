@@ -1,3 +1,5 @@
+import { findNexusColor, NEXUS_COLORS, NEXUS_MODEL_IDS, type NexusModelId } from '../data/nexusSkins';
+import { isNexusColorUnlocked, isNexusModelUnlocked } from '../game/nexusSkins';
 import { LOADOUTS } from '../data/config';
 import { VARIANT_TIERS, type VariantTier } from '../data/altar';
 import { SANCTUARY } from '../data/sanctuary';
@@ -170,6 +172,16 @@ function sanitize(data: unknown): Profile {
   profile.activeLoadout = Math.min(Math.max(0, active), profile.loadouts.length - 1);
   if (rawLoadouts.length) selectLoadout(profile, profile.activeLoadout);
   else syncLoadout(profile);
+  // skins do Nexus (campos novos: padrão "do mapa", cor original)
+  const colors = Array.isArray(raw.nexusColors) ? raw.nexusColors : [];
+  profile.nexusColors = NEXUS_COLORS.filter((c) => colors.includes(c.id)).map((c) => c.id);
+  const look = (raw.nexusLook ?? {}) as Record<string, unknown>;
+  profile.nexusLook = { model: 'map', color: 'original' };
+  if (typeof look.model === 'string' && look.model !== 'map' && NEXUS_MODEL_IDS.includes(look.model as NexusModelId) && isNexusModelUnlocked(profile, look.model as NexusModelId)) {
+    profile.nexusLook.model = look.model as NexusModelId;
+  }
+  const color = findNexusColor(String(look.color ?? ''));
+  if (color && isNexusColorUnlocked(profile, color)) profile.nexusLook.color = color.id;
   const stage = raw.selectedStage as StageId;
   profile.selectedStage = STAGE_IDS.includes(stage) ? stage : FIRST_STAGE;
   const skins = (raw.selectedSkins ?? {}) as Record<string, unknown>;

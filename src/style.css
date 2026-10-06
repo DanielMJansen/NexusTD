@@ -2709,3 +2709,59 @@ body:not([data-mode='run']) #side-panel {
   border-color: var(--accent);
   background: #9a7aff22;
 }
+
+/* skins do Nexus */
+.nexus-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.nexus-skin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: linear-gradient(#1f1533, #140d22);
+  text-align: center;
+  font: 400 13px var(--font-body);
+}
+
+.nexus-skin canvas {
+  width: 120px;
+  height: 104px;
+}
+
+.nexus-skin b {
+  font: 700 14px var(--font-label);
+  color: var(--fg);
+}
+
+.nexus-skin small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nexus-skin.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 14px #9a7aff66;
+}
+
+.nexus-skin.locked canvas {
+  opacity: 0.6;
+}
+
+.nexus-skin .cc-confirm span {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 12px;
+}
+
+.altar-result canvas[data-nexus] {
+  width: 72px;
+  height: 72px;
+}

@@ -1,3 +1,4 @@
+import { NEXUS_MODELS, type NexusModelId, type NexusPalette } from '../data/nexusSkins';
 import type { StageDef } from '../data/stages';
 import { drawSwampLife, paintSwampStatic } from './arenaSwamp';
 import { ARENA } from '../data/config';
@@ -302,20 +303,81 @@ function drawCandle(ctx: CanvasRenderingContext2D, x: number, y: number, t: numb
 }
 
 /** Cristal flutuante do Nexus, com brilho que avermelha quando ferido. `hurt` = 1 logo após levar dano. */
-export function drawNexus(ctx: CanvasRenderingContext2D, hp: number, maxHp: number, time: number, hurt: number): void {
+/** Aparência resolvida do Nexus (modelo e paleta já definidos para esta fase). */
+export interface NexusAppearance {
+  model: NexusModelId;
+  palette: NexusPalette;
+  /** Aurora: matiz girando com o tempo. */
+  animated?: boolean;
+}
+
+export const DEFAULT_NEXUS: NexusAppearance = { model: 'crystal', palette: NEXUS_MODELS.crystal.palette };
+
+/** Nexus inteiro (luz no chão, modelo, barra de vida). Ferido/com pouca vida, as cores puxam para o vermelho. */
+export function drawNexus(
+  ctx: CanvasRenderingContext2D,
+  hp: number,
+  maxHp: number,
+  time: number,
+  hurt: number,
+  look: NexusAppearance = DEFAULT_NEXUS,
+): void {
   const ratio = Math.max(0, hp / maxHp);
-  const float = Math.sin(time * 2) * 3;
+  const lowHp = ratio < 0.3;
   const { x, y } = center;
+  const float = Math.sin(time * 2) * 3;
+  const top = drawNexusModel(ctx, x, y, time, look, hurt, lowHp, float);
+  // barra de vida
+  const bw = 54;
+  const by = top - 14;
+  ctx.fillStyle = '#07040dcc';
+  ctx.strokeStyle = '#0a0612';
+  ctx.beginPath();
+  ctx.roundRect(x - bw / 2 - 1, by - 1, bw + 2, 7, 3.5);
+  ctx.fill();
+  ctx.stroke();
+  const bar = ctx.createLinearGradient(0, by, 0, by + 5);
+  bar.addColorStop(0, lowHp ? '#ff8a8a' : '#8af5bc');
+  bar.addColorStop(1, lowHp ? '#c62c3a' : '#2fae6a');
+  ctx.fillStyle = bar;
+  ctx.beginPath();
+  ctx.roundRect(x - bw / 2, by, bw * ratio, 5, 2.5);
+  ctx.fill();
+}
+
+/** Desenha só o modelo do Nexus (também usado na prévia do menu). Devolve o topo do desenho. */
+export function drawNexusModel(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  time: number,
+  look: NexusAppearance,
+  hurt = 0,
+  lowHp = false,
+  float = Math.sin(time * 2) * 3,
+): number {
+  const base = look.palette;
+  const p: NexusPalette = lowHp
+    ? { dark: '#b0304a', mid: '#e05068', light: '#ff9aa8', glow: '#ff4a5a', accent: '#ff6a7a' }
+    : base;
+  ctx.save();
+  if (look.animated && !lowHp) ctx.filter = `hue-rotate(${Math.round((time * 40) % 360)}deg)`;
 
   // luz no chão
   const pool = ctx.createRadialGradient(x, y + 12, 4, x, y + 12, 60);
-  pool.addColorStop(0, hurt > 0 ? `rgba(255, 80, 90, ${0.35 + hurt * 0.3})` : '#a070ff55');
-  pool.addColorStop(1, '#a070ff00');
+  pool.addColorStop(0, hurt > 0 ? `rgba(255, 80, 90, ${0.35 + hurt * 0.3})` : p.glow + '55');
+  pool.addColorStop(1, p.glow + '00');
   ctx.fillStyle = pool;
   ctx.beginPath();
   ctx.ellipse(x, y + 12, 60, 30, 0, 0, TAU);
   ctx.fill();
 
+  const top = look.model === 'lotus' ? drawLotus(ctx, x, y, time, p, hurt, float) : drawCrystal(ctx, x, y, time, p, hurt, float);
+  ctx.restore();
+  return top;
+}
+
+function drawCrystal(ctx: CanvasRenderingContext2D, x: number, y: number, time: number, p: NexusPalette, hurt: number, float: number): number {
   // pedestal
   ctx.fillStyle = '#2a2240';
   ctx.strokeStyle = '#0a0612';
@@ -330,27 +392,23 @@ export function drawNexus(ctx: CanvasRenderingContext2D, hp: number, maxHp: numb
   ctx.fill();
   ctx.stroke();
 
-  // estilhaços orbitando
+  // estilhaços orbitando (os de trás primeiro)
   for (let i = 0; i < 3; i++) {
     const a = time * 1.4 + (i / 3) * TAU;
-    const ox = x + Math.cos(a) * 24;
-    const oy = y - 14 + float + Math.sin(a) * 7;
-    if (Math.sin(a) < 0) drawShard(ctx, ox, oy, 3.2);
+    if (Math.sin(a) < 0) drawShard(ctx, x + Math.cos(a) * 24, y - 14 + float + Math.sin(a) * 7, 3.2, p.accent);
   }
 
   const cy = y - 16 + float;
   const top = cy - 26;
   const bottom = cy + 18;
-  const lowHp = ratio < 0.3;
   ctx.save();
-  ctx.shadowColor = hurt > 0 || lowHp ? '#ff4a5a' : '#b36bff';
+  ctx.shadowColor = hurt > 0 ? '#ff4a5a' : p.glow;
   ctx.shadowBlur = 26 + Math.sin(time * 3) * 6;
-  // faces do cristal
   const faces: [string, number[]][] = [
-    [lowHp ? '#b0304a' : '#7a3cf0', [x, top, x - 14, cy, x, bottom]],
-    [lowHp ? '#e05068' : '#a26bff', [x, top, x + 14, cy, x, bottom]],
-    [lowHp ? '#ff9aa8' : '#dcc4ff', [x, top, x + 14, cy, x + 3, cy - 2]],
-    [lowHp ? '#ff6a7a' : '#b98cff', [x, top, x - 14, cy, x - 2, cy - 4]],
+    [p.dark, [x, top, x - 14, cy, x, bottom]],
+    [p.mid, [x, top, x + 14, cy, x, bottom]],
+    [p.light, [x, top, x + 14, cy, x + 3, cy - 2]],
+    [p.accent, [x, top, x - 14, cy, x - 2, cy - 4]],
   ];
   for (const [color, pts] of faces) {
     ctx.fillStyle = color;
@@ -377,29 +435,95 @@ export function drawNexus(ctx: CanvasRenderingContext2D, hp: number, maxHp: numb
 
   for (let i = 0; i < 3; i++) {
     const a = time * 1.4 + (i / 3) * TAU;
-    if (Math.sin(a) >= 0) drawShard(ctx, x + Math.cos(a) * 24, y - 14 + float + Math.sin(a) * 7, 3.2);
+    if (Math.sin(a) >= 0) drawShard(ctx, x + Math.cos(a) * 24, y - 14 + float + Math.sin(a) * 7, 3.2, p.accent);
   }
-
-  // barra de vida
-  const bw = 54;
-  const by = top - 14;
-  ctx.fillStyle = '#07040dcc';
-  ctx.strokeStyle = '#0a0612';
-  ctx.beginPath();
-  ctx.roundRect(x - bw / 2 - 1, by - 1, bw + 2, 7, 3.5);
-  ctx.fill();
-  ctx.stroke();
-  const bar = ctx.createLinearGradient(0, by, 0, by + 5);
-  bar.addColorStop(0, lowHp ? '#ff8a8a' : '#8af5bc');
-  bar.addColorStop(1, lowHp ? '#c62c3a' : '#2fae6a');
-  ctx.fillStyle = bar;
-  ctx.beginPath();
-  ctx.roundRect(x - bw / 2, by, bw * ratio, 5, 2.5);
-  ctx.fill();
+  return top;
 }
 
-function drawShard(ctx: CanvasRenderingContext2D, x: number, y: number, s: number): void {
-  ctx.fillStyle = '#c9a8ff';
+/** Lótus Ancestral: folha de vitória-régia, pétalas em camadas e um orbe de luz no miolo. */
+function drawLotus(ctx: CanvasRenderingContext2D, x: number, y: number, time: number, p: NexusPalette, hurt: number, float: number): number {
+  // folha
+  ctx.fillStyle = '#2f6a3a';
+  ctx.strokeStyle = '#0a1a10';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(x, y + 10);
+  ctx.ellipse(x, y + 10, 24, 9, 0, 0.25, TAU - 0.05);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = '#4a8a4a';
+  ctx.lineWidth = 0.8;
+  for (let i = 0; i < 6; i++) {
+    const a = 0.6 + i * 0.95;
+    ctx.beginPath();
+    ctx.moveTo(x, y + 10);
+    ctx.lineTo(x + Math.cos(a) * 20, y + 10 + Math.sin(a) * 7);
+    ctx.stroke();
+  }
+
+  const breathe = Math.sin(time * 1.6) * 0.06;
+  const cy = y - 2 + float * 0.4;
+  const petal = (angle: number, length: number, width: number, color: string) => {
+    ctx.save();
+    ctx.translate(x, cy);
+    ctx.rotate(angle);
+    ctx.fillStyle = color;
+    ctx.strokeStyle = '#3a0c24';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(-width, -length * 0.55, 0, -length);
+    ctx.quadraticCurveTo(width, -length * 0.55, 0, 0);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  };
+  ctx.save();
+  ctx.shadowColor = hurt > 0 ? '#ff4a5a' : p.glow;
+  ctx.shadowBlur = 20 + Math.sin(time * 3) * 5;
+  // camada de trás (abertas), do meio e da frente (fechadas)
+  for (const a of [-1.25, -0.75, 0.75, 1.25]) petal(a * (1 + breathe), 20, 7, p.dark);
+  for (const a of [-0.85, -0.3, 0.3, 0.85]) petal(a * (1 + breathe), 24, 7.5, p.mid);
+  for (const a of [-0.4, 0, 0.4]) petal(a * (1 + breathe), 18, 6, p.light);
+  ctx.restore();
+  if (hurt > 0) {
+    ctx.fillStyle = `rgba(255, 255, 255, ${hurt * 0.5})`;
+    ctx.beginPath();
+    ctx.ellipse(x, cy - 10, 18, 14, 0, 0, TAU);
+    ctx.fill();
+  }
+
+  // orbe flutuante no miolo
+  const orbY = cy - 26 + float;
+  const glow = ctx.createRadialGradient(x, orbY, 1, x, orbY, 14);
+  glow.addColorStop(0, '#ffffff');
+  glow.addColorStop(0.35, p.accent);
+  glow.addColorStop(1, p.accent + '00');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(x, orbY, 14, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#fffbe8';
+  ctx.beginPath();
+  ctx.arc(x, orbY, 4, 0, TAU);
+  ctx.fill();
+
+  // pólen de luz girando
+  for (let i = 0; i < 5; i++) {
+    const a = time * 1.1 + (i / 5) * TAU;
+    ctx.fillStyle = p.accent;
+    ctx.globalAlpha = 0.5 + 0.5 * Math.sin(time * 4 + i);
+    ctx.beginPath();
+    ctx.arc(x + Math.cos(a) * 22, orbY + 10 + Math.sin(a) * 6, 1.4, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  return orbY - 12;
+}
+
+function drawShard(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, color = '#c9a8ff'): void {
+  ctx.fillStyle = color;
   ctx.strokeStyle = '#1a0c30';
   ctx.lineWidth = 0.8;
   ctx.beginPath();

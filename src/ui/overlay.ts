@@ -1,3 +1,5 @@
+import { findNexusColor, NEXUS_MODELS, type NexusModelId } from '../data/nexusSkins';
+import { drawNexusPreview } from '../render/portrait';
 import { VARIANTS, type VariantTier } from '../data/altar';
 import { findSkin } from '../data/skins';
 import { drawPortrait } from '../render/portrait';
@@ -10,6 +12,8 @@ const overlay = document.querySelector<HTMLElement>('#overlay')!;
 let actions: OverlayActions = {};
 /** Canvases com `data-sprite`, animados a cada quadro enquanto o overlay está aberto. */
 let portraits: HTMLCanvasElement[] = [];
+/** Prévias do Nexus (`data-nexus` = cor ou "original"; `data-model` = modelo). */
+let nexusPreviews: HTMLCanvasElement[] = [];
 
 overlay.addEventListener('click', (event) => {
   const button = (event.target as Element).closest<HTMLButtonElement>('button[data-action]');
@@ -28,12 +32,14 @@ export function showOverlay(html: string, newActions: OverlayActions, options: {
   overlay.scrollTop = options.keepScroll ? scroll : 0;
   overlay.classList.add('visible');
   portraits = [...overlay.querySelectorAll<HTMLCanvasElement>('canvas[data-sprite]')];
+  nexusPreviews = [...overlay.querySelectorAll<HTMLCanvasElement>('canvas[data-nexus]')];
   return overlay;
 }
 
 export function hideOverlay(): void {
   actions = {};
   portraits = [];
+  nexusPreviews = [];
   overlay.classList.remove('visible');
   overlay.innerHTML = '';
 }
@@ -44,6 +50,11 @@ export function isOverlayVisible(): boolean {
 
 /** Redesenha os retratos (`data-sprite`, e opcionais `data-level`, `data-branch`, `data-skin`, `data-silhouette`). */
 export function animateOverlay(time: number): void {
+  for (const canvas of nexusPreviews) {
+    const model = (canvas.dataset.model ?? 'crystal') as NexusModelId;
+    const color = findNexusColor(canvas.dataset.nexus ?? '');
+    drawNexusPreview(canvas, time, { model, palette: color?.palette ?? NEXUS_MODELS[model].palette, animated: color?.animated }, canvas.dataset.locked !== undefined);
+  }
   portraits.forEach((canvas, i) =>
     drawPortrait(canvas, canvas.dataset.sprite as SpriteId, time + i * 0.7, {
       silhouette: canvas.dataset.silhouette !== undefined,

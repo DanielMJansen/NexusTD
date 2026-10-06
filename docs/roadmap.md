@@ -76,36 +76,41 @@ Dividida em três entregas, cada uma jogável ao fim:
 - Garantia: Épica (ou melhor) a cada 20 sorteios sem Épica; Lendária a cada 60 sem Lendária (contadores na tela).
 - Variante = visual de uma criatura da coleção (Rara: cores; Épica: cores + brilho; Lendária: dourada + brilho + faíscas). Repetida (todas já têm) vira Fragmentos (15/30/60). Escolhida na Coleção; só visual.
 
-### F13.5. Equipes salvas e skins do Nexus `[ ]` (pedido de 07/10/2026; antes do F14)
+### F13.5. Equipes salvas e skins do Nexus `[x]` (pedido de 07/10/2026; antes do F14)
 
 **F13.5a — Equipes salvas** `[x]`
 - Cada equipe salva guarda **herói + 8 criaturas** e tem um nome (ex.: "Vampiros", "Fantasmas do Pântano"); a skin do herói continua global.
 - **3 slots grátis**; slots 4 e 5 compráveis com Essência (300 ✦ cada, com confirmação).
 - Troca com um clique na tela de Equipe e no menu (mostra a equipe ativa). Editar herói/criaturas altera a equipe ativa.
 
-**F13.5b — Skins do Nexus** `[ ]` — estrutura decidida; **catálogo em PROPOSTA**
+**F13.5b — Skins do Nexus** `[x]` — catálogo aprovado em 07/10 (modelos das próximas fases entram junto com cada fase)
 - Duas partes combináveis: **modelo** (forma do Nexus) e **cor** (paleta aplicada a qualquer modelo). Só visual.
 - Padrão **"do mapa"**: cada fase mostra seu Nexus temático; o jogador pode fixar outro modelo/cor (tela do Nexus no menu).
 - Obtenção por **todas as fontes**:
-  - **Vencer a fase** libera o modelo dela: Cristal Rúnico (Cemitério, já liberado), Lótus Ancestral (Pântano); depois Árvore-Mãe (Floresta), Coração de Lava (Forja), Olho Celeste (Cidadela).
+  - **Vencer a fase** libera o modelo dela: Cristal Rúnico (Cemitério, já liberado), Lótus Ancestral (Pântano); depois Pináculo Glacial (Tundra), Obelisco Solar (Deserto), Olho Celeste (Cidadela).
   - **Essência** (preço fixo, 400 ✦ cada): cores Rubi, Esmeralda e Safira.
   - **Conquistas**: Prata Lunar (Intocável), Sangue (Exterminador), Ouro Real (Campeão), Obsidiana (Colecionador).
   - **Altar**: cores exclusivas Vazio (Épica) e Aurora (Lendária, animada). Quando sai Épica/Lendária, 20% de chance de vir a cor do Nexus dessa raridade (se ainda não tiver).
 
- — Floresta Sombria + Sinergias `[ ]` — PROPOSTA
-- Regra de mapa: **árvores** ocupam espaço (não dá para invocar ali) e bloqueiam parte dos tiros.
-- Destrava **Sinergias de raça**: 2 ou 3 criaturas da mesma raça em campo dão um bônus de raça (estilo TFT), o que muda a montagem de equipe.
+> **Biomas revistos em 07/10/2026:** o jogo estava escuro/gótico demais; as próximas fases vão do escuro para a luz — **Neve → Deserto → Céu**. As mecânicas destravadas continuam as mesmas.
 
-### F15. Fase 4 — Forja Infernal + Relíquias `[ ]` — PROPOSTA
-- Regra de mapa: **fendas de lava** que se abrem no chão de tempos em tempos (ferem todos, inclusive inimigos).
-- Destrava **Relíquias**: chefes deixam relíquias (itens permanentes com efeito, ex.: "o Pulso deixa chamas"); o herói equipa 1 a 3 antes da run.
+### F14. Fase 3 — Tundra Gelada + Sinergias `[ ]` — PROPOSTA
+- Cenário claro (branco e azul-gelo). Regra de mapa: **gelo** — inimigos deslizam (difíceis de segurar) e **nevascas** periódicas reduzem o alcance de todos.
+- Destrava **Sinergias de raça**: 2 ou 3 criaturas da mesma raça em campo dão um bônus de raça (estilo TFT).
+- Nexus temático: **Pináculo Glacial**.
+
+### F15. Fase 4 — Deserto Dourado + Relíquias `[ ]` — PROPOSTA
+- Cenário de areia e sol. Regra de mapa: **tempestade de areia** (inimigos ficam ocultos até chegar perto) e **oásis** que curam o herói.
+- Destrava **Relíquias**: chefes deixam relíquias (itens permanentes com efeito); o herói equipa 1 a 3 antes da run.
+- Nexus temático: **Obelisco Solar**.
 
 ### F16. Fase 5 — Cidadela Celeste + Ascensão e Desafio diário `[ ]` — PROPOSTA
-- Regra de mapa: **ventos** que desviam projéteis e empurram inimigos voadores.
+- Nuvens, luz e ruínas brancas. Regra de mapa: **ventos** que desviam projéteis e empurram inimigos voadores.
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).
+- Nexus temático: **Olho Celeste**.
 
 ### Em paralelo (encaixar entre fases)
-- **Raças novas** `[ ]` — PROPOSTA por lote: Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais. Ideia: cada fase libera 1–2 raças ligadas ao bioma (ex.: Sereia no Pântano, Goblin na Forja).
+- **Raças novas** `[ ]` — PROPOSTA por lote: Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais. Ideia: cada fase libera 1–2 raças ligadas ao bioma (ex.: Sereia no Pântano, Elementais na Tundra, Goblin no Deserto, Unicórnio na Cidadela).
 - **Playtest** com outras pessoas pelo GitHub Pages a cada fase nova.
 
 ### Depois
@@ -129,7 +134,8 @@ Dividida em três entregas, cada uma jogável ao fim:
 
 ## 5. Decisões de 07/10/2026
 - Cada fase: **20 ondas e 3 chefes novos** (identidade completa, como a Fase 1).
-- Ordem das mecânicas **aprovada**: Pântano → Fragmentos/Santuário; Floresta → Sinergias; Forja → Relíquias; Cidadela → Ascensão e Desafio diário.
+- Ordem das mecânicas **aprovada**: Pântano → Fragmentos/Santuário; Fase 3 → Sinergias; Fase 4 → Relíquias; Cidadela → Ascensão e Desafio diário.
 - Nome **Nexus TD** no jogo e na página.
 - **Altar de Variantes** entra **depois da Fase 2**, junto com os Fragmentos (repetidas viram Fragmentos).
 - Conteúdo de cada fase (inimigos, chefes, regra de mapa em detalhe) continua **PROPOSTA**: apresentar antes de implementar cada fase.
+- **Biomas revistos**: Fases 3–5 passam a ser Tundra Gelada → Deserto Dourado → Cidadela Celeste (do escuro para a luz), com as mesmas mecânicas destravadas.

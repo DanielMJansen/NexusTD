@@ -1,3 +1,4 @@
+import { drawNexusModel, type NexusAppearance } from './arena';
 import type { SkinPalette } from '../data/skins';
 import { drawLayered } from './spriteKit';
 import { drawSprite, type SpriteId } from './sprites';
@@ -11,6 +12,23 @@ export interface PortraitOptions {
   palette?: SkinPalette;
   /** Filtro de cor da variante do Altar. */
   filter?: string;
+}
+
+/** Prévia animada do Nexus (tela do Nexus, Altar). */
+export function drawNexusPreview(canvas: HTMLCanvasElement, time: number, look: NexusAppearance, locked = false): void {
+  const size = canvas.clientWidth;
+  if (!size) return;
+  const ctx = canvas.getContext('2d')!;
+  fitSmallCanvas(canvas, ctx);
+  ctx.clearRect(0, 0, size, canvas.clientHeight);
+  const scale = size / 130;
+  ctx.save();
+  ctx.scale(scale, scale);
+  if (locked) {
+    ctx.filter = 'grayscale(1) brightness(0.45)';
+  }
+  drawNexusModel(ctx, 65, (canvas.clientHeight / scale) * 0.6, time, look);
+  ctx.restore();
 }
 
 /** Retrato animado de um personagem num canvas pequeno (cartas, menus). */

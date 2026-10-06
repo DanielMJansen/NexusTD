@@ -73,6 +73,7 @@ function deserialize(raw: Record<string, unknown>): RunState {
     sanctuary: (raw.sanctuary as RunState['sanctuary'] | undefined) ?? {},
     racePlacements: (raw.racePlacements as Record<string, number> | undefined) ?? {},
     variants: (raw.variants as RunState['variants'] | undefined) ?? {},
+    nexusLook: (raw.nexusLook as RunState['nexusLook'] | undefined) ?? { model: 'map', color: 'original' },
     stage: STAGE_IDS.includes(raw.stage as StageId) ? (raw.stage as StageId) : FIRST_STAGE,
     result: null,
     hero: {

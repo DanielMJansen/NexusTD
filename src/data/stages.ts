@@ -1,3 +1,4 @@
+import type { NexusModelId } from './nexusSkins';
 import type { EnemyId } from './enemies';
 import type { BossEntry, WaveEntry } from './waves';
 
@@ -31,6 +32,8 @@ export interface StageDef {
   essenceMultiplier: number;
   /** A fase rende Fragmentos de raça (Santuário). */
   fragments: boolean;
+  /** Modelo do Nexus "do mapa". */
+  nexusModel: NexusModelId;
   composition: WaveEntry[];
   bosses: BossEntry[];
   /** Chefes do Sem Fim, em rodízio. */
@@ -52,6 +55,7 @@ export const STAGES: Record<StageId, StageDef> = {
     power: { hp: 1, damage: 1 },
     essenceMultiplier: 1,
     fragments: false,
+    nexusModel: 'crystal',
     composition: [
       { enemy: 'zombie', fromWave: 1, weight: 10, perWave: -0.3, minWeight: 3 },
       { enemy: 'bat', fromWave: 2, weight: 4, perWave: 0 },
@@ -82,6 +86,7 @@ export const STAGES: Record<StageId, StageDef> = {
     power: { hp: 1.15, damage: 1.1 },
     essenceMultiplier: 1.25,
     fragments: true,
+    nexusModel: 'lotus',
     composition: [
       { enemy: 'leech', fromWave: 1, weight: 9, perWave: -0.25, minWeight: 3 },
       { enemy: 'toad', fromWave: 1, weight: 6, perWave: -0.1, minWeight: 3 },

@@ -1,3 +1,4 @@
+import { ALTAR_NEXUS_CHANCE, findNexusColor } from '../data/nexusSkins';
 import { ALTAR, VARIANTS } from '../data/altar';
 import { CREATURES } from '../data/creatures';
 import type { AltarResult } from '../game/altar';
@@ -18,6 +19,14 @@ function resultHtml(result: AltarResult): string {
       return `<div class="altar-result">O Altar devolveu ${essence(result.amount)}.</div>`;
     case 'fragments':
       return `<div class="altar-result">Você recebeu ${fragments(result.amount, result.race)}.</div>`;
+    case 'nexusColor': {
+      const look = VARIANTS[result.tier];
+      const color = findNexusColor(result.color)!;
+      return `<div class="altar-result variant" style="--tier-color:${look.color}">
+        <canvas data-nexus="${result.color}"></canvas>
+        <div><b>Cor do Nexus ${look.name}!</b> ${color.name}<br><small>Escolha-a na tela do Nexus, no menu.</small></div>
+      </div>`;
+    }
     case 'variant': {
       const look = VARIANTS[result.tier];
       const name = CREATURES[result.creature].name;
@@ -36,7 +45,7 @@ export function showAltar(profile: Profile, handlers: AltarHandlers, last?: Alta
   const odds = ALTAR.outcomes
     .map((o) => {
       const label =
-        o.kind === 'refund' ? `Devolve ${essence(o.amount)}` : o.kind === 'fragments' ? `${fragments(o.amount)} de uma raça da coleção` : `<b style="color:${VARIANTS[o.tier].color}">Variante ${VARIANTS[o.tier].name}</b>`;
+        o.kind === 'refund' ? `Devolve ${essence(o.amount)}` : o.kind === 'fragments' ? `${fragments(o.amount)} de uma raça da coleção` : `<b style="color:${VARIANTS[o.tier].color}">Variante ${VARIANTS[o.tier].name}</b>${o.tier !== 'rare' ? ` <small>(${Math.round(ALTAR_NEXUS_CHANCE * 100)}%: cor do Nexus ${o.tier === 'epic' ? 'Vazio' : 'Aurora'})</small>` : ''}`;
       return `<li><span>${label}</span><b>${pct(o.weight, total)}</b></li>`;
     })
     .join('');

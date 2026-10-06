@@ -1,3 +1,5 @@
+import { buyNexusColor, selectNexusLook } from './game/nexusSkins';
+import { showNexusSkins } from './ui/nexusScreen';
 import { rollAltar, selectVariant, type AltarResult } from './game/altar';
 import { showAltar } from './ui/altarScreen';
 import { STAGE_IDS, STAGES } from './data/stages';
@@ -520,6 +522,7 @@ export class App {
       onAchievements: () => showAchievements(this.profile, () => this.openMenu()),
       onCodex: () => showCodex(this.profile, () => this.openMenu()),
       onStages: () => this.openStages(),
+      onNexus: () => this.openNexusSkins(),
       onSelectLoadout: (index) => {
         if (index === this.profile.activeLoadout || !selectLoadout(this.profile, index)) return;
         saveProfile(this.profile);
@@ -571,6 +574,22 @@ export class App {
       },
       last,
     );
+  }
+
+  private openNexusSkins(): void {
+    const changed = (ok: boolean, sound: 'place' | 'coin' = 'place') => {
+      if (!ok) return;
+      saveProfile(this.profile);
+      this.sound.play(sound);
+      this.run = createRun(runSetup(this.profile));
+      this.openNexusSkins();
+    };
+    showNexusSkins(this.profile, {
+      onModel: (model) => changed(selectNexusLook(this.profile, { model })),
+      onColor: (color) => changed(selectNexusLook(this.profile, { color })),
+      onBuyColor: (color) => changed(buyNexusColor(this.profile, color), 'coin'),
+      onBack: () => this.openMenu(),
+    });
   }
 
   private openStages(): void {
