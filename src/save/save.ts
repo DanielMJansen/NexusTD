@@ -1,5 +1,6 @@
+import { SANCTUARY } from '../data/sanctuary';
 import { FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
-import { CREATURE_IDS, type CreatureId } from '../data/creatures';
+import { CREATURE_IDS, type CreatureId, CREATURES } from '../data/creatures';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
 import { ENEMY_IDS } from '../data/enemies';
 import { HERO_IDS, STARTER_HERO, type HeroId } from '../data/heroes';
@@ -128,6 +129,18 @@ function sanitize(data: unknown): Profile {
   }
   if (!raw.stageRecords && (profile.stats.wins > 0 || profile.bestWave > 0)) {
     profile.stageRecords[FIRST_STAGE] = { wins: profile.stats.wins, bestWave: profile.bestWave };
+  }
+  // Santuário (campos novos: padrão vazio)
+  const fragments = (raw.fragments ?? {}) as Record<string, unknown>;
+  const races = new Set(CREATURE_IDS.map((id) => CREATURES[id].race));
+  for (const race of races) {
+    const amount = Math.floor(toNumber(fragments[race]));
+    if (amount > 0) profile.fragments[race] = amount;
+  }
+  const sanctuary = (raw.sanctuary ?? {}) as Record<string, unknown>;
+  for (const id of profile.ownedCreatures) {
+    const level = Math.min(SANCTUARY.maxLevel, Math.floor(toNumber(sanctuary[id])));
+    if (level > 0) profile.sanctuary[id] = level;
   }
   const stage = raw.selectedStage as StageId;
   profile.selectedStage = STAGE_IDS.includes(stage) ? stage : FIRST_STAGE;

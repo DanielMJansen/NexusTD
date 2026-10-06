@@ -45,10 +45,13 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
     facing: at.x > ARENA.center.x ? -1 : 1,
     lastAttackAt: -Infinity,
     stunTimer: 0,
+    sanctuary: state.sanctuary[id] ?? 0,
     webTimer: 0,
     webSlow: 0,
   });
   state.creaturesPlaced++;
+  const race = CREATURES[id].race;
+  state.racePlacements[race] = (state.racePlacements[race] ?? 0) + 1;
   state.events.push({ type: 'creaturePlaced', creature: id, x: at.x, y: at.y });
   return true;
 }

@@ -1,4 +1,5 @@
-import { FIRST_STAGE, STAGES, type StageId } from '../data/stages';
+import { FIRST_STAGE, STAGE_IDS, STAGES, type StageId } from '../data/stages';
+import { sanctuaryCost } from '../data/sanctuary';
 import type { EnemyId } from '../data/enemies';
 import { CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
 import type { AchievementId } from '../data/achievements';
@@ -31,6 +32,10 @@ export interface Profile {
   seenEnemies: EnemyId[];
   /** Onda mais alta alcançada (inclui o Sem Fim). */
   bestWave: number;
+  /** Fragmentos de raça (Santuário). */
+  fragments: Record<string, number>;
+  /** Nível do Santuário de cada criatura (0 a 5). */
+  sanctuary: Partial<Record<CreatureId, number>>;
   /** Fase escolhida para a próxima run. */
   selectedStage: StageId;
   /** Recordes por fase (vitórias e onda mais alta). */
@@ -54,6 +59,8 @@ export function createProfile(): Profile {
     seenEnemies: [],
     bestWave: 0,
     selectedStage: FIRST_STAGE,
+    fragments: {},
+    sanctuary: {},
     stageRecords: {},
   };
 }
@@ -167,6 +174,23 @@ export function isStageUnlocked(profile: Profile, id: StageId): boolean {
   return required === null || (profile.stageRecords[required]?.wins ?? 0) > 0;
 }
 
+/** O Santuário aparece quando alguma fase que dá Fragmentos foi liberada. */
+export function hasSanctuary(profile: Profile): boolean {
+  return STAGE_IDS.some((id) => STAGES[id].fragments && isStageUnlocked(profile, id));
+}
+
+/** Sobe o nível do Santuário de uma criatura da coleção, pagando Fragmentos da raça. */
+export function upgradeSanctuary(profile: Profile, id: CreatureId): boolean {
+  if (!ownsCreature(profile, id)) return false;
+  const level = profile.sanctuary[id] ?? 0;
+  const cost = sanctuaryCost(level);
+  const race = CREATURES[id].race;
+  if (cost === null || (profile.fragments[race] ?? 0) < cost) return false;
+  profile.fragments[race] = (profile.fragments[race] ?? 0) - cost;
+  profile.sanctuary[id] = level + 1;
+  return true;
+}
+
 export function selectStage(profile: Profile, id: StageId): boolean {
   if (!isStageUnlocked(profile, id)) return false;
   profile.selectedStage = id;
@@ -176,6 +200,7 @@ export function selectStage(profile: Profile, id: StageId): boolean {
 export function runSetup(profile: Profile): RunSetup {
   return {
     stage: isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE,
+    sanctuary: { ...profile.sanctuary },
     talents: talentBonuses(profile.talents),
     team: profile.team.filter((id) => ownsCreature(profile, id)),
     hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,

@@ -1,3 +1,4 @@
+import { SANCTUARY } from '../data/sanctuary';
 import { STAGES } from '../data/stages';
 import { ECONOMY, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
@@ -89,8 +90,33 @@ function endRun(state: RunState, victory: boolean): void {
     Math.floor(kills / REWARDS.killsPerEssence) +
     (victory ? REWARDS.victoryBonus + t.victoryEssence : 0);
   const essence = Math.floor(base * (1 + t.essenceGain) * STAGES[state.stage].essenceMultiplier);
+  // Fragmentos (fases a partir da 2): ondas vencidas + bônus por chefe, repartidos pelas raças invocadas
+  const fragments: Record<string, number> = {};
+  const stage = STAGES[state.stage];
+  if (stage.fragments) {
+    const cleared = victory ? state.wave : state.wave - 1;
+    const from = state.endless ? WAVES.total : 0;
+    const bosses = state.endless
+      ? Math.floor(Math.max(0, cleared - from) / WAVES.endless.bossEvery)
+      : stage.bosses.filter((b) => b.wave <= cleared).length;
+    const total = Math.max(0, cleared - from) + bosses * SANCTUARY.perBoss;
+    const placed = Object.values(state.racePlacements).reduce((a, b) => a + b, 0);
+    if (total > 0 && placed > 0) {
+      const races = Object.entries(state.racePlacements).sort((a, b) => b[1] - a[1]);
+      let left = total;
+      for (const [race, count] of races) {
+        const share = Math.floor((total * count) / placed);
+        fragments[race] = share;
+        left -= share;
+      }
+      // sobra do arredondamento vai para a raça mais usada
+      fragments[races[0]![0]] = (fragments[races[0]![0]] ?? 0) + left;
+      for (const race of Object.keys(fragments)) if (!fragments[race]) delete fragments[race];
+    }
+  }
   state.result = {
     stage: state.stage,
+    fragments,
     victory,
     wave: state.wave,
     kills: state.kills,

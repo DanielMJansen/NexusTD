@@ -5,7 +5,7 @@ import { CREATURE_IDS } from '../data/creatures';
 import { ENEMIES } from '../data/enemies';
 import { HEROES } from '../data/heroes';
 import { WAVES } from '../data/waves';
-import { heroSkin, TEAM_SIZE, type Profile, runSetup } from '../game/profile';
+import { hasSanctuary, heroSkin, TEAM_SIZE, type Profile, runSetup } from '../game/profile';
 import type { SavedRunSummary } from '../save/runSave';
 import { essence } from './currency';
 import { CODEX_ENEMIES } from './codexScreen';
@@ -21,6 +21,7 @@ export interface MenuHandlers {
   onAchievements(): void;
   onCodex(): void;
   onStages(): void;
+  onSanctuary(): void;
   onSettings(): void;
 }
 
@@ -50,6 +51,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
         <button data-action="team">Equipe <small>${profile.team.length}/${TEAM_SIZE}</small></button>
         <button data-action="collection">Coleção <small>${profile.ownedCreatures.length}/${CREATURE_IDS.length}</small></button>
         <button data-action="talents">Talentos</button>
+        ${hasSanctuary(profile) ? `<button data-action="sanctuary">Santuário <small>${Object.values(profile.fragments).reduce((a, b) => a + b, 0)} ❖</small></button>` : ''}
         <button data-action="achievements">Conquistas <small>${profile.achievements.length}/${ACHIEVEMENT_IDS.length}</small></button>
         <button data-action="codex">Códex <small>${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length}/${CODEX_ENEMIES.length}</small></button>
         <button data-action="settings">⚙ Configurações</button>
@@ -60,6 +62,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       continue: () => handlers.onContinue(),
       team: () => handlers.onTeam(),
       stages: () => handlers.onStages(),
+      sanctuary: () => handlers.onSanctuary(),
       heroes: () => handlers.onHeroes(),
       collection: () => handlers.onCollection(),
       talents: () => handlers.onTalents(),

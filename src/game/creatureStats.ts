@@ -1,3 +1,4 @@
+import { SANCTUARY } from '../data/sanctuary';
 import type { AscendedForm, CreatureAbility, HitEffect } from '../data/creatures';
 import { EVOLUTION_LEVELS, MAX_CREATURE_LEVEL, type EvolutionLevel } from '../data/evolution';
 import type { Creature, Modifiers } from './state';
@@ -26,9 +27,9 @@ export function killHaste(creature: Creature): number {
   return haste?.kind === 'killHaste' ? Math.min(haste.max, haste.perKill * creature.killStacks) : 0;
 }
 
-/** Segundos entre ataques (algumas vertentes atacam mais devagar ou mais rápido). */
+/** Segundos entre ataques (algumas vertentes atacam mais devagar ou mais rápido; o Santuário acelera). */
 export const creatureCooldown = (creature: Creature): number =>
-  creature.def.cooldown * (ascendedForm(creature)?.stats?.cooldown ?? 1);
+  (creature.def.cooldown * (ascendedForm(creature)?.stats?.cooldown ?? 1)) / (1 + SANCTUARY.attackSpeedPerLevel * (creature.sanctuary ?? 0));
 
 /** Bônus do herói que vale para esta criatura (mesma raça), ou 0. */
 function raceBonusValue(creature: Creature, modifiers: Modifiers, kind: 'damage' | 'range'): number {
@@ -42,6 +43,7 @@ export const creatureDamage = (creature: Creature, modifiers: Modifiers): number
   (ascendedForm(creature)?.stats?.damage ?? 1) *
   modifiers.damage *
   (1 + creature.blessDamage) *
+  (1 + SANCTUARY.damagePerLevel * (creature.sanctuary ?? 0)) *
   (1 + raceBonusValue(creature, modifiers, 'damage') + (modifiers.raceDamage[creature.def.race] ?? 0));
 
 /** Ataques por segundo com melhorias, bônus de raça, auras e abates acumulados (sem frenesi). */

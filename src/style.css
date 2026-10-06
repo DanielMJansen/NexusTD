@@ -2396,3 +2396,79 @@ body:not([data-mode='run']) #side-panel {
   color: var(--fg);
   text-align: center;
 }
+
+/* Fragmentos e Santuário */
+.fragment-amount {
+  color: #6af0d0;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.fragment-amount small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.sanctuary-balance {
+  margin-left: 8px;
+  font-size: 0.85em;
+}
+
+.sanctuary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.sanctuary-card {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--card-color) 45%, transparent);
+  border-radius: 10px;
+  background: linear-gradient(#1f1533, #140d22);
+}
+
+.sanctuary-card canvas {
+  width: 56px;
+  height: 56px;
+  flex: none;
+}
+
+.sanctuary-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  font: 400 13.5px var(--font-body);
+}
+
+.sanctuary-stars {
+  color: #6af0d0;
+  letter-spacing: 2px;
+}
+
+.sanctuary-body small {
+  color: var(--muted);
+}
+
+.run-fragments {
+  margin: 10px 0 0;
+  text-align: center;
+}
+
+.sanctuary-body b {
+  font: 700 15px var(--font-label);
+  color: var(--fg);
+}
+
+.sanctuary-body small {
+  font-size: 13px;
+}
+
+.sanctuary-stars {
+  font-size: 15px;
+}

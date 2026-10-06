@@ -12,5 +12,9 @@ export function confirmPurchaseHtml(id: string, cost: number, balance: number): 
   </div>`;
 }
 
+/** Fragmentos de raça (Santuário): ❖ verde-água. */
+export const fragments = (amount: number | string, race?: string): string =>
+  `<span class="fragment-amount">❖ ${amount}${race ? ` <small>${race}</small>` : ''}</span>`;
+
 /** Ouro (da run): ◉ dourado. */
 export const gold = (amount: number | string): string => `<span class="gold-amount">◉ ${amount}</span>`;

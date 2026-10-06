@@ -29,6 +29,8 @@ export interface StageDef {
   power: { hp: number; damage: number };
   /** Multiplicador da Essência ganha na fase. */
   essenceMultiplier: number;
+  /** A fase rende Fragmentos de raça (Santuário). */
+  fragments: boolean;
   composition: WaveEntry[];
   bosses: BossEntry[];
   /** Chefes do Sem Fim, em rodízio. */
@@ -49,6 +51,7 @@ export const STAGES: Record<StageId, StageDef> = {
     color: '#9a7aff',
     power: { hp: 1, damage: 1 },
     essenceMultiplier: 1,
+    fragments: false,
     composition: [
       { enemy: 'zombie', fromWave: 1, weight: 10, perWave: -0.3, minWeight: 3 },
       { enemy: 'bat', fromWave: 2, weight: 4, perWave: 0 },
@@ -78,6 +81,7 @@ export const STAGES: Record<StageId, StageDef> = {
     color: '#7aba5a',
     power: { hp: 1.15, damage: 1.1 },
     essenceMultiplier: 1.25,
+    fragments: true,
     composition: [
       { enemy: 'leech', fromWave: 1, weight: 9, perWave: -0.25, minWeight: 3 },
       { enemy: 'toad', fromWave: 1, weight: 6, perWave: -0.1, minWeight: 3 },

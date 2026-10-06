@@ -70,6 +70,8 @@ function deserialize(raw: Record<string, unknown>): RunState {
     ...raw,
     events: [],
     waveKills: typeof raw.waveKills === 'number' ? raw.waveKills : 0,
+    sanctuary: (raw.sanctuary as RunState['sanctuary'] | undefined) ?? {},
+    racePlacements: (raw.racePlacements as Record<string, number> | undefined) ?? {},
     stage: STAGE_IDS.includes(raw.stage as StageId) ? (raw.stage as StageId) : FIRST_STAGE,
     result: null,
     hero: {

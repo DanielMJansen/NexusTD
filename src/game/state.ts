@@ -134,6 +134,8 @@ export interface Creature extends Point {
   /** Presa na teia: ataca mais devagar. */
   webTimer: number;
   webSlow: number;
+  /** Nível do Santuário (bônus permanente de dano e velocidade de ataque). */
+  sanctuary?: number;
   /** Visual da lentidão: teia (Aranha) ou praga (Bruxa do Brejo). */
   webLook?: 'web' | 'curse';
   /** Engolida pelo Rei Sapo: fora de combate (segundos restantes). */
@@ -233,6 +235,8 @@ export interface RunResult {
   /** Maior número de criaturas na forma evoluída ao mesmo tempo (conquistas). */
   ascendedPeak: number;
   creaturesPlaced: number;
+  /** Fragmentos de raça ganhos (por raça). */
+  fragments: Record<string, number>;
   /** Inimigos enfrentados (códex). */
   seenEnemies: EnemyId[];
   /** Fim de uma partida no Sem Fim (a vitória já foi contada antes). */
@@ -247,6 +251,8 @@ export type Phase = 'playing' | 'choosing' | 'ended';
 export interface RunSetup {
   /** Fase da run (padrão: a primeira). */
   stage?: StageId;
+  /** Níveis do Santuário das criaturas (padrão: nenhum). */
+  sanctuary?: Partial<Record<CreatureId, number>>;
   /** Soma dos talentos comprados. */
   talents: TalentBonuses;
   /** Equipe da run: criaturas disponíveis, na ordem dos atalhos 1–8. */
@@ -265,6 +271,10 @@ export interface RunState {
   gold: number;
   /** Fase da run (inimigos, chefes e cenário). */
   stage: StageId;
+  /** Níveis do Santuário das criaturas (fixos na run). */
+  sanctuary: Partial<Record<CreatureId, number>>;
+  /** Criaturas invocadas por raça (repartem os Fragmentos). */
+  racePlacements: Record<string, number>;
   kills: number;
   /** Inimigos abatidos na onda atual (contador "restantes/total" do HUD). */
   waveKills: number;
@@ -363,6 +373,8 @@ export function createRun(setup: RunSetup): RunState {
     nexus: { hp: maxHp, maxHp },
     gold: ECONOMY.startGold + t.startGold,
     stage: setup.stage ?? FIRST_STAGE,
+    sanctuary: { ...(setup.sanctuary ?? {}) },
+    racePlacements: {},
     kills: 0,
     waveKills: 0,
     hero: {

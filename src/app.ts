@@ -20,6 +20,7 @@ import {
   selectHero,
   selectSkin,
   selectStage,
+  upgradeSanctuary,
   toggleTeamMember,
   unlockCreature,
   type Profile,
@@ -46,6 +47,7 @@ import { showHeroLevelUp } from './ui/heroLevelUp';
 import { chooseHeroUpgrade } from './game/hero';
 import { showHeroes, type HeroScreenOptions } from './ui/heroesScreen';
 import { showStages } from './ui/stagesScreen';
+import { showSanctuary } from './ui/sanctuaryScreen';
 import { updateHud, updateMenuHud } from './ui/hud';
 import { showMenu } from './ui/menu';
 import { animateOverlay, hideOverlay } from './ui/overlay';
@@ -508,6 +510,7 @@ export class App {
       onAchievements: () => showAchievements(this.profile, () => this.openMenu()),
       onCodex: () => showCodex(this.profile, () => this.openMenu()),
       onStages: () => this.openStages(),
+      onSanctuary: () => this.openSanctuary(),
       onSettings: () => this.openSettings(),
     });
   }
@@ -519,6 +522,21 @@ export class App {
       onBuy: (id) => this.afterPurchase(buyTalent(this.profile, id), () => this.openTalents()),
       onBack: () => this.openMenu(),
     });
+  }
+
+  /** highlight: criatura recém-fortalecida (a tela fica no mesmo lugar). */
+  private openSanctuary(highlight?: CreatureId): void {
+    showSanctuary(
+      this.profile,
+      {
+        onUpgrade: (id) => {
+          if (!upgradeSanctuary(this.profile, id)) return;
+          this.afterPurchase(true, () => this.openSanctuary(id));
+        },
+        onBack: () => this.openMenu(),
+      },
+      highlight,
+    );
   }
 
   private openStages(): void {
