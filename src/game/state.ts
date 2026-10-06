@@ -1,3 +1,4 @@
+import type { VariantTier } from '../data/altar';
 import { FIRST_STAGE, type StageId } from '../data/stages';
 import { ARENA, ECONOMY, HERO_PLACEMENT, NEXUS } from '../data/config';
 import { HEROES, type HeroDef, type HeroId, type RaceBonus } from '../data/heroes';
@@ -136,6 +137,8 @@ export interface Creature extends Point {
   webSlow: number;
   /** Nível do Santuário (bônus permanente de dano e velocidade de ataque). */
   sanctuary?: number;
+  /** Variante cosmética do Altar (só visual). */
+  variant?: VariantTier;
   /** Visual da lentidão: teia (Aranha) ou praga (Bruxa do Brejo). */
   webLook?: 'web' | 'curse';
   /** Engolida pelo Rei Sapo: fora de combate (segundos restantes). */
@@ -253,6 +256,8 @@ export interface RunSetup {
   stage?: StageId;
   /** Níveis do Santuário das criaturas (padrão: nenhum). */
   sanctuary?: Partial<Record<CreatureId, number>>;
+  /** Variantes cosméticas escolhidas no Altar (só visual). */
+  variants?: Partial<Record<CreatureId, VariantTier>>;
   /** Soma dos talentos comprados. */
   talents: TalentBonuses;
   /** Equipe da run: criaturas disponíveis, na ordem dos atalhos 1–8. */
@@ -275,6 +280,8 @@ export interface RunState {
   sanctuary: Partial<Record<CreatureId, number>>;
   /** Criaturas invocadas por raça (repartem os Fragmentos). */
   racePlacements: Record<string, number>;
+  /** Variantes cosméticas (só visual). */
+  variants: Partial<Record<CreatureId, VariantTier>>;
   kills: number;
   /** Inimigos abatidos na onda atual (contador "restantes/total" do HUD). */
   waveKills: number;
@@ -375,6 +382,7 @@ export function createRun(setup: RunSetup): RunState {
     stage: setup.stage ?? FIRST_STAGE,
     sanctuary: { ...(setup.sanctuary ?? {}) },
     racePlacements: {},
+    variants: { ...(setup.variants ?? {}) },
     kills: 0,
     waveKills: 0,
     hero: {

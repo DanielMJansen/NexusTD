@@ -1,3 +1,4 @@
+import { VARIANTS, type VariantTier } from '../data/altar';
 import { findSkin } from '../data/skins';
 import { drawPortrait } from '../render/portrait';
 import type { SpriteId } from '../render/sprites';
@@ -49,6 +50,7 @@ export function animateOverlay(time: number): void {
       level: Number(canvas.dataset.level ?? 1),
       branch: Number(canvas.dataset.branch ?? 0),
       palette: findSkin(canvas.dataset.skin ?? '')?.palette,
+      filter: canvas.dataset.variant ? VARIANTS[canvas.dataset.variant as VariantTier]?.filter : undefined,
     }),
   );
 }

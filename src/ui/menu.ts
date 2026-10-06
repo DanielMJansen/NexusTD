@@ -1,3 +1,4 @@
+import { isAltarUnlocked } from '../game/altar';
 import { FIRST_STAGE, STAGES } from '../data/stages';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
 import { GAME_TITLE } from '../data/config';
@@ -22,6 +23,7 @@ export interface MenuHandlers {
   onCodex(): void;
   onStages(): void;
   onSanctuary(): void;
+  onAltar(): void;
   onSettings(): void;
 }
 
@@ -51,6 +53,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
         <button data-action="team">Equipe <small>${profile.team.length}/${TEAM_SIZE}</small></button>
         <button data-action="collection">Coleção <small>${profile.ownedCreatures.length}/${CREATURE_IDS.length}</small></button>
         <button data-action="talents">Talentos</button>
+        ${isAltarUnlocked(profile) ? '<button data-action="altar">Altar de Variantes</button>' : ''}
         ${hasSanctuary(profile) ? `<button data-action="sanctuary">Santuário <small>${Object.values(profile.fragments).reduce((a, b) => a + b, 0)} ❖</small></button>` : ''}
         <button data-action="achievements">Conquistas <small>${profile.achievements.length}/${ACHIEVEMENT_IDS.length}</small></button>
         <button data-action="codex">Códex <small>${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length}/${CODEX_ENEMIES.length}</small></button>
@@ -63,6 +66,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       team: () => handlers.onTeam(),
       stages: () => handlers.onStages(),
       sanctuary: () => handlers.onSanctuary(),
+      altar: () => handlers.onAltar(),
       heroes: () => handlers.onHeroes(),
       collection: () => handlers.onCollection(),
       talents: () => handlers.onTalents(),

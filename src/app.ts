@@ -1,3 +1,5 @@
+import { rollAltar, selectVariant, type AltarResult } from './game/altar';
+import { showAltar } from './ui/altarScreen';
 import { STAGE_IDS, STAGES } from './data/stages';
 import type { CreatureId } from './data/creatures';
 import { SoundPlayer } from './audio/audio';
@@ -511,6 +513,7 @@ export class App {
       onCodex: () => showCodex(this.profile, () => this.openMenu()),
       onStages: () => this.openStages(),
       onSanctuary: () => this.openSanctuary(),
+      onAltar: () => this.openAltar(),
       onSettings: () => this.openSettings(),
     });
   }
@@ -536,6 +539,23 @@ export class App {
         onBack: () => this.openMenu(),
       },
       highlight,
+    );
+  }
+
+  private openAltar(last?: AltarResult): void {
+    showAltar(
+      this.profile,
+      {
+        onRoll: () => {
+          const result = rollAltar(this.profile);
+          if (!result) return;
+          saveProfile(this.profile);
+          this.sound.play(result.kind === 'variant' ? 'evolve' : 'coin');
+          this.openAltar(result);
+        },
+        onBack: () => this.openMenu(),
+      },
+      last,
     );
   }
 
@@ -584,6 +604,13 @@ export class App {
           const bought = unlockCreature(this.profile, id);
           if (bought) checkAchievements(this.profile);
           this.afterPurchase(bought, () => this.openCollection(id));
+        },
+        onVariant: (id, tier) => {
+          if (!selectVariant(this.profile, id, tier)) return;
+          saveProfile(this.profile);
+          this.sound.play('place');
+          this.run = createRun(runSetup(this.profile));
+          this.openCollection(id);
         },
         onBack: () => this.openMenu(),
       },

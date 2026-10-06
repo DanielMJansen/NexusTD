@@ -1,3 +1,4 @@
+import type { VariantTier } from '../data/altar';
 import { FIRST_STAGE, STAGE_IDS, STAGES, type StageId } from '../data/stages';
 import { sanctuaryCost } from '../data/sanctuary';
 import type { EnemyId } from '../data/enemies';
@@ -36,6 +37,10 @@ export interface Profile {
   fragments: Record<string, number>;
   /** Nível do Santuário de cada criatura (0 a 5). */
   sanctuary: Partial<Record<CreatureId, number>>;
+  /** Altar: variantes obtidas, variante usada e contadores de garantia. */
+  variants: Partial<Record<CreatureId, VariantTier[]>>;
+  selectedVariants: Partial<Record<CreatureId, VariantTier>>;
+  altarPity: { epic: number; legendary: number };
   /** Fase escolhida para a próxima run. */
   selectedStage: StageId;
   /** Recordes por fase (vitórias e onda mais alta). */
@@ -61,6 +66,9 @@ export function createProfile(): Profile {
     selectedStage: FIRST_STAGE,
     fragments: {},
     sanctuary: {},
+    variants: {},
+    selectedVariants: {},
+    altarPity: { epic: 0, legendary: 0 },
     stageRecords: {},
   };
 }
@@ -201,6 +209,7 @@ export function runSetup(profile: Profile): RunSetup {
   return {
     stage: isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE,
     sanctuary: { ...profile.sanctuary },
+    variants: { ...profile.selectedVariants },
     talents: talentBonuses(profile.talents),
     team: profile.team.filter((id) => ownsCreature(profile, id)),
     hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,

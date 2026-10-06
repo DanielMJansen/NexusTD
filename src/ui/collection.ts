@@ -1,3 +1,4 @@
+import { VARIANTS, type VariantTier } from '../data/altar';
 import { CREATURES, CREATURE_IDS, type CreatureDef, type CreatureId } from '../data/creatures';
 import { ownsCreature, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
@@ -6,12 +7,23 @@ import { showOverlay } from './overlay';
 
 export interface CollectionHandlers {
   onBuy(id: CreatureId): void;
+  onVariant(id: CreatureId, tier: VariantTier | null): void;
   onBack(): void;
 }
 
 /** Raças na ordem em que aparecem nos dados. */
 export function racesInOrder(): string[] {
   return [...new Set(CREATURE_IDS.map((id) => CREATURES[id].race))];
+}
+
+/** Variantes do Altar já obtidas: clicar escolhe a usada na arena. */
+function variantRow(profile: Profile, id: CreatureId): string {
+  const owned = profile.variants[id] ?? [];
+  if (!owned.length) return '';
+  const current = profile.selectedVariants[id] ?? '';
+  const button = (tier: VariantTier | '', label: string, color: string) =>
+    `<button class="variant-chip${current === tier ? ' selected' : ''}" style="--chip-color:${color}" data-action="variant" data-value="${id}:${tier}">${label}</button>`;
+  return `<div class="variant-row"><span>Variante:</span>${button('', 'Normal', '#9a8ab8')}${owned.map((t) => button(t, VARIANTS[t].name, VARIANTS[t].color)).join('')}</div>`;
 }
 
 /** Rodapé do card: na equipe/coleção ou o botão de desbloquear. */
@@ -30,7 +42,7 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
   const footer = footerHtml(profile, def);
   return `<div class="creature-card${owned ? '' : ' locked'}${justUnlocked ? ' just-unlocked' : ''}" data-card="${def.id}" style="--card-color:${def.color}">
     <div class="cc-portraits">
-      <canvas data-sprite="${def.id}"${owned ? '' : ' data-silhouette'}></canvas>
+      <canvas data-sprite="${def.id}"${owned ? (profile.selectedVariants[def.id] ? ` data-variant="${profile.selectedVariants[def.id]}"` : '') : ' data-silhouette'}></canvas>
       <span class="cc-evolve-label">Nível 3</span>
       <div class="cc-branches">${def.ascended
         .map(
@@ -48,6 +60,7 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
       <dl class="cc-stats">${stats}</dl>
       <p class="cc-ability">${abilityText(def.ability, def.effects)}</p>
       ${ascendedFormsHtml(def)}
+      ${variantRow(profile, def.id)}
       <div class="cc-footer">${footer}</div>
     </div>
   </div>`;
@@ -91,6 +104,10 @@ export function showCollection(profile: Profile, handlers: CollectionHandlers, j
         if (target) target.innerHTML = footerHtml(profile, CREATURES[id as CreatureId]);
       },
       buy: (id) => handlers.onBuy(id as CreatureId),
+      variant: (value) => {
+        const [id, tier] = value.split(':');
+        handlers.onVariant(id as CreatureId, (tier || null) as VariantTier | null);
+      },
       back: () => handlers.onBack(),
     },
     { keepScroll: justUnlocked !== undefined },

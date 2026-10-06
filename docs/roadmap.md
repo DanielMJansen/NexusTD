@@ -37,7 +37,7 @@ Sem conteúdo novo; prepara o terreno.
 - Perfil: progresso por fase (campo novo com padrão no `sanitize`, sem trocar a chave `nx4`); a run salva guarda a fase.
 - Render do cenário parametrizado por bioma; bot de calibragem recebe a fase.
 
-### F13. Fase 2 — Pântano `[~]` — F13a e F13b aprovados; F13c (Altar) em revisão
+### F13. Fase 2 — Pântano `[x]`
 Dividida em três entregas, cada uma jogável ao fim:
 
 **F13a — A fase** `[x]` (valores finais após calibragem: inimigos ×1,15 de vida e ×1,1 de dano; Rei Sapo 440 de vida, Crocodilo Ancião 680, Hidra 300 por cabeça com renascimento em 10 s — ver GDD seção 9)
@@ -70,16 +70,11 @@ Dividida em três entregas, cada uma jogável ao fim:
 - **Santuário** (menu): nível permanente por criatura, de 1 a 5. Cada nível dá +4% de dano e +2% de velocidade de ataque. Custo em Fragmentos da raça: 10 / 20 / 35 / 55 / 80.
 - **Balanceamento:** fica de fora a "economia de poder" que a Essência já cobre; o teto total é +20% de dano e +10% de velocidade por criatura.
 
-**F13c — Altar de Variantes** `[ ]` — **em revisão** (07/10): o preço parece baixo e a garantia generosa; garantia só a cada X sorteios. Repensar antes de implementar.
-- **Liberação:** ao vencer a Fase 2.
-- **Custo:** cada invocação gasta Essência (sorteio por 150 ✦; 10 sorteios por 1.350 ✦).
-- **Prêmio:** uma **variante cosmética** de criatura que você já possui:
-  - Rara (paleta alternativa, 80%);
-  - Épica (paleta + aura, 18%);
-  - Lendária (paleta + aura + rastro, 2%).
-- **Garantia:** uma Épica a cada 10 sorteios sem Épica e uma Lendária a cada 60 sem Lendária; o contador aparece na tela.
-- **Repetidas:** viram Fragmentos da raça da criatura.
-- **Uso:** a variante é escolhida na Coleção, como as skins dos heróis. Não dá poder.
+**F13c — Altar de Variantes** `[x]` (versão aprovada em 07/10)
+- Liberado ao vencer a Fase 2 (menu). Sorteio: **600 ✦**, com confirmação; chances à vista na tela.
+- Prêmios: devolve 200 ✦ (32%) · 12 Fragmentos de uma raça da coleção (32%) · variante Rara (26%) · Épica (8,5%) · Lendária (1,5%).
+- Garantia: Épica (ou melhor) a cada 20 sorteios sem Épica; Lendária a cada 60 sem Lendária (contadores na tela).
+- Variante = visual de uma criatura da coleção (Rara: cores; Épica: cores + brilho; Lendária: dourada + brilho + faíscas). Repetida (todas já têm) vira Fragmentos (15/30/60). Escolhida na Coleção; só visual.
 
 ### F14. Fase 3 — Floresta Sombria + Sinergias `[ ]` — PROPOSTA
 - Regra de mapa: **árvores** ocupam espaço (não dá para invocar ali) e bloqueiam parte dos tiros.

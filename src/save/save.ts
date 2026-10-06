@@ -1,3 +1,4 @@
+import { VARIANT_TIERS, type VariantTier } from '../data/altar';
 import { SANCTUARY } from '../data/sanctuary';
 import { FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
 import { CREATURE_IDS, type CreatureId, CREATURES } from '../data/creatures';
@@ -142,6 +143,17 @@ function sanitize(data: unknown): Profile {
     const level = Math.min(SANCTUARY.maxLevel, Math.floor(toNumber(sanctuary[id])));
     if (level > 0) profile.sanctuary[id] = level;
   }
+  // Altar (campos novos: padrão vazio)
+  const variants = (raw.variants ?? {}) as Record<string, unknown>;
+  const chosen = (raw.selectedVariants ?? {}) as Record<string, unknown>;
+  for (const id of profile.ownedCreatures) {
+    const list = Array.isArray(variants[id]) ? (variants[id] as unknown[]) : [];
+    const tiers = VARIANT_TIERS.filter((t) => list.includes(t));
+    if (tiers.length) profile.variants[id] = tiers;
+    if (tiers.includes(chosen[id] as VariantTier)) profile.selectedVariants[id] = chosen[id] as VariantTier;
+  }
+  const pity = (raw.altarPity ?? {}) as Record<string, unknown>;
+  profile.altarPity = { epic: Math.floor(toNumber(pity.epic)), legendary: Math.floor(toNumber(pity.legendary)) };
   const stage = raw.selectedStage as StageId;
   profile.selectedStage = STAGE_IDS.includes(stage) ? stage : FIRST_STAGE;
   const skins = (raw.selectedSkins ?? {}) as Record<string, unknown>;

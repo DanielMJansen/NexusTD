@@ -1,3 +1,4 @@
+import { VARIANTS } from '../data/altar';
 import { ARENA } from '../data/config';
 import { STAGES } from '../data/stages';
 import { WAVES } from '../data/waves';
@@ -305,10 +306,14 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
     ctx.arc(creature.x, creature.y + 4, 26, 0, TAU);
     ctx.fill();
   }
+  const variant = creature.variant ? VARIANTS[creature.variant] : null;
   const look: LayerLook =
     frenzy || ascended
       ? { shadowColor: frenzy ? '#ff2a40' : (ascendedForm(creature)?.color ?? '#ffd25a'), shadowBlur: frenzy ? 16 : 5 }
-      : {};
+      : variant?.glow
+        ? { shadowColor: variant.glow, shadowBlur: 7 + Math.sin(time * 3 + creature.x) * 2 }
+        : {};
+  if (variant) look.filter = variant.filter;
   const spriteScale = levelInfo(creature).scale;
   drawLayered(ctx, creature.x, creature.y + hover - 6 * spriteScale, 40 * spriteScale, look, (c) =>
     drawSprite(c, creature.def.id, creature.x, creature.y + hover, spriteScale, {
@@ -319,6 +324,7 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
       branch: creature.branch,
     }),
   );
+  if (variant?.sparkles) drawVariantSparkles(ctx, creature.x, creature.y - 8 * spriteScale, time + creature.x);
   const form = ascendedForm(creature);
   if (form) drawBranchEmblem(ctx, creature.x + 13, creature.y + 12, form.icon, form.color);
   if (state.haste.remaining > 0) drawSparkles(ctx, creature.x, creature.y - 10, time + creature.x);
@@ -806,4 +812,22 @@ function drawCurse(ctx: CanvasRenderingContext2D, x: number, y: number, alpha: n
   ctx.fillRect(x - 1.8, y - 17, 1.2, 1.2);
   ctx.fillRect(x + 0.6, y - 17, 1.2, 1.2);
   ctx.restore();
+}
+
+/** Variante Lendária: faíscas douradas girando ao redor da criatura. */
+function drawVariantSparkles(ctx: CanvasRenderingContext2D, x: number, y: number, time: number): void {
+  for (let k = 0; k < 4; k++) {
+    const a = time * 1.6 + (k * TAU) / 4;
+    const twinkle = 0.5 + 0.5 * Math.sin(time * 6 + k * 2);
+    ctx.fillStyle = `rgba(255, 228, 140, ${0.4 + 0.6 * twinkle})`;
+    const px = x + Math.cos(a) * 15;
+    const py = y + Math.sin(a) * 9;
+    ctx.beginPath();
+    ctx.moveTo(px, py - 2.4);
+    ctx.lineTo(px + 0.8, py);
+    ctx.lineTo(px, py + 2.4);
+    ctx.lineTo(px - 0.8, py);
+    ctx.closePath();
+    ctx.fill();
+  }
 }

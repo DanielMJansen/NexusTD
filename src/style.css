@@ -2472,3 +2472,90 @@ body:not([data-mode='run']) #side-panel {
 .sanctuary-stars {
   font-size: 15px;
 }
+
+/* Altar de Variantes */
+.variant-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font: 400 13px var(--font-body);
+  color: var(--muted);
+}
+
+.variant-chip {
+  padding: 2px 9px;
+  font-size: 12px;
+  border-color: color-mix(in srgb, var(--chip-color) 60%, transparent);
+  color: var(--chip-color);
+}
+
+.variant-chip.selected {
+  background: color-mix(in srgb, var(--chip-color) 25%, transparent);
+  color: var(--fg);
+}
+
+.altar-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.altar-odds {
+  list-style: none;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: 400 15px var(--font-body);
+}
+
+.altar-odds li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.altar-pity {
+  font: 400 15px var(--font-body);
+  color: var(--muted);
+}
+
+.altar-pity b {
+  color: var(--fg);
+}
+
+.altar-roll {
+  margin-top: 12px;
+}
+
+.altar-result {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: 400 16px var(--font-body);
+  animation: just-unlocked 1.6s ease-out;
+  --card-color: var(--tier-color, #9a7aff);
+}
+
+.altar-result.variant {
+  border-color: var(--tier-color);
+  background: color-mix(in srgb, var(--tier-color) 12%, transparent);
+}
+
+.altar-result canvas {
+  width: 72px;
+  height: 72px;
+}
+
+.altar-result small {
+  color: var(--muted);
+}

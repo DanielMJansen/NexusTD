@@ -46,6 +46,7 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
     lastAttackAt: -Infinity,
     stunTimer: 0,
     sanctuary: state.sanctuary[id] ?? 0,
+    variant: state.variants[id],
     webTimer: 0,
     webSlow: 0,
   });
