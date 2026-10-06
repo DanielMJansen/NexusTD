@@ -40,7 +40,7 @@ function attackText(def: HeroDef): string {
   return `${a.damage} de dano ${area} a cada ${formatNumber(a.cooldown)} s, alcance ${a.range}.${heal}`;
 }
 
-function pulseText(def: HeroDef): string {
+export function pulseText(def: HeroDef): string {
   const p = def.pulse;
   const heal = p.healPerEnemy > 0 ? ` Cura ${p.healPerEnemy} do Nexus por inimigo atingido.` : '';
   const fear = p.fear ? ` Inimigos fogem do Nexus por ${p.fear} s.` : '';

@@ -1,10 +1,20 @@
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { creatureCost } from '../game/economy';
-import type { RunState } from '../game/state';
+import type { Creature, RunState } from '../game/state';
+import type { Interaction } from '../input/interaction';
+import { MAX_CREATURE_LEVEL } from '../data/evolution';
+import {
+  creatureAbility,
+  creatureAttacksPerSecond,
+  creatureDamage,
+  creatureName,
+  creatureRange,
+} from '../game/creatureStats';
+import { evolveCost, sellValue } from '../game/economy';
 import { drawPortrait } from '../render/portrait';
 import { gold } from './currency';
-import { abilityText, creatureStats } from './describe';
-import { raceBonusText } from './heroesScreen';
+import { abilityText, creatureStats, formatNumber } from './describe';
+import { pulseText, raceBonusText } from './heroesScreen';
 import type { HeroDef, HeroId } from '../data/heroes';
 
 interface Card {
@@ -29,6 +39,8 @@ export class SidePanel {
   private pulseFill = this.pulseButton.querySelector<HTMLElement>('.pulse-fill')!;
   private pulseStatus = document.querySelector<HTMLElement>('#pulse-status')!;
   private pulseName = this.pulseButton.querySelector<HTMLElement>('.pulse-label b')!;
+  private pulseTooltip = this.pulseButton.querySelector<HTMLElement>('.pulse-tooltip')!;
+  private selectionInfo = document.querySelector<HTMLElement>('#selection-info')!;
 
   constructor(private readonly handlers: SidePanelHandlers) {
     this.pulseButton.addEventListener('click', () => {
@@ -41,6 +53,8 @@ export class SidePanel {
   private setTeam(team: readonly CreatureId[], hero: HeroDef): void {
     this.team = [...team];
     this.heroId = hero.id;
+    this.pulseTooltip.innerHTML = `<h4>Pulso do ${hero.name} <kbd>Espaço</kbd></h4><p class="special">${pulseText(hero)}</p>`;
+    this.pulseTooltip.style.setProperty('--card-color', hero.color);
     this.cards.clear();
     this.list.innerHTML = '';
     team.forEach((id, index) => {
@@ -78,16 +92,24 @@ export class SidePanel {
     });
   }
 
-  update(run: RunState, selected: CreatureId | null, time: number): void {
+  update(run: RunState, interaction: Interaction, time: number): void {
     const changed = run.team.length !== this.team.length || run.team.some((id, i) => id !== this.team[i]);
     if (changed || this.heroId !== run.hero.def.id) this.setTeam(run.team, run.hero.def);
+    const full = run.creatures.length >= run.creatureLimit;
+    const now = performance.now();
     for (const [id, card] of this.cards) {
       const cost = creatureCost(run, id);
-      card.root.classList.toggle('selected', selected === id);
-      setHtml(card.cost, gold(cost));
-      card.cost.classList.toggle('too-expensive', cost > run.gold);
+      const affordable = cost <= run.gold;
+      // verde: dá para invocar; vermelho: falta ouro ou vaga
+      card.root.classList.toggle('selected', interaction.selectedCard === id);
+      card.root.classList.toggle('ready', affordable && !full);
+      card.root.classList.toggle('blocked', !affordable || full);
+      card.root.classList.toggle('denied', interaction.denied?.id === id && now - interaction.denied.at < 400);
+      setHtml(card.cost, full ? '<span class="card-full">Sem vaga</span>' : gold(cost));
+      card.cost.classList.toggle('too-expensive', !affordable);
       drawPortrait(card.portrait, id, time + id.length);
     }
+    this.updateSelection(run, interaction.inspected);
 
     const { remaining, cooldown } = run.pulse;
     const ready = remaining <= 0 && run.phase === 'playing';
@@ -97,6 +119,31 @@ export class SidePanel {
     const name = run.hero.def.pulse.name;
     if (this.pulseName.textContent !== name) this.pulseName.textContent = name;
     if (this.pulseStatus.textContent !== status) this.pulseStatus.textContent = status;
+  }
+
+  /** Quadro com os atributos efetivos da criatura clicada na arena. */
+  private updateSelection(run: RunState, creature: Creature | null): void {
+    if (!creature || !run.creatures.includes(creature)) {
+      this.selectionInfo.hidden = true;
+      return;
+    }
+    const m = run.modifiers;
+    const next = evolveCost(creature, run.talents.evolveDiscount);
+    const stars =
+      '<span class="star-on">' + '★'.repeat(creature.level) + '</span><span class="star-off">' + '★'.repeat(MAX_CREATURE_LEVEL - creature.level) + '</span>';
+    const html = `<h4>${creatureName(creature)} <span class="stars">${stars}</span></h4>
+      <dl>
+        <dt>Dano</dt><dd>${formatNumber(Math.round(creatureDamage(creature, m) * 10) / 10)}</dd>
+        <dt>Ataques/s</dt><dd>${formatNumber(Math.round(creatureAttacksPerSecond(creature, m) * 100) / 100)}${creature.auraBonus > 0 ? ' <small>(aura)</small>' : ''}</dd>
+        <dt>Alcance</dt><dd>${Math.round(creatureRange(creature, m))}</dd>
+        <dt>Investido</dt><dd>${gold(creature.paid)}</dd>
+        <dt>Venda</dt><dd>${gold(sellValue(creature))}</dd>
+        <dt>Evoluir</dt><dd>${next === null ? 'máximo' : gold(next)}</dd>
+      </dl>
+      <p class="special">${abilityText(creatureAbility(creature))}</p>`;
+    this.selectionInfo.style.setProperty('--card-color', creature.def.color);
+    setHtml(this.selectionInfo, html);
+    this.selectionInfo.hidden = false;
   }
 }
 

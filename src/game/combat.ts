@@ -33,7 +33,9 @@ export function damageEnemy(
   const ability = source ? creatureAbility(source) : null;
   if (ability?.kind === 'pierceArmor' && enemy.def.armor > 0) amount *= 1 + ability.bonusVsArmored;
   const reduced = amount - effectiveArmor(state, enemy, source, options);
-  enemy.hp -= options.overTime ? Math.max(0, reduced) : Math.max(1, reduced);
+  const dealt = options.overTime ? Math.max(0, reduced) : Math.max(1, reduced);
+  enemy.hp -= dealt;
+  if (!options.overTime) state.events.push({ type: 'enemyDamaged', x: enemy.x, y: enemy.y, amount: dealt });
   if (!options.overTime) enemy.lastHitAt = state.time;
   if (enemy.hp <= 0 && !enemy.dead) {
     enemy.dead = true;
@@ -96,7 +98,11 @@ const clampToArena = (p: Point): Point => {
 };
 
 /** Habilidade do herói (dados em HeroDef.pulse). Devolve false se ainda está recarregando. */
-export function firePulse(state: RunState): boolean {
+/**
+ * `aim`: para onde mirar habilidades direcionais (cursor do mouse ou direção do teclado);
+ * sem mira, vai no inimigo mais próximo.
+ */
+export function firePulse(state: RunState, aim?: Point): boolean {
   if (state.phase !== 'playing' || state.pulse.remaining > 0) return false;
   const { hero } = state;
   const pulse = hero.def.pulse;
@@ -108,7 +114,8 @@ export function firePulse(state: RunState): boolean {
   if (pulse.shape?.kind === 'dash') {
     // Investida: atravessa o campo na direção do inimigo mais próximo (ou para onde olha).
     const nearest = state.enemies.filter((e) => !e.dead).sort((a, b) => distance(a, hero) - distance(b, hero))[0];
-    const angle = nearest ? Math.atan2(nearest.y - hero.y, nearest.x - hero.x) : hero.facing > 0 ? 0 : Math.PI;
+    const target = aim ?? nearest;
+    const angle = target ? Math.atan2(target.y - hero.y, target.x - hero.x) : hero.facing > 0 ? 0 : Math.PI;
     const length = pulse.shape.length * (1 + state.talents.pulseRadius);
     end = clampToArena({ x: hero.x + Math.cos(angle) * length, y: hero.y + Math.sin(angle) * length });
     const halfWidth = pulse.shape.width / 2;

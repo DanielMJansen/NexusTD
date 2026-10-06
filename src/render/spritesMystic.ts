@@ -22,17 +22,28 @@ import {
 // ---------- lobisomens ----------
 
 /** Cabeça de lobo comum ao Caçador, ao Alfa e ao Licantropo. */
-function wolfHead(ctx: Ctx, hy: number, fur: string, furDark: string, eyeColor: string, howl = 0): void {
+/** Cabeça de lobo; `bite` (0–1) abre a mandíbula e `howl` ergue a cabeça. */
+function wolfHead(ctx: Ctx, hy: number, fur: string, furDark: string, eyeColor: string, howl = 0, bite = 0): void {
   ctx.save();
   ctx.translate(3, hy);
-  ctx.rotate(-howl * 0.6);
+  ctx.rotate(-howl * 0.6 - bite * 0.15);
   shape(ctx, furDark, () => poly(ctx, [-6, -4, -4, -13, 0, -6]), 1);
   shape(ctx, furDark, () => poly(ctx, [-1, -6, 2, -14, 4, -5]), 1);
+  // mandíbula inferior: gira em torno da articulação (4, 3)
+  const open = Math.max(howl * 0.5, bite) * 0.7;
+  ctx.save();
+  ctx.translate(4, 3);
+  ctx.rotate(open);
+  shape(ctx, furDark, () => ellipse(ctx, 4.5, 1, 5, 2), 1);
+  shape(ctx, '#fff8e0', () => poly(ctx, [5.5, -0.6, 6.5, -0.6, 6, -2.4]), 0.4);
+  shape(ctx, '#fff8e0', () => poly(ctx, [8, -0.4, 9, -0.4, 8.5, -2.2]), 0.4);
+  ctx.restore();
+  if (open > 0.1) shape(ctx, '#5a1a1a', () => ellipse(ctx, 8, 3.5, 4, open * 3), 0);
   shape(ctx, radial(ctx, 0, 0, 8, fur, furDark), () => circle(ctx, 0, 0, 7.5));
-  shape(ctx, radial(ctx, 8, 2, 5, fur, furDark), () => ellipse(ctx, 7.5, 2.5, 6, 3.6, 0.1));
-  shape(ctx, '#1a1010', () => circle(ctx, 13, 1.5, 1.4), 0.6);
-  shape(ctx, '#fff8e0', () => poly(ctx, [8, 5.2, 9.2, 5.2, 8.6, 7.5]), 0.5);
-  shape(ctx, '#fff8e0', () => poly(ctx, [11, 5, 12.2, 5, 11.6, 7.2]), 0.5);
+  shape(ctx, radial(ctx, 8, 1, 5, fur, furDark), () => ellipse(ctx, 7.5, 1.5, 6, 3, 0.05));
+  shape(ctx, '#1a1010', () => circle(ctx, 13, 0.8, 1.4), 0.6);
+  shape(ctx, '#fff8e0', () => poly(ctx, [8, 4, 9.2, 4, 8.6, 6.2]), 0.5);
+  shape(ctx, '#fff8e0', () => poly(ctx, [11, 3.8, 12.2, 3.8, 11.6, 5.8]), 0.5);
   glowingEye(ctx, 3.5, -1.5, 1.5, eyeColor);
   ctx.restore();
 }
@@ -69,7 +80,7 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
   });
   for (const dy of [-1.5, 0.5, 2.5]) shape(ctx, '#f4ecd8', () => poly(ctx, [10, dy, 14, dy + 0.6, 10, dy + 1.2]), 0.5);
   ctx.restore();
-  wolfHead(ctx, -15 + crouch, fur, furDark, ascended(p) ? '#9fdcff' : '#ffd23a');
+  wolfHead(ctx, -15 + crouch, fur, furDark, ascended(p) ? '#9fdcff' : '#ffd23a', 0, swipe);
   if (ascended(p)) {
     // marca da lua na testa
     ctx.save();
@@ -117,10 +128,7 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
   if (ascended(p)) {
     for (let i = 0; i < 5; i++) shape(ctx, '#f4ecd8', () => poly(ctx, [-6 + i * 3, -1, -4.6 + i * 3, -1, -5.3 + i * 3, 3]), 0.6);
   }
-  ctx.save();
-  ctx.translate(bite * 3, 0);
-  wolfHead(ctx, -16, fur, furDark, '#ff9a3a', howl);
-  ctx.restore();
+  wolfHead(ctx, -16, fur, furDark, '#ff9a3a', howl, bite);
   if (ascended(p)) {
     ctx.strokeStyle = '#d0302a';
     ctx.lineWidth = 1.2;
@@ -160,7 +168,7 @@ export function drawLycan(ctx: Ctx, p: Pose): void {
   shape(ctx, skin(p, 'leather', '#6a4a2a'), () => ctx.rect(3, -2, 3, 4), 0.6);
   for (const dy of [-1.5, 0.5, 2.5]) shape(ctx, '#f4ecd8', () => poly(ctx, [9, dy, 13, dy + 0.6, 9, dy + 1.2]), 0.5);
   ctx.restore();
-  wolfHead(ctx, -16 + bob, fur, furDark, '#ffd23a');
+  wolfHead(ctx, -16 + bob, fur, furDark, '#ffd23a', 0, p.attack);
 }
 
 // ---------- fantasmas ----------

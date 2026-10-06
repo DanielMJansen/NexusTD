@@ -103,6 +103,8 @@ export class Effects {
   private shake = 0;
   /** 1 logo após o Nexus levar dano, caindo até 0. */
   nexusHurt = 0;
+  /** Números de dano flutuando (opção nas Configurações). */
+  showDamageNumbers = true;
 
   clear(): void {
     this.shots = [];
@@ -151,6 +153,20 @@ export class Effects {
         }
         break;
       }
+      case 'enemyDamaged':
+        if (this.showDamageNumbers) {
+          const amount = event.amount >= 10 ? Math.round(event.amount) : Math.round(event.amount * 10) / 10;
+          this.texts.push({
+            x: event.x + random(-6, 6),
+            y: event.y - 14,
+            text: String(amount),
+            color: '#f4ecff',
+            size: 7,
+            life: 0.5,
+            maxLife: 0.5,
+          });
+        }
+        break;
       case 'enemyKilled':
         this.corpses.push({ enemy: event.enemy, x: event.x, y: event.y, life: 0.45, maxLife: 0.45 });
         this.burst(event.x, event.y - 6, 8, event.color, 70, 0.45, 2.2, false);

@@ -14,6 +14,10 @@ export interface Interaction {
   pointer: Point;
   pointerInArena: boolean;
   inspected: Creature | null;
+  /** Venda armada: o próximo clique em "Vender" confirma. */
+  sellArmed: boolean;
+  /** Última carta recusada (sem ouro ou sem vaga), para a UI piscar. */
+  denied: { id: CreatureId; at: number } | null;
 }
 
 export function createInteraction(): Interaction {
@@ -24,18 +28,21 @@ export function createInteraction(): Interaction {
     pointer: { x: 0, y: 0 },
     pointerInArena: false,
     inspected: null,
+    sellArmed: false,
+    denied: null,
   };
 }
 
 /** Limpa seleção e arrasto, mantendo a posição do mouse. */
 export function resetInteraction(interaction: Interaction): void {
-  Object.assign(interaction, { selectedCard: null, draggingCard: false, holding: false, inspected: null });
+  Object.assign(interaction, { selectedCard: null, draggingCard: false, holding: false, inspected: null, sellArmed: false });
 }
 
 export function interactionView(interaction: Interaction, run: RunState): InteractionView {
-  const { selectedCard, pointer, pointerInArena, inspected } = interaction;
+  const { selectedCard, pointer, pointerInArena, inspected, sellArmed } = interaction;
   return {
     inspected,
+    sellArmed,
     placement:
       selectedCard && pointerInArena
         ? { creature: selectedCard, at: pointer, valid: canPlaceCreature(run, selectedCard, pointer) }

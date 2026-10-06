@@ -1,14 +1,28 @@
 // Configurações do jogador, salvas separadas do progresso. Novas opções entram com valor padrão.
 
+export type GameSpeed = 1 | 2 | 4;
+
 export interface Settings {
   musicVolume: number; // 0..1
   sfxVolume: number; // 0..1
   muted: boolean;
+  /** Números de dano flutuando sobre os inimigos. */
+  damageNumbers: boolean;
+  gameSpeed: GameSpeed;
+  /** Tutorial guiado já concluído ou pulado. */
+  tutorialDone: boolean;
 }
 
 export const SETTINGS_KEY = 'nexus-settings-v1';
 
-const DEFAULT_SETTINGS: Settings = { musicVolume: 0.7, sfxVolume: 0.8, muted: false };
+const DEFAULT_SETTINGS: Settings = {
+  musicVolume: 0.7,
+  sfxVolume: 0.8,
+  muted: false,
+  damageNumbers: true,
+  gameSpeed: 1,
+  tutorialDone: false,
+};
 
 const clamp01 = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : fallback;
@@ -20,6 +34,9 @@ export function sanitizeSettings(data: unknown): Settings {
     musicVolume: clamp01(raw.musicVolume, DEFAULT_SETTINGS.musicVolume),
     sfxVolume: clamp01(raw.sfxVolume, DEFAULT_SETTINGS.sfxVolume),
     muted: raw.muted === true,
+    damageNumbers: raw.damageNumbers !== false,
+    gameSpeed: raw.gameSpeed === 2 || raw.gameSpeed === 4 ? raw.gameSpeed : 1,
+    tutorialDone: raw.tutorialDone === true,
   };
 }
 

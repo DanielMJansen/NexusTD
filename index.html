@@ -26,6 +26,7 @@
         </div>
         <div class="top-buttons">
           <button id="pause-button" class="icon-button" type="button" title="Pausar (P / Esc)">❚❚</button>
+          <button id="speed-button" class="icon-button" type="button" title="Velocidade do jogo (F)">1x</button>
           <button id="mute-button" class="icon-button" type="button" title="Silenciar">🔊</button>
           <button id="settings-button" class="icon-button" type="button" title="Configurações">⚙</button>
         </div>
@@ -38,7 +39,9 @@
         <aside id="side-panel">
           <h2>Criaturas</h2>
           <div id="card-list"></div>
-          <button id="pulse-button" type="button" title="Pulso do herói (Espaço)">
+          <div id="selection-info" hidden></div>
+          <button id="pulse-button" type="button">
+            <span class="tooltip pulse-tooltip"></span>
             <span class="pulse-fill"></span>
             <span class="pulse-label"><b>Pulso</b><small id="pulse-status"></small></span>
             <kbd>Espaço</kbd>

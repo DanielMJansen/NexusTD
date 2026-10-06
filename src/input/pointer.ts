@@ -1,6 +1,6 @@
 import { ARENA } from '../data/config';
 import type { CreatureId } from '../data/creatures';
-import { evolveCreature, placeCreature, sellCreature } from '../game/economy';
+import { creatureCost, evolveCreature, placeCreature, sellCreature } from '../game/economy';
 import { distance, type Point, type RunState } from '../game/state';
 import { inspectButtons } from '../render/draw';
 import type { Interaction } from './interaction';
@@ -59,6 +59,7 @@ export function attachPointer({ canvas, interaction, getRun, isActive }: Pointer
     interaction.selectedCard = null;
     interaction.draggingCard = false;
     interaction.inspected = null;
+    interaction.sellArmed = false;
     return hadSomething;
   };
 
@@ -90,23 +91,33 @@ export function attachPointer({ canvas, interaction, getRun, isActive }: Pointer
 
     const inspected = interaction.inspected;
     if (inspected) {
-      const button = inspectButtons(run, inspected).find(
+      const button = inspectButtons(run, inspected, interaction.sellArmed).find(
         (b) => point.x >= b.x && point.x <= b.x + b.width && point.y >= b.y && point.y <= b.y + b.height,
       );
       if (button?.action === 'evolve') {
         evolveCreature(run, inspected);
+        interaction.sellArmed = false;
         return;
       }
-      interaction.inspected = null;
       if (button?.action === 'sell') {
+        // 1º clique arma a venda; o 2º confirma
+        if (!interaction.sellArmed) {
+          interaction.sellArmed = true;
+          return;
+        }
+        interaction.inspected = null;
+        interaction.sellArmed = false;
         sellCreature(run, inspected);
         return;
       }
+      interaction.inspected = null;
+      interaction.sellArmed = false;
     }
 
     const clicked = run.creatures.find((c) => distance(c, point) < CREATURE_CLICK_RADIUS);
     if (clicked) {
       interaction.inspected = clicked;
+      interaction.sellArmed = false;
       return;
     }
 
@@ -128,8 +139,15 @@ export function attachPointer({ canvas, interaction, getRun, isActive }: Pointer
   });
 
   const select = (id: CreatureId, drag: boolean) => {
-    if (!isActive() || !getRun().unlocked.has(id)) return;
+    const run = getRun();
+    if (!isActive() || !run.unlocked.has(id)) return;
     if (interaction.selectedCard === id) {
+      interaction.selectedCard = null;
+      return;
+    }
+    // Sem vaga ou sem ouro: nem deixa escolher (a carta pisca em vermelho).
+    if (run.creatures.length >= run.creatureLimit || run.gold < creatureCost(run, id)) {
+      interaction.denied = { id, at: performance.now() };
       interaction.selectedCard = null;
       return;
     }

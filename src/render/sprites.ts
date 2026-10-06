@@ -150,10 +150,10 @@ function drawHero(ctx: Ctx, p: Required<SpritePose>): void {
   shape(ctx, skin(p, 'scarf', '#4fd2e8'), () => ctx.roundRect(-6, -9 + bob, 12, 3.5, 1.5), 1);
   shape(ctx, skin(p, 'scarfDark', '#3ab0c8'), () => poly(ctx, [-5, -7 + bob, -9 - sway * 0.6, -3 + bob, -6, -2 + bob]), 1);
 
-  // espada: levantada no repouso, gira para frente no golpe
+  // espada: baixa e à frente no repouso; no golpe sobe acima da cabeça e corta para baixo
   ctx.save();
-  ctx.translate(7, 0 + bob);
-  ctx.rotate(-0.5 + p.attack * 2.2);
+  ctx.translate(7, 1 + bob);
+  ctx.rotate(2.2 - p.attack * 2);
   line(ctx, '#e8f0ff', 2.6, () => {
     ctx.moveTo(0, -2);
     ctx.lineTo(0, -19);

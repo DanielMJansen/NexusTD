@@ -23,5 +23,12 @@ function raceBonusValue(creature: Creature, modifiers: Modifiers, kind: 'damage'
 export const creatureDamage = (creature: Creature, modifiers: Modifiers): number =>
   creature.def.damage * levelInfo(creature).damage * modifiers.damage * (1 + raceBonusValue(creature, modifiers, 'damage'));
 
+/** Ataques por segundo com melhorias, bônus de raça e aura (sem frenesi). */
+export function creatureAttacksPerSecond(creature: Creature, modifiers: Modifiers): number {
+  const { race, bonus } = modifiers.raceBonus;
+  const raceSpeed = bonus.kind === 'attackSpeed' && creature.def.race === race ? bonus.value : 0;
+  return (modifiers.attackSpeed * (1 + raceSpeed + creature.auraBonus)) / creature.def.cooldown;
+}
+
 export const creatureRange = (creature: Creature, modifiers: Modifiers): number =>
   creature.def.range * levelInfo(creature).range * modifiers.range * (1 + raceBonusValue(creature, modifiers, 'range'));

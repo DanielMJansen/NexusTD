@@ -17,6 +17,10 @@ export class Keyboard {
     addEventListener('blur', () => this.pressed.clear());
   }
 
+  isDown(key: string): boolean {
+    return this.pressed.has(key);
+  }
+
   direction(): Point {
     const is = (...keys: string[]) => keys.some((k) => this.pressed.has(k));
     return {

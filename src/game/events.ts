@@ -19,6 +19,8 @@ export type GameEvent =
   | { type: 'poolCreated'; x: number; y: number; radius: number }
   | { type: 'wardBlocked' }
   | { type: 'nexusHit'; damage: number }
+  /** Golpe direto num inimigo (números de dano). */
+  | { type: 'enemyDamaged'; x: number; y: number; amount: number }
   | { type: 'nexusHealed'; amount: number }
   | { type: 'bossSpawned'; enemy: EnemyId }
   | { type: 'creaturePlaced'; creature: CreatureId; x: number; y: number }

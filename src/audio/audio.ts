@@ -20,7 +20,7 @@ export class SoundPlayer {
   private context: AudioContext | null = null;
   private sfxBus: GainNode | null = null;
   private musicBus: GainNode | null = null;
-  private settings: Settings = { musicVolume: 1, sfxVolume: 1, muted: false };
+  private settings: Pick<Settings, 'musicVolume' | 'sfxVolume' | 'muted'> = { musicVolume: 1, sfxVolume: 1, muted: false };
   private lastPlayed = new Map<SoundId, number>();
   private lastKill = 0;
   private combo = 0;
@@ -52,7 +52,7 @@ export class SoundPlayer {
     return this.context !== null;
   }
 
-  applySettings(settings: Settings): void {
+  applySettings(settings: Pick<Settings, 'musicVolume' | 'sfxVolume' | 'muted'>): void {
     this.settings = { ...settings };
     if (!this.context || !this.sfxBus || !this.musicBus) return;
     const t = this.context.currentTime;

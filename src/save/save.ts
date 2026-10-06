@@ -42,6 +42,15 @@ export function loadProfile(): Profile {
   return createProfile();
 }
 
+/** Apaga o perfil (e os saves antigos que seriam migrados de novo). */
+export function deleteProfile(): void {
+  try {
+    for (const key of [SAVE_KEY, V3_KEY, V2_KEY]) localStorage.removeItem(key);
+  } catch {
+    // nada a apagar
+  }
+}
+
 export function saveProfile(profile: Profile): void {
   try {
     const file: SaveFile = { version: PROFILE_VERSION, profile };

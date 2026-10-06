@@ -355,11 +355,11 @@ kbd {
   justify-content: space-between;
   gap: 8px;
   padding: 12px 14px;
-  overflow: hidden;
   border-color: #7a4fd0;
 }
 
 .pulse-fill {
+  border-radius: inherit;
   position: absolute;
   inset: 0;
   transform-origin: left;
@@ -1333,4 +1333,155 @@ button:disabled {
   font: 600 13px var(--font-label);
   letter-spacing: 1px;
   color: #e2c8ff;
+}
+
+button.danger {
+  border-color: #a03040;
+  color: #ffb0b8;
+}
+
+#speed-button {
+  font: 700 13px var(--font-label);
+}
+
+/* cartas: verde quando dá para invocar, vermelho quando não */
+.card.ready {
+  border-color: #3a8a5a;
+}
+
+.card.ready .card-cost {
+  color: #6af0a0;
+}
+
+.card.blocked {
+  border-color: #6a2a34;
+  filter: saturate(0.6);
+}
+
+.card.blocked .card-cost,
+.card-full {
+  color: var(--blood);
+}
+
+.card.denied {
+  animation: denied 0.4s;
+}
+
+@keyframes denied {
+  25%,
+  75% {
+    transform: translateX(-4px);
+    border-color: var(--blood);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+/* tooltip do Pulso */
+#pulse-button .pulse-tooltip {
+  text-align: left;
+  font: 400 15px var(--font-body);
+  --card-color: var(--accent);
+}
+
+#pulse-button:hover .pulse-tooltip {
+  opacity: 1;
+}
+
+.pulse-tooltip kbd {
+  margin-left: 6px;
+}
+
+/* atributos da criatura selecionada */
+#selection-info {
+  --card-color: var(--accent);
+  padding: 8px 10px;
+  border: 1px solid var(--card-color);
+  border-radius: 10px;
+  background: #120c20;
+  font-size: 14px;
+}
+
+#selection-info h4 {
+  margin: 0 0 4px;
+  font: 700 15px var(--font-label);
+  color: var(--card-color);
+}
+
+#selection-info .stars {
+  color: var(--gold);
+  font-size: 12px;
+}
+
+#selection-info dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1px 10px;
+  margin: 0 0 4px;
+}
+
+#selection-info dt {
+  color: var(--muted);
+}
+
+#selection-info dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+#selection-info .special {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* primeiro companheiro */
+.starter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.starter-option {
+  --card-color: var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border-color: color-mix(in srgb, var(--card-color) 50%, var(--line));
+}
+
+.starter-option canvas {
+  width: 72px;
+  height: 72px;
+}
+
+.starter-option small {
+  font: italic 400 13px var(--font-body);
+  color: var(--muted);
+}
+
+.starter-confirm canvas {
+  width: 110px;
+  height: 110px;
+  display: block;
+  margin: 0 auto;
+}
+
+.starter-confirm h2 {
+  color: var(--card-color);
+}
+
+.starter-confirm .cc-stats {
+  justify-content: center;
+}
+
+.star-on {
+  color: var(--gold);
+}
+
+.star-off {
+  color: #4a4060;
 }
