@@ -7,8 +7,8 @@ import { TALENTS, talentMaxLevel, type TalentId } from '../data/talents';
 import type { RunSetup } from './state';
 import { talentBonuses, type TalentLevels } from './talents';
 
-/** Vagas da equipe levada para a run (atalhos 1–6). */
-export const TEAM_SIZE = 6;
+/** Vagas da equipe levada para a run (atalhos 1–8). */
+export const TEAM_SIZE = 8;
 
 /** Progresso permanente do jogador (o que é salvo entre runs). */
 export interface Profile {

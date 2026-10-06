@@ -2154,3 +2154,44 @@ button.danger {
   display: block;
   clear: both;
 }
+
+/* equipe de até 8: cartas compactas em duas colunas */
+#card-list.compact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+#card-list.compact .card {
+  gap: 4px;
+  padding: 2px 6px 2px 2px;
+}
+
+#card-list.compact .card canvas {
+  width: 38px;
+  height: 38px;
+}
+
+#card-list.compact .card-name {
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#card-list.compact .card-race {
+  display: none;
+}
+
+#card-list.compact .card-cost {
+  margin-top: 1px;
+  font-size: 12px;
+}
+
+#card-list.compact .card > kbd {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  font-size: 10px;
+  padding: 0 4px;
+}

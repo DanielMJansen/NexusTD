@@ -10,7 +10,13 @@ export type CreatureId =
   | 'haunt'
   | 'banshee'
   | 'sorceress'
-  | 'cauldron';
+  | 'cauldron'
+  | 'cleric'
+  | 'batSwarm'
+  | 'storm'
+  | 'howler'
+  | 'possessor'
+  | 'herbalist';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -51,7 +57,64 @@ export type CreatureAbility =
   /** Chance de assustar o alvo (foge do Nexus; chefes resistem). */
   | { kind: 'fear'; chance: number; duration: number }
   /** Cada abate desta criatura rende ouro extra. */
-  | { kind: 'bounty'; gold: number };
+  | { kind: 'bounty'; gold: number }
+  /**
+   * Bênção: aura que fortalece as criaturas no raio (+dano, +alcance, +vel. de ataque,
+   * +dano crítico, proteção contra teia/atordoamento) e, opcionalmente, fere inimigos dentro dela.
+   */
+  | {
+      kind: 'bless';
+      radius: number;
+      damage?: number;
+      range?: number;
+      attackSpeed?: number;
+      critDamage?: number;
+      protect?: boolean;
+      /** Dano por segundo em inimigos dentro da aura. */
+      dps?: number;
+    }
+  /** Golpe em área ao redor da própria criatura (todos dentro do raio). */
+  | { kind: 'nova'; radius: number }
+  /** Raio que atravessa todos os inimigos em linha (em leque, se `beams` > 1). */
+  | { kind: 'pierce'; width: number; beams: number };
+
+/** Efeitos extras aplicados a cada inimigo atingido (ou ao abater), combináveis entre si. */
+export type HitEffect =
+  /** Dano contínuo (veneno, sangramento). */
+  | { kind: 'poison'; dps: number; duration: number }
+  /** Para o inimigo: atordoado, preso em raízes ou petrificado (só muda o visual). */
+  | { kind: 'stun'; chance: number; duration: number; look?: 'stun' | 'root' | 'stone' }
+  /** Foge do Nexus: medo ou confusão (só muda o visual). */
+  | { kind: 'fear'; chance: number; duration: number; look?: 'fear' | 'confuse' }
+  /** Marca: recebe +amount de dano de todas as fontes; `explode` = explode ao morrer marcado. */
+  | { kind: 'mark'; amount: number; duration: number; explode?: { radius: number; ratio: number } }
+  /** Corrói a armadura por um tempo. */
+  | { kind: 'corrode'; armor: number; duration: number }
+  /** Enfraquece: anda mais devagar e causa menos dano ao Nexus. */
+  | { kind: 'weaken'; slow: number; damage: number; duration: number }
+  /** Puxa o inimigo na direção da criatura. */
+  | { kind: 'pull'; distance: number }
+  /** Possui: o inimigo vira aliado temporário (chefes resistem); `explode` ao fim. */
+  | { kind: 'possess'; duration: number; explode?: { radius: number; ratio: number } }
+  /** Inimigos comuns abaixo desta fração de vida morrem na hora. */
+  | { kind: 'execute'; below: number }
+  /** Dano extra contra elites e chefes. */
+  | { kind: 'vsStrong'; bonus: number }
+  /** Cada abate acelera os ataques até o fim da onda. */
+  | { kind: 'killHaste'; perKill: number; max: number }
+  /** Cada abate aumenta o dano até o fim da onda. */
+  | { kind: 'killDamage'; perKill: number; max: number }
+  /** Chance de roubar ouro a cada golpe. */
+  | { kind: 'steal'; chance: number; gold: number }
+  /** Ouro extra ao abater (sempre, só execuções ou só inimigos com medo/confusos). */
+  | { kind: 'goldOnKill'; gold: number; when: 'any' | 'executed' | 'feared' }
+  /** Chance de erguer um esqueleto aliado temporário ao abater. */
+  | { kind: 'raiseOnKill'; chance: number; duration: number }
+  /** Recebe mais dano por um tempo (Tormento): igual à marca, mas sem ícone próprio. */
+  | { kind: 'vulnerable'; amount: number; duration: number };
+
+/** Como a criatura escolhe o alvo: o mais perto do Nexus (padrão) ou o mais forte. */
+export type Targeting = 'first' | 'strongest';
 
 /** Uma das duas formas evoluídas (vertentes) do nível máximo. */
 export interface AscendedForm {
@@ -61,6 +124,8 @@ export interface AscendedForm {
   ability: CreatureAbility;
   /** Multiplicadores extras de atributo desta vertente. */
   stats?: { damage?: number; range?: number; cooldown?: number };
+  /** Efeitos de golpe desta vertente (substituem os da forma base). */
+  effects?: HitEffect[];
   /** Cor da aura e do emblema da vertente. */
   color: string;
   icon: string;
@@ -86,6 +151,12 @@ export interface CreatureDef {
   cooldown: number;
   color: string;
   ability: CreatureAbility;
+  /** Efeitos aplicados a cada inimigo atingido. */
+  effects?: HitEffect[];
+  /** Como escolhe o alvo (padrão: o mais perto do Nexus). */
+  targeting?: Targeting;
+  /** Criatura voadora (sombra menor, flutua). */
+  flying?: boolean;
   /** Como começar a run com ela: já liberada ou comprada com Essência. */
   unlock: CreatureUnlock;
   /** As duas vertentes do nível máximo (o jogador escolhe uma ao evoluir). */
@@ -135,6 +206,26 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
       { name: 'Martelo Sagrado', description: 'Troca o bloqueio por golpes pesados que atordoam.', ability: { kind: 'stun', chance: 0.35, duration: 1.2 }, stats: { damage: 1.4 }, color: '#9ad8ff', icon: '⚒' },
     ],
   },
+  cleric: {
+    id: 'cleric',
+    name: 'Clériga',
+    race: 'Humano',
+    role: 'Suporte (bênção)',
+    description: 'Abençoa as criaturas ao redor, que causam mais dano. Ataca com luz, mas o forte dela é fortalecer o grupo.',
+    lore: 'Reza ao cristal todas as noites. Ele nunca respondeu, mas as flechas dela acertam mais.',
+    icon: '✚',
+    baseCost: 25,
+    damage: 5,
+    range: 90,
+    cooldown: 1,
+    color: '#ffe9a8',
+    ability: { kind: 'bless', radius: 80, damage: 0.15 },
+    unlock: { kind: 'essence', cost: 70 },
+    ascended: [
+      { name: 'Sacerdotisa', description: 'Bênção maior e mais forte, que também protege contra teia e atordoamento.', ability: { kind: 'bless', radius: 100, damage: 0.25, protect: true }, color: '#ffd25a', icon: '✚' },
+      { name: 'Inquisidora', description: 'Troca a bênção por raios de luz pesados que atordoam.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 2.6, range: 1.15 }, color: '#ff7a3a', icon: '☀' },
+    ],
+  },
   duelist: {
     id: 'duelist',
     name: 'Duelista',
@@ -174,6 +265,27 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ascended: [
       { name: 'Lorde de Sangue', description: 'Cada abate cura 4 de vida do Nexus.', ability: { kind: 'lifesteal', healPerKill: 4 }, color: '#ffd25a', icon: '♥' },
       { name: 'Mago de Sangue', description: 'Orbes de sangue que saltam entre inimigos.', ability: { kind: 'chain', jumps: 3, radius: 60, falloff: 0.8 }, stats: { damage: 1.5 }, color: '#c03ae0', icon: '❂' },
+    ],
+  },
+  batSwarm: {
+    id: 'batSwarm',
+    name: 'Enxame',
+    race: 'Vampiro',
+    role: 'Área móvel',
+    description: 'Uma nuvem de morcegos que voa até o alvo e morde todos ao redor dele.',
+    lore: 'Ninguém sabe quantos são. Eles também não.',
+    icon: '🦇',
+    baseCost: 30,
+    damage: 6,
+    range: 95,
+    cooldown: 1,
+    color: '#b04a8a',
+    flying: true,
+    ability: { kind: 'splash', radius: 32, damageRatio: 1 },
+    unlock: { kind: 'essence', cost: 80 },
+    ascended: [
+      { name: 'Nuvem Sangrenta', description: 'Área maior; as mordidas fazem sangrar.', ability: { kind: 'splash', radius: 45, damageRatio: 1 }, effects: [{ kind: 'poison', dps: 6, duration: 3 }], color: '#ff3a50', icon: '♨' },
+      { name: 'Revoada Faminta', description: 'Cada abate deixa o enxame mais rápido até o fim da onda.', ability: { kind: 'splash', radius: 32, damageRatio: 1 }, effects: [{ kind: 'killHaste', perKill: 0.05, max: 0.75 }], color: '#c86aff', icon: '➹' },
     ],
   },
   fireDragon: {
@@ -216,6 +328,27 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
       { name: 'Dragão Congelante', description: 'Chance de congelar o alvo no lugar.', ability: { kind: 'stun', chance: 0.3, duration: 1.4 }, stats: { damage: 1.3 }, color: '#bff0ff', icon: '✧' },
     ],
   },
+  storm: {
+    id: 'storm',
+    name: 'Tempestade',
+    race: 'Dragão',
+    role: 'Raio em cadeia',
+    description: 'Dragão de nuvens que dispara raios que saltam de inimigo em inimigo.',
+    lore: 'Nasce quando um trovão cai num ninho. Sempre chega antes do barulho.',
+    icon: 'ϟ',
+    baseCost: 30,
+    damage: 9,
+    range: 105,
+    cooldown: 1.1,
+    color: '#8a9aff',
+    flying: true,
+    ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 },
+    unlock: { kind: 'essence', cost: 80 },
+    ascended: [
+      { name: 'Dragão do Trovão', description: 'O raio salta para até 6 inimigos.', ability: { kind: 'chain', jumps: 6, radius: 75, falloff: 0.88 }, color: '#ffe060', icon: 'ϟ' },
+      { name: 'Olho da Tormenta', description: 'O raio atordoa quem atinge.', ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], color: '#5ad0ff', icon: '◉' },
+    ],
+  },
   hunter: {
     id: 'hunter',
     name: 'Caçador',
@@ -254,6 +387,27 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ascended: [
       { name: 'Líder da Matilha', description: 'Aura maior que acelera ainda mais os aliados.', ability: { kind: 'aura', radius: 100, attackSpeed: 0.4 }, color: '#ffd25a', icon: '✪' },
       { name: 'Fera Devastadora', description: 'Troca a aura por golpes que atingem todos ao redor do alvo.', ability: { kind: 'splash', radius: 38, damageRatio: 0.75 }, stats: { damage: 1.3 }, color: '#e8743a', icon: '✷' },
+    ],
+  },
+  howler: {
+    id: 'howler',
+    name: 'Uivador',
+    race: 'Lobisomem',
+    role: 'Controle (medo)',
+    description: 'De tempos em tempos solta um uivo que fere e assusta todos ao redor: eles fogem do Nexus.',
+    lore: 'Uiva para a lua. A lua, por educação, não responde; os monstros correm.',
+    icon: '🐺',
+    baseCost: 30,
+    damage: 4,
+    range: 70,
+    cooldown: 3,
+    color: '#a8b8d8',
+    ability: { kind: 'nova', radius: 70 },
+    effects: [{ kind: 'fear', chance: 0.6, duration: 1.5 }],
+    unlock: { kind: 'essence', cost: 70 },
+    ascended: [
+      { name: 'Uivo Lunar', description: 'Uivo mais largo; o medo dura mais e pega quase todos.', ability: { kind: 'nova', radius: 90 }, effects: [{ kind: 'fear', chance: 0.85, duration: 2.2 }], stats: { range: 1.2 }, color: '#9fdcff', icon: '☾' },
+      { name: 'Grito de Guerra', description: 'Troca o medo por um grito que acelera os aliados próximos.', ability: { kind: 'bless', radius: 90, attackSpeed: 0.35 }, effects: [], stats: { cooldown: 0.4, damage: 2 }, color: '#ff6a3a', icon: '✊' },
     ],
   },
   haunt: {
@@ -296,6 +450,28 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
       { name: 'Arauto do Pavor', description: 'Grito em leque que aterroriza: em vez de empurrar, faz todos fugirem do Nexus.', ability: { kind: 'screech', halfAngle: 0.6, push: 0, fear: 1.4 }, stats: { damage: 1.3 }, color: '#a87aff', icon: '☠' },
     ],
   },
+  possessor: {
+    id: 'possessor',
+    name: 'Possessor',
+    race: 'Fantasma',
+    role: 'Controle (possessão)',
+    description: 'Entra no corpo de um inimigo, que dá meia-volta e luta contra os outros por alguns segundos. Chefes resistem.',
+    lore: 'Prefere corpos emprestados. Devolve sempre — em pior estado.',
+    icon: '👁',
+    baseCost: 35,
+    damage: 4,
+    range: 90,
+    cooldown: 4,
+    color: '#9a6aff',
+    flying: true,
+    ability: { kind: 'none' },
+    effects: [{ kind: 'possess', duration: 4 }],
+    unlock: { kind: 'essence', cost: 90 },
+    ascended: [
+      { name: 'Marionetista', description: 'Possui dois inimigos de uma vez, por mais tempo.', ability: { kind: 'multishot', targets: 2 }, effects: [{ kind: 'possess', duration: 4.5 }], color: '#d8a8ff', icon: '⚚' },
+      { name: 'Devorador', description: 'O possuído explode no fim, ferindo quem estiver perto.', ability: { kind: 'none' }, effects: [{ kind: 'possess', duration: 4, explode: { radius: 50, ratio: 0.6 } }], color: '#ff4a6a', icon: '☠' },
+    ],
+  },
   sorceress: {
     id: 'sorceress',
     name: 'Feiticeira',
@@ -334,6 +510,27 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ascended: [
       { name: 'Caldeirão Infernal', description: 'Poça maior e mais venenosa.', ability: { kind: 'pool', radius: 40, duration: 4, dps: 24 }, color: '#ffd25a', icon: '♨' },
       { name: 'Caldeirão Alquímico', description: 'Poça dourada: quem morre nela vira ouro (+3 por abate).', ability: { kind: 'pool', radius: 32, duration: 3, dps: 16, bounty: 3 }, color: '#f0c35a', icon: '◉' },
+    ],
+  },
+  herbalist: {
+    id: 'herbalist',
+    name: 'Herbalista',
+    race: 'Bruxa',
+    role: 'Controle (raízes)',
+    description: 'Faz brotar raízes do chão que prendem o alvo no lugar.',
+    lore: 'Conhece o nome de cada planta da floresta. Algumas conhecem o dela.',
+    icon: '🌿',
+    baseCost: 25,
+    damage: 5,
+    range: 100,
+    cooldown: 1.1,
+    color: '#6ad87a',
+    ability: { kind: 'none' },
+    effects: [{ kind: 'stun', chance: 0.35, duration: 1.4, look: 'root' }],
+    unlock: { kind: 'essence', cost: 70 },
+    ascended: [
+      { name: 'Jardim Venenoso', description: 'As raízes têm espinhos que envenenam.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.4, duration: 1.5, look: 'root' }, { kind: 'poison', dps: 10, duration: 3 }], color: '#b86aff', icon: '❀' },
+      { name: 'Guardiã do Bosque', description: 'Raízes brotam em área e prendem vários de uma vez.', ability: { kind: 'splash', radius: 40, damageRatio: 0.6 }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.4, look: 'root' }], color: '#5ad85a', icon: '♣' },
     ],
   },
 };

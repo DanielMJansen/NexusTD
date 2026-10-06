@@ -35,11 +35,11 @@
 ## 4. Raças e classes
 **Estrutura** `DECIDIDO`: `Raça` → `Classe` → `Nível`. Nível permanente (duplicatas/fragmentos): `TBD`. Variantes (comum/rara com trait): **adiadas** (`TBD`).
 **Evolução na run** `FEITO`: criaturas em campo evoluem com ouro do nível 1 ao 3; no nível 3 viram uma **forma evoluída** com nome, visual e habilidade turbinada.
-**Coleção e equipe** `FEITO`: o Arqueiro vem na coleção; as outras criaturas são compradas com Essência. Quem ainda não tem nenhuma criatura mística ganha **uma de presente** (escolha única). A **equipe** tem até 6 criaturas; só ela aparece na run, **toda disponível desde a onda 1** (paga-se o ouro para invocar). **Ovos removidos.**
+**Coleção e equipe** `FEITO`: o Arqueiro vem na coleção; as outras criaturas são compradas com Essência. Quem ainda não tem nenhuma criatura mística ganha **uma de presente** (escolha única). A **equipe** tem até 8 criaturas (com 6 ou mais, o painel mostra cartas compactas em duas colunas); só ela aparece na run, **toda disponível desde a onda 1** (paga-se o ouro para invocar). **Ovos removidos.**
 Gacha com dinheiro real: ver seção 10.
 **Tags** (`HUMANO`, `SANGUE`, `FOGO`, `GELO`, `CONTROLE`...) `TBD` como sistema de sinergia.
 
-**Roster** (12 `FEITO`):
+**Roster** (18 `FEITO`; cada raça atual tem 3 classes):
 
 | Raça | Classe | Papel | Mecânica | Forma evoluída (nível 3) |
 |---|---|---|---|---|
@@ -55,6 +55,14 @@ Gacha com dinheiro real: ver seção 10.
 | Fantasma | Banshee | Controle (empurrão) | Grito em leque que fere e empurra | Banshee Ancestral: leque e empurrão maiores |
 | Bruxa | Feiticeira | Dano contínuo | Veneno (dano por segundo) | Arquibruxa: veneno mais forte e longo |
 | Bruxa | Caldeirão | Área no chão | Poça de dano por segundo | Caldeirão Infernal: poça maior e mais forte |
+| Humano | Clériga | Suporte (bênção) | Criaturas próximas causam mais dano | Sacerdotisa (bênção maior + proteção) · Inquisidora (luz que atordoa) |
+| Vampiro | Enxame | Área móvel | Morcegos mordem todos ao redor do alvo | Nuvem Sangrenta (área + sangramento) · Revoada Faminta (abates aceleram) |
+| Dragão | Tempestade | Raio em cadeia | Raio salta entre 3 inimigos | Dragão do Trovão (6 saltos) · Olho da Tormenta (raio atordoa) |
+| Lobisomem | Uivador | Controle (medo) | Uivo periódico: dano e medo em área | Uivo Lunar (medo maior) · Grito de Guerra (acelera aliados) |
+| Fantasma | Possessor | Controle (possessão) | O inimigo possuído luta contra os outros | Marionetista (2 de uma vez) · Devorador (possuído explode) |
+| Bruxa | Herbalista | Controle (raízes) | Raízes prendem o alvo | Jardim Venenoso (raízes envenenam) · Guardiã do Bosque (raízes em área) |
+
+**Efeitos de golpe** `FEITO` (combináveis, reaproveitados pelas raças novas): dano contínuo, atordoar/raízes/petrificar, medo/confusão, marca (+dano recebido, pode explodir), vulnerável, corrosão de armadura, enfraquecer (lento e menos dano ao Nexus), puxar, possuir (aliado temporário), executar, +dano contra fortes, acúmulo por abate (velocidade ou dano), roubar ouro, ouro ao abater, erguer esqueleto aliado. Padrões de ataque novos: **bênção** (aura de dano/alcance/velocidade/crítico/proteção), **golpe em área ao redor de si** e **raio que atravessa em linha**.
 
 **Depois** `PROPOSTA`: Fada (Encantadora: aura de dano/alcance; Travessa: confunde inimigos), Golem, Necromante, Medusa. Banco de 24 ideias antigas: v0.4.
 
@@ -122,6 +130,12 @@ Todos `PROPOSTA` até o playtest. Balanceados por simulação (30 runs por equip
 | Banshee | 30 | 5 | 80 | 1,2 s | Leque ±0,5 rad, empurra 22 | 70 ✦ |
 | Feiticeira | 25 | 6 | 110 | 0,8 s | Veneno 11/s por 3 s | 60 ✦ |
 | Caldeirão | 35 | 5 | 100 | 1,8 s | Poça raio 30, 16/s por 3 s | 80 ✦ |
+| Clériga | 25 | 5 | 90 | 1,0 s | Bênção raio 80: +15% dano | 70 ✦ |
+| Enxame | 30 | 6 | 95 | 1,0 s | Área raio 32 com 100% (voa) | 80 ✦ |
+| Tempestade | 30 | 9 | 105 | 1,1 s | Cadeia: 3 saltos, raio 70, 85% (voa) | 80 ✦ |
+| Uivador | 30 | 4 | 70 | 3,0 s | Uivo em área raio 70; 60% de medo por 1,5 s | 70 ✦ |
+| Possessor | 35 | 4 | 90 | 4,0 s | Possui o alvo por 4 s (chefes resistem) (voa) | 90 ✦ |
+| Herbalista | 25 | 5 | 100 | 1,1 s | 35% de prender em raízes por 1,4 s | 70 ✦ |
 
 Criaturas atacam o inimigo mais próximo do Nexus dentro do alcance.
 
@@ -141,6 +155,12 @@ Criaturas atacam o inimigo mais próximo do Nexus dentro do alcance.
 | Banshee | Banshee Ancestral: leque ±0,75 rad, empurra 34 | Arauto do Pavor: leque ±0,6 rad que assusta por 1,4 s; +30% dano |
 | Feiticeira | Arquibruxa: veneno 16/s por 4 s | Feiticeira do Caos: cadeia 3 saltos (raio 70, 85%); +140% dano, 15% mais rápida |
 | Caldeirão | Caldeirão Infernal: poça raio 40, 24/s por 4 s | Caldeirão Alquímico: poça dourada raio 32, 16/s por 3 s; +3 de ouro por inimigo que morre nela |
+| Clériga | Sacerdotisa: bênção raio 100, +25% dano e proteção (imune a teia/atordoar) | Inquisidora: sem bênção; 35% de atordoar por 1,2 s; +160% dano, +15% alcance |
+| Enxame | Nuvem Sangrenta: área raio 45; sangramento 6/s por 3 s | Revoada Faminta: +5% vel. de ataque por abate na onda (máx. +75%) |
+| Tempestade | Dragão do Trovão: 6 saltos, raio 75, 88% | Olho da Tormenta: 3 saltos; 30% de atordoar por 1 s |
+| Uivador | Uivo Lunar: raio 90; 85% de medo por 2,2 s; +20% alcance | Grito de Guerra: bênção raio 90, +35% vel. de ataque; ataca 2,5× mais rápido com o dobro de dano |
+| Possessor | Marionetista: possui 2 alvos por 4,5 s | Devorador: possui por 4 s e o possuído explode (raio 50, 60% da vida dele) |
+| Herbalista | Jardim Venenoso: 40% de raízes por 1,5 s + veneno 10/s por 3 s | Guardiã do Bosque: área raio 40 com 60%; 35% de raízes por 1,4 s |
 
 Simulação (bot, 30 runs): todas A — 11/24/25/30/30/8 vitórias; todas B — 21/27/27/30/29/9 (humanos+dragões / vampiros / lobisomens / fantasmas / bruxas / só arqueiro). As duas vertentes são viáveis.
 **Loja entre ondas:** sortear de novo custa 10 (+10 a cada uso na run); +1 vaga custa 60, dobrando a cada compra, até +3 vagas.
@@ -287,6 +307,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 06/10/2026 | Talentos 2.0: ramos em cadeia vertical com cor e ícone; ramo Nexus+ (desconto e habilidades do Nexus desde o início); Herói ganha Vigor, Renascer e Sabedoria |
 | 06/10/2026 | Vertentes de evolução: no nível 3 o jogador escolhe entre duas formas evoluídas por criatura (novas habilidades: crítico, atordoar, pavor, poça dourada) |
 | 06/10/2026 | Próximas etapas: terceira classe das raças atuais, equipe de 8 e 12 raças novas com 3 classes + herói cada (Necromante, Golem, Fada, Górgona, Demônios, Anjos, Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais) |
+| 07/10/2026 | F9: terceira classe de cada raça (Clériga, Enxame, Tempestade, Uivador, Possessor, Herbalista), sem cura do Nexus; sistema de efeitos de golpe; equipe de 8 |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.

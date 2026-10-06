@@ -88,7 +88,7 @@ export function updateNexus(state: RunState, dt: number): void {
   let target: Enemy | null = null;
   let best = bolt.range;
   for (const enemy of state.enemies) {
-    if (enemy.dead) continue;
+    if (enemy.dead || enemy.allyTimer > 0) continue;
     const d = distance(enemy, ARENA.center);
     if (d < best) {
       best = d;

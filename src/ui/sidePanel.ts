@@ -5,6 +5,7 @@ import type { Interaction } from '../input/interaction';
 import { MAX_CREATURE_LEVEL } from '../data/evolution';
 import {
   creatureAbility,
+  creatureEffects,
   creatureAttacksPerSecond,
   creatureDamage,
   creatureName,
@@ -29,7 +30,7 @@ export interface SidePanelHandlers {
   onPulse(): void;
 }
 
-/** Painel lateral: uma carta por criatura da equipe (atalhos 1–6) e o botão do Pulso. */
+/** Painel lateral: uma carta por criatura da equipe (atalhos 1–8) e o botão do Pulso. */
 export class SidePanel {
   private cards = new Map<CreatureId, Card>();
   private team: readonly CreatureId[] = [];
@@ -57,6 +58,8 @@ export class SidePanel {
     this.pulseTooltip.style.setProperty('--card-color', hero.color);
     this.cards.clear();
     this.list.innerHTML = '';
+    // equipe grande: cartas compactas em duas colunas
+    this.list.classList.toggle('compact', team.length > 5);
     team.forEach((id, index) => {
       const def = CREATURES[id];
       const root = document.createElement('div');
@@ -78,7 +81,7 @@ export class SidePanel {
           <p class="role">${def.role}</p>
           <p class="special">${def.description}</p>
           <dl>${stats}</dl>
-          <p class="special">${abilityText(def.ability)}</p>
+          <p class="special">${abilityText(def.ability, def.effects)}</p>
           ${ascendedFormsHtml(def, 'special evolves')}
           ${def.race === hero.race ? `<p class="special hero-bonus">Bônus do ${hero.name}: ${raceBonusText(hero.race, hero.raceBonus)}</p>` : ''}
         </div>`;
@@ -140,7 +143,7 @@ export class SidePanel {
         <dt>Venda</dt><dd>${gold(sellValue(creature))}</dd>
         <dt>Evoluir</dt><dd>${next === null ? 'máximo' : gold(next)}</dd>
       </dl>
-      <p class="special">${abilityText(creatureAbility(creature))}</p>
+      <p class="special">${abilityText(creatureAbility(creature), creatureEffects(creature))}</p>
       ${needsBranchChoice(creature) ? `<p class="special branch-hint">Próxima evolução: escolha a vertente no quadro sobre a criatura.</p>${ascendedFormsHtml(creature.def, 'special evolves')}` : ''}`;
     this.selectionInfo.style.setProperty('--card-color', creature.def.color);
     setHtml(this.selectionInfo, html);

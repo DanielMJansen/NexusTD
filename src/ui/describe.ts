@@ -1,12 +1,67 @@
 import { ECONOMY } from '../data/config';
-import type { AscendedForm, CreatureAbility, CreatureDef } from '../data/creatures';
+import type { AscendedForm, CreatureAbility, CreatureDef, HitEffect } from '../data/creatures';
 import { ENEMIES, type EnemyTrait } from '../data/enemies';
 import type { TalentEffectKind } from '../data/talents';
 
 export const formatNumber = (n: number): string => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
 
-/** Texto de uma habilidade, gerado a partir dos dados. */
-export function abilityText(a: CreatureAbility): string {
+const pctOf = (v: number) => `${Math.round(v * 100)}%`;
+
+/** Texto de um efeito de golpe. */
+export function hitEffectText(e: HitEffect): string {
+  switch (e.kind) {
+    case 'poison':
+      return `Dano contínuo: ${formatNumber(e.dps)}/s por ${formatNumber(e.duration)} s (ignora armadura).`;
+    case 'stun': {
+      const what = e.look === 'root' ? 'prender em raízes' : e.look === 'stone' ? 'petrificar' : 'atordoar';
+      return `${pctOf(e.chance)} de chance de ${what} por ${formatNumber(e.duration)} s (chefes resistem).`;
+    }
+    case 'fear':
+      return e.look === 'confuse'
+        ? `${pctOf(e.chance)} de chance de confundir: o inimigo anda para trás por ${formatNumber(e.duration)} s (chefes resistem).`
+        : `${pctOf(e.chance)} de chance de assustar: o inimigo foge do Nexus por ${formatNumber(e.duration)} s (chefes resistem).`;
+    case 'mark':
+      return `Marca o alvo: +${pctOf(e.amount)} de dano recebido por ${formatNumber(e.duration)} s${e.explode ? `; se morrer marcado, explode (raio ${e.explode.radius}, ${pctOf(e.explode.ratio)} da vida dele)` : ''}.`;
+    case 'vulnerable':
+      return `O alvo recebe +${pctOf(e.amount)} de dano por ${formatNumber(e.duration)} s.`;
+    case 'corrode':
+      return `Corrói ${e.armor} de armadura por ${formatNumber(e.duration)} s.`;
+    case 'weaken':
+      return `Enfraquece por ${formatNumber(e.duration)} s: ${pctOf(e.slow)} mais lento e −${pctOf(e.damage)} de dano ao Nexus.`;
+    case 'pull':
+      return `Puxa o alvo ${e.distance} na direção da criatura (chefes resistem).`;
+    case 'possess':
+      return `Possui o alvo por ${formatNumber(e.duration)} s: ele luta contra os outros inimigos${e.explode ? ` e explode no fim (raio ${e.explode.radius})` : ''} (chefes resistem).`;
+    case 'execute':
+      return `Executa inimigos comuns abaixo de ${pctOf(e.below)} de vida.`;
+    case 'vsStrong':
+      return `+${pctOf(e.bonus)} de dano contra elites e chefes.`;
+    case 'killHaste':
+      return `Cada abate: +${pctOf(e.perKill)} de velocidade de ataque até o fim da onda (máx. +${pctOf(e.max)}).`;
+    case 'killDamage':
+      return `Cada abate: +${pctOf(e.perKill)} de dano até o fim da onda (máx. +${pctOf(e.max)}).`;
+    case 'steal':
+      return `${pctOf(e.chance)} de chance de roubar ${e.gold} de ouro a cada golpe.`;
+    case 'goldOnKill':
+      return e.when === 'executed'
+        ? `Cada execução rende +${e.gold} de ouro.`
+        : e.when === 'feared'
+          ? `Inimigos confusos ou assustados que morrem rendem +${e.gold} de ouro.`
+          : `Cada abate rende +${e.gold} de ouro.`;
+    case 'raiseOnKill':
+      return `${pctOf(e.chance)} de chance de erguer um esqueleto aliado por ${formatNumber(e.duration)} s ao abater.`;
+  }
+}
+
+/** Texto de uma habilidade (e dos efeitos de golpe, se houver), gerado a partir dos dados. */
+export function abilityText(a: CreatureAbility, effects: readonly HitEffect[] = []): string {
+  const extra = effects.map(hitEffectText).join(' ');
+  if (a.kind === 'none' && extra) return extra;
+  const base = baseAbilityText(a);
+  return extra ? `${base} ${extra}` : base;
+}
+
+function baseAbilityText(a: CreatureAbility): string {
   switch (a.kind) {
     case 'frenzy':
       return `Frenesi: a cada ${a.hitsToTrigger} golpes, ${formatNumber(a.duration)} s com ×${formatNumber(a.damageMultiplier)} de dano e ataques ${formatNumber(a.attackSpeedMultiplier)}× mais rápidos.`;
@@ -45,6 +100,23 @@ export function abilityText(a: CreatureAbility): string {
       return `Pavor: ${Math.round(a.chance * 100)}% de chance de fazer o alvo fugir do Nexus por ${formatNumber(a.duration)} s (chefes resistem).`;
     case 'bounty':
       return `Alquimia: cada abate desta criatura rende +${a.gold} de ouro.`;
+    case 'bless': {
+      const parts: string[] = [];
+      if (a.damage) parts.push(`+${pctOf(a.damage)} de dano`);
+      if (a.range) parts.push(`+${pctOf(a.range)} de alcance`);
+      if (a.attackSpeed) parts.push(`+${pctOf(a.attackSpeed)} de velocidade de ataque`);
+      if (a.critDamage) parts.push(`+${formatNumber(a.critDamage)}× de dano crítico`);
+      if (a.protect) parts.push('imunidade a teia e atordoamento');
+      const allies = parts.length ? `Bênção: criaturas num raio de ${a.radius} ganham ${parts.join(', ')}.` : '';
+      const hurt = a.dps ? ` Inimigos dentro da aura sofrem ${formatNumber(a.dps)} de dano por segundo.` : '';
+      return (allies + hurt).trim();
+    }
+    case 'nova':
+      return `Golpe em área: atinge todos num raio de ${a.radius} ao redor dela.`;
+    case 'pierce':
+      return a.beams > 1
+        ? `Raio em leque: ${a.beams} raios que atravessam todos os inimigos no caminho.`
+        : 'Raio que atravessa todos os inimigos em linha.';
     case 'none':
       return 'Alvo único, alcance alto.';
   }
@@ -65,7 +137,7 @@ function formStatsText(form: AscendedForm): string {
 export function ascendedFormsHtml(def: CreatureDef, className = 'cc-ability evolved', portraits = false): string {
   return def.ascended
     .map(
-      (form, i) => `<p class="${className}">${portraits ? `<canvas class="branch-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}" style="--branch-color:${form.color}"></canvas>` : ''}<span class="branch-tag" style="--branch-color:${form.color}">${form.icon} ${i === 0 ? 'A' : 'B'}</span> Nível 3 — <b>${form.name}</b>: ${abilityText(form.ability)}${formStatsText(form)}</p>`,
+      (form, i) => `<p class="${className}">${portraits ? `<canvas class="branch-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}" style="--branch-color:${form.color}"></canvas>` : ''}<span class="branch-tag" style="--branch-color:${form.color}">${form.icon} ${i === 0 ? 'A' : 'B'}</span> Nível 3 — <b>${form.name}</b>: ${abilityText(form.ability, form.effects ?? def.effects)}${formStatsText(form)}</p>`,
     )
     .join('');
 }

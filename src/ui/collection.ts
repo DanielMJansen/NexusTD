@@ -44,7 +44,7 @@ function cardHtml(profile: Profile, def: CreatureDef): string {
       <p class="cc-desc">${def.description}</p>
       <p class="cc-lore">“${def.lore}”</p>
       <dl class="cc-stats">${stats}</dl>
-      <p class="cc-ability">${abilityText(def.ability)}</p>
+      <p class="cc-ability">${abilityText(def.ability, def.effects)}</p>
       ${ascendedFormsHtml(def)}
       <div class="cc-footer">${footer}</div>
     </div>

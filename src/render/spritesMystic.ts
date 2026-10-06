@@ -164,6 +164,67 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
   }
 }
 
+/** Uivador: lobo sentado que ergue a cabeça e uiva. A: Uivo Lunar (pelo prateado e lua); B: Grito de Guerra (pintura de guerra e chifre de osso). */
+export function drawHowler(ctx: Ctx, p: Pose): void {
+  const lunar = formA(p);
+  const war = formB(p);
+  const fur = lunar ? '#c8d0e0' : war ? '#7a5a3a' : '#8a8aa0';
+  const furDark = lunar ? '#7a84a0' : war ? '#3a2614' : '#4a4a60';
+  // uiva no ataque e, de vez em quando, sozinho
+  const howl = Math.max(p.attack, Math.max(0, Math.sin(p.time * 0.9) - 0.8) * 5);
+  if (lunar) {
+    ctx.save();
+    ctx.shadowColor = '#bfe8ff';
+    ctx.shadowBlur = 12;
+    shape(ctx, '#e8f6ff', () => {
+      ctx.arc(-9, -24, 5, 0.5, TAU - 0.5);
+      ctx.arc(-7.5, -24, 4, TAU - 0.8, 0.8, true);
+      ctx.closePath();
+    }, 0.6);
+    ctx.restore();
+  }
+  // cauda e corpo sentado
+  shape(ctx, furDark, () => {
+    ctx.moveTo(-6, 10);
+    ctx.quadraticCurveTo(-16, 12, -15, 4);
+    ctx.quadraticCurveTo(-11, 9, -5, 7);
+    ctx.closePath();
+  });
+  shape(ctx, radial(ctx, -1, 2, 11, fur, furDark), () => ellipse(ctx, -1, 3, 8, 11));
+  shape(ctx, furDark, () => ctx.roundRect(-6, 9, 5, 5, 2));
+  shape(ctx, furDark, () => ctx.roundRect(2, 9, 5, 5, 2));
+  shape(ctx, fur, () => ellipse(ctx, 3, 0, 3.5, 7, 0.2), 1);
+  if (war) {
+    // pintura de guerra e chifre de osso pendurado
+    ctx.strokeStyle = '#d0302a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(-4, -3);
+    ctx.lineTo(0, 1);
+    ctx.moveTo(-4, 1);
+    ctx.lineTo(0, 5);
+    ctx.stroke();
+    shape(ctx, '#f4ecd8', () => {
+      ctx.moveTo(-8, 4);
+      ctx.quadraticCurveTo(-12, 8, -9, 12);
+      ctx.lineTo(-7, 11);
+      ctx.quadraticCurveTo(-9, 8, -6, 5);
+      ctx.closePath();
+    }, 0.8);
+  }
+  wolfHead(ctx, -15, fur, furDark, war ? '#ff3a1a' : lunar ? '#9fdcff' : '#ffd23a', Math.min(1, howl), 0);
+  if (howl > 0.3) {
+    // ondas do uivo
+    ctx.strokeStyle = war ? '#ff8a5a88' : '#cfe0ff88';
+    ctx.lineWidth = 1;
+    for (const r of [5, 9]) {
+      ctx.beginPath();
+      ctx.arc(10, -26, r * howl, -1.2, 0.2);
+      ctx.stroke();
+    }
+  }
+}
+
 /** Herói Licantropo: lobisomem de pé, com capa vermelha e braçadeiras de couro. */
 export function drawLycan(ctx: Ctx, p: Pose): void {
   const step = walk(p, 13);

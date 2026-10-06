@@ -50,7 +50,7 @@ function showStarterConfirm(profile: Profile, id: CreatureId, onPick: (id: Creat
       <p class="subtitle">${def.role}</p>
       <p>${def.description}</p>
       <dl class="cc-stats">${stats}<dt>Custo por unidade</dt><dd>${gold(def.baseCost)}</dd></dl>
-      <p class="cc-ability">${abilityText(def.ability)}</p>
+      <p class="cc-ability">${abilityText(def.ability, def.effects)}</p>
       ${ascendedFormsHtml(def, undefined, true)}
       <div class="row-buttons">
         <button data-action="back">← Ver outras</button>

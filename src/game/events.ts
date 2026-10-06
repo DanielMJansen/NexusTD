@@ -31,6 +31,15 @@ export type GameEvent =
   /** Golpe direto num inimigo (números de dano). */
   | { type: 'enemyDamaged'; x: number; y: number; amount: number; crit?: boolean }
   | { type: 'nexusHealed'; amount: number }
+  /** Inimigo possuído ou esqueleto erguido como aliado temporário. */
+  | { type: 'possessed'; x: number; y: number }
+  | { type: 'allyFaded'; x: number; y: number }
+  | { type: 'executed'; x: number; y: number }
+  | { type: 'explosion'; x: number; y: number; radius: number }
+  /** Golpe em área ao redor de uma criatura (Uivador, Magma...). */
+  | { type: 'nova'; source: CreatureId; x: number; y: number; radius: number }
+  /** Raio que atravessa em linha (Cristal, Valquíria...). */
+  | { type: 'beam'; source: CreatureId; from: Point; to: Point; width: number }
   /** Ouro extra de um abate do Caldeirão Alquímico. */
   | { type: 'bountyGold'; x: number; y: number; gold: number }
   | { type: 'bossSpawned'; enemy: EnemyId }

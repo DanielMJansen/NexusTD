@@ -51,6 +51,30 @@ export interface Enemy extends Point {
   fearTimer: number;
   /** Atordoado/congelado: não anda enquanto o tempo durar. */
   stunTimer: number;
+  /** Visual do atordoamento (estrelas, raízes ou pedra) e do medo (medo ou confusão). */
+  stunLook: 'stun' | 'root' | 'stone';
+  fearLook: 'fear' | 'confuse';
+  /** Marca: recebe +markAmount de dano; pode explodir ao morrer. */
+  markTimer: number;
+  markAmount: number;
+  markExplode: { radius: number; ratio: number } | null;
+  /** Vulnerável: recebe +vulnAmount de dano. */
+  vulnTimer: number;
+  vulnAmount: number;
+  /** Corrosão: armadura a menos. */
+  corrodeTimer: number;
+  corrodeAmount: number;
+  /** Enfraquecido: mais lento e com menos dano ao Nexus. */
+  weakenTimer: number;
+  weakenSlow: number;
+  weakenDamage: number;
+  /** Aliado temporário (possuído ou erguido): luta contra os outros inimigos enquanto durar. */
+  allyTimer: number;
+  allyExplode: { radius: number; ratio: number } | null;
+  /** Esqueleto erguido por nós: some ao fim, sem recompensa. */
+  summonedAlly: boolean;
+  /** Morreu executado (Ceifador). */
+  executed: boolean;
   dead: boolean;
 }
 
@@ -70,6 +94,13 @@ export interface Creature extends Point {
   branch: number;
   /** Bônus de velocidade de ataque recebido de auras neste quadro. */
   auraBonus: number;
+  /** Bênçãos recebidas neste quadro (dano, alcance, dano crítico) e proteção contra teia/atordoamento. */
+  blessDamage: number;
+  blessRange: number;
+  blessCrit: number;
+  protected: boolean;
+  /** Abates nesta onda (efeitos que acumulam por abate). */
+  killStacks: number;
   /** Dicas visuais: lado para onde olha (1 direita, -1 esquerda) e momento do último ataque. */
   facing: 1 | -1;
   lastAttackAt: number;
@@ -162,7 +193,7 @@ export type Phase = 'playing' | 'choosing' | 'ended';
 export interface RunSetup {
   /** Soma dos talentos comprados. */
   talents: TalentBonuses;
-  /** Equipe da run: criaturas disponíveis, na ordem dos atalhos 1–6. */
+  /** Equipe da run: criaturas disponíveis, na ordem dos atalhos 1–8. */
   team: readonly CreatureId[];
   hero: HeroId;
   /** Cores da skin do herói (só visual). */

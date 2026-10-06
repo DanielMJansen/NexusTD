@@ -1,6 +1,7 @@
 import { ARENA, NEXUS } from '../data/config';
 import type { EnemyTrait } from '../data/enemies';
 import { damageHero } from './hero';
+import { updateAlly, updateStatusTimers } from './hitEffects';
 import { damageNexus, nexusSlowFactor } from './nexus';
 import { spawnEnemyAt } from './spawning';
 import { distance, type Enemy, type RunState } from './state';
@@ -13,7 +14,7 @@ const findTrait = <K extends EnemyTrait['kind']>(enemy: Enemy, kind: K) =>
 /** Armadura atual (Gárgula pousada como pedra ganha armadura extra). */
 export function enemyArmor(enemy: Enemy): number {
   const stone = enemy.stone ? findTrait(enemy, 'stone') : undefined;
-  return enemy.def.armor + (stone?.armor ?? 0);
+  return Math.max(0, enemy.def.armor + (stone?.armor ?? 0) - enemy.corrodeAmount);
 }
 
 /** Fração do dano que passa pelo escudo do Lich (1 = sem escudo). */
@@ -136,12 +137,17 @@ export function updateEnemies(state: RunState, dt: number): void {
   for (let n = 0; n < count; n++) {
     const enemy = state.enemies[n]!;
     if (enemy.dead) continue;
+    updateStatusTimers(enemy, dt);
+    if (enemy.allyTimer > 0) {
+      updateAlly(state, enemy, dt);
+      continue;
+    }
     const pace = useTraits(state, enemy, dt);
     enemy.slowTimer -= dt;
     const charge = enemy.charging > 0 ? findTrait(enemy, 'charge') : undefined;
     const enrage = enemy.enraged ? findTrait(enemy, 'enrage') : undefined;
     const speedFactor =
-      (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace * nexusSlowFactor(state, enemy);
+      (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace * nexusSlowFactor(state, enemy) * (1 - enemy.weakenSlow);
     const dx = center.x - enemy.x;
     const dy = center.y - enemy.y;
     const length = Math.hypot(dx, dy);
@@ -159,7 +165,7 @@ export function updateEnemies(state: RunState, dt: number): void {
     }
     if (enemy.held || pace === 0) continue;
     if (length < NEXUS.contactRadius) {
-      damageNexus(state, enemy.nexusDamage);
+      damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
       enemy.dead = true;
       continue;
     }

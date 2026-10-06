@@ -1,4 +1,4 @@
-import type { AscendedForm, CreatureAbility } from '../data/creatures';
+import type { AscendedForm, CreatureAbility, HitEffect } from '../data/creatures';
 import { EVOLUTION_LEVELS, MAX_CREATURE_LEVEL, type EvolutionLevel } from '../data/evolution';
 import type { Creature, Modifiers } from './state';
 
@@ -16,6 +16,16 @@ export const creatureAbility = (creature: Creature): CreatureAbility => ascended
 
 export const creatureName = (creature: Creature): string => ascendedForm(creature)?.name ?? creature.def.name;
 
+/** Efeitos de golpe ativos: os da vertente, se ela definir, senão os da forma base. */
+export const creatureEffects = (creature: Creature): readonly HitEffect[] =>
+  ascendedForm(creature)?.effects ?? creature.def.effects ?? [];
+
+/** Aceleração acumulada por abates nesta onda (Revoada Faminta). */
+export function killHaste(creature: Creature): number {
+  const haste = creatureEffects(creature).find((e) => e.kind === 'killHaste');
+  return haste?.kind === 'killHaste' ? Math.min(haste.max, haste.perKill * creature.killStacks) : 0;
+}
+
 /** Segundos entre ataques (algumas vertentes atacam mais devagar ou mais rápido). */
 export const creatureCooldown = (creature: Creature): number =>
   creature.def.cooldown * (ascendedForm(creature)?.stats?.cooldown ?? 1);
@@ -31,17 +41,20 @@ export const creatureDamage = (creature: Creature, modifiers: Modifiers): number
   levelInfo(creature).damage *
   (ascendedForm(creature)?.stats?.damage ?? 1) *
   modifiers.damage *
+  (1 + creature.blessDamage) *
   (1 + raceBonusValue(creature, modifiers, 'damage') + (modifiers.raceDamage[creature.def.race] ?? 0));
 
-/** Ataques por segundo com melhorias, bônus de raça e aura (sem frenesi). */
+/** Ataques por segundo com melhorias, bônus de raça, auras e abates acumulados (sem frenesi). */
 export function creatureAttacksPerSecond(creature: Creature, modifiers: Modifiers): number {
   const { race, bonus } = modifiers.raceBonus;
   const raceSpeed = bonus.kind === 'attackSpeed' && creature.def.race === race ? bonus.value : 0;
-  return (modifiers.attackSpeed * (1 + raceSpeed + creature.auraBonus)) / creatureCooldown(creature);
+  return (modifiers.attackSpeed * (1 + raceSpeed + creature.auraBonus + killHaste(creature))) / creatureCooldown(creature);
 }
 
 export const creatureRange = (creature: Creature, modifiers: Modifiers): number =>
   creature.def.range *
   levelInfo(creature).range *
   (ascendedForm(creature)?.stats?.range ?? 1) *
-  modifiers.range * (1 + raceBonusValue(creature, modifiers, 'range'));
+  modifiers.range *
+  (1 + creature.blessRange) *
+  (1 + raceBonusValue(creature, modifiers, 'range'));

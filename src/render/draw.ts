@@ -117,8 +117,14 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     ctx.shadowColor = '#7fd8ff';
     ctx.shadowBlur = 12;
   }
+  if (enemy.allyTimer > 0) {
+    // aliado temporário: brilho verde-espectral
+    ctx.shadowColor = '#7affb0';
+    ctx.shadowBlur = 10;
+  }
   const filters: string[] = [];
-  if (enemy.stone) filters.push('grayscale(0.8) brightness(0.9)');
+  if (enemy.stone || (enemy.stunTimer > 0 && enemy.stunLook === 'stone')) filters.push('grayscale(0.85) brightness(0.9)');
+  if (enemy.allyTimer > 0) filters.push('hue-rotate(90deg) saturate(0.7)');
   if (state.time - enemy.lastHitAt < HIT_FLASH) filters.push('brightness(2.4) saturate(0.4)');
   if (filters.length) ctx.filter = filters.join(' ');
   drawSprite(ctx, enemy.def.id, enemy.x, enemy.y, scale, {
@@ -156,7 +162,18 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     }
     ctx.globalAlpha = 1;
   }
-  if (enemy.stunTimer > 0) drawStunStars(ctx, enemy.x, enemy.y - 24 * scale, time);
+  if (enemy.stunTimer > 0 && enemy.stunLook === 'stun') drawStunStars(ctx, enemy.x, enemy.y - 24 * scale, time);
+  if (enemy.stunTimer > 0 && enemy.stunLook === 'root') drawRoots(ctx, enemy.x, enemy.y + 12 * scale, scale);
+  if (enemy.markTimer > 0) drawMark(ctx, enemy.x, enemy.y - 6 * scale, 10 * scale, time);
+  if (enemy.corrodeTimer > 0) drawDrips(ctx, enemy.x, enemy.y - 4 * scale, scale, time, '#9aff3a');
+  if (enemy.weakenTimer > 0) drawDrips(ctx, enemy.x, enemy.y - 4 * scale, scale, time, '#8a5aff');
+  if (enemy.allyTimer > 0) {
+    ctx.strokeStyle = '#9affc8';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(enemy.x, enemy.y - 24 * scale, 5 * scale, 1.6 * scale, 0, 0, TAU);
+    ctx.stroke();
+  }
   if (enemy.fearTimer > 0) {
     ctx.font = '700 11px Cinzel, Georgia, serif';
     ctx.textAlign = 'center';
@@ -164,8 +181,9 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     ctx.fillStyle = '#e8c890';
     ctx.strokeStyle = '#0a0612';
     ctx.lineWidth = 2.5;
-    ctx.strokeText('!', enemy.x, enemy.y - 30 * scale);
-    ctx.fillText('!', enemy.x, enemy.y - 30 * scale);
+    const mark = enemy.fearLook === 'confuse' ? '?' : '!';
+    ctx.strokeText(mark, enemy.x, enemy.y - 30 * scale);
+    ctx.fillText(mark, enemy.x, enemy.y - 30 * scale);
   }
   if (enemy.slowTimer > 0) {
     ctx.fillStyle = '#bff0ff';
@@ -192,8 +210,8 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
 }
 
 function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: Creature, time: number): void {
-  const dragon = creature.def.id === 'fireDragon' || creature.def.id === 'iceDragon';
-  const flying = dragon || creature.def.id === 'haunt' || creature.def.id === 'banshee';
+  const dragon = creature.def.id === 'fireDragon' || creature.def.id === 'iceDragon' || creature.def.id === 'storm';
+  const flying = dragon || creature.def.flying || creature.def.id === 'haunt' || creature.def.id === 'banshee';
   const hover = dragon ? -5 + Math.sin(time * 3 + creature.x) * 2 : 0;
   drawShadow(ctx, creature.x, creature.y + 14, flying ? 9 : 11);
 
@@ -279,6 +297,54 @@ function drawWeb(ctx: CanvasRenderingContext2D, x: number, y: number, alpha: num
   }
   ctx.stroke();
   ctx.restore();
+}
+
+/** Raízes enroladas nos pés (preso pela Herbalista). */
+function drawRoots(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number): void {
+  ctx.strokeStyle = '#4a8a3a';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = -1; i <= 1; i++) {
+    ctx.moveTo(x + i * 5 * scale, y + 2);
+    ctx.quadraticCurveTo(x + i * 8 * scale, y - 6 * scale, x + i * 2 * scale, y - 10 * scale);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#7ad85a';
+  ctx.beginPath();
+  ctx.ellipse(x - 4 * scale, y - 8 * scale, 1.8, 1, 0.6, 0, TAU);
+  ctx.ellipse(x + 3 * scale, y - 9 * scale, 1.8, 1, -0.6, 0, TAU);
+  ctx.fill();
+}
+
+/** Mira dourada girando: inimigo marcado (recebe mais dano). */
+function drawMark(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, time: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(time * 1.5);
+  ctx.strokeStyle = '#ffd25acc';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, TAU);
+  for (let i = 0; i < 4; i++) {
+    const a = (i * TAU) / 4;
+    ctx.moveTo(Math.cos(a) * (r - 3), Math.sin(a) * (r - 3));
+    ctx.lineTo(Math.cos(a) * (r + 3), Math.sin(a) * (r + 3));
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Gotas escorrendo (corrosão verde, enfraquecimento roxo). */
+function drawDrips(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string): void {
+  ctx.fillStyle = color;
+  for (let i = 0; i < 3; i++) {
+    const ph = (time * 1.2 + i / 3) % 1;
+    ctx.globalAlpha = 1 - ph;
+    ctx.beginPath();
+    ctx.arc(x + (i - 1) * 5 * scale, y + ph * 12 * scale, 1.2, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
 }
 
 /** Estrelinhas girando: criatura atordoada. */

@@ -62,6 +62,7 @@ export function buildWaveQueue(wave: number): EnemyId[] {
 
 export function startWave(state: RunState): void {
   state.wave++;
+  for (const creature of state.creatures) creature.killStacks = 0;
   state.spawnQueue = buildWaveQueue(state.wave);
   state.spawnTimer = 0;
   state.phase = 'playing';
@@ -115,6 +116,22 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
     poisonDps: 0,
     fearTimer: 0,
     stunTimer: 0,
+    stunLook: 'stun',
+    fearLook: 'fear',
+    markTimer: 0,
+    markAmount: 0,
+    markExplode: null,
+    vulnTimer: 0,
+    vulnAmount: 0,
+    corrodeTimer: 0,
+    corrodeAmount: 0,
+    weakenTimer: 0,
+    weakenSlow: 0,
+    weakenDamage: 0,
+    allyTimer: 0,
+    allyExplode: null,
+    summonedAlly: false,
+    executed: false,
     // primeira recarga sorteada para os inimigos não agirem em sincronia
     timers: def.traits.map(() => 1 + random() * 2),
     charging: 0,

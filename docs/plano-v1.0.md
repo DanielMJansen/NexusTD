@@ -106,7 +106,7 @@ Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de le
 Como no Kingdom Rush / Bloons TD 6: níveis 1 e 2 lineares; no **nível 3 o jogador escolhe uma de duas formas evoluídas**, cada uma com nome, habilidade e visual próprios. Feito antes das raças novas para que elas já nasçam com vertentes.
 - **Feito:** 24 formas (tabela no GDD, seção 9), botões das duas vertentes sobre a criatura no nível 2, painel lateral explica as duas, aura e emblema na cor da vertente. Habilidades novas: crítico, atordoar, pavor (inclusive em leque) e poça dourada. Cada vertente tem visual próprio (paleta e acessórios): ex. Atirador de Elite com capuz carmesim e lente, Martelo Sagrado branco e azul com martelo, Wyrm Infernal negro com lava, Dragão Congelante branco com espinhos de gelo, Arauto do Pavor violeta com chifres, Caldeirão Alquímico dourado com moedas.
 
-### F9. Terceira classe das raças atuais `[ ]`
+### F9. Terceira classe das raças atuais `[x]`
 | Raça | Classe nova | Ideia |
 |---|---|---|
 | Humano | Clériga | Cura o Nexus e dá escudo temporário às criaturas próximas |
@@ -117,6 +117,7 @@ Como no Kingdom Rush / Bloons TD 6: níveis 1 e 2 lineares; no **nível 3 o joga
 | Bruxa | Herbalista | Plantas que prendem inimigos (enraizar) |
 
 Equipe passa de 6 para **8 vagas** (atalhos 1–8).
+- **Feito** (versão aprovada em 07/10, sem cura do Nexus): ver `docs/proposta-f9-f10.md`. Entrou o sistema de **efeitos de golpe** e os padrões bênção, área ao redor de si e raio em linha, que as raças do F10 reaproveitam. Painel com cartas compactas em duas colunas a partir de 6 criaturas. Calibragem fina fica para a recalibragem completa depois do F10.
 
 ### F10+. Raças novas `[ ]` (3 classes + herói cada, com vertentes)
 Decisão de 06/10/2026: entram **Necromante, Golem, Fada, Górgona, Demônios, Anjos, Zumbis, Unicórnio, Sereia, Centauro, Goblin e Elementais** — 12 raças, 48 personagens. Feitas em lotes de 2 raças por etapa (cada lote com commit, arte, dados, herói e calibragem). Ideias iniciais (`PROPOSTA`, revisar antes de cada lote):

@@ -28,6 +28,7 @@ import {
   drawBanshee,
   drawCauldron,
   drawHaunt,
+  drawHowler,
   drawHunter,
   drawLycan,
   drawSorceress,
@@ -44,6 +45,7 @@ import {
   drawSlime,
   drawSpider,
 } from './spritesEnemies';
+import { drawBatSwarm, drawCleric, drawHerbalist, drawPossessor } from './spritesClasses';
 
 export type SpriteId = HeroId | CreatureId | EnemyId;
 export type { SpritePose };
@@ -113,6 +115,24 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'iceDragon':
       drawDragon(ctx, p, formB(p) ? FROZEN_DRAGON : ICE_DRAGON);
+      break;
+    case 'storm':
+      drawDragon(ctx, p, formB(p) ? TEMPEST_DRAGON : formA(p) ? THUNDER_DRAGON : STORM_DRAGON);
+      break;
+    case 'howler':
+      drawHowler(ctx, p);
+      break;
+    case 'cleric':
+      drawCleric(ctx, p);
+      break;
+    case 'batSwarm':
+      drawBatSwarm(ctx, p);
+      break;
+    case 'possessor':
+      drawPossessor(ctx, p);
+      break;
+    case 'herbalist':
+      drawHerbalist(ctx, p);
       break;
     case 'zombie':
       drawZombie(ctx, p);
@@ -681,6 +701,10 @@ interface DragonPalette {
   lava?: boolean;
   /** Espinhos de gelo nas costas (Dragão Congelante). */
   spikes?: boolean;
+  /** Faíscas de raio em volta do corpo (Tempestade). */
+  bolts?: boolean;
+  /** Nuvens girando sob o dragão (Olho da Tormenta). */
+  clouds?: boolean;
 }
 
 const FIRE_DRAGON: DragonPalette = {
@@ -735,6 +759,26 @@ const FROZEN_DRAGON: DragonPalette = {
   spikes: true,
 };
 
+/** Tempestade: dragão de nuvem azul-violeta com faíscas. */
+const STORM_DRAGON: DragonPalette = {
+  body: '#7a8ad8',
+  bodyDark: '#3a4290',
+  belly: '#dce4ff',
+  wing: '#4a5ab0',
+  membrane: '#aab8ff',
+  horn: '#e8f0ff',
+  iris: '#ffe060',
+  breath: '#fff6a0',
+  crest: false,
+  bolts: true,
+};
+
+/** Dragão do Trovão (Tempestade A): escuro com raios amarelos. */
+const THUNDER_DRAGON: DragonPalette = { ...STORM_DRAGON, body: '#4a4a8a', bodyDark: '#1e1e48', wing: '#2a2a60', membrane: '#7a7ad0', belly: '#ffe9a0' };
+
+/** Olho da Tormenta (Tempestade B): azul-céu com nuvens girando. */
+const TEMPEST_DRAGON: DragonPalette = { ...STORM_DRAGON, body: '#6aa8e0', bodyDark: '#2a5a90', wing: '#3a78b8', membrane: '#cfeaff', iris: '#bfeaff', breath: '#e8fbff', clouds: true };
+
 function dragonWing(ctx: Ctx, c: DragonPalette, flap: number, front: boolean): void {
   const tipY = -22 + flap * 6;
   const dark = front ? c.wing : c.bodyDark;
@@ -780,6 +824,37 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     ctx.moveTo(-1, y);
     ctx.quadraticCurveTo(2.5, y + 1.2, 6.5, y);
     ctx.stroke();
+  }
+  if (c.clouds) {
+    // nuvens girando sob o corpo
+    ctx.fillStyle = '#e8f4ffcc';
+    for (let i = 0; i < 4; i++) {
+      const a = p.time * 1.5 + (i * TAU) / 4;
+      ctx.beginPath();
+      circle(ctx, Math.cos(a) * 12, 12 + Math.sin(a) * 2.5, 3.2);
+      ctx.fill();
+    }
+  }
+  if (c.bolts) {
+    // faíscas de raio piscando em volta do corpo
+    ctx.save();
+    ctx.strokeStyle = '#fff6a0';
+    ctx.shadowColor = '#fff6a0';
+    ctx.shadowBlur = 6;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 2; i++) {
+      if (Math.sin(p.time * 9 + i * 3) < 0.2) continue;
+      const a = p.time * 2 + i * Math.PI;
+      const x = Math.cos(a) * 11;
+      const y = -2 + Math.sin(a) * 8;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 4);
+      ctx.lineTo(x + 2, y - 1);
+      ctx.lineTo(x - 1, y + 1);
+      ctx.lineTo(x + 1.5, y + 4);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
   if (c.lava) {
     // rachaduras de lava pulsando

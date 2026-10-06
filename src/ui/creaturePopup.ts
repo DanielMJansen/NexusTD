@@ -4,6 +4,7 @@ import {
   ascendedForm,
   creatureAbility,
   creatureAttacksPerSecond,
+  creatureEffects,
   creatureDamage,
   creatureName,
   creatureRange,
@@ -115,7 +116,7 @@ export class CreaturePopup {
           return `<div class="cp-branch" data-branch-card="${i}" style="--branch-color:${f.color}">
             <div class="cp-branch-head"><span class="branch-tag">${f.icon} ${i === 0 ? 'A' : 'B'}</span><b>${f.name}</b></div>
             <p class="cp-branch-desc">${f.description}</p>
-            <p class="cp-ability">${abilityText(f.ability)}</p>
+            <p class="cp-ability">${abilityText(f.ability, f.effects ?? creature.def.effects)}</p>
             ${deltaRows(now, next)}
             <button type="button" data-action="evolve" data-branch="${i}"${affordable ? '' : ' disabled'}>Escolher ${evolveLabel(cost)}</button>
           </div>`;
@@ -137,7 +138,7 @@ export class CreaturePopup {
         <dt>Ataques/s</dt><dd>${round2(now.speed)}${creature.auraBonus > 0 ? ' <small>(aura)</small>' : ''}</dd>
         <dt>Alcance</dt><dd>${Math.round(now.range)}</dd>
       </dl>
-      <p class="cp-ability">${abilityText(creatureAbility(creature))}</p>
+      <p class="cp-ability">${abilityText(creatureAbility(creature), creatureEffects(creature))}</p>
       ${evolve}
       <button type="button" class="cp-sell${armed ? ' armed' : ''}" data-action="sell">${armed ? 'Confirmar venda' : 'Vender'} +${gold(sellValue(creature))}</button>`;
   }

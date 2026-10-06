@@ -84,6 +84,16 @@ interface FloatingText extends Point {
   size: number;
 }
 
+/** Raio em linha de uma criatura (Cristal, Valquíria...). */
+interface Beam {
+  from: Point;
+  to: Point;
+  width: number;
+  color: string;
+  life: number;
+  maxLife: number;
+}
+
 /** Raio do Nexus: zigue-zague curto do cristal até o alvo. */
 interface Bolt {
   from: Point;
@@ -113,6 +123,7 @@ export class Effects {
   private texts: FloatingText[] = [];
   private banners: Banner[] = [];
   private bolts: Bolt[] = [];
+  private beams: Beam[] = [];
   private shake = 0;
   /** 1 logo após o Nexus levar dano, caindo até 0. */
   nexusHurt = 0;
@@ -128,6 +139,7 @@ export class Effects {
     this.texts = [];
     this.banners = [];
     this.bolts = [];
+    this.beams = [];
     this.shake = 0;
     this.nexusHurt = 0;
   }
@@ -230,6 +242,31 @@ export class Effects {
       case 'bountyGold':
         this.text(event.x + 8, event.y - 28, `+${event.gold}`, '#ffe9a8', 9);
         this.burst(event.x, event.y - 6, 6, GOLD, 60, 0.5, 2, true, -40);
+        break;
+      case 'nova': {
+        const color = CREATURES[event.source].color;
+        this.ring(event.x, event.y + 4, event.radius, color, 0.45, 3);
+        this.burst(event.x, event.y, 10, color, 60, 0.4, 2, true);
+        break;
+      }
+      case 'beam':
+        this.beams.push({ ...event, color: CREATURES[event.source].color, life: 0.22, maxLife: 0.22 });
+        break;
+      case 'explosion':
+        this.ring(event.x, event.y, event.radius, '#ff8a3a', 0.4, 4);
+        this.burst(event.x, event.y, 18, '#ffb040', 110, 0.5, 2.6, true);
+        this.shake = Math.max(this.shake, 3);
+        break;
+      case 'possessed':
+        this.ring(event.x, event.y, 16, '#b88aff', 0.4, 2.5);
+        this.burst(event.x, event.y - 6, 10, '#d8b8ff', 50, 0.6, 2, true, -30);
+        break;
+      case 'allyFaded':
+        this.burst(event.x, event.y - 6, 8, '#e8f0c8', 40, 0.5, 2, false, -20);
+        break;
+      case 'executed':
+        this.text(event.x, event.y - 24, 'Executado!', '#ff5a6a', 10);
+        this.burst(event.x, event.y - 6, 10, '#ff3a4a', 80, 0.4, 2, true);
         break;
       case 'heroDied':
         this.burst(event.x, event.y - 8, 18, '#ff5a6a', 90, 0.6, 2.6, true);
@@ -392,6 +429,8 @@ export class Effects {
     this.rings = this.rings.filter((r) => r.life > 0);
     for (const w of this.waves) w.life -= dt;
     this.waves = this.waves.filter((w) => w.life > 0);
+    for (const b of this.beams) b.life -= dt;
+    this.beams = this.beams.filter((b) => b.life > 0);
     for (const b of this.bolts) b.life -= dt;
     this.bolts = this.bolts.filter((b) => b.life > 0);
     for (const c of this.corpses) c.life -= dt;
@@ -416,6 +455,7 @@ export class Effects {
   /** Efeitos no mundo (projéteis, partículas, anéis, cadáveres, números). */
   drawWorld(ctx: CanvasRenderingContext2D, time: number): void {
     for (const bolt of this.bolts) drawBolt(ctx, bolt);
+    for (const beam of this.beams) drawBeam(ctx, beam);
     for (const c of this.corpses) {
       const fade = c.life / c.maxLife;
       const def = ENEMIES[c.enemy];
@@ -743,7 +783,51 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       break;
     }
     case 'banshee':
+    case 'howler':
       break;
+    case 'cleric':
+    case 'possessor':
+    case 'herbalist': {
+      const color = shot.source === 'cleric' ? '#fff0b0' : shot.source === 'possessor' ? '#c8a8ff' : '#9aff8a';
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, 6);
+      glow.addColorStop(0, '#ffffff');
+      glow.addColorStop(0.4, color);
+      glow.addColorStop(1, '#00000000');
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, 6, 0, TAU);
+      ctx.fill();
+      break;
+    }
+    case 'batSwarm':
+      // três morcegos minúsculos voando até o alvo
+      ctx.fillStyle = '#5a2a6a';
+      for (let i = 0; i < 3; i++) {
+        const ox = Math.sin(progress * 12 + i * 2) * 4;
+        const oy = Math.cos(progress * 10 + i * 2) * 3;
+        ctx.beginPath();
+        ctx.ellipse(x + ox, y + oy, 2.6, 1.2, 0, 0, TAU);
+        ctx.fill();
+      }
+      break;
+    case 'storm': {
+      // raio em zigue-zague da origem até o alvo
+      ctx.strokeStyle = '#fff6a0';
+      ctx.shadowColor = '#fff6a0';
+      ctx.shadowBlur = 8;
+      ctx.lineWidth = 1.6;
+      ctx.globalAlpha = 1 - progress;
+      ctx.beginPath();
+      ctx.moveTo(shot.from.x, shot.from.y - 6);
+      for (let i = 1; i < 5; i++) {
+        const t = i / 5;
+        ctx.lineTo(shot.from.x + (shot.to.x - shot.from.x) * t + Math.sin(i * 7.1 + shot.duration) * 4, shot.from.y - 6 + (shot.to.y - shot.from.y + 6) * t + Math.cos(i * 5.3) * 4);
+      }
+      ctx.lineTo(shot.to.x, shot.to.y);
+      ctx.stroke();
+      break;
+    }
     case 'enemyArrow':
       ctx.translate(x, y);
       ctx.rotate(angle);
@@ -832,6 +916,26 @@ function drawBolt(ctx: CanvasRenderingContext2D, bolt: Bolt): void {
       ctx.lineTo(bolt.from.x + (bolt.to.x - bolt.from.x) * t + jitter, bolt.from.y + (bolt.to.y - bolt.from.y) * t + jitter * 0.6);
     }
     ctx.lineTo(bolt.to.x, bolt.to.y);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawBeam(ctx: CanvasRenderingContext2D, beam: Beam): void {
+  const alpha = beam.life / beam.maxLife;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round';
+  for (const [width, color] of [
+    [beam.width, beam.color + '55'],
+    [Math.max(1.5, beam.width * 0.35), '#ffffff'],
+  ] as const) {
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(beam.from.x, beam.from.y - 6);
+    ctx.lineTo(beam.to.x, beam.to.y - 6);
     ctx.stroke();
   }
   ctx.restore();

@@ -10,6 +10,7 @@ export type EnemyId =
   | 'headless'
   | 'darkBanshee'
   | 'necromancer'
+  | 'boneWarrior'
   | 'ogreKing'
   | 'spiderQueen'
   | 'lich';
@@ -255,6 +256,21 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     xp: 8,
     armor: 1,
     traits: [{ kind: 'summon', enemy: 'zombie', count: 2, cooldown: 6 }],
+  },
+  boneWarrior: {
+    ...base,
+    id: 'boneWarrior',
+    name: 'Esqueleto Aliado',
+    description: 'Erguido pelos nossos mortos: luta contra os inimigos por alguns segundos.',
+    hp: 40,
+    speed: 45,
+    radius: 7,
+    color: '#e8f0c8',
+    nexusDamage: 0,
+    heroDps: 12,
+    gold: 0,
+    xp: 0,
+    minion: true,
   },
   ogreKing: {
     ...base,

@@ -93,6 +93,16 @@ export class SoundPlayer {
       case 'enemyKilled':
         this.playKill();
         break;
+      case 'nova':
+      case 'beam':
+        this.play(event.source);
+        break;
+      case 'explosion':
+        this.play('stomp');
+        break;
+      case 'possessed':
+        this.play('summon');
+        break;
       case 'pulse':
         this.play('pulse');
         break;
