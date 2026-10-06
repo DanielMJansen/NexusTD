@@ -39,11 +39,32 @@ export type CreatureAbility =
   /** Ignora a armadura; dano extra (fração) contra inimigos com armadura. */
   | { kind: 'pierceArmor'; bonusVsArmored: number }
   /** Grito em leque na direção do alvo: atinge todos e empurra para longe do Nexus. */
-  | { kind: 'screech'; halfAngle: number; push: number }
+  | { kind: 'screech'; halfAngle: number; push: number; fear?: number }
   /** Envenena o alvo: dano por segundo durante um tempo. */
   | { kind: 'poison'; dps: number; duration: number }
   /** Cria uma poça no chão onde o alvo está: dano por segundo em quem estiver dentro. */
-  | { kind: 'pool'; radius: number; duration: number; dps: number };
+  | { kind: 'pool'; radius: number; duration: number; dps: number; bounty?: number }
+  /** Chance extra de golpe crítico, com multiplicador próprio. */
+  | { kind: 'crit'; chance: number; multiplier: number }
+  /** Chance de atordoar o alvo (para de andar; chefes resistem). */
+  | { kind: 'stun'; chance: number; duration: number }
+  /** Chance de assustar o alvo (foge do Nexus; chefes resistem). */
+  | { kind: 'fear'; chance: number; duration: number }
+  /** Cada abate desta criatura rende ouro extra. */
+  | { kind: 'bounty'; gold: number };
+
+/** Uma das duas formas evoluídas (vertentes) do nível máximo. */
+export interface AscendedForm {
+  name: string;
+  /** Resumo da vertente na escolha. */
+  description: string;
+  ability: CreatureAbility;
+  /** Multiplicadores extras de atributo desta vertente. */
+  stats?: { damage?: number; range?: number; cooldown?: number };
+  /** Cor da aura e do emblema da vertente. */
+  color: string;
+  icon: string;
+}
 
 export type CreatureUnlock = { kind: 'start' } | { kind: 'essence'; cost: number };
 
@@ -67,8 +88,8 @@ export interface CreatureDef {
   ability: CreatureAbility;
   /** Como começar a run com ela: já liberada ou comprada com Essência. */
   unlock: CreatureUnlock;
-  /** Forma evoluída no nível máximo: novo nome e habilidade turbinada. */
-  ascended: { name: string; ability: CreatureAbility };
+  /** As duas vertentes do nível máximo (o jogador escolhe uma ao evoluir). */
+  ascended: [AscendedForm, AscendedForm];
 }
 
 // A ordem aqui é a ordem das cartas no painel (e dos atalhos 1, 2, 3...).
@@ -88,7 +109,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#8cf',
     ability: { kind: 'none' },
     unlock: { kind: 'start' },
-    ascended: { name: 'Patrulheiro', ability: { kind: 'multishot', targets: 2 } },
+    ascended: [
+      { name: 'Patrulheiro', description: 'Dispara em dois alvos de uma vez.', ability: { kind: 'multishot', targets: 2 }, color: '#ffd25a', icon: '➶' },
+      { name: 'Atirador de Elite', description: 'Mais alcance e golpes críticos devastadores, atirando mais devagar.', ability: { kind: 'crit', chance: 0.35, multiplier: 3.5 }, stats: { range: 1.3, cooldown: 1.15 }, color: '#ff7a5a', icon: '◎' },
+    ],
   },
   guard: {
     id: 'guard',
@@ -106,7 +130,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#c9d4e8',
     ability: { kind: 'block', radius: 30, capacity: 2 },
     unlock: { kind: 'essence', cost: 30 },
-    ascended: { name: 'Paladino', ability: { kind: 'block', radius: 36, capacity: 4 } },
+    ascended: [
+      { name: 'Paladino', description: 'Segura até 4 inimigos ao redor.', ability: { kind: 'block', radius: 36, capacity: 4 }, color: '#ffd25a', icon: '⛨' },
+      { name: 'Martelo Sagrado', description: 'Troca o bloqueio por golpes pesados que atordoam.', ability: { kind: 'stun', chance: 0.35, duration: 1.2 }, stats: { damage: 1.4 }, color: '#9ad8ff', icon: '⚒' },
+    ],
   },
   duelist: {
     id: 'duelist',
@@ -124,10 +151,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#e33',
     ability: { kind: 'frenzy', hitsToTrigger: 6, duration: 3, damageMultiplier: 1.5, attackSpeedMultiplier: 2 },
     unlock: { kind: 'essence', cost: 40 },
-    ascended: {
-      name: 'Conde Vampiro',
-      ability: { kind: 'frenzy', hitsToTrigger: 4, duration: 4, damageMultiplier: 1.8, attackSpeedMultiplier: 2 },
-    },
+    ascended: [
+      { name: 'Conde Vampiro', description: 'Frenesi mais frequente, longo e forte.', ability: { kind: 'frenzy', hitsToTrigger: 4, duration: 4, damageMultiplier: 1.8, attackSpeedMultiplier: 2 }, color: '#ffd25a', icon: '♛' },
+      { name: 'Lâmina Carmesim', description: 'Golpes críticos frequentes e mais rápidos, sem frenesi.', ability: { kind: 'crit', chance: 0.4, multiplier: 2.5 }, stats: { cooldown: 0.85 }, color: '#ff3a50', icon: '⚔' },
+    ],
   },
   sanguine: {
     id: 'sanguine',
@@ -144,7 +171,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#d0304a',
     ability: { kind: 'lifesteal', healPerKill: 2 },
     unlock: { kind: 'essence', cost: 50 },
-    ascended: { name: 'Lorde de Sangue', ability: { kind: 'lifesteal', healPerKill: 4 } },
+    ascended: [
+      { name: 'Lorde de Sangue', description: 'Cada abate cura 4 de vida do Nexus.', ability: { kind: 'lifesteal', healPerKill: 4 }, color: '#ffd25a', icon: '♥' },
+      { name: 'Mago de Sangue', description: 'Orbes de sangue que saltam entre inimigos.', ability: { kind: 'chain', jumps: 3, radius: 60, falloff: 0.8 }, stats: { damage: 1.5 }, color: '#c03ae0', icon: '❂' },
+    ],
   },
   fireDragon: {
     id: 'fireDragon',
@@ -161,7 +191,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#f90',
     ability: { kind: 'splash', radius: 40, damageRatio: 0.6 },
     unlock: { kind: 'essence', cost: 80 },
-    ascended: { name: 'Dragão Ancião', ability: { kind: 'splash', radius: 60, damageRatio: 0.8 } },
+    ascended: [
+      { name: 'Dragão Ancião', description: 'Explosão de fogo maior e mais forte.', ability: { kind: 'splash', radius: 60, damageRatio: 0.8 }, color: '#ffd25a', icon: '✹' },
+      { name: 'Wyrm Infernal', description: 'Deixa o chão em chamas onde o golpe cai.', ability: { kind: 'pool', radius: 34, duration: 3, dps: 20 }, color: '#ff5a1a', icon: '♨' },
+    ],
   },
   iceDragon: {
     id: 'iceDragon',
@@ -178,7 +211,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#6cf',
     ability: { kind: 'slow', speedMultiplier: 0.5, duration: 1.5 },
     unlock: { kind: 'essence', cost: 80 },
-    ascended: { name: 'Dragão Glacial', ability: { kind: 'slow', speedMultiplier: 0.35, duration: 2.5 } },
+    ascended: [
+      { name: 'Dragão Glacial', description: 'Lentidão mais forte e mais longa.', ability: { kind: 'slow', speedMultiplier: 0.35, duration: 2.5 }, color: '#ffd25a', icon: '❄' },
+      { name: 'Dragão Congelante', description: 'Chance de congelar o alvo no lugar.', ability: { kind: 'stun', chance: 0.3, duration: 1.4 }, stats: { damage: 1.3 }, color: '#bff0ff', icon: '✧' },
+    ],
   },
   hunter: {
     id: 'hunter',
@@ -195,7 +231,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#c8a070',
     ability: { kind: 'chain', jumps: 2, radius: 60, falloff: 0.8 },
     unlock: { kind: 'essence', cost: 60 },
-    ascended: { name: 'Caçador Lunar', ability: { kind: 'chain', jumps: 4, radius: 65, falloff: 0.8 } },
+    ascended: [
+      { name: 'Caçador Lunar', description: 'Garras saltam para até 4 inimigos.', ability: { kind: 'chain', jumps: 4, radius: 65, falloff: 0.8 }, color: '#ffd25a', icon: '☾' },
+      { name: 'Caçador Feral', description: 'Entra em frenesi a cada 5 golpes.', ability: { kind: 'frenzy', hitsToTrigger: 5, duration: 3, damageMultiplier: 1.6, attackSpeedMultiplier: 1.8 }, color: '#ff8a3a', icon: '✶' },
+    ],
   },
   alpha: {
     id: 'alpha',
@@ -212,7 +251,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#9a8a7a',
     ability: { kind: 'aura', radius: 80, attackSpeed: 0.25 },
     unlock: { kind: 'essence', cost: 70 },
-    ascended: { name: 'Líder da Matilha', ability: { kind: 'aura', radius: 100, attackSpeed: 0.4 } },
+    ascended: [
+      { name: 'Líder da Matilha', description: 'Aura maior que acelera ainda mais os aliados.', ability: { kind: 'aura', radius: 100, attackSpeed: 0.4 }, color: '#ffd25a', icon: '✪' },
+      { name: 'Fera Devastadora', description: 'Troca a aura por golpes que atingem todos ao redor do alvo.', ability: { kind: 'splash', radius: 38, damageRatio: 0.75 }, stats: { damage: 1.3 }, color: '#e8743a', icon: '✷' },
+    ],
   },
   haunt: {
     id: 'haunt',
@@ -229,7 +271,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#8ce8d8',
     ability: { kind: 'pierceArmor', bonusVsArmored: 0 },
     unlock: { kind: 'essence', cost: 60 },
-    ascended: { name: 'Espírito Vingativo', ability: { kind: 'pierceArmor', bonusVsArmored: 0.5 } },
+    ascended: [
+      { name: 'Espírito Vingativo', description: '+50% de dano contra inimigos com armadura.', ability: { kind: 'pierceArmor', bonusVsArmored: 0.5 }, color: '#ffd25a', icon: '☄' },
+      { name: 'Aparição Gélida', description: 'Toque gelado e mais forte: o alvo fica 45% mais lento.', ability: { kind: 'slow', speedMultiplier: 0.55, duration: 2 }, stats: { damage: 1.6 }, color: '#8ce8ff', icon: '❅' },
+    ],
   },
   banshee: {
     id: 'banshee',
@@ -246,7 +291,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#b8c8ff',
     ability: { kind: 'screech', halfAngle: 0.5, push: 22 },
     unlock: { kind: 'essence', cost: 70 },
-    ascended: { name: 'Banshee Ancestral', ability: { kind: 'screech', halfAngle: 0.75, push: 34 } },
+    ascended: [
+      { name: 'Banshee Ancestral', description: 'Grito mais largo que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.75, push: 34 }, color: '#ffd25a', icon: '♫' },
+      { name: 'Arauto do Pavor', description: 'Grito em leque que aterroriza: em vez de empurrar, faz todos fugirem do Nexus.', ability: { kind: 'screech', halfAngle: 0.6, push: 0, fear: 1.4 }, stats: { damage: 1.3 }, color: '#a87aff', icon: '☠' },
+    ],
   },
   sorceress: {
     id: 'sorceress',
@@ -263,7 +311,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#7ad85a',
     ability: { kind: 'poison', dps: 11, duration: 3 },
     unlock: { kind: 'essence', cost: 60 },
-    ascended: { name: 'Arquibruxa', ability: { kind: 'poison', dps: 16, duration: 4 } },
+    ascended: [
+      { name: 'Arquibruxa', description: 'Veneno mais forte e mais longo.', ability: { kind: 'poison', dps: 16, duration: 4 }, color: '#ffd25a', icon: '☣' },
+      { name: 'Feiticeira do Caos', description: 'Raios verdes que saltam entre 3 inimigos.', ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 }, stats: { damage: 2.4, cooldown: 0.85 }, color: '#5adc8a', icon: 'ϟ' },
+    ],
   },
   cauldron: {
     id: 'cauldron',
@@ -280,7 +331,10 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     color: '#5ad8a8',
     ability: { kind: 'pool', radius: 30, duration: 3, dps: 16 },
     unlock: { kind: 'essence', cost: 80 },
-    ascended: { name: 'Caldeirão Infernal', ability: { kind: 'pool', radius: 40, duration: 4, dps: 24 } },
+    ascended: [
+      { name: 'Caldeirão Infernal', description: 'Poça maior e mais venenosa.', ability: { kind: 'pool', radius: 40, duration: 4, dps: 24 }, color: '#ffd25a', icon: '♨' },
+      { name: 'Caldeirão Alquímico', description: 'Poça dourada: quem morre nela vira ouro (+3 por abate).', ability: { kind: 'pool', radius: 32, duration: 3, dps: 16, bounty: 3 }, color: '#f0c35a', icon: '◉' },
+    ],
   },
 };
 export const CREATURE_IDS = Object.keys(CREATURES) as CreatureId[];

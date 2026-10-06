@@ -114,6 +114,7 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
     poisonTimer: 0,
     poisonDps: 0,
     fearTimer: 0,
+    stunTimer: 0,
     // primeira recarga sorteada para os inimigos não agirem em sincronia
     timers: def.traits.map(() => 1 + random() * 2),
     charging: 0,

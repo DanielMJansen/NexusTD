@@ -1,7 +1,7 @@
 import { CREATURES, CREATURE_IDS, type CreatureDef, type CreatureId } from '../data/creatures';
 import { ownsCreature, type Profile } from '../game/profile';
 import { essence } from './currency';
-import { abilityText, creatureStats } from './describe';
+import { abilityText, ascendedFormsHtml, creatureStats } from './describe';
 import { showOverlay } from './overlay';
 
 export interface CollectionHandlers {
@@ -37,7 +37,7 @@ function cardHtml(profile: Profile, def: CreatureDef): string {
       <p class="cc-lore">“${def.lore}”</p>
       <dl class="cc-stats">${stats}</dl>
       <p class="cc-ability">${abilityText(def.ability)}</p>
-      <p class="cc-ability evolved">Nível 3 — <b>${def.ascended.name}</b>: ${abilityText(def.ascended.ability)}</p>
+      ${ascendedFormsHtml(def)}
       <div class="cc-footer">${footer}</div>
     </div>
   </div>`;

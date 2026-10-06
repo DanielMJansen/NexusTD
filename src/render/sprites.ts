@@ -56,7 +56,7 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
   ctx.scale(scale * (pose.facing ?? 1), scale);
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
-  const p: Required<SpritePose> = { facing: 1, attack: 0, moving: false, level: 1, palette: {}, ...pose };
+  const p: Required<SpritePose> = { facing: 1, attack: 0, moving: false, level: 1, branch: 0, palette: {}, ...pose };
   switch (id) {
     case 'knight':
       drawHero(ctx, p);

@@ -31,10 +31,12 @@ export type GameEvent =
   /** Golpe direto num inimigo (números de dano). */
   | { type: 'enemyDamaged'; x: number; y: number; amount: number; crit?: boolean }
   | { type: 'nexusHealed'; amount: number }
+  /** Ouro extra de um abate do Caldeirão Alquímico. */
+  | { type: 'bountyGold'; x: number; y: number; gold: number }
   | { type: 'bossSpawned'; enemy: EnemyId }
   | { type: 'creaturePlaced'; creature: CreatureId; x: number; y: number }
   | { type: 'creatureSold'; x: number; y: number; refund: number }
-  | { type: 'creatureEvolved'; creature: CreatureId; x: number; y: number; level: number; ascended: boolean }
+  | { type: 'creatureEvolved'; creature: CreatureId; x: number; y: number; level: number; ascended: boolean; name: string }
   | { type: 'choiceMade' }
   | { type: 'shopPurchase'; item: 'reroll' | 'extraSlot' }
   | { type: 'waveStarted'; wave: number }

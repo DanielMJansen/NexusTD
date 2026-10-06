@@ -10,10 +10,10 @@ import {
   creatureName,
   creatureRange,
 } from '../game/creatureStats';
-import { evolveCost, sellValue } from '../game/economy';
+import { evolveCost, needsBranchChoice, sellValue } from '../game/economy';
 import { drawPortrait } from '../render/portrait';
 import { gold } from './currency';
-import { abilityText, creatureStats, formatNumber } from './describe';
+import { abilityText, ascendedFormsHtml, creatureStats, formatNumber } from './describe';
 import { pulseText, raceBonusText } from './heroesScreen';
 import type { HeroDef, HeroId } from '../data/heroes';
 
@@ -79,7 +79,7 @@ export class SidePanel {
           <p class="special">${def.description}</p>
           <dl>${stats}</dl>
           <p class="special">${abilityText(def.ability)}</p>
-          <p class="special evolves">Nível 3: <b>${def.ascended.name}</b>. ${abilityText(def.ascended.ability)}</p>
+          ${ascendedFormsHtml(def, 'special evolves')}
           ${def.race === hero.race ? `<p class="special hero-bonus">Bônus do ${hero.name}: ${raceBonusText(hero.race, hero.raceBonus)}</p>` : ''}
         </div>`;
       root.addEventListener('pointerdown', (event) => {
@@ -140,7 +140,8 @@ export class SidePanel {
         <dt>Venda</dt><dd>${gold(sellValue(creature))}</dd>
         <dt>Evoluir</dt><dd>${next === null ? 'máximo' : gold(next)}</dd>
       </dl>
-      <p class="special">${abilityText(creatureAbility(creature))}</p>`;
+      <p class="special">${abilityText(creatureAbility(creature))}</p>
+      ${needsBranchChoice(creature) ? `<p class="special branch-hint">Próxima evolução: escolha a vertente nos botões sobre a criatura.</p>${ascendedFormsHtml(creature.def, 'special evolves')}` : ''}`;
     this.selectionInfo.style.setProperty('--card-color', creature.def.color);
     setHtml(this.selectionInfo, html);
     this.selectionInfo.hidden = false;

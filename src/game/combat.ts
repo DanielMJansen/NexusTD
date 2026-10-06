@@ -1,5 +1,5 @@
 import { ARENA, HERO_PLACEMENT } from '../data/config';
-import { creatureAbility, creatureDamage, creatureRange } from './creatureStats';
+import { creatureAbility, creatureCooldown, creatureDamage, creatureRange } from './creatureStats';
 import { WAVES } from '../data/waves';
 import { enemyArmor, shieldFactor } from './enemies';
 import { grantXp, healHero } from './hero';
@@ -70,6 +70,10 @@ export function damageEnemy(
     }
     if (source && ability) {
       if (ability.kind === 'lifesteal') healNexus(state, ability.healPerKill);
+      if (ability.kind === 'bounty') {
+        state.gold += ability.gold;
+        state.events.push({ type: 'bountyGold', x: enemy.x, y: enemy.y, gold: ability.gold });
+      }
       const { race, bonus } = state.modifiers.raceBonus;
       if (bonus.kind === 'killHeal' && source.def.race === race) healNexus(state, bonus.value);
     }
@@ -263,6 +267,10 @@ export function updateDamageOverTime(state: RunState, dt: number): void {
     for (const enemy of state.enemies) {
       if (!enemy.dead && distance(enemy, pool) <= pool.radius) {
         damageEnemy(state, enemy, pool.dps * dt, undefined, { ignoreArmor: true, overTime: true });
+        if (enemy.dead && pool.bounty) {
+          state.gold += pool.bounty;
+          state.events.push({ type: 'bountyGold', x: enemy.x, y: enemy.y, gold: pool.bounty });
+        }
       }
     }
   }
@@ -299,11 +307,14 @@ export function updateCreatures(state: RunState, dt: number): void {
     if (!target) continue;
 
     const inFrenzy = ability.kind === 'frenzy' && creature.frenzyTimer > 0;
-    const crit = random() < modifiers.critChance;
-    const damage = creatureDamage(creature, modifiers) * (inFrenzy ? ability.damageMultiplier : 1) * (crit ? 2 : 1);
+    // crítico: chance das melhorias + da vertente (Atirador de Elite, Lâmina Carmesim)
+    const critBonus = ability.kind === 'crit' ? ability : null;
+    const crit = random() < modifiers.critChance + (critBonus?.chance ?? 0);
+    const critMultiplier = critBonus ? critBonus.multiplier : 2;
+    const damage = creatureDamage(creature, modifiers) * (inFrenzy ? ability.damageMultiplier : 1) * (crit ? critMultiplier : 1);
     const raceSpeed = bonus.kind === 'attackSpeed' && def.race === race ? bonus.value : 0;
     const speed = modifiers.attackSpeed * (1 + raceSpeed + creature.auraBonus) * (inFrenzy ? ability.attackSpeedMultiplier : 1);
-    creature.attackTimer = def.cooldown / speed;
+    creature.attackTimer = creatureCooldown(creature) / speed;
     for (const t of targets) damageEnemy(state, t, damage, creature, { crit });
     creature.lastAttackAt = state.time;
     creature.facing = target.x >= creature.x ? 1 : -1;
@@ -358,6 +369,7 @@ export function updateCreatures(state: RunState, dt: number): void {
           const away = Math.atan2(e.y - ARENA.center.y, e.x - ARENA.center.x);
           e.x += Math.cos(away) * ability.push;
           e.y += Math.sin(away) * ability.push;
+          if (ability.fear) e.fearTimer = Math.max(e.fearTimer, ability.fear);
         }
         state.events.push({ type: 'screech', x: creature.x, y: creature.y, angle, halfAngle: ability.halfAngle, range });
         break;
@@ -372,10 +384,31 @@ export function updateCreatures(state: RunState, dt: number): void {
         const extra = bonus.kind === 'poisonDuration' && def.race === race ? bonus.value : 0;
         const scale = damage / def.damage;
         const duration = ability.duration + extra;
-        state.pools.push({ x: target.x, y: target.y, radius: ability.radius, remaining: duration, duration, dps: ability.dps * scale, color: def.color });
+        state.pools.push({
+          x: target.x,
+          y: target.y,
+          radius: ability.radius,
+          remaining: duration,
+          duration,
+          dps: ability.dps * scale,
+          color: ability.bounty ? '#f0c35a' : def.color,
+          bounty: ability.bounty,
+        });
         state.events.push({ type: 'poolCreated', x: target.x, y: target.y, radius: ability.radius });
         break;
       }
+      case 'stun':
+        for (const t of targets) {
+          if (!t.def.isBoss && !t.dead && random() < ability.chance) t.stunTimer = Math.max(t.stunTimer, ability.duration);
+        }
+        break;
+      case 'fear':
+        for (const t of targets) {
+          if (!t.def.isBoss && !t.dead && random() < ability.chance) t.fearTimer = Math.max(t.fearTimer, ability.duration);
+        }
+        break;
+      case 'crit':
+      case 'bounty':
       case 'multishot':
       case 'block':
       case 'lifesteal':

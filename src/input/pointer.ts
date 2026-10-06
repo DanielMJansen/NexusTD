@@ -96,7 +96,7 @@ export function attachPointer({ canvas, interaction, getRun, isActive }: Pointer
         (b) => point.x >= b.x && point.x <= b.x + b.width && point.y >= b.y && point.y <= b.y + b.height,
       );
       if (button?.action === 'evolve') {
-        evolveCreature(run, inspected);
+        evolveCreature(run, inspected, button.branch);
         interaction.sellArmed = false;
         return;
       }

@@ -49,6 +49,8 @@ export interface Enemy extends Point {
   poisonDps: number;
   /** Com medo: anda para longe do Nexus enquanto o tempo durar. */
   fearTimer: number;
+  /** Atordoado/congelado: não anda enquanto o tempo durar. */
+  stunTimer: number;
   dead: boolean;
 }
 
@@ -64,6 +66,8 @@ export interface Creature extends Point {
   summonCost: number;
   /** Nível de evolução, de 1 até MAX_CREATURE_LEVEL. */
   level: number;
+  /** Vertente escolhida no nível máximo (0 ou 1). */
+  branch: number;
   /** Bônus de velocidade de ataque recebido de auras neste quadro. */
   auraBonus: number;
   /** Dicas visuais: lado para onde olha (1 direita, -1 esquerda) e momento do último ataque. */
@@ -103,6 +107,8 @@ export interface Pool extends Point {
   duration: number;
   dps: number;
   color: string;
+  /** Ouro extra por inimigo que morre dentro (Caldeirão Alquímico). */
+  bounty?: number;
 }
 
 /** Moeda extra ou baú no chão (o herói coleta passando por cima). */

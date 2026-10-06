@@ -1906,3 +1906,20 @@ button.danger {
 #side-panel:has(#selection-info:not([hidden])) .controls {
   display: none;
 }
+
+/* vertentes de evolução */
+.branch-tag {
+  --branch-color: var(--gold);
+  display: inline-block;
+  padding: 0 5px;
+  margin-right: 2px;
+  border: 1px solid var(--branch-color);
+  border-radius: 6px;
+  color: var(--branch-color);
+  font: 700 10px var(--font-label);
+}
+
+#selection-info .branch-hint {
+  margin-top: 4px;
+  color: #b8ffd0;
+}

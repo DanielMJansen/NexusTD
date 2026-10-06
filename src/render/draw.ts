@@ -2,8 +2,8 @@ import { ARENA } from '../data/config';
 import { WAVES } from '../data/waves';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { MAX_CREATURE_LEVEL } from '../data/evolution';
-import { creatureAbility, creatureName, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
-import { canEvolve, evolveCost, sellValue } from '../game/economy';
+import { ascendedForm, creatureAbility, creatureName, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
+import { canEvolve, evolveCost, needsBranchChoice, sellValue } from '../game/economy';
 import { heroMaxHp } from '../game/hero';
 import type { Creature, Enemy, Point, Pool, RunState } from '../game/state';
 import { drawAtmosphere, drawBackground, drawNexus } from './arena';
@@ -32,6 +32,8 @@ export interface InteractionView {
 
 export interface InspectButton {
   action: 'evolve' | 'sell';
+  /** Vertente escolhida por este botão (evolução para o nível máximo). */
+  branch?: number;
   label: string;
   enabled: boolean;
   x: number;
@@ -166,6 +168,7 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     }
     ctx.globalAlpha = 1;
   }
+  if (enemy.stunTimer > 0) drawStunStars(ctx, enemy.x, enemy.y - 24 * scale, time);
   if (enemy.fearTimer > 0) {
     ctx.font = '700 11px Cinzel, Georgia, serif';
     ctx.textAlign = 'center';
@@ -218,9 +221,11 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
   const ascended = isAscended(creature);
   if (ascended) {
     // aura dourada da forma evoluída
+    // a aura tem a cor da vertente escolhida
+    const auraColor = ascendedForm(creature)?.color ?? creature.def.color;
     const glow = ctx.createRadialGradient(creature.x, creature.y + 4, 2, creature.x, creature.y + 4, 26);
-    glow.addColorStop(0, withAlpha(creature.def.color, 0.35 + Math.sin(time * 3) * 0.1));
-    glow.addColorStop(1, withAlpha(creature.def.color, 0));
+    glow.addColorStop(0, withAlpha(auraColor, 0.35 + Math.sin(time * 3) * 0.1));
+    glow.addColorStop(1, withAlpha(auraColor, 0));
     ctx.fillStyle = glow;
     ctx.beginPath();
     ctx.arc(creature.x, creature.y + 4, 26, 0, TAU);
@@ -228,7 +233,7 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
   }
   ctx.save();
   if (frenzy || ascended) {
-    ctx.shadowColor = frenzy ? '#ff2a40' : '#ffd25a';
+    ctx.shadowColor = frenzy ? '#ff2a40' : (ascendedForm(creature)?.color ?? '#ffd25a');
     ctx.shadowBlur = frenzy ? 16 : 5;
   }
   drawSprite(ctx, creature.def.id, creature.x, creature.y + hover, levelInfo(creature).scale, {
@@ -236,12 +241,31 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
     facing: creature.facing,
     attack: attackStrength(state, creature.lastAttackAt),
     level: creature.level,
+    branch: creature.branch,
   });
   ctx.restore();
+  const form = ascendedForm(creature);
+  if (form) drawBranchEmblem(ctx, creature.x + 13, creature.y + 12, form.icon, form.color);
   if (creature.webTimer > 0) drawWeb(ctx, creature.x, creature.y - 4, Math.min(1, creature.webTimer * 2));
   if (creature.stunTimer > 0) drawStunStars(ctx, creature.x, creature.y - 26, time);
   if (creature.level > 1) drawLevelStars(ctx, creature.x, creature.y + 20, creature.level);
   if (canEvolve(state, creature)) drawEvolveHint(ctx, creature.x, creature.y - 30 * levelInfo(creature).scale, time);
+}
+
+/** Emblema da vertente ao lado dos pés da criatura evoluída. */
+function drawBranchEmblem(ctx: CanvasRenderingContext2D, x: number, y: number, icon: string, color: string): void {
+  ctx.fillStyle = '#0a0612dd';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(x, y, 5, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.font = '700 6.5px Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.fillText(icon, x, y + 0.5);
 }
 
 /** Teia de aranha sobre a criatura (ataca mais devagar). */
@@ -484,6 +508,24 @@ export function inspectButtons(state: RunState, creature: Creature, sellArmed = 
   };
   const cost = evolveCost(creature, state.talents.evolveDiscount);
   if (cost === null) return [{ ...sell, x: creature.x - width / 2, y, width, height }];
+  if (needsBranchChoice(creature)) {
+    // escolha da vertente: um botão por forma evoluída, acima do Vender
+    const branchWidth = 112;
+    const enabled = canEvolve(state, creature);
+    return [
+      ...creature.def.ascended.map((form, i) => ({
+        action: 'evolve' as const,
+        branch: i,
+        label: `${form.icon} ${form.name} ◉${cost}`,
+        enabled,
+        x: i === 0 ? creature.x - branchWidth - 2 : creature.x + 2,
+        y: y - height - 4,
+        width: branchWidth,
+        height,
+      })),
+      { ...sell, x: creature.x - width / 2, y, width, height },
+    ];
+  }
   return [
     {
       action: 'evolve',

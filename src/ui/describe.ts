@@ -1,5 +1,5 @@
 import { ECONOMY } from '../data/config';
-import type { CreatureAbility, CreatureDef } from '../data/creatures';
+import type { AscendedForm, CreatureAbility, CreatureDef } from '../data/creatures';
 import { ENEMIES, type EnemyTrait } from '../data/enemies';
 import type { TalentEffectKind } from '../data/talents';
 
@@ -29,14 +29,44 @@ export function abilityText(a: CreatureAbility): string {
         ? `Ignora armadura e causa +${Math.round(a.bonusVsArmored * 100)}% de dano em inimigos com armadura.`
         : 'Ignora toda a armadura do alvo.';
     case 'screech':
-      return `Grito em leque: atinge todos à frente e os empurra ${a.push} para longe do Nexus (chefes resistem).`;
+      return a.fear
+        ? `Grito em leque: atinge todos à frente e os faz fugir do Nexus por ${formatNumber(a.fear)} s (chefes resistem).`
+        : `Grito em leque: atinge todos à frente e os empurra ${a.push} para longe do Nexus (chefes resistem).`;
     case 'poison':
       return `Veneno: ${formatNumber(a.dps)} de dano por segundo durante ${formatNumber(a.duration)} s (ignora armadura).`;
     case 'pool':
+      if (a.bounty) return `Poça dourada: ${formatNumber(a.dps)} de dano por segundo num raio de ${a.radius} durante ${formatNumber(a.duration)} s; cada inimigo que morre nela rende +${a.bounty} de ouro.`;
       return `Poça: ${formatNumber(a.dps)} de dano por segundo num raio de ${a.radius} durante ${formatNumber(a.duration)} s.`;
+    case 'crit':
+      return `Crítico: +${Math.round(a.chance * 100)}% de chance de golpe crítico, que causa ×${formatNumber(a.multiplier)} de dano.`;
+    case 'stun':
+      return `Atordoar: ${Math.round(a.chance * 100)}% de chance de parar o alvo por ${formatNumber(a.duration)} s (chefes resistem).`;
+    case 'fear':
+      return `Pavor: ${Math.round(a.chance * 100)}% de chance de fazer o alvo fugir do Nexus por ${formatNumber(a.duration)} s (chefes resistem).`;
+    case 'bounty':
+      return `Alquimia: cada abate desta criatura rende +${a.gold} de ouro.`;
     case 'none':
       return 'Alvo único, alcance alto.';
   }
+}
+
+/** Multiplicadores de atributo de uma vertente, em texto (ex.: "+30% de alcance"). */
+function formStatsText(form: AscendedForm): string {
+  const parts: string[] = [];
+  const s = form.stats;
+  if (s?.damage) parts.push(`${s.damage > 1 ? '+' : '−'}${Math.round(Math.abs(s.damage - 1) * 100)}% de dano`);
+  if (s?.range) parts.push(`${s.range > 1 ? '+' : '−'}${Math.round(Math.abs(s.range - 1) * 100)}% de alcance`);
+  if (s?.cooldown) parts.push(s.cooldown > 1 ? `ataca ${Math.round((s.cooldown - 1) * 100)}% mais devagar` : `ataca ${Math.round((1 - s.cooldown) * 100)}% mais rápido`);
+  return parts.length ? ` (${parts.join(', ')})` : '';
+}
+
+/** As duas vertentes do nível 3, em HTML (fichas, tooltips, escolha). */
+export function ascendedFormsHtml(def: CreatureDef, className = 'cc-ability evolved'): string {
+  return def.ascended
+    .map(
+      (form, i) => `<p class="${className}"><span class="branch-tag" style="--branch-color:${form.color}">${form.icon} ${i === 0 ? 'A' : 'B'}</span> Nível 3 — <b>${form.name}</b>: ${abilityText(form.ability)}${formStatsText(form)}</p>`,
+    )
+    .join('');
 }
 
 /** Texto de uma habilidade de inimigo (códex). */

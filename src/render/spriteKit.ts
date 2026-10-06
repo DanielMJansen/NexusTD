@@ -12,6 +12,8 @@ export interface SpritePose {
   moving?: boolean;
   /** Nível de evolução; no nível máximo aparecem os acessórios da forma evoluída. */
   level?: number;
+  /** Vertente da forma evoluída (0 ou 1). */
+  branch?: number;
   /** Cores da skin (heróis); chaves ausentes usam a cor padrão do desenho. */
   palette?: SkinPalette;
 }

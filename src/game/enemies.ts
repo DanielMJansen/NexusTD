@@ -153,6 +153,10 @@ export function updateEnemies(state: RunState, dt: number): void {
       enemy.y = Math.min(ARENA.height + 20, Math.max(-20, enemy.y - (dy / length) * flee));
       continue;
     }
+    if (enemy.stunTimer > 0) {
+      enemy.stunTimer -= dt;
+      continue;
+    }
     if (enemy.held || pace === 0) continue;
     if (length < NEXUS.contactRadius) {
       damageNexus(state, enemy.nexusDamage);

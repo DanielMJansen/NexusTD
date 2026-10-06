@@ -227,6 +227,10 @@ export class Effects {
           this.text(event.x, event.y - 20, 'Baú!', GOLD, 12);
         }
         break;
+      case 'bountyGold':
+        this.text(event.x + 8, event.y - 28, `+${event.gold}`, '#ffe9a8', 9);
+        this.burst(event.x, event.y - 6, 6, GOLD, 60, 0.5, 2, true, -40);
+        break;
       case 'heroDied':
         this.burst(event.x, event.y - 8, 18, '#ff5a6a', 90, 0.6, 2.6, true);
         this.text(event.x, event.y - 30, 'Herói caiu!', '#ff7a84', 12);
@@ -349,7 +353,7 @@ export class Effects {
         this.ring(event.x, event.y + 6, 22, '#ffd25a', 0.45, 2.5);
         this.burst(event.x, event.y, 22, '#ffd25a', 90, 0.8, 2.4, true, -70);
         this.burst(event.x, event.y, 10, def.color, 60, 0.7, 2.6, true, -40);
-        const label = event.ascended ? `${def.ascended.name}!` : `Nível ${event.level}`;
+        const label = event.ascended ? `${event.name}!` : `Nível ${event.level}`;
         this.text(event.x, event.y - 46, label, '#ffd25a', event.ascended ? 13 : 11);
         if (event.ascended) this.shake = Math.max(this.shake, 3);
         break;

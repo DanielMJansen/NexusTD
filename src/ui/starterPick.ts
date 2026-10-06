@@ -1,7 +1,7 @@
 import { CREATURES, CREATURE_IDS, isMystical, type CreatureId } from '../data/creatures';
 import type { Profile } from '../game/profile';
 import { gold } from './currency';
-import { abilityText, creatureStats } from './describe';
+import { abilityText, ascendedFormsHtml, creatureStats } from './describe';
 import { showOverlay } from './overlay';
 
 /** Criaturas místicas que podem ser o primeiro companheiro (as que ainda não estão na coleção). */
@@ -51,7 +51,7 @@ function showStarterConfirm(profile: Profile, id: CreatureId, onPick: (id: Creat
       <p>${def.description}</p>
       <dl class="cc-stats">${stats}<dt>Custo por unidade</dt><dd>${gold(def.baseCost)}</dd></dl>
       <p class="cc-ability">${abilityText(def.ability)}</p>
-      <p class="cc-ability evolved">Nível 3 — <b>${def.ascended.name}</b>: ${abilityText(def.ascended.ability)}</p>
+      ${ascendedFormsHtml(def)}
       <div class="row-buttons">
         <button data-action="back">← Ver outras</button>
         <button class="play-button" data-action="confirm">Escolher ${def.name}</button>

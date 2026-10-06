@@ -102,9 +102,11 @@ Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de le
 - Talentos do herói: renascimento mais rápido, XP extra, vida do herói.
 - **Feito:** 6 ramos em cadeia (os requisitos que pulavam nós foram refeitos para seguir a coluna). Nexus+: Engenharia Arcana (−8%/nível no custo das melhorias do Nexus), Raio Desperto, Campo Gélido e Escudo Ancestral (cada um começa a run com a habilidade no nível 1). Herói: Vigor, Renascer, Sabedoria. Quem já tinha talentos mantém os níveis; um nó cujo novo requisito não foi cumprido só não pode subir mais até cumprir.
 
-### F8. Conteúdo: raças e classes `[ ]`
-Uma terceira classe para cada raça atual e 2 raças novas (cada uma com 2 classes e herói):
+### F8. Vertentes de evolução `[x]` (pedido de 06/10/2026)
+Como no Kingdom Rush / Bloons TD 6: níveis 1 e 2 lineares; no **nível 3 o jogador escolhe uma de duas formas evoluídas**, cada uma com nome, habilidade e visual próprios. Feito antes das raças novas para que elas já nasçam com vertentes.
+- **Feito:** 24 formas (tabela no GDD, seção 9), botões das duas vertentes sobre a criatura no nível 2, painel lateral explica as duas, aura e emblema na cor da vertente. Habilidades novas: crítico, atordoar, pavor (inclusive em leque) e poça dourada. A arte das formas B ainda reaproveita os acessórios da forma A (diferem pela aura e emblema); um passe de arte próprio fica para depois.
 
+### F9. Terceira classe das raças atuais `[ ]`
 | Raça | Classe nova | Ideia |
 |---|---|---|
 | Humano | Clériga | Cura o Nexus e dá escudo temporário às criaturas próximas |
@@ -114,14 +116,19 @@ Uma terceira classe para cada raça atual e 2 raças novas (cada uma com 2 class
 | Fantasma | Possessor | Possui um inimigo, que luta do seu lado por alguns segundos |
 | Bruxa | Herbalista | Plantas que prendem inimigos (enraizar) |
 
-| Raça nova | Classe 1 | Classe 2 | Herói |
-|---|---|---|---|
-| **Fada** | Encantadora: aura de dano e alcance | Travessa: confunde inimigos, que andam para trás | Rainha Fada: Pulso que acelera tudo |
-| **Golem** | Muralha: bloqueia muito e atordoa | Cristal: reflete dano e reforça o Nexus | Colosso: lento, muito resistente, pisão |
-| *(depois)* Necromante, Medusa | | | |
+Equipe passa de 6 para **8 vagas** (atalhos 1–8).
 
-Com mais criaturas, a equipe pode passar de 6 para **8 vagas** (atalhos 1–8), e o painel ganha duas colunas.
+### F10+. Raças novas `[ ]` (3 classes + herói cada, com vertentes)
+Decisão de 06/10/2026: entram **Necromante, Golem, Fada, Górgona, Demônios, Anjos, Zumbis, Unicórnio, Sereia, Centauro, Goblin e Elementais** — 12 raças, 48 personagens. Feitas em lotes de 2 raças por etapa (cada lote com commit, arte, dados, herói e calibragem). Ideias iniciais (`PROPOSTA`, revisar antes de cada lote):
+
+| Raça | Classes | Herói |
+|---|---|---|
+| Fada | Encantadora (aura de dano/alcance) · Travessa (confunde: inimigos andam para trás) · Lumina (marca inimigos, que levam mais dano) | Rainha Fada (Pulso acelera tudo) |
+| Golem | Muralha (bloqueia muito e atordoa) · Cristal (reflete dano, reforça o Nexus) · Magma (queima ao redor) | Colosso (lento, resistente, pisão) |
+| Necromante | Guerreiro Esqueleto (barato, revive uma vez) · Ceifador (executa quem tem pouca vida) · Drenador (rouba vida para o Nexus) | Senhor dos Mortos (Pulso ergue esqueletos aliados) |
+| Górgona | Arqueira Serpente (veneno que perfura) · Medusa (olhar petrifica) · Basilisco (ácido que reduz armadura) | Rainha Górgona (Pulso petrifica em leque) |
+| Demônios, Anjos, Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais | a definir no lote | a definir |
 
 ## 4. Ordem sugerida
-F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8.
+F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8 (vertentes) → F9 (terceiras classes) → F10+ (raças novas em lotes de 2).
 O F1 e o F2 não dependem de decisão e começam já. A partir do F3, cada etapa espera as decisões correspondentes. O F5 (dificuldade) só deve ser calibrado depois do F3 e do F4, porque melhorias e herói mudam muito o poder do jogador. A calibragem usa a simulação, com o bot passando a usar ouro e a mover o herói.

@@ -125,7 +125,24 @@ Todos `PROPOSTA` até o playtest. Balanceados por simulação (30 runs por equip
 
 Criaturas atacam o inimigo mais próximo do Nexus dentro do alcance.
 
-**Evolução:** nível 2 custa 1,5 × o custo de invocação daquela cópia (+50% dano, +10% alcance); nível 3 custa 3 × esse custo (+120% dano, +20% alcance) e troca a habilidade pela da forma evoluída: Patrulheiro multi-tiro 2 · Paladino bloqueia 4 (raio 36) · Conde Vampiro frenesi a cada 4 golpes, 4 s, ×1,8 · Lorde de Sangue cura 4 · Dragão Ancião área 60 com 80% · Dragão Glacial lentidão 65% por 2,5 s · Caçador Lunar 4 saltos (raio 65, 80%) · Líder da Matilha aura raio 100, +40% · Espírito Vingativo +50% contra blindados · Banshee Ancestral ±0,75 rad, empurra 34 · Arquibruxa veneno 16/s por 4 s · Caldeirão Infernal poça raio 40, 24/s por 4 s.
+**Evolução:** nível 2 custa 1,5 × o custo de invocação daquela cópia (+50% dano, +10% alcance); nível 3 custa 3 × esse custo (+120% dano, +20% alcance) e o jogador **escolhe uma de duas vertentes** (forma evoluída com nome, habilidade, aura e emblema próprios). A melhoria Ascensão sorteia a vertente.
+
+| Criatura | Vertente A | Vertente B |
+|---|---|---|
+| Arqueiro | Patrulheiro: multi-tiro 2 | Atirador de Elite: +35% crítico ×3,5; +30% alcance, ataca 15% mais devagar |
+| Guarda | Paladino: bloqueia 4 (raio 36) | Martelo Sagrado: 35% de atordoar por 1,2 s; +40% dano (sem bloqueio) |
+| Duelista | Conde Vampiro: frenesi a cada 4 golpes, 4 s, ×1,8 | Lâmina Carmesim: +40% crítico ×2,5; ataca 15% mais rápido |
+| Sanguinário | Lorde de Sangue: abate cura 4 | Mago de Sangue: cadeia 3 saltos (raio 60, 80%); +50% dano |
+| Dragão de Fogo | Dragão Ancião: área 60 com 80% | Wyrm Infernal: chão em chamas (raio 34, 20/s por 3 s) |
+| Dragão de Gelo | Dragão Glacial: lentidão 65% por 2,5 s | Dragão Congelante: 30% de congelar por 1,4 s; +30% dano |
+| Caçador | Caçador Lunar: cadeia 4 saltos (raio 65, 80%) | Caçador Feral: frenesi a cada 5 golpes, 3 s, ×1,6 dano, 1,8× vel. |
+| Alfa | Líder da Matilha: aura raio 100, +40% | Fera Devastadora: área 38 com 75%; +30% dano (sem aura) |
+| Assombração | Espírito Vingativo: +50% contra blindados | Aparição Gélida: lentidão 45% por 2 s; +60% dano (sem perfurar) |
+| Banshee | Banshee Ancestral: leque ±0,75 rad, empurra 34 | Arauto do Pavor: leque ±0,6 rad que assusta por 1,4 s; +30% dano |
+| Feiticeira | Arquibruxa: veneno 16/s por 4 s | Feiticeira do Caos: cadeia 3 saltos (raio 70, 85%); +140% dano, 15% mais rápida |
+| Caldeirão | Caldeirão Infernal: poça raio 40, 24/s por 4 s | Caldeirão Alquímico: poça dourada raio 32, 16/s por 3 s; +3 de ouro por inimigo que morre nela |
+
+Simulação (bot, 30 runs): todas A — 11/24/25/30/30/8 vitórias; todas B — 21/27/27/30/29/9 (humanos+dragões / vampiros / lobisomens / fantasmas / bruxas / só arqueiro). As duas vertentes são viáveis.
 **Loja entre ondas:** sortear de novo custa 10 (+10 a cada uso na run); +1 vaga custa 60, dobrando a cada compra, até +3 vagas.
 **Nexus (ouro, por nível):**
 
@@ -268,11 +285,13 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 06/10/2026 | Run de 20 ondas com chefes nas ondas 7 (Rei Ogro), 14 (Rainha Aranha) e 20 (Lich); escalonamento de vida, velocidade e dano; elites; 7 inimigos novos com habilidades; códex; modo Sem Fim; curva de XP do herói mais íngreme |
 | 06/10/2026 | Ouro com destino: evolução proporcional ao custo da cópia, Nexus upável (Vitalidade, Muralha, Raio, Escudo, Campo de Lentidão), moedas e baús no chão coletados pelo herói, melhoria Ímã; vida dos inimigos sobe mais rápido para compensar |
 | 06/10/2026 | Talentos 2.0: ramos em cadeia vertical com cor e ícone; ramo Nexus+ (desconto e habilidades do Nexus desde o início); Herói ganha Vigor, Renascer e Sabedoria |
+| 06/10/2026 | Vertentes de evolução: no nível 3 o jogador escolhe entre duas formas evoluídas por criatura (novas habilidades: crítico, atordoar, pavor, poça dourada) |
+| 06/10/2026 | Próximas etapas: terceira classe das raças atuais, equipe de 8 e 12 raças novas com 3 classes + herói cada (Necromante, Golem, Fada, Górgona, Demônios, Anjos, Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais) |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.
 
 ## 13. Próximos passos
-1. Seguir o `docs/plano-v1.0.md`: melhorias 2.0 (F3), herói vivo com XP (F4), dificuldade e inimigos novos com 20 ondas e Sem Fim (F5), ouro com destino (F6), talentos 2.0 (F7), novas raças e classes (F8).
+1. Seguir o `docs/plano-v1.0.md`: terceira classe das raças atuais e equipe de 8 (F9), depois as 12 raças novas em lotes de 2 (F10+).
 2. Playtest com outras pessoas pelo GitHub Pages.
 3. Só depois decidir engine final e arte.

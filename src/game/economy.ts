@@ -1,7 +1,8 @@
+import { random } from './random';
 import { ARENA, ECONOMY, NEXUS } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { EVOLUTION_LEVELS } from '../data/evolution';
-import { isAscended } from './creatureStats';
+import { creatureName, isAscended } from './creatureStats';
 import { distance, type Creature, type Point, type RunState } from './state';
 
 /** Custo = base × crescimento^(cópias da mesma classe em campo). Vender reduz o custo da próxima. */
@@ -34,6 +35,7 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
     paid: cost,
     summonCost: cost,
     level: 1,
+    branch: 0,
     auraBonus: 0,
     facing: at.x > ARENA.center.x ? -1 : 1,
     lastAttackAt: -Infinity,
@@ -60,17 +62,26 @@ export function canEvolve(state: RunState, creature: Creature): boolean {
   return state.phase === 'playing' && cost !== null && state.gold >= cost;
 }
 
-export function evolveCreature(state: RunState, creature: Creature): boolean {
+/** O próximo nível é a forma evoluída (exige escolher a vertente)? */
+export const needsBranchChoice = (creature: Creature): boolean => creature.level === EVOLUTION_LEVELS.length - 1;
+
+/** Evolui pagando ouro. Ao chegar no nível máximo, `branch` escolhe a vertente (0 ou 1). */
+export function evolveCreature(state: RunState, creature: Creature, branch?: number): boolean {
   const cost = evolveCost(creature, state.talents.evolveDiscount);
   if (cost === null || !canEvolve(state, creature)) return false;
+  if (needsBranchChoice(creature) && branch === undefined) return false;
   state.gold -= cost;
   creature.paid += cost;
-  return promoteCreature(state, creature);
+  return promoteCreature(state, creature, branch);
 }
 
-/** Sobe a criatura 1 nível sem cobrar (evolução paga ou melhoria Ascensão). */
-export function promoteCreature(state: RunState, creature: Creature): boolean {
+/**
+ * Sobe a criatura 1 nível sem cobrar (evolução paga ou melhoria Ascensão).
+ * Sem vertente indicada ao chegar no nível máximo, sorteia uma.
+ */
+export function promoteCreature(state: RunState, creature: Creature, branch?: number): boolean {
   if (creature.level >= EVOLUTION_LEVELS.length) return false;
+  if (needsBranchChoice(creature)) creature.branch = branch ?? (random() < 0.5 ? 0 : 1);
   creature.level++;
   creature.hitCount = 0;
   state.ascendedPeak = Math.max(state.ascendedPeak, state.creatures.filter(isAscended).length);
@@ -81,6 +92,7 @@ export function promoteCreature(state: RunState, creature: Creature): boolean {
     y: creature.y,
     level: creature.level,
     ascended: isAscended(creature),
+    name: creatureName(creature),
   });
   return true;
 }
