@@ -46,6 +46,7 @@ import {
   drawSpider,
 } from './spritesEnemies';
 import { drawBatSwarm, drawCleric, drawHerbalist, drawPossessor } from './spritesClasses';
+import { drawColossus, drawCrystalGolem, drawMagmaGolem, drawWall } from './spritesGolem';
 import { drawEnchantress, drawFaeQueen, drawLumina, drawTrickster } from './spritesFae';
 
 export type SpriteId = HeroId | CreatureId | EnemyId;
@@ -125,6 +126,18 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'cleric':
       drawCleric(ctx, p);
+      break;
+    case 'stoneWall':
+      drawWall(ctx, p);
+      break;
+    case 'crystalGolem':
+      drawCrystalGolem(ctx, p);
+      break;
+    case 'magmaGolem':
+      drawMagmaGolem(ctx, p);
+      break;
+    case 'colossus':
+      drawColossus(ctx, p);
       break;
     case 'enchantress':
       drawEnchantress(ctx, p);

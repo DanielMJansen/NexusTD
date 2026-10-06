@@ -1,7 +1,7 @@
 // Heróis jogáveis: um por raça. O Cavaleiro (Humano) é o inicial; os outros custam Essência.
 // Valores PROPOSTA: calibrar em playtest.
 
-export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen';
+export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus';
 
 export type HeroAttack = {
   damage: number;
@@ -178,6 +178,19 @@ export const HEROES: Record<HeroId, HeroDef> = {
     color: '#ff8ad0',
     maxHp: 85,
     cost: 240,
+  },
+  colossus: {
+    id: 'colossus',
+    name: 'Colosso',
+    race: 'Golem',
+    description: 'Lento e muito resistente. Esmaga tudo à frente e o Terremoto atordoa os inimigos ao redor.',
+    speed: 85,
+    attack: { damage: 12, range: 45, cooldown: 0.9, pattern: { kind: 'cone', halfAngle: 1 }, healPerHit: 0 },
+    pulse: { name: 'Terremoto', damage: 25, radius: 100, cooldown: 13, healPerEnemy: 0, stun: { duration: 1.8, look: 'stun' } },
+    raceBonus: { kind: 'damage', value: 0.12 },
+    color: '#c8a070',
+    maxHp: 220,
+    cost: 260,
   },
 };
 export const HERO_IDS = Object.keys(HEROES) as HeroId[];

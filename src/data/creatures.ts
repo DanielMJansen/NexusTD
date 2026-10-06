@@ -19,7 +19,10 @@ export type CreatureId =
   | 'herbalist'
   | 'enchantress'
   | 'trickster'
-  | 'lumina';
+  | 'lumina'
+  | 'stoneWall'
+  | 'crystalGolem'
+  | 'magmaGolem';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -599,6 +602,68 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ascended: [
       { name: 'Farol', description: 'Marca 3 inimigos de uma vez, com marca mais forte.', ability: { kind: 'multishot', targets: 3 }, effects: [{ kind: 'mark', amount: 0.25, duration: 3.5 }], color: '#ffd25a', icon: '☀' },
       { name: 'Estrela Cadente', description: 'Marcados explodem em luz ao morrer.', ability: { kind: 'none' }, effects: [{ kind: 'mark', amount: 0.2, duration: 3, explode: { radius: 40, ratio: 0.4 } }], stats: { damage: 1.4 }, color: '#bfe8ff', icon: '★' },
+    ],
+  },
+  stoneWall: {
+    id: 'stoneWall',
+    name: 'Muralha',
+    race: 'Golem',
+    role: 'Bloqueio (atordoar)',
+    description: 'Segura até 3 inimigos parados e os golpes dele podem atordoar. Chefes passam direto.',
+    lore: 'Era parte de um castelo. Um dia cansou de esperar o inimigo chegar.',
+    icon: '🧱',
+    baseCost: 30,
+    damage: 6,
+    range: 45,
+    cooldown: 1,
+    color: '#a89c88',
+    ability: { kind: 'block', radius: 32, capacity: 3 },
+    effects: [{ kind: 'stun', chance: 0.25, duration: 1 }],
+    unlock: { kind: 'essence', cost: 90 },
+    ascended: [
+      { name: 'Fortaleza', description: 'Segura até 6 inimigos.', ability: { kind: 'block', radius: 40, capacity: 6 }, color: '#ffd25a', icon: '♜' },
+      { name: 'Avalanche', description: 'Troca o bloqueio por pancadas em área que atordoam.', ability: { kind: 'nova', radius: 50 }, effects: [{ kind: 'stun', chance: 0.4, duration: 1.2 }], stats: { damage: 1.6 }, color: '#bfe8ff', icon: '❄' },
+    ],
+  },
+  crystalGolem: {
+    id: 'crystalGolem',
+    name: 'Cristal',
+    race: 'Golem',
+    role: 'Raio em linha',
+    description: 'Dispara um raio de luz que atravessa todos os inimigos em linha.',
+    lore: 'Um coração de cristal que aprendeu a andar. Ainda não aprendeu a errar o alvo.',
+    icon: '💎',
+    baseCost: 35,
+    damage: 9,
+    range: 120,
+    cooldown: 1.2,
+    color: '#a87aff',
+    ability: { kind: 'pierce', width: 10, beams: 1 },
+    unlock: { kind: 'essence', cost: 100 },
+    ascended: [
+      { name: 'Prisma', description: 'Divide o raio em 3, em leque.', ability: { kind: 'pierce', width: 10, beams: 3 }, color: '#ffd25a', icon: '◬' },
+      { name: 'Amplificador', description: 'Troca o raio por uma aura que aumenta o dano crítico das criaturas próximas.', ability: { kind: 'bless', radius: 90, critDamage: 1 }, stats: { damage: 1.4 }, color: '#5ab0ff', icon: '◎' },
+    ],
+  },
+  magmaGolem: {
+    id: 'magmaGolem',
+    name: 'Magma',
+    race: 'Golem',
+    role: 'Área ao redor',
+    description: 'Queima tudo ao redor de si: cada golpe fere todos por perto e deixa queimando.',
+    lore: 'Dorme dentro de vulcões. Acordado, o vulcão é ele.',
+    icon: '🌋',
+    baseCost: 30,
+    damage: 6,
+    range: 45,
+    cooldown: 0.8,
+    color: '#ff6a2a',
+    ability: { kind: 'nova', radius: 45 },
+    effects: [{ kind: 'poison', dps: 4, duration: 2 }],
+    unlock: { kind: 'essence', cost: 90 },
+    ascended: [
+      { name: 'Vulcão', description: 'Área maior e queimadura mais forte.', ability: { kind: 'nova', radius: 65 }, effects: [{ kind: 'poison', dps: 7, duration: 2.5 }], stats: { range: 1.4 }, color: '#ffd25a', icon: '🌋' },
+      { name: 'Lava Viva', description: 'Arremessa lava que vira poça no chão.', ability: { kind: 'pool', radius: 30, duration: 3, dps: 18 }, effects: [], stats: { range: 1.8 }, color: '#ff8a2a', icon: '♨' },
     ],
   },
 };

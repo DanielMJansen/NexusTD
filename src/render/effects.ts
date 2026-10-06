@@ -12,6 +12,7 @@ const GOLD = '#ffd25a';
 
 /** Cores do Pulso de cada herói. */
 const PULSE_LOOK: Record<HeroId, { ring: string; inner: string; particle: string }> = {
+  colossus: { ring: '#c8a070', inner: '#7affd8', particle: '#8a7a60' },
   faeQueen: { ring: '#ff8ad0', inner: '#ffffff', particle: '#ffd0f4' },
   knight: { ring: '#c08cff', inner: '#ffffff', particle: '#c99bff' },
   vampireLord: { ring: '#ff3a50', inner: '#2a1040', particle: '#3a1a50' },

@@ -69,10 +69,14 @@ Gacha com dinheiro real: ver seção 10.
 | Fada | Encantadora | Suporte (bênção) | Bênção raio 85: +12% dano, +10% alcance (voa); 30 ouro, 90 ✦ | Rainha das Flores (raio 110, +20% dano, +15% alcance) · Fada Guerreira (pó de estrelas em 3 alvos, +140% dano) |
 | Fada | Travessa | Controle (confusão) | 30% de confundir (anda para trás) por 1,6 s; 25 ouro, 80 ✦ | Pregadora de Peças (confusão em área raio 35) · Ladra de Ouro (confusos que morrem: +3 ouro) |
 | Fada | Lumina | Suporte (marca) | Marca: +20% de dano recebido por 3 s; 30 ouro, 90 ✦ | Farol (marca 3 alvos, +25%) · Estrela Cadente (marcados explodem ao morrer) |
+| Golem | Muralha | Bloqueio (atordoar) | Segura 3 (raio 32); golpes com 25% de atordoar 1 s; 30 ouro, 90 ✦ | Fortaleza (segura 6, raio 40) · Avalanche (golpe em área raio 50, 40% de atordoar 1,2 s, +60% dano) |
+| Golem | Cristal | Raio em linha | Raio que atravessa tudo (largura 10); dano 9, alcance 120; 35 ouro, 100 ✦ | Prisma (3 raios em leque) · Amplificador (aura: +1× dano crítico às criaturas próximas) |
+| Golem | Magma | Área ao redor | Golpe em área raio 45 + queimadura 4/s por 2 s; 30 ouro, 90 ✦ | Vulcão (raio 65, queimadura 7/s) · Lava Viva (arremessa lava: poça raio 30, 18/s por 3 s) |
 <!-- f10-rows -->
 
 **Heróis novos:**
 - **Rainha Fada** (Fada, 240 ✦): vida 85, vel. 130; pó mágico 7 a cada 0,45 s, alcance 95; Pulso **Bênção Feérica**: 15 de dano (raio 90) e todas as criaturas +50% de vel. de ataque por 5 s (recarga 14 s); bônus: Fadas +12% de alcance.
+- **Colosso** (Golem, 260 ✦): vida 220, vel. 85; esmaga em leque 12 a cada 0,9 s, alcance 45; Pulso **Terremoto**: 25 de dano (raio 100) e atordoa 1,8 s (recarga 13 s); bônus: Golems +12% de dano.
 <!-- f10-heroes -->
 
 **Efeitos de golpe** `FEITO` (combináveis, reaproveitados pelas raças novas): dano contínuo, atordoar/raízes/petrificar, medo/confusão, marca (+dano recebido, pode explodir), vulnerável, corrosão de armadura, enfraquecer (lento e menos dano ao Nexus), puxar, possuir (aliado temporário), executar, +dano contra fortes, acúmulo por abate (velocidade ou dano), roubar ouro, ouro ao abater, erguer esqueleto aliado. Padrões de ataque novos: **bênção** (aura de dano/alcance/velocidade/crítico/proteção), **golpe em área ao redor de si** e **raio que atravessa em linha**.
@@ -322,6 +326,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 06/10/2026 | Próximas etapas: terceira classe das raças atuais, equipe de 8 e 12 raças novas com 3 classes + herói cada (Necromante, Golem, Fada, Górgona, Demônios, Anjos, Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais) |
 | 07/10/2026 | F9: terceira classe de cada raça (Clériga, Enxame, Tempestade, Uivador, Possessor, Herbalista), sem cura do Nexus; sistema de efeitos de golpe; equipe de 8 |
 | 07/10/2026 | F10: raça Fada (3 classes com vertentes + herói) |
+| 07/10/2026 | F10: raça Golem (3 classes com vertentes + herói) |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.
