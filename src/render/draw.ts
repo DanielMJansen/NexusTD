@@ -2,8 +2,8 @@ import { ARENA } from '../data/config';
 import { WAVES } from '../data/waves';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { MAX_CREATURE_LEVEL } from '../data/evolution';
-import { ascendedForm, creatureAbility, creatureName, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
-import { canEvolve, evolveCost, needsBranchChoice, sellValue } from '../game/economy';
+import { ascendedForm, creatureAbility, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
+import { canEvolve, needsBranchChoice } from '../game/economy';
 import { heroMaxHp } from '../game/hero';
 import type { Creature, Enemy, Point, Pool, RunState } from '../game/state';
 import { drawAtmosphere, drawBackground, drawNexus } from './arena';
@@ -20,26 +20,14 @@ const HIT_FLASH = 0.08;
 export interface InteractionView {
   /** Criatura clicada: mostra alcance e botão de venda. */
   inspected: Creature | null;
-  /** Venda armada: o botão vira "Confirmar". */
-  sellArmed?: boolean;
+  /** Vertente sob o mouse no quadro da criatura. */
+  hoverBranch?: number | null;
   /** Quadro de melhorias do Nexus aberto (destaca o Nexus). */
   nexusOpen?: boolean;
   /** Mostrar o alcance do herói com destaque (Shift ou mouse sobre ele). */
   heroRange?: boolean;
   /** Carta escolhida com o mouse sobre a arena: prévia, alcance e se pode posicionar ali. */
   placement: { creature: CreatureId; at: Point; valid: boolean } | null;
-}
-
-export interface InspectButton {
-  action: 'evolve' | 'sell';
-  /** Vertente escolhida por este botão (evolução para o nível máximo). */
-  branch?: number;
-  label: string;
-  enabled: boolean;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
 }
 
 export function drawFrame(
@@ -78,7 +66,7 @@ export function drawFrame(
   layers.sort((a, b) => a.y - b.y);
   for (const layer of layers) layer.draw();
 
-  if (interaction.inspected) drawInspectPanel(ctx, state, interaction.inspected, !!interaction.sellArmed);
+  if (interaction.inspected) drawInspectRange(ctx, state, interaction.inspected, interaction.hoverBranch ?? null);
   if (interaction.placement) drawPlacementPreview(ctx, state, interaction.placement, time);
   effects.drawWorld(ctx, time);
   ctx.restore();
@@ -497,106 +485,15 @@ function rangeCircle(ctx: CanvasRenderingContext2D, at: Point, radius: number, c
 }
 
 /** Painel sobre a criatura clicada: nome, nível e botões (também usado para detectar o clique). */
-export function inspectButtons(state: RunState, creature: Creature, sellArmed = false): InspectButton[] {
-  const width = 66;
-  const height = 18;
-  const y = creature.y - 52;
-  const sell = {
-    action: 'sell' as const,
-    label: sellArmed ? `Confirmar +${sellValue(creature)}` : `Vender +${sellValue(creature)}`,
-    enabled: true,
-  };
-  const cost = evolveCost(creature, state.talents.evolveDiscount);
-  if (cost === null) return [{ ...sell, x: creature.x - width / 2, y, width, height }];
-  if (needsBranchChoice(creature)) {
-    // escolha da vertente: um botão por forma evoluída, acima do Vender
-    const branchWidth = 112;
-    const enabled = canEvolve(state, creature);
-    return [
-      ...creature.def.ascended.map((form, i) => ({
-        action: 'evolve' as const,
-        branch: i,
-        label: `${form.icon} ${form.name} ◉${cost}`,
-        enabled,
-        x: i === 0 ? creature.x - branchWidth - 2 : creature.x + 2,
-        y: y - height - 4,
-        width: branchWidth,
-        height,
-      })),
-      { ...sell, x: creature.x - width / 2, y, width, height },
-    ];
-  }
-  return [
-    {
-      action: 'evolve',
-      label: `Evoluir ◉${cost}`,
-      enabled: canEvolve(state, creature),
-      x: creature.x - width - 2,
-      y,
-      width,
-      height,
-    },
-    { ...sell, x: creature.x + 2, y, width, height },
-  ];
-}
-
-function drawInspectPanel(ctx: CanvasRenderingContext2D, state: RunState, creature: Creature, sellArmed: boolean): void {
+/** Alcance da criatura selecionada e, com o mouse numa vertente do quadro, o alcance que ela teria. */
+function drawInspectRange(ctx: CanvasRenderingContext2D, state: RunState, creature: Creature, hoverBranch: number | null): void {
   rangeCircle(ctx, creature, creatureRange(creature, state.modifiers), '#ffffff88', '#ffffff0c');
-
-  const buttons = inspectButtons(state, creature, sellArmed);
-  const top = buttons[0]!.y;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.lineJoin = 'round';
-  ctx.font = '700 10px Cinzel, Georgia, serif';
-  // nome + estrelas: cheias (douradas) para o nível atual, apagadas para o que falta
-  const name = creatureName(creature);
-  const starText = '★'.repeat(MAX_CREATURE_LEVEL);
-  const nameWidth = ctx.measureText(`${name}  `).width;
-  ctx.font = '700 8px Georgia, serif';
-  const starWidth = ctx.measureText(starText).width;
-  const left = creature.x - (nameWidth + starWidth) / 2;
-  ctx.textAlign = 'left';
-  ctx.font = '700 10px Cinzel, Georgia, serif';
-  ctx.strokeStyle = '#0a0612';
-  ctx.lineWidth = 3;
-  ctx.strokeText(name, left, top - 8);
-  ctx.fillStyle = isAscended(creature) ? '#ffd25a' : '#f0e6ff';
-  ctx.fillText(name, left, top - 8);
-  ctx.font = '700 8px Georgia, serif';
-  const starStep = starWidth / MAX_CREATURE_LEVEL;
-  for (let i = 0; i < MAX_CREATURE_LEVEL; i++) {
-    const sx = left + nameWidth + i * starStep;
-    ctx.lineWidth = 2;
-    ctx.strokeText('★', sx, top - 8);
-    ctx.fillStyle = i < creature.level ? '#ffd25a' : '#4a4060';
-    ctx.fillText('★', sx, top - 8);
-  }
-  ctx.textAlign = 'center';
-
-  for (const b of buttons) {
-    const evolve = b.action === 'evolve';
-    const armed = !evolve && sellArmed;
-    // Evoluir: verde quando dá, cinza quando falta ouro. Vender armado: vermelho.
-    const look = evolve
-      ? b.enabled
-        ? { fill: '#163a26ee', stroke: '#4fd88a', text: '#b8ffd0' }
-        : { fill: '#1c1828ee', stroke: '#5a5470', text: '#8a849c' }
-      : armed
-        ? { fill: '#4a1420ee', stroke: '#ff5a6a', text: '#ffd0d4' }
-        : { fill: '#1c1430ee', stroke: '#f0c35a', text: '#ffd25a' };
-    ctx.fillStyle = look.fill;
-    ctx.strokeStyle = look.stroke;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.roundRect(b.x, b.y, b.width, b.height, 6);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = look.text;
-    ctx.font = '700 8.5px Cinzel, Georgia, serif';
-    ctx.fillText(b.label, b.x + b.width / 2, b.y + b.height / 2 + 0.5);
-  }
-  ctx.globalAlpha = 1;
+  if (hoverBranch === null || !needsBranchChoice(creature)) return;
+  const form = creature.def.ascended[hoverBranch]!;
+  const preview = { ...creature, level: creature.level + 1, branch: hoverBranch };
+  ctx.setLineDash([4, 4]);
+  rangeCircle(ctx, creature, creatureRange(preview, state.modifiers), form.color, withAlpha(form.color, 0.06));
+  ctx.setLineDash([]);
 }
 
 function drawPlacementPreview(

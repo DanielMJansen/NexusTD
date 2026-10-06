@@ -16,6 +16,8 @@ export interface Interaction {
   inspected: Creature | null;
   /** Venda armada: o próximo clique em "Vender" confirma. */
   sellArmed: boolean;
+  /** Vertente sob o mouse no quadro da criatura (mostra o alcance dela). */
+  hoverBranch: number | null;
   /** Quadro de melhorias do Nexus aberto no painel lateral. */
   nexusOpen: boolean;
   /** Última carta recusada (sem ouro ou sem vaga), para a UI piscar. */
@@ -32,6 +34,7 @@ export function createInteraction(): Interaction {
     inspected: null,
     sellArmed: false,
     nexusOpen: false,
+    hoverBranch: null,
     denied: null,
   };
 }
@@ -42,10 +45,10 @@ export function resetInteraction(interaction: Interaction): void {
 }
 
 export function interactionView(interaction: Interaction, run: RunState): InteractionView {
-  const { selectedCard, pointer, pointerInArena, inspected, sellArmed, nexusOpen } = interaction;
+  const { selectedCard, pointer, pointerInArena, inspected, nexusOpen, hoverBranch } = interaction;
   return {
     inspected,
-    sellArmed,
+    hoverBranch,
     nexusOpen,
     placement:
       selectedCard && pointerInArena

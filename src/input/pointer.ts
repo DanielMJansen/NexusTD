@@ -1,8 +1,7 @@
 import { ARENA } from '../data/config';
 import type { CreatureId } from '../data/creatures';
-import { creatureCost, evolveCreature, placeCreature, sellCreature } from '../game/economy';
+import { creatureCost, evolveCreature, placeCreature } from '../game/economy';
 import { distance, type Point, type RunState } from '../game/state';
-import { inspectButtons } from '../render/draw';
 import type { Interaction } from './interaction';
 
 /** Raio do clique para selecionar uma criatura em campo. */
@@ -90,27 +89,8 @@ export function attachPointer({ canvas, interaction, getRun, isActive }: Pointer
       return;
     }
 
-    const inspected = interaction.inspected;
-    if (inspected) {
-      const button = inspectButtons(run, inspected, interaction.sellArmed).find(
-        (b) => point.x >= b.x && point.x <= b.x + b.width && point.y >= b.y && point.y <= b.y + b.height,
-      );
-      if (button?.action === 'evolve') {
-        evolveCreature(run, inspected, button.branch);
-        interaction.sellArmed = false;
-        return;
-      }
-      if (button?.action === 'sell') {
-        // 1º clique arma a venda; o 2º confirma
-        if (!interaction.sellArmed) {
-          interaction.sellArmed = true;
-          return;
-        }
-        interaction.inspected = null;
-        interaction.sellArmed = false;
-        sellCreature(run, inspected);
-        return;
-      }
+    // clicar fora fecha o quadro da criatura (evoluir e vender ficam no quadro, em HTML)
+    if (interaction.inspected) {
       interaction.inspected = null;
       interaction.sellArmed = false;
     }

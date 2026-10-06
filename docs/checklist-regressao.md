@@ -38,11 +38,12 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Evoluir a 2ª/3ª cópia de uma criatura custa mais que a 1ª (proporcional ao custo de invocação dela).
 - [ ] Clique no Nexus, tecla N ou botão "Melhorar o Nexus": quadro com 5 melhorias, bolinhas de nível, botão verde com ouro e "Máx." no fim; a ajuda de controles some enquanto o quadro está aberto. Campo de Lentidão aparece no chão; Raio dispara faíscas douradas; Escudo mostra um losango dourado quando pronto e uma bolha quando ativo.
 - [ ] Moedas (giram) e baús (balançam) caem no chão, piscam antes de sumir e são coletados pelo herói; baú pausa e oferece 3 melhorias Raras ou melhores; loot que sobra fica no chão para a próxima onda.
-- [ ] Criatura no nível 2: dois botões verdes (vertente A e B, com ícone, nome e custo) sobre ela; o painel lateral explica as duas; ao escolher, banner com o nome da forma, aura e emblema na cor da vertente. Coleção, tooltip das cartas e primeiro companheiro mostram as duas vertentes.
+- [ ] Clicar numa criatura abre um quadro sobre ela (abaixo, se não couber em cima; sempre dentro da arena) com dano, ataques/s, alcance, habilidade, evolução com "atual → depois" e Vender (2 cliques). No nível 2, as duas vertentes ficam lado a lado com as diferenças; passar o mouse numa vertente mostra o alcance dela tracejado na arena; ao escolher, banner com o nome da forma, aura e emblema na cor da vertente. Coleção, tooltip das cartas e primeiro companheiro mostram as duas vertentes.
 - [ ] Clicar numa criatura: nome, estrelas (N cheias no nível N), quadro de atributos no painel, "Evoluir" verde com ouro / cinza sem, "Vender" pede confirmação; nível 3 mostra nome da forma evoluída, aura e acessório.
 - [ ] Seta ⇧ verde sobre criaturas que podem evoluir. Cartas verdes/vermelhas; sem ouro ou vaga a carta treme e não é escolhida.
 - [ ] Herói: chip no HUD com nível, vida e XP; barra de vida sobre o herói quando ferido; ao cair, "Renasce em N s" no Nexus e volta com vida cheia em 8 s.
 - [ ] Subir de nível pausa o jogo e mostra 3 melhorias do herói; vários níveis de uma vez abrem uma escolha por nível.
+- [ ] Com o jogo pausado, a tooltip das cartas aparece por cima da tela de pausa.
 - [ ] Alcance do herói visível; Shift ou mouse sobre o herói destaca. Tooltip no botão do Pulso.
 - [ ] Números de dano aparecem (e somem ao desligar nas Configurações). Velocidade 1x/2x/4x (botão ou F).
 - [ ] Pulso (Espaço) com o nome do Pulso do herói: Onda de Choque, Revoada (cura), Rugido (raio maior), Uivo (inimigos com "!" fogem), Travessia (herói atravessa o campo), Maldição (veneno com bolhas verdes).

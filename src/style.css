@@ -1923,3 +1923,183 @@ button.danger {
   margin-top: 4px;
   color: #b8ffd0;
 }
+
+/* o painel lateral (e as tooltips das cartas) fica acima do overlay da arena, inclusive na pausa */
+#side-panel {
+  position: relative;
+  z-index: 20;
+}
+
+/* quadro da criatura sobre a arena */
+#creature-popup {
+  --card-color: var(--accent);
+  position: absolute;
+  z-index: 6;
+  width: 230px;
+  padding: 8px 10px 10px;
+  border: 1px solid var(--card-color);
+  border-radius: 12px;
+  background: #120c20f0;
+  box-shadow: 0 10px 30px #000c;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+#creature-popup[hidden] {
+  display: none;
+}
+
+#creature-popup.wide {
+  width: 360px;
+}
+
+.cp-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.cp-head b {
+  font: 700 14px var(--font-label);
+  color: var(--card-color);
+}
+
+.cp-head .stars {
+  font-size: 11px;
+}
+
+.cp-sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cp-stats,
+.cp-delta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 8px;
+  margin: 4px 0;
+}
+
+.cp-stats dt,
+.cp-delta dt {
+  color: var(--muted);
+}
+
+.cp-stats dd,
+.cp-delta dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.cp-delta {
+  font-size: 12px;
+}
+
+.cp-delta .arrow {
+  color: var(--muted);
+}
+
+.cp-delta b.up {
+  color: #6af0a0;
+}
+
+.cp-delta b.down {
+  color: #ff8a8a;
+}
+
+.cp-ability {
+  margin: 2px 0 4px;
+  font-size: 12px;
+  color: #d8c8f0;
+}
+
+.cp-section {
+  margin: 6px 0 2px;
+  font: 700 11px var(--font-label);
+  color: #b8ffd0;
+  letter-spacing: 0.5px;
+}
+
+.cp-final {
+  margin: 4px 0;
+  font: 700 11px var(--font-label);
+  color: var(--gold);
+}
+
+.cp-branches {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.cp-branch {
+  --branch-color: var(--gold);
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--branch-color) 40%, var(--line));
+  border-radius: 9px;
+  background: linear-gradient(color-mix(in srgb, var(--branch-color) 10%, #1a1230), #120c20);
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.cp-branch:hover {
+  border-color: var(--branch-color);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--branch-color) 40%, transparent);
+}
+
+.cp-branch-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cp-branch-head b {
+  font: 700 12px var(--font-label);
+  color: var(--branch-color);
+}
+
+.cp-branch-desc {
+  margin: 3px 0 0;
+  font-size: 12px;
+}
+
+.cp-branch .cp-ability {
+  flex: 1;
+}
+
+#creature-popup button {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+#creature-popup button[data-action='evolve']:not(:disabled) {
+  border-color: #4fd88a;
+  background: linear-gradient(#1e4a32, #143222);
+  color: #d8ffe6;
+}
+
+#creature-popup button small {
+  font-size: 10px;
+  color: #ff9aa4;
+}
+
+.cp-sell {
+  margin-top: 6px;
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+.cp-sell.armed {
+  border-color: #ff5a6a;
+  background: linear-gradient(#4a1420, #2a0a12);
+  color: #ffd0d4;
+}
+
+#creature-popup kbd {
+  margin-left: 4px;
+  font-size: 10px;
+}

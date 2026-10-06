@@ -141,7 +141,7 @@ export class SidePanel {
         <dt>Evoluir</dt><dd>${next === null ? 'máximo' : gold(next)}</dd>
       </dl>
       <p class="special">${abilityText(creatureAbility(creature))}</p>
-      ${needsBranchChoice(creature) ? `<p class="special branch-hint">Próxima evolução: escolha a vertente nos botões sobre a criatura.</p>${ascendedFormsHtml(creature.def, 'special evolves')}` : ''}`;
+      ${needsBranchChoice(creature) ? `<p class="special branch-hint">Próxima evolução: escolha a vertente no quadro sobre a criatura.</p>${ascendedFormsHtml(creature.def, 'special evolves')}` : ''}`;
     this.selectionInfo.style.setProperty('--card-color', creature.def.color);
     setHtml(this.selectionInfo, html);
     this.selectionInfo.hidden = false;

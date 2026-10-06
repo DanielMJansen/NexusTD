@@ -7,6 +7,7 @@ import { chooseChest, chooseOption } from './game/choices';
 import { buyNexusUpgrade } from './game/nexus';
 import { showChestChoices } from './ui/chestChoices';
 import { NexusPanel } from './ui/nexusPanel';
+import { CreaturePopup } from './ui/creaturePopup';
 import { firePulse } from './game/combat';
 import type { GameEvent } from './game/events';
 import {
@@ -52,7 +53,7 @@ import { needsStarter, showStarterPick } from './ui/starterPick';
 import { showTalents } from './ui/talentsScreen';
 import { showTeam } from './ui/teamScreen';
 import { Tutorial } from './ui/tutorial';
-import { creatureCost } from './game/economy';
+import { creatureCost, evolveCreature, sellCreature } from './game/economy';
 import { showWaveChoices } from './ui/waveChoices';
 
 type Mode = 'entry' | 'menu' | 'run';
@@ -78,6 +79,7 @@ export class App {
   private readonly pointer: PointerControls;
   private readonly panel: SidePanel;
   private readonly nexusPanel: NexusPanel;
+  private readonly creaturePopup: CreaturePopup;
   private readonly muteButton: HTMLButtonElement;
   private readonly tutorial = new Tutorial(() => this.updateSettings({ tutorialDone: true }));
   private readonly speedButton = document.querySelector<HTMLButtonElement>('#speed-button')!;
@@ -101,6 +103,27 @@ export class App {
     this.panel = new SidePanel({
       onCardPress: (id) => this.pointer.pressCard(id),
       onPulse: () => this.pulse(),
+    });
+    this.creaturePopup = new CreaturePopup(this.interaction, {
+      onEvolve: (branch) => {
+        const creature = this.interaction.inspected;
+        if (!this.isPlaying() || !creature) return;
+        evolveCreature(this.run, creature, branch);
+        this.interaction.sellArmed = false;
+        this.interaction.hoverBranch = null;
+      },
+      onSell: () => {
+        const creature = this.interaction.inspected;
+        if (!this.isPlaying() || !creature) return;
+        // 1º clique arma a venda; o 2º confirma
+        if (!this.interaction.sellArmed) {
+          this.interaction.sellArmed = true;
+          return;
+        }
+        this.interaction.inspected = null;
+        this.interaction.sellArmed = false;
+        sellCreature(this.run, creature);
+      },
     });
     this.nexusPanel = new NexusPanel(
       () => this.toggleNexusPanel(),
@@ -301,6 +324,7 @@ export class App {
     updateHud(this.run);
     this.panel.update(this.run, this.interaction, time);
     this.nexusPanel.update(this.run, this.mode === 'run' && this.interaction.nexusOpen);
+    this.creaturePopup.update(this.run, this.isPlaying() && !this.tutorial.freezes);
     animateOverlay(time);
     requestAnimationFrame((t) => this.frame(t));
   }
