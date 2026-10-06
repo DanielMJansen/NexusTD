@@ -1485,3 +1485,72 @@ button.danger {
 .star-off {
   color: #4a4060;
 }
+
+/* tutorial */
+#overlay {
+  z-index: 10;
+}
+
+.tutorial-box {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 5;
+  width: min(340px, 45%);
+  padding: 10px 14px 12px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 12px;
+  background: #140d24f0;
+  box-shadow:
+    0 0 0 3px #0a061299,
+    0 10px 30px #000a;
+  font-size: 15px;
+}
+
+.tutorial-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font: 600 12px var(--font-label);
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.tutorial-skip {
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.tutorial-box h4 {
+  margin: 6px 0 4px;
+  font: 700 17px var(--font-label);
+  color: var(--gold);
+}
+
+.tutorial-box p {
+  margin: 0 0 8px;
+  line-height: 1.35;
+}
+
+.tutorial-foot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tutorial-foot em {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.tutorial-highlight {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 12px;
+  animation: tutorial-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tutorial-pulse {
+  50% {
+    outline-color: #ffd25a44;
+  }
+}

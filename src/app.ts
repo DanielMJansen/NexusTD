@@ -44,6 +44,8 @@ import { SidePanel } from './ui/sidePanel';
 import { needsStarter, showStarterPick } from './ui/starterPick';
 import { showTalents } from './ui/talentsScreen';
 import { showTeam } from './ui/teamScreen';
+import { Tutorial } from './ui/tutorial';
+import { creatureCost } from './game/economy';
 import { showWaveChoices } from './ui/waveChoices';
 
 type Mode = 'entry' | 'menu' | 'run';
@@ -69,6 +71,7 @@ export class App {
   private readonly pointer: PointerControls;
   private readonly panel: SidePanel;
   private readonly muteButton: HTMLButtonElement;
+  private readonly tutorial = new Tutorial(() => this.updateSettings({ tutorialDone: true }));
   private readonly speedButton = document.querySelector<HTMLButtonElement>('#speed-button')!;
 
   constructor() {
@@ -243,7 +246,7 @@ export class App {
     this.lastFrame = now;
     const time = now / 1000;
 
-    if (this.mode === 'run' && !this.paused) {
+    if (this.mode === 'run' && !this.paused && !this.tutorial.freezes) {
       // Velocidade 2x/4x e quadros lentos: divide o tempo em passos curtos (mesma física).
       let remaining = elapsed * this.settings.gameSpeed;
       while (remaining > 1e-6) {
@@ -253,7 +256,18 @@ export class App {
         remaining -= dt;
       }
     }
-    for (const event of this.run.events.splice(0)) this.handleEvent(event);
+    for (const event of this.run.events.splice(0)) {
+      this.handleEvent(event);
+      this.tutorial.onEvent(event);
+    }
+    if (this.mode === 'run') {
+      this.tutorial.watch({ hero: this.run.hero, inspecting: this.interaction.inspected !== null });
+      // No passo de invocar, garante ouro para a criatura mais barata da equipe.
+      if (this.tutorial.wantsSummon && this.run.team.length) {
+        const cheapest = Math.min(...this.run.team.map((id) => creatureCost(this.run, id)));
+        if (this.run.gold < cheapest) this.run.gold = cheapest;
+      }
+    }
 
     fitArenaCanvas(this.canvas, this.ctx);
     const view = interactionView(this.interaction, this.run);
@@ -313,6 +327,7 @@ export class App {
   }
 
   private openMenu(): void {
+    this.tutorial.stop();
     this.mode = 'menu';
     this.music.play('menu');
     this.paused = false;
@@ -438,6 +453,7 @@ export class App {
     this.music.play('run');
     this.music.setIntensity(0);
     this.run = startRun(runSetup(this.profile));
+    if (!this.settings.tutorialDone) this.tutorial.start();
   }
 
   private togglePause(): void {
