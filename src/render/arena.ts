@@ -24,46 +24,70 @@ interface Prop {
   tilt: number;
 }
 
-const rand = seeded(7);
-const props: Prop[] = [];
-// Lápides, cruzes e pedras espalhadas, longe do Nexus.
-while (props.length < 26) {
-  const x = 20 + rand() * (W - 40);
-  const y = 20 + rand() * (H - 30);
-  if (Math.hypot(x - center.x, (y - center.y) * 1.3) < 140) continue;
-  if (props.some((p) => Math.hypot(p.x - x, p.y - y) < 34)) continue;
-  const roll = rand();
-  props.push({
-    kind: roll < 0.5 ? 'tomb' : roll < 0.75 ? 'cross' : 'rock',
-    x,
-    y,
-    size: 0.8 + rand() * 0.5,
-    tilt: (rand() - 0.5) * 0.3,
+type Pt = { x: number; y: number };
+
+/** Distância de um ponto à trilha mais próxima (para não pôr túmulos no caminho). */
+function distToPaths(stage: StageDef, x: number, y: number): number {
+  let best = Infinity;
+  for (const e of stage.entrances ?? []) {
+    for (let i = 1; i < e.path.length; i++) {
+      const a = e.path[i - 1]!;
+      const b = e.path[i]!;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / (dx * dx + dy * dy || 1)));
+      best = Math.min(best, Math.hypot(x - (a.x + dx * t), y - (a.y + dy * t)));
+    }
+  }
+  return best;
+}
+
+interface GraveyardLayout {
+  props: Prop[];
+  specks: { x: number; y: number; r: number; light: boolean }[];
+  candles: { x: number; y: number; phase: number }[];
+}
+
+const layouts = new Map<string, GraveyardLayout>();
+
+/** Lápides, cruzes, pedras e árvores espalhadas pelo mundo, longe do Nexus e das alamedas. */
+function graveyardLayout(stage: StageDef, world: { width: number; height: number }, nexus: Pt): GraveyardLayout {
+  const key = `${stage.id}:${world.width}x${world.height}`;
+  const cached = layouts.get(key);
+  if (cached) return cached;
+  const rand = seeded(7);
+  const area = (world.width * world.height) / (W * H);
+  const props: Prop[] = [];
+  for (let tries = 0; props.length < Math.round(26 * area) && tries < 4000; tries++) {
+    const x = 30 + rand() * (world.width - 60);
+    const y = 30 + rand() * (world.height - 44);
+    if (Math.hypot(x - nexus.x, (y - nexus.y) * 1.3) < 140) continue;
+    if (distToPaths(stage, x, y) < 34) continue;
+    if (props.some((p) => Math.hypot(p.x - x, p.y - y) < 34)) continue;
+    const roll = rand();
+    props.push({ kind: roll < 0.5 ? 'tomb' : roll < 0.75 ? 'cross' : 'rock', x, y, size: 0.8 + rand() * 0.5, tilt: (rand() - 0.5) * 0.3 });
+  }
+  // árvores secas nos cantos
+  for (const [fx, fy, size] of [
+    [0.06, 0.19, 1.3],
+    [0.95, 0.18, 1.2],
+    [0.06, 0.89, 1.1],
+    [0.94, 0.88, 1.25],
+  ] as const) {
+    props.push({ kind: 'tree', x: fx * world.width, y: fy * world.height, size, tilt: 0 });
+  }
+  props.sort((p, q) => p.y - q.y);
+  const specks = Array.from({ length: Math.round(420 * area) }, () => ({ x: rand() * world.width, y: rand() * world.height, r: 0.4 + rand() * 1.6, light: rand() < 0.5 }));
+  const candles = Array.from({ length: 6 }, (_, i) => {
+    const t = (i / 6) * TAU + 0.5;
+    return { x: nexus.x + Math.cos(t) * 96, y: nexus.y + Math.sin(t) * 74, phase: rand() * 10 };
   });
+  const layout = { props, specks, candles };
+  layouts.set(key, layout);
+  return layout;
 }
-// Árvores secas nos cantos.
-for (const [x, y, size] of [
-  [36, 70, 1.3],
-  [606, 64, 1.2],
-  [40, 320, 1.1],
-  [600, 316, 1.25],
-] as const) {
-  props.push({ kind: 'tree', x, y, size, tilt: 0 });
-}
-props.sort((a, b) => a.y - b.y);
 
-const groundSpecks = Array.from({ length: 420 }, () => ({
-  x: rand() * W,
-  y: rand() * H,
-  r: 0.4 + rand() * 1.6,
-  light: rand() < 0.5,
-}));
-
-const candles = Array.from({ length: 6 }, (_, i) => {
-  const a = (i / 6) * TAU + 0.5;
-  return { x: center.x + Math.cos(a) * 96, y: center.y + Math.sin(a) * 74, phase: rand() * 10 };
-});
-
+const rand = seeded(11);
 const fog = Array.from({ length: 7 }, () => ({
   x: rand() * W,
   y: rand() * H,
@@ -75,26 +99,32 @@ let cache: HTMLCanvasElement | null = null;
 let cacheBiome = '';
 
 /** Chão, props estáticos e névoa do bioma. A parte estática é desenhada uma vez em cache. */
-export function drawBackground(ctx: CanvasRenderingContext2D, time: number, stage: StageDef, world: { width: number; height: number } = { width: W, height: H }): void {
+export function drawBackground(
+  ctx: CanvasRenderingContext2D,
+  time: number,
+  stage: StageDef,
+  world: { width: number; height: number } = { width: W, height: H },
+  nexus: Pt = center,
+): void {
   // cache do mundo inteiro na resolução da tela; desenhado no espaço do mundo (a câmera já está no contexto)
   const pxPerUnit = ctx.canvas.width / W;
   const cw = Math.round(world.width * pxPerUnit);
   const ch = Math.round(world.height * (ctx.canvas.height / H));
-  if (!cache || cache.width !== cw || cache.height !== ch || cacheBiome !== stage.biome) {
-    cacheBiome = stage.biome;
+  if (!cache || cache.width !== cw || cache.height !== ch || cacheBiome !== stage.id) {
+    cacheBiome = stage.id;
     cache = document.createElement('canvas');
     cache.width = cw;
     cache.height = ch;
     const c = cache.getContext('2d')!;
     c.setTransform(cw / world.width, 0, 0, ch / world.height, 0, 0);
-    if (stage.biome === 'swamp') paintSwampStatic(c, stage.terrain);
-    else paintStatic(c);
+    if (stage.biome === 'swamp') paintSwampStatic(c, stage, world, nexus);
+    else paintStatic(c, stage, world, nexus);
   }
   ctx.drawImage(cache, 0, 0, world.width, world.height);
 
-  if (stage.biome === 'swamp') drawSwampLife(ctx, time, stage.terrain);
-  drawRuneCircle(ctx, time);
-  if (stage.biome === 'graveyard') for (const candle of candles) drawCandle(ctx, candle.x, candle.y, time + candle.phase);
+  if (stage.biome === 'swamp') drawSwampLife(ctx, time, stage.terrain, world);
+  drawRuneCircle(ctx, time, nexus);
+  if (stage.biome === 'graveyard') for (const candle of graveyardLayout(stage, world, nexus).candles) drawCandle(ctx, candle.x, candle.y, time + candle.phase);
 }
 
 /** Névoa e vinheta por cima de tudo. */
@@ -114,47 +144,136 @@ export function drawAtmosphere(ctx: CanvasRenderingContext2D, time: number): voi
   ctx.fillRect(0, 0, W, H);
 }
 
-function paintStatic(ctx: CanvasRenderingContext2D): void {
-  const ground = ctx.createRadialGradient(center.x, center.y, 30, center.x, center.y, W * 0.6);
+function paintStatic(ctx: CanvasRenderingContext2D, stage: StageDef, world: { width: number; height: number }, nexus: Pt): void {
+  const layout = graveyardLayout(stage, world, nexus);
+  const ground = ctx.createRadialGradient(nexus.x, nexus.y, 30, nexus.x, nexus.y, Math.max(world.width, world.height) * 0.6);
   ground.addColorStop(0, '#2b2140');
   ground.addColorStop(0.5, '#1c1630');
   ground.addColorStop(1, '#0d0a18');
   ctx.fillStyle = ground;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, world.width, world.height);
 
-  for (const s of groundSpecks) {
+  for (const s of layout.specks) {
     ctx.fillStyle = s.light ? '#ffffff0a' : '#00000030';
     ctx.beginPath();
     ctx.arc(s.x, s.y, s.r, 0, TAU);
     ctx.fill();
   }
 
+  // alamedas de pedra seguindo as trilhas
+  for (const e of stage.entrances ?? []) {
+    for (const [color, width] of [
+      ['#2e2648', 30],
+      ['#3a3058', 22],
+    ] as const) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      e.path.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+      ctx.lineTo(nexus.x, nexus.y);
+      ctx.stroke();
+    }
+    // lajes
+    const slab = seeded(e.path.length * 31 + Math.round(e.path[0]!.x));
+    ctx.fillStyle = '#4a4068';
+    for (let i = 1; i < e.path.length; i++) {
+      const p = e.path[i - 1]!;
+      const q = e.path[i]!;
+      const len = Math.hypot(q.x - p.x, q.y - p.y);
+      for (let d = 8; d < len; d += 16) {
+        const t = d / len;
+        ctx.beginPath();
+        ctx.ellipse(p.x + (q.x - p.x) * t + (slab() - 0.5) * 8, p.y + (q.y - p.y) * t + (slab() - 0.5) * 8, 4.5, 3, 0, 0, TAU);
+        ctx.fill();
+      }
+    }
+  }
+
   // pátio de pedras ao redor do Nexus
-  const plaza = ctx.createRadialGradient(center.x, center.y, 10, center.x, center.y, 120);
+  const plaza = ctx.createRadialGradient(nexus.x, nexus.y, 10, nexus.x, nexus.y, 120);
   plaza.addColorStop(0, '#3a2d58');
   plaza.addColorStop(0.75, '#2a2142');
   plaza.addColorStop(1, '#2a214200');
   ctx.fillStyle = plaza;
   ctx.beginPath();
-  ctx.ellipse(center.x, center.y, 130, 100, 0, 0, TAU);
+  ctx.ellipse(nexus.x, nexus.y, 130, 100, 0, 0, TAU);
   ctx.fill();
   ctx.strokeStyle = '#120c20aa';
   ctx.lineWidth = 1;
   for (let ring = 30; ring <= 90; ring += 20) {
     ctx.beginPath();
-    ctx.ellipse(center.x, center.y + 4, ring * 1.25, ring, 0, 0, TAU);
+    ctx.ellipse(nexus.x, nexus.y + 4, ring * 1.25, ring, 0, 0, TAU);
     ctx.stroke();
     const stones = Math.round(ring / 4);
     for (let i = 0; i < stones; i++) {
-      const a = (i / stones) * TAU + ring;
+      const t = (i / stones) * TAU + ring;
       ctx.beginPath();
-      ctx.moveTo(center.x + Math.cos(a) * ring * 1.25, center.y + 4 + Math.sin(a) * ring);
-      ctx.lineTo(center.x + Math.cos(a) * (ring + 20) * 1.25, center.y + 4 + Math.sin(a) * (ring + 20));
+      ctx.moveTo(nexus.x + Math.cos(t) * ring * 1.25, nexus.y + 4 + Math.sin(t) * ring);
+      ctx.lineTo(nexus.x + Math.cos(t) * (ring + 20) * 1.25, nexus.y + 4 + Math.sin(t) * (ring + 20));
       ctx.stroke();
     }
   }
 
-  for (const prop of props) paintProp(ctx, prop);
+  for (const prop of layout.props) paintProp(ctx, prop);
+  if (stage.decor?.walls) paintWalls(ctx, stage, world);
+}
+
+/** Muro de pedra ao redor do cemitério, com portões onde as trilhas entram. */
+function paintWalls(ctx: CanvasRenderingContext2D, stage: StageDef, world: { width: number; height: number }): void {
+  const inset = 14;
+  const gates = (stage.entrances ?? []).map((e) => e.path[1] ?? e.path[0]!);
+  const gap = 34;
+  const segment = (x1: number, y1: number, x2: number, y2: number) => {
+    // corta o muro onde há portão
+    const horizontal = y1 === y2;
+    const cuts = gates
+      .filter((g) => (horizontal ? Math.abs(g.y - y1) < 60 : Math.abs(g.x - x1) < 60))
+      .map((g) => (horizontal ? g.x : g.y))
+      .sort((p, q) => p - q);
+    let from = horizontal ? x1 : y1;
+    const to = horizontal ? x2 : y2;
+    const pieces: [number, number][] = [];
+    for (const c of cuts) {
+      if (c - gap / 2 > from) pieces.push([from, c - gap / 2]);
+      from = c + gap / 2;
+    }
+    if (from < to) pieces.push([from, to]);
+    for (const [p, q] of pieces) {
+      ctx.fillStyle = '#3a3450';
+      ctx.strokeStyle = '#0a0612';
+      ctx.lineWidth = 1.2;
+      const rect = horizontal ? [p, y1 - 5, q - p, 10] : [x1 - 5, p, 10, q - p];
+      ctx.fillRect(rect[0]!, rect[1]!, rect[2]!, rect[3]!);
+      ctx.strokeRect(rect[0]!, rect[1]!, rect[2]!, rect[3]!);
+      // ameias
+      ctx.fillStyle = '#4a4262';
+      for (let k = p + 6; k < q - 4; k += 14) {
+        if (horizontal) ctx.fillRect(k, y1 - 8, 6, 4);
+        else ctx.fillRect(x1 - 8, k, 4, 6);
+      }
+    }
+    // pilares dos portões
+    for (const c of cuts) {
+      for (const side of [-1, 1]) {
+        const px = horizontal ? c + side * (gap / 2 + 3) : x1;
+        const py = horizontal ? y1 : c + side * (gap / 2 + 3);
+        ctx.fillStyle = '#5a5274';
+        ctx.strokeStyle = '#0a0612';
+        ctx.fillRect(px - 5, py - 12, 10, 16);
+        ctx.strokeRect(px - 5, py - 12, 10, 16);
+        ctx.fillStyle = '#ffb34a88';
+        ctx.beginPath();
+        ctx.arc(px, py - 14, 2, 0, TAU);
+        ctx.fill();
+      }
+    }
+  };
+  segment(inset, inset, world.width - inset, inset);
+  segment(inset, world.height - inset, world.width - inset, world.height - inset);
+  segment(inset, inset, inset, world.height - inset);
+  segment(world.width - inset, inset, world.width - inset, world.height - inset);
 }
 
 function paintProp(ctx: CanvasRenderingContext2D, p: Prop): void {
@@ -234,9 +353,9 @@ function paintProp(ctx: CanvasRenderingContext2D, p: Prop): void {
   ctx.restore();
 }
 
-function drawRuneCircle(ctx: CanvasRenderingContext2D, time: number): void {
+function drawRuneCircle(ctx: CanvasRenderingContext2D, time: number, at: Pt = center): void {
   ctx.save();
-  ctx.translate(center.x, center.y + 4);
+  ctx.translate(at.x, at.y + 4);
   ctx.scale(1.25, 1);
   for (const [radius, speed, count] of [
     [58, 0.15, 10],

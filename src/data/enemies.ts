@@ -487,7 +487,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     id: 'hydra',
     name: 'Hidra',
     description: 'Chefe final. Cada cabeça é uma barra de vida; cabeças cortadas renascem em dobro se ela não morrer a tempo.',
-    hp: 300,
+    hp: 250,
     speed: 11,
     radius: 20,
     scale: 2.2,

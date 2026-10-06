@@ -10,6 +10,8 @@ export interface WaveEntry {
   weight: number;
   perWave: number;
   minWeight?: number;
+  /** Entradas por onde este inimigo pode vir (padrão: qualquer uma). */
+  entrances?: number[];
 }
 
 /** Chefe adicionado ao fim da fila da onda. */

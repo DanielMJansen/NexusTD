@@ -158,27 +158,27 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 | Fogo-fátuo | 22 | 34 | 0 | 4 | 3 | 4 | 3 | Isca: as criaturas que o alcançam atiram nele primeiro. |
 | Rei Sapo (chefe) | 440 | 13 | 3 | 35 | 35 | 35 | 45 | Salto: a cada 7 s, pula 40 para a frente, por cima de bloqueios. Engolir: a cada 12 s, engole a criatura mais próxima (alcance 75), que fica fora de combate por 5 s ou até ele levar 12% da vida em dano. |
 | Crocodilo Ancião (chefe) | 680 | 14 | 5 | 45 | 35 | 50 | 65 | Mergulho: a cada 14 s, some na lama por 1,4 s e reaparece perto do Nexus em investida. Investida: a cada 9 s, corre 2,5× mais rápido por 0,8 s. |
-| Hidra (chefe) | 300 | 11 | 4 | 70 | 40 | 90 | 110 | Cabeças: nasce com 3; cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro após 10 s (até 5), a não ser que a Hidra morra antes. Tiro: com o herói a até 120, avança devagar e atira (6 de dano a cada 1,8 s). |
+| Hidra (chefe) | 250 | 11 | 4 | 70 | 40 | 90 | 110 | Cabeças: nasce com 3; cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro após 10 s (até 5), a não ser que a Hidra morra antes. Tiro: com o herói a até 120, avança devagar e atira (6 de dano a cada 1,8 s). |
 
 ## Ondas
 - 20 ondas; quantidade = 4 + 3 × onda; chefes por fase abaixo.
-- **Fase 1 · Cemitério**: vida dos inimigos ×1, dano ×1, Essência ×1; chefes: onda 7 Rei Ogro, onda 14 Rainha Aranha, onda 20 Lich; inimigos: Zumbi (onda 1+), Morcego (onda 2+), Esqueleto Arqueiro (onda 3+), Ogro (onda 4+), Lodo (onda 5+), Aranha (onda 6+), Gárgula (onda 8+), Cavaleiro Sem Cabeça (onda 9+), Banshee Sombria (onda 11+), Necromante (onda 12+).
-- **Fase 2 · Pântano**: vida dos inimigos ×1,15, dano ×1,1, Essência ×1,25; chefes: onda 7 Rei Sapo, onda 14 Crocodilo Ancião, onda 20 Hidra; inimigos: Sanguessuga (onda 1+), Sapo-Boi (onda 1+), Fogo-fátuo (onda 3+), Bruxa do Brejo (onda 5+), Crocodilo (onda 6+), Lodo (onda 9+); lama: 4 poças, criaturas −25% vel. de ataque, herói −40% velocidade.
+- **Fase 1 · Cemitério**: vida dos inimigos ×0,75, dano ×0,85, Essência ×1; chefes: onda 7 Rei Ogro, onda 14 Rainha Aranha, onda 20 Lich; inimigos: Zumbi (onda 1+), Morcego (onda 2+), Esqueleto Arqueiro (onda 3+), Ogro (onda 4+), Lodo (onda 5+), Aranha (onda 6+), Gárgula (onda 8+), Cavaleiro Sem Cabeça (onda 9+), Banshee Sombria (onda 11+), Necromante (onda 12+).
+- **Fase 2 · Pântano**: vida dos inimigos ×0,9, dano ×1, Essência ×1,25; chefes: onda 7 Rei Sapo, onda 14 Crocodilo Ancião, onda 20 Hidra; inimigos: Sanguessuga (onda 1+), Sapo-Boi (onda 1+), Fogo-fátuo (onda 3+), Bruxa do Brejo (onda 5+), Crocodilo (onda 6+), Lodo (onda 9+); lama: 8 poças, criaturas −25% vel. de ataque, herói −40% velocidade.
 - Força (o = onda − 1): vida × (1 + 0,18·o + 0,02·o²); velocidade +2% por onda (máx. +40%); dano +6% por onda.
 - Elites a partir da onda 8: chance 5% (+1%/onda, máx. 25%); vida ×2,5, dano ×1,5, recompensa ×2.
 - Sem Fim: chefe a cada 5 ondas; por onda além da 20, vida ×1,08 e dano ×1,05 a mais (exponencial); elites até 35%.
 
 | Onda | Inimigos | Vida × | Velocidade × | Dano × |
 |---|---|---|---|---|
-| 1 | 7 | 1 | 1 | 1 |
-| 5 | 19 | 2,09 | 1,08 | 1,24 |
-| 7 | 25 | 2,91 | 1,12 | 1,36 |
-| 10 | 34 | 4,48 | 1,18 | 1,54 |
-| 14 | 46 | 7,23 | 1,26 | 1,78 |
-| 20 | 64 | 12,72 | 1,38 | 2,14 |
-| 25 | 79 | 27,28 | 1,4 | 3,11 |
-| 30 | 94 | 55,19 | 1,4 | 4,46 |
-| 40 | 124 | 200,44 | 1,4 | 8,86 |
+| 1 | 7 | 0,75 | 1 | 0,85 |
+| 5 | 19 | 1,57 | 1,08 | 1,05 |
+| 7 | 25 | 2,18 | 1,12 | 1,16 |
+| 10 | 34 | 3,36 | 1,18 | 1,31 |
+| 14 | 46 | 5,42 | 1,26 | 1,51 |
+| 20 | 64 | 9,54 | 1,38 | 1,82 |
+| 25 | 79 | 20,46 | 1,4 | 2,65 |
+| 30 | 94 | 41,39 | 1,4 | 3,79 |
+| 40 | 124 | 150,33 | 1,4 | 7,53 |
 
 ## Talentos
 | Ramo | Talento (requisito) | Custos | Efeito por nível |

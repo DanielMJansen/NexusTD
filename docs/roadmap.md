@@ -157,7 +157,7 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).
 - Nexus temático: **Olho Celeste**.
 
-### Revisão das Fases 1 e 2 `[ ]` (depois da Tundra)
+### Revisão das Fases 1 e 2 `[x]` (feita em 07/10, antes da Tundra)
 - Dar ao Cemitério e ao Pântano roteiros próprios (hordas, eventos, tréguas) e, se fizer sentido, trilhas e câmera — também fora do molde.
 
 ### Em paralelo (encaixar entre fases)

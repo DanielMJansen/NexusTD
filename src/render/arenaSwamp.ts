@@ -1,6 +1,6 @@
 // Cenário do Pântano (Fase 2): água escura, poças de lama da fase, juncos, vitórias-régias e troncos.
 import { ARENA } from '../data/config';
-import type { MudTerrain } from '../data/stages';
+import type { MudTerrain, StageDef } from '../data/stages';
 
 const TAU = Math.PI * 2;
 const { width: W, height: H, center } = ARENA;
@@ -19,14 +19,34 @@ function inPool(pools: MudTerrain['pools'], x: number, y: number, margin = 1.15)
   return pools.some((p) => ((x - p.x) / (p.rx * margin)) ** 2 + ((y - p.y) / (p.ry * margin)) ** 2 <= 1);
 }
 
-function buildProps(pools: MudTerrain['pools']): SwampProp[] {
+type Pt = { x: number; y: number };
+type World = { width: number; height: number };
+
+function distToLine(path: Pt[], x: number, y: number): number {
+  let best = Infinity;
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1]!;
+    const b = path[i]!;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / (dx * dx + dy * dy || 1)));
+    best = Math.min(best, Math.hypot(x - (a.x + dx * t), y - (a.y + dy * t)));
+  }
+  return best;
+}
+
+function buildProps(stage: StageDef, world: World, nexus: Pt): SwampProp[] {
+  const pools = stage.terrain?.pools ?? [];
   const rand = seeded(11);
   const props: SwampProp[] = [];
-  for (let i = 0; props.length < 26 && i < 400; i++) {
-    const x = 16 + rand() * (W - 32);
-    const y = 16 + rand() * (H - 26);
-    // longe do Nexus e das poças (para não esconder o que importa)
-    if (Math.hypot((x - center.x) / 1.3, y - center.y) < 105 || inPool(pools, x, y)) continue;
+  const target = Math.round((26 * world.width * world.height) / (W * H));
+  for (let i = 0; props.length < target && i < 4000; i++) {
+    const x = 16 + rand() * (world.width - 32);
+    const y = 16 + rand() * (world.height - 26);
+    // longe do Nexus, das poças, do rio e das trilhas
+    if (Math.hypot((x - nexus.x) / 1.3, y - nexus.y) < 105 || inPool(pools, x, y)) continue;
+    if (stage.decor?.river && distToLine(stage.decor.river.path, x, y) < stage.decor.river.width * 0.6) continue;
+    if ((stage.entrances ?? []).some((e) => distToLine(e.path, x, y) < 22)) continue;
     const roll = rand();
     const kind = roll < 0.45 ? 'reeds' : roll < 0.75 ? 'lily' : roll < 0.9 ? 'stump' : 'log';
     props.push({ kind, x, y, size: 0.8 + rand() * 0.5, tilt: (rand() - 0.5) * 0.6 });
@@ -35,21 +55,22 @@ function buildProps(pools: MudTerrain['pools']): SwampProp[] {
 }
 
 /** Parte estática do Pântano (vai para o cache do cenário). */
-export function paintSwampStatic(ctx: CanvasRenderingContext2D, terrain: MudTerrain | undefined): void {
+export function paintSwampStatic(ctx: CanvasRenderingContext2D, stage: StageDef, world: World = { width: W, height: H }, nexus: Pt = center): void {
+  const terrain = stage.terrain;
   const pools = terrain?.pools ?? [];
-  const ground = ctx.createRadialGradient(center.x, center.y, 30, center.x, center.y, W * 0.6);
+  const ground = ctx.createRadialGradient(nexus.x, nexus.y, 30, nexus.x, nexus.y, Math.max(world.width, world.height) * 0.6);
   ground.addColorStop(0, '#24321f');
   ground.addColorStop(0.55, '#16241a');
   ground.addColorStop(1, '#0a120c');
   ctx.fillStyle = ground;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, world.width, world.height);
 
   // água parada nas bordas
   const rand = seeded(5);
   for (let i = 0; i < 14; i++) {
     const a = rand() * TAU;
-    const x = center.x + Math.cos(a) * (W * 0.42 + rand() * 60);
-    const y = center.y + Math.sin(a) * (H * 0.42 + rand() * 40);
+    const x = nexus.x + Math.cos(a) * (world.width * 0.42 + rand() * 60);
+    const y = nexus.y + Math.sin(a) * (world.height * 0.42 + rand() * 40);
     const g = ctx.createRadialGradient(x, y, 0, x, y, 50);
     g.addColorStop(0, '#1a3a3a88');
     g.addColorStop(1, '#1a3a3a00');
@@ -57,21 +78,70 @@ export function paintSwampStatic(ctx: CanvasRenderingContext2D, terrain: MudTerr
     ctx.fillRect(x - 50, y - 50, 100, 100);
   }
   // musgo e pedrinhas
-  for (let i = 0; i < 380; i++) {
+  for (let i = 0; i < Math.round((380 * world.width * world.height) / (W * H)); i++) {
     ctx.fillStyle = rand() < 0.5 ? '#5a8a3a14' : '#00000030';
     ctx.beginPath();
-    ctx.arc(rand() * W, rand() * H, 0.6 + rand() * 1.6, 0, TAU);
+    ctx.arc(rand() * world.width, rand() * world.height, 0.6 + rand() * 1.6, 0, TAU);
     ctx.fill();
   }
 
+  // rio
+  const river = stage.decor?.river;
+  if (river) {
+    for (const [color, w] of [
+      ['#0f2a2a', river.width + 10],
+      ['#163a3c', river.width],
+      ['#1e4a4a', river.width * 0.55],
+    ] as const) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = w;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      river.path.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+      ctx.stroke();
+    }
+    // reflexos
+    ctx.strokeStyle = '#6ab0a822';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 40; i++) {
+      const t = rand();
+      const seg = Math.min(river.path.length - 2, Math.floor(t * (river.path.length - 1)));
+      const p = river.path[seg]!;
+      const q = river.path[seg + 1]!;
+      const f = t * (river.path.length - 1) - seg;
+      const x = p.x + (q.x - p.x) * f;
+      const y = p.y + (q.y - p.y) * f + (rand() - 0.5) * river.width * 0.6;
+      ctx.beginPath();
+      ctx.moveTo(x - 6, y);
+      ctx.lineTo(x + 6, y);
+      ctx.stroke();
+    }
+  }
+
+  // trilhas de terra batida
+  for (const e of stage.entrances ?? []) {
+    if (river && e.path.every((p) => distToLine(river.path, p.x, p.y) < river.width)) continue;
+    ctx.strokeStyle = '#3a3220';
+    ctx.lineWidth = 20;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    e.path.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+    ctx.stroke();
+    ctx.strokeStyle = '#4a4028';
+    ctx.lineWidth = 12;
+    ctx.stroke();
+  }
+
   // ilha firme ao redor do Nexus
-  const island = ctx.createRadialGradient(center.x, center.y, 10, center.x, center.y, 120);
+  const island = ctx.createRadialGradient(nexus.x, nexus.y, 10, nexus.x, nexus.y, 120);
   island.addColorStop(0, '#3a4a2e');
   island.addColorStop(0.75, '#2a3824');
   island.addColorStop(1, '#2a382400');
   ctx.fillStyle = island;
   ctx.beginPath();
-  ctx.ellipse(center.x, center.y, 130, 100, 0, 0, TAU);
+  ctx.ellipse(nexus.x, nexus.y, 130, 100, 0, 0, TAU);
   ctx.fill();
 
   // poças de lama (regra do mapa)
@@ -94,7 +164,7 @@ export function paintSwampStatic(ctx: CanvasRenderingContext2D, terrain: MudTerr
     ctx.stroke();
   }
 
-  for (const prop of buildProps(pools)) paintProp(ctx, prop);
+  for (const prop of buildProps(stage, world, nexus)) paintProp(ctx, prop);
 }
 
 function paintProp(ctx: CanvasRenderingContext2D, p: SwampProp): void {
@@ -175,7 +245,7 @@ function paintProp(ctx: CanvasRenderingContext2D, p: SwampProp): void {
 }
 
 /** Bolhas na lama e vagalumes (animados, por cima do cache). */
-export function drawSwampLife(ctx: CanvasRenderingContext2D, time: number, terrain: MudTerrain | undefined): void {
+export function drawSwampLife(ctx: CanvasRenderingContext2D, time: number, terrain: MudTerrain | undefined, world: World = { width: W, height: H }): void {
   for (const [i, p] of (terrain?.pools ?? []).entries()) {
     for (let k = 0; k < 3; k++) {
       const t = (time * 0.45 + k / 3 + i * 0.27) % 1;
@@ -189,9 +259,10 @@ export function drawSwampLife(ctx: CanvasRenderingContext2D, time: number, terra
       ctx.stroke();
     }
   }
-  for (let i = 0; i < 14; i++) {
-    const x = (i * 97 + Math.sin(time * 0.4 + i) * 30 + W) % W;
-    const y = (i * 53 + Math.cos(time * 0.5 + i * 1.7) * 20 + H) % H;
+  const flies = Math.round((14 * world.width * world.height) / (W * H));
+  for (let i = 0; i < flies; i++) {
+    const x = (i * 97 + Math.sin(time * 0.4 + i) * 30 + world.width) % world.width;
+    const y = (i * 53 + Math.cos(time * 0.5 + i * 1.7) * 20 + world.height) % world.height;
     const glow = 0.4 + 0.6 * Math.max(0, Math.sin(time * 2.5 + i * 1.3));
     ctx.fillStyle = `rgba(200, 255, 120, ${0.65 * glow})`;
     ctx.beginPath();

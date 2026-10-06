@@ -56,7 +56,7 @@ export function drawFrame(
   const shake = effects.shakeOffset();
   ctx.save();
   ctx.translate(shake.x - camera.x, shake.y - camera.y);
-  drawBackground(ctx, time, STAGES[state.stage], state.map);
+  drawBackground(ctx, time, STAGES[state.stage], state.map, state.nexus);
 
   drawNexusGround(ctx, state, !!interaction.nexusOpen, time);
   for (const pool of state.pools) drawPool(ctx, pool, time);

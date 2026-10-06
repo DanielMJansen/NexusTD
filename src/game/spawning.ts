@@ -38,6 +38,15 @@ export function compositionWeights(stage: StageId, wave: number): { enemy: Enemy
     .filter((e) => e.weight > 0);
 }
 
+/** Sorteia um inimigo da composição e a entrada dele (se a fase tiver entradas). */
+function rollItem(stage: StageId, wave: number, allowed?: number[]): SpawnItem {
+  const enemy = rollEnemy(stage, wave);
+  const entry = STAGES[stage].composition.find((c) => c.enemy === enemy);
+  const options = allowed ?? entry?.entrances;
+  if (!options?.length) return enemy;
+  return { enemy, entrance: options[Math.floor(random() * options.length)] };
+}
+
 function rollEnemy(stage: StageId, wave: number): EnemyId {
   const weights = compositionWeights(stage, wave);
   const total = weights.reduce((sum, e) => sum + e.weight, 0);
@@ -73,14 +82,14 @@ export function buildWaveQueue(stage: StageId, wave: number): SpawnItem[] {
       for (let i = 0; i < g.count; i++) (ENEMIES[g.enemy].isBoss ? bosses : fixed).push({ enemy: g.enemy, entrance: g.entrance, elite: g.elite });
     }
     const rolls = scripted.rolls ?? (scripted.groups?.length ? 0 : 1);
-    for (let i = 0; i < Math.round(waveEnemyCount(wave) * rolls); i++) fixed.push(rollEnemy(stage, wave));
+    for (let i = 0; i < Math.round(waveEnemyCount(wave) * rolls); i++) fixed.push(rollItem(stage, wave, scripted.entrances));
     for (let i = fixed.length - 1; i > 0; i--) {
       const j = Math.floor(random() * (i + 1));
       [fixed[i], fixed[j]] = [fixed[j]!, fixed[i]!];
     }
     return [...fixed, ...bosses];
   }
-  const queue = Array.from({ length: waveEnemyCount(wave) }, () => rollEnemy(stage, wave));
+  const queue: SpawnItem[] = Array.from({ length: waveEnemyCount(wave) }, () => rollItem(stage, wave));
   const boss = waveBoss(stage, wave);
   if (boss) queue.push(boss);
   return queue;
@@ -189,7 +198,8 @@ export function spawnEnemy(state: RunState, id: EnemyId, angle?: number, entranc
   const elite = !def.isBoss && (forceElite || random() < eliteChance(state, state.wave));
   if (def.isBoss) state.events.push({ type: 'bossSpawned', enemy: id });
   const gates = entrances(state);
-  if (gates.length) {
+  // voadores ignoram trilhas e muros: surgem de qualquer borda (só se não vieram por uma entrada escolhida)
+  if (gates.length && !(def.flying && entrance === undefined)) {
     // fase com entradas: nasce no começo de uma trilha (o bando sai pela mesma), um pouco espalhado
     const gate = entrance ?? Math.floor(random() * gates.length);
     const start = gates[gate]!.path[0]!;
