@@ -5,4 +5,6 @@ const app = new App();
 app.start();
 
 // Só em desenvolvimento: acesso pelo console (window.nexus) para testar e balancear.
-if (import.meta.env.DEV) Object.assign(window, { nexus: app });
+if (import.meta.env.DEV) {
+  void import('./data/stages').then((stages) => Object.assign(window, { nexus: app, nexusStages: stages.STAGES }));
+}

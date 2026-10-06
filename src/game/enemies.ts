@@ -5,6 +5,7 @@ import { updateAlly, updateStatusTimers } from './hitEffects';
 import { damageNexus, nexusSlowFactor } from './nexus';
 import { spawnEnemyAt } from './spawning';
 import { inMud } from './terrain';
+import { enemyGoal, joinNearestPath } from './paths';
 import { distance, type Enemy, type RunState } from './state';
 
 // Inimigos: habilidades (tiro, teia, invocação, investida, cura, pisão, escudo, fúria) e movimento.
@@ -228,8 +229,10 @@ export function updateEnemies(state: RunState, dt: number): void {
     if ((enemy.leapTime ?? 0) > 0) {
       const leap = findTrait(enemy, 'leap');
       enemy.leapTime! -= dt;
-      const dxl = center.x - enemy.x;
-      const dyl = center.y - enemy.y;
+      // salta na direção em que está andando (próximo ponto da trilha ou o Nexus)
+      const goal = enemyGoal(state, enemy);
+      const dxl = goal.x - enemy.x;
+      const dyl = goal.y - enemy.y;
       const len = Math.hypot(dxl, dyl) || 1;
       const step = Math.min(len - NEXUS.contactRadius * 0.9, ((leap?.distance ?? 0) / (leap?.duration ?? 1)) * dt);
       if (step > 0) {
@@ -247,6 +250,8 @@ export function updateEnemies(state: RunState, dt: number): void {
     const dy = center.y - enemy.y;
     const length = Math.hypot(dx, dy);
     if (enemy.fearTimer > 0) {
+      // depois de fugir, volta para a trilha mais próxima
+      if (enemy.path !== undefined) joinNearestPath(state, enemy);
       // com medo: foge do Nexus (sem sair muito da arena)
       enemy.fearTimer -= dt;
       const flee = enemy.speed * speedFactor * 0.8 * dt;
@@ -278,8 +283,13 @@ export function updateEnemies(state: RunState, dt: number): void {
       ? Math.sin(state.time * zigzag.frequency + enemy.animationOffset) * zigzag.lateralSpeed
       : 0;
     const speed = enemy.speed * speedFactor;
-    enemy.x += ((dx / length) * speed - (dy / length) * lateral) * dt;
-    enemy.y += ((dy / length) * speed + (dx / length) * lateral) * dt;
+    // anda até o próximo ponto da trilha (ou direto ao Nexus)
+    const goal = enemyGoal(state, enemy);
+    const gx = goal.x - enemy.x;
+    const gy = goal.y - enemy.y;
+    const gl = Math.hypot(gx, gy) || 1;
+    enemy.x += ((gx / gl) * speed - (gy / gl) * lateral) * dt;
+    enemy.y += ((gy / gl) * speed + (gx / gl) * lateral) * dt;
   }
 }
 

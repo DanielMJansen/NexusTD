@@ -52,6 +52,9 @@ export interface Enemy extends Point {
   poisonDps: number;
   /** Com medo: anda para longe do Nexus enquanto o tempo durar. */
   fearTimer: number;
+  /** Trilha seguida (índice da entrada da fase) e próximo ponto dela; sem trilha, vai direto ao Nexus. */
+  path?: number;
+  waypoint?: number;
   /** Pântano: intocável (na lama ou mergulhado). */
   submerged?: boolean;
   /** Salto em andamento (segundos restantes). */

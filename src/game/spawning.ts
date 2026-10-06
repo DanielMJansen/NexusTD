@@ -1,3 +1,4 @@
+import { entrances, joinNearestPath } from './paths';
 
 import { ENEMIES, type EnemyId } from '../data/enemies';
 import { STAGES, type StageDef, type StageId } from '../data/stages';
@@ -157,12 +158,27 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
 }
 
 /** Cria um inimigo fora da tela. Sem ângulo, sorteia um e pode trazer o bando junto. */
-export function spawnEnemy(state: RunState, id: EnemyId, angle?: number): void {
+export function spawnEnemy(state: RunState, id: EnemyId, angle?: number, entrance?: number): void {
   const def = ENEMIES[id];
   const isLeader = angle === undefined;
-  const a = angle ?? random() * Math.PI * 2;
   const elite = !def.isBoss && random() < eliteChance(state.wave);
   if (def.isBoss) state.events.push({ type: 'bossSpawned', enemy: id });
+  const gates = entrances(state);
+  if (gates.length) {
+    // fase com entradas: nasce no começo de uma trilha (o bando sai pela mesma), um pouco espalhado
+    const gate = entrance ?? Math.floor(random() * gates.length);
+    const start = gates[gate]!.path[0]!;
+    const spread = isLeader ? 0 : 14;
+    const enemy = createEnemy(state, id, { x: start.x + (random() - 0.5) * spread * 2, y: start.y + (random() - 0.5) * spread * 2 }, elite);
+    enemy.path = gate;
+    enemy.waypoint = 1;
+    state.enemies.push(enemy);
+    if (isLeader && def.pack && random() < def.pack.chance) {
+      for (const offset of def.pack.angleOffsets) spawnEnemy(state, id, offset, gate);
+    }
+    return;
+  }
+  const a = angle ?? random() * Math.PI * 2;
   state.enemies.push(createEnemy(state, id, spawnPoint(state, a), elite));
   if (isLeader && def.pack && random() < def.pack.chance) {
     for (const offset of def.pack.angleOffsets) spawnEnemy(state, id, a + offset);
@@ -173,6 +189,7 @@ export function spawnEnemy(state: RunState, id: EnemyId, angle?: number): void {
 export function spawnEnemyAt(state: RunState, id: EnemyId, at: Point, spread = 12): Enemy {
   const angle = random() * Math.PI * 2;
   const enemy = createEnemy(state, id, { x: at.x + Math.cos(angle) * spread, y: at.y + Math.sin(angle) * spread }, false);
+  if (entrances(state).length) joinNearestPath(state, enemy);
   state.enemies.push(enemy);
   return enemy;
 }

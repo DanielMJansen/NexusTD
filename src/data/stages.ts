@@ -25,6 +25,15 @@ export interface StageMap {
   nexus: { x: number; y: number };
 }
 
+/**
+ * Entrada de inimigos: o primeiro ponto é onde nascem (de preferência fora do mundo visível);
+ * os seguintes são a trilha até perto do Nexus. Inimigos terrestres seguem a trilha; voadores vão direto.
+ */
+export interface Entrance {
+  name: string;
+  path: { x: number; y: number }[];
+}
+
 export const DEFAULT_MAP: StageMap = { width: 640, height: 360, nexus: { x: 320, y: 180 } };
 
 /** Fase: bioma, inimigos e chefes próprios; as regras de onda (quantidade, escala, elites) são globais. */
@@ -51,6 +60,8 @@ export interface StageDef {
   terrain?: Terrain;
   /** Geometria (padrão: DEFAULT_MAP). */
   map?: StageMap;
+  /** Entradas com trilhas (padrão: inimigos vêm de todas as bordas, em linha reta). */
+  entrances?: Entrance[];
   /** Fase que precisa ser vencida para liberar esta (null = aberta desde o início). */
   requires: StageId | null;
 }
