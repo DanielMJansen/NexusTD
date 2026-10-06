@@ -46,4 +46,7 @@ export const xpToNextLevel = (level: number): number => Math.round(15 + 12 * (le
 /** Tempo para renascer depois de morrer (s). */
 export const HERO_RESPAWN_TIME = 8;
 /** Distância (além do raio do inimigo) em que um inimigo encosta no herói. */
+/** Dano do Pulso: +10% por nível do herói acima do 1. */
+export const PULSE_DAMAGE_PER_LEVEL = 0.1;
+
 export const HERO_CONTACT_RANGE = 10;

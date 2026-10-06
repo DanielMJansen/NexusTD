@@ -21,7 +21,7 @@ export type HeroPulse = {
   damage: number;
   radius: number;
   cooldown: number;
-  /** Cura do Nexus por inimigo atingido. */
+  /** Cura do herói por inimigo atingido. */
   healPerEnemy: number;
   /**
    * Formato: círculo ao redor do herói, investida em linha (o herói atravessa o campo),
@@ -101,7 +101,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     description: 'Duelista elegante que rouba vida para o Nexus a cada golpe.',
     speed: 125,
     attack: { damage: 8, range: 55, cooldown: 0.45, pattern: { kind: 'single' }, healPerHit: 0.5 },
-    pulse: { name: 'Revoada de Morcegos', damage: 25, radius: 100, cooldown: 12, healPerEnemy: 1 },
+    pulse: { name: 'Revoada de Morcegos', damage: 25, radius: 100, cooldown: 12, healPerEnemy: 4 },
     raceBonus: { kind: 'killHeal', value: 1 },
     color: '#ff3a50',
     maxHp: 100,

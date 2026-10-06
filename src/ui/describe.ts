@@ -274,7 +274,7 @@ export function attackText(def: HeroDef): string {
 /** Pulso do herói, em texto (com o nome em negrito). */
 export function pulseText(def: HeroDef): string {
   const p = def.pulse;
-  const heal = p.healPerEnemy > 0 ? ` Cura ${p.healPerEnemy} do Nexus por inimigo atingido.` : '';
+  const heal = p.healPerEnemy > 0 ? ` Cura ${p.healPerEnemy} de vida do herói por inimigo atingido.` : '';
   const fear = p.fear ? ` Inimigos fogem do Nexus por ${p.fear} s.` : '';
   const poison = p.poison ? ` Envenena: ${p.poison.dps}/s por ${p.poison.duration} s.` : '';
   const stun = p.stun ? ` ${p.stun.look === 'stone' ? 'Petrifica' : 'Atordoa'} por ${formatNumber(p.stun.duration)} s (chefes resistem).` : '';
@@ -290,5 +290,6 @@ export function pulseText(def: HeroDef): string {
           ? `raio em linha (alcance ${p.shape.length})`
           : `raio de ${p.radius}`;
   const damage = p.damage > 0 ? `${p.damage} de dano, ` : '';
-  return `<b>${p.name}</b>: ${damage}${area}, recarga ${p.cooldown} s.${heal}${fear}${poison}${stun}${haste}${raise}${cost}`;
+  const scaling = p.damage > 0 ? ' O dano cresce +10% por nível do herói.' : '';
+  return `<b>${p.name}</b>: ${damage}${area}, recarga ${p.cooldown} s.${heal}${fear}${poison}${stun}${haste}${raise}${cost}${scaling}`;
 }

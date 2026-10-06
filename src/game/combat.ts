@@ -1,6 +1,7 @@
 import { ARENA, HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureCooldown, creatureDamage, creatureRange, killHaste } from './creatureStats';
 import { applyHitEffects, isHostile, onEnemyKilled, raiseSkeleton, sourceDamageMultiplier, vulnerability } from './hitEffects';
+import { PULSE_DAMAGE_PER_LEVEL } from '../data/heroUpgrades';
 import { WAVES } from '../data/waves';
 import { enemyArmor, shieldFactor } from './enemies';
 import { grantXp, healHero, heroMaxHp } from './hero';
@@ -131,6 +132,10 @@ const clampToArena = (p: Point): Point => {
   return { x: Math.min(ARENA.width - m, Math.max(m, p.x)), y: Math.min(ARENA.height - m, Math.max(m, p.y)) };
 };
 
+/** Multiplicador de dano do Pulso: talentos, melhorias do herói e +10% por nível do herói. */
+export const pulsePower = (state: RunState): number =>
+  (1 + state.talents.heroDamage) * (1 + state.heroStats.pulseDamage) * (1 + PULSE_DAMAGE_PER_LEVEL * (state.hero.level - 1));
+
 /** Habilidade do herói (dados em HeroDef.pulse). Devolve false se ainda está recarregando. */
 /**
  * `aim`: para onde mirar habilidades direcionais (cursor do mouse ou direção do teclado);
@@ -181,14 +186,16 @@ export function firePulse(state: RunState, aim?: Point): boolean {
     isHit = (e) => distance(e, hero) < state.pulse.radius;
   }
 
+  // força do Pulso: talentos, melhorias do herói e nível do herói
+  const power = pulsePower(state);
   let hit = 0;
   for (const enemy of state.enemies) {
     if (!isHostile(enemy) || !isHit(enemy)) continue;
-    damageEnemy(state, enemy, pulse.damage * (1 + state.talents.heroDamage) * (1 + state.heroStats.pulseDamage), undefined, {
+    damageEnemy(state, enemy, pulse.damage * power, undefined, {
       ignoreArmor: hero.def.attack.pierceArmor,
     });
     if (pulse.fear && !enemy.def.isBoss) enemy.fearTimer = Math.max(enemy.fearTimer, pulse.fear);
-    if (pulse.poison) poisonEnemy(enemy, pulse.poison.dps * (1 + state.talents.heroDamage), pulse.poison.duration);
+    if (pulse.poison) poisonEnemy(enemy, pulse.poison.dps * power, pulse.poison.duration);
     if (pulse.stun && !enemy.def.isBoss && !enemy.dead) {
       enemy.stunTimer = Math.max(enemy.stunTimer, pulse.stun.duration);
       enemy.stunLook = pulse.stun.look;
@@ -198,7 +205,7 @@ export function firePulse(state: RunState, aim?: Point): boolean {
   if (pulse.haste) state.haste = { amount: pulse.haste.amount, remaining: pulse.haste.duration };
   if (pulse.raise) for (let i = 0; i < pulse.raise.count; i++) raiseSkeleton(state, hero, pulse.raise.duration);
   if (pulse.selfDamage) hero.hp = Math.max(1, hero.hp - heroMaxHp(state) * pulse.selfDamage);
-  if (pulse.healPerEnemy > 0 && hit > 0) healNexus(state, pulse.healPerEnemy * hit);
+  if (pulse.healPerEnemy > 0 && hit > 0) healHero(state, pulse.healPerEnemy * hit);
   state.events.push({ type: 'pulse', hero: hero.def.id, x: start.x, y: start.y, radius: state.pulse.radius, to: end, cone, beam });
   return true;
 }
