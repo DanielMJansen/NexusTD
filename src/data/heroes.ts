@@ -67,7 +67,7 @@ export type HeroPulse = {
 export type RaceBonus =
   | { kind: 'range'; value: number }
   | { kind: 'damage'; value: number }
-  /** Abates dessas criaturas curam o Nexus. */
+  /** Abates dessas criaturas curam o herói. */
   | { kind: 'killHeal'; value: number }
   | { kind: 'attackSpeed'; value: number }
   /** Ignoram mais pontos de armadura. */
@@ -115,7 +115,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     id: 'vampireLord',
     name: 'Nobre Vampiro',
     race: 'Vampiro',
-    description: 'Duelista elegante que rouba vida para o Nexus a cada golpe.',
+    description: 'Duelista elegante que rouba vida a cada golpe e se cura com os abates dos vampiros.',
     speed: 125,
     attack: { damage: 8, range: 55, cooldown: 0.45, pattern: { kind: 'single' }, healPerHit: 0.5 },
     pulse: { name: 'Revoada de Morcegos', damage: 30, radius: 0, cooldown: 12, healPerEnemy: 4, effect: { kind: 'swarm', count: 6, range: 150, bleed: { dps: 6, duration: 3 } } },

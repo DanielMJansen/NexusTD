@@ -129,7 +129,21 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 
 **Inimigos novos**: Lobo Gélido (matilha), Golem de Neve (ao morrer vira bolas de neve que rolam), Espírito do Gelo (voador; encosta numa criatura e a congela), Troll da Geleira (regenera, a menos que leve dano de fogo), Kobold Escavador (atravessa o gelo por baixo e surge longe das trilhas).
 
-**Destrava Sinergias de raça**: com 2 ou 3 criaturas da mesma raça em campo, a raça ganha um bônus (2 = pequeno, 3 = forte), mostrado no painel. Exemplos (proposta por raça antes de implementar): Vampiro 2/3 = +5%/+12% de roubo de vida no herói; Dragão 2/3 = +10%/+25% de área; Fantasma 2/3 = ignora 2/5 de armadura.
+**Destrava Sinergias de raça** (aprovadas em 07/10, números reduzidos): conta **classes diferentes** da raça em campo — 2 das 3 classes ativam o nível 1, as 3 ativam o nível 2. O painel mostra as ativas e quantas faltam. Números iniciais (calibrar com o bot):
+| Raça | 2 classes | 3 classes |
+|---|---|---|
+| Humano | +4% de dano de todas as criaturas | +8% |
+| Vampiro | herói +3% de roubo de vida | +7% |
+| Dragão | +6% de área (explosões e ondas) | +15% |
+| Lobisomem | lobisomens +5% de vel. de ataque | +12% |
+| Fantasma | ignoram 1 de armadura | 3 |
+| Bruxa | venenos e efeitos duram +15% | +35% |
+| Fada | +5% de alcance de todas as criaturas | +12% |
+| Golem | Nexus recebe −5% de dano | −12% |
+| Necromante | 8% dos abatidos viram esqueleto aliado por 6 s | 18% |
+| Górgona | +10% de chance dos efeitos de golpe | +20% |
+| Demônio | +3% de chance de crítico e +6% de dano crítico | +6% e +15% |
+| Anjo | +8% de dano contra chefes | +18% |
 
 ### F15. Fase 4 — Deserto Dourado + Relíquias `[ ]` — PROPOSTA
 - Cenário de areia e sol. Regra de mapa: **tempestade de areia** (inimigos ficam ocultos até chegar perto) e **oásis** que curam o herói.

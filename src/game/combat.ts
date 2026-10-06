@@ -84,23 +84,18 @@ export function damageEnemy(
       if (trait.kind === 'split') for (let k = 0; k < trait.count; k++) spawnEnemyAt(state, trait.into, enemy, 8);
     }
     if (source && ability) {
-      if (ability.kind === 'lifesteal') healNexus(state, ability.healPerKill);
+      // sustento vampírico cura o herói (o Nexus não é curado por criaturas)
+      if (ability.kind === 'lifesteal') healHero(state, ability.healPerKill);
       if (ability.kind === 'bounty') {
         state.gold += ability.gold;
         state.events.push({ type: 'bountyGold', x: enemy.x, y: enemy.y, gold: ability.gold });
       }
       const { race, bonus } = state.modifiers.raceBonus;
-      if (bonus.kind === 'killHeal' && source.def.race === race) healNexus(state, bonus.value);
+      if (bonus.kind === 'killHeal' && source.def.race === race) healHero(state, bonus.value);
     }
   }
 }
 
-function healNexus(state: RunState, amount: number): void {
-  const healed = Math.min(amount, state.nexus.maxHp - state.nexus.hp);
-  if (healed <= 0) return;
-  state.nexus.hp += healed;
-  state.events.push({ type: 'nexusHealed', amount: healed });
-}
 
 /** Guardas seguram os inimigos mais próximos dentro do raio de bloqueio (chefes passam). */
 export function applyBlocks(state: RunState): void {

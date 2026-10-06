@@ -54,7 +54,7 @@ export type CreatureAbility =
   | { kind: 'multishot'; targets: number }
   /** Segura até N inimigos (exceto chefes) dentro do raio: eles param de andar. */
   | { kind: 'block'; radius: number; capacity: number }
-  /** Cada abate desta criatura cura o Nexus. */
+  /** Cada abate desta criatura cura o herói. */
   | { kind: 'lifesteal'; healPerKill: number }
   /** O golpe salta do alvo para inimigos próximos, perdendo força a cada salto. */
   | { kind: 'chain'; jumps: number; radius: number; falloff: number }
@@ -271,8 +271,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Sanguinário',
     race: 'Vampiro',
     role: 'Sustento',
-    description: 'Lança orbes de sangue à distância. Cada inimigo que ele derrota devolve vida ao Nexus.',
-    lore: 'Mago de sangue que arranca a vida dos inimigos e a oferece ao cristal.',
+    description: 'Lança orbes de sangue à distância. Cada inimigo que ele derrota devolve vida ao herói.',
+    lore: 'Mago de sangue que arranca a vida dos inimigos e a entrega ao seu senhor.',
     icon: '🩸',
     baseCost: 25,
     damage: 6,
@@ -282,7 +282,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'lifesteal', healPerKill: 2 },
     unlock: { kind: 'essence', cost: 50 },
     ascended: [
-      { name: 'Lorde de Sangue', description: 'Cada abate cura 4 de vida do Nexus.', ability: { kind: 'lifesteal', healPerKill: 4 }, color: '#ffd25a', icon: '♥' },
+      { name: 'Lorde de Sangue', description: 'Cada abate cura 4 de vida do herói.', ability: { kind: 'lifesteal', healPerKill: 4 }, color: '#ffd25a', icon: '♥' },
       { name: 'Mago de Sangue', description: 'Orbes de sangue que saltam entre inimigos.', ability: { kind: 'chain', jumps: 3, radius: 60, falloff: 0.8 }, stats: { damage: 1.5 }, color: '#c03ae0', icon: '❂' },
     ],
   },

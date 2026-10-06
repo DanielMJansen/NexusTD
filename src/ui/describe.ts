@@ -79,7 +79,7 @@ function baseAbilityText(a: CreatureAbility): string {
     case 'block':
       return `Bloqueio: segura até ${a.capacity} inimigos num raio de ${a.radius} (chefes não param).`;
     case 'lifesteal':
-      return `Sustento: cada abate desta criatura cura ${a.healPerKill} de vida do Nexus.`;
+      return `Sustento: cada abate desta criatura cura ${a.healPerKill} de vida do herói.`;
     case 'chain':
       return `Garras em cadeia: o golpe salta para até ${a.jumps} inimigos próximos (${Math.round(a.falloff * 100)}% do dano a cada salto).`;
     case 'aura':
@@ -270,7 +270,7 @@ export function raceBonusText(race: string, bonus: RaceBonus): string {
     case 'damage':
       return `${plural}: +${Math.round(bonus.value * 100)}% de dano.`;
     case 'killHeal':
-      return `${plural}: cada abate cura ${bonus.value} de vida do Nexus.`;
+      return `${plural}: cada abate cura ${bonus.value} de vida do herói.`;
     case 'attackSpeed':
       return `${plural}: +${Math.round(bonus.value * 100)}% de velocidade de ataque.`;
     case 'armorPierce':

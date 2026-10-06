@@ -48,7 +48,7 @@ Gacha com dinheiro real: ver seção 10.
 | Humano | Arqueiro | DPS à distância | Alvo único, alcance alto | Patrulheiro: multi-tiro (2 alvos) |
 | Humano | Guarda | Bloqueio | Segura até 2 inimigos (chefes passam) | Paladino: segura 4 |
 | Vampiro | Duelista | DPS alvo único | Frenesi após 6 golpes | Conde Vampiro: frenesi a cada 4, mais longo e forte |
-| Vampiro | Sanguinário | Sustento | Abates desta criatura curam o Nexus | Lorde de Sangue: cura o dobro |
+| Vampiro | Sanguinário | Sustento | Abates desta criatura curam o herói | Lorde de Sangue: cura o dobro |
 | Dragão | Fogo | Área | Golpe com dano em raio | Dragão Ancião: área maior e mais forte |
 | Dragão | Gelo | Controle | Golpes deixam inimigos lentos | Dragão Glacial: lentidão mais forte e longa |
 | Lobisomem | Caçador | Corpo a corpo em cadeia | O golpe salta para até 2 inimigos próximos | Caçador Lunar: 4 saltos |
@@ -232,6 +232,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | F13.5b: **skins do Nexus** — modelo (Cristal Rúnico; Lótus Ancestral ao vencer o Pântano) + cor (Rubi/Esmeralda/Safira por 400 ✦; Prata Lunar, Sangue, Ouro Real e Obsidiana por conquista; Vazio e Aurora no Altar, 20% das Épicas/Lendárias). Padrão "do mapa". **Biomas revistos**: Fases 3–5 = Tundra Gelada → Deserto Dourado → Cidadela Celeste (do escuro para a luz) |
 | 07/10/2026 | Skins do Nexus passam a ser **por fase** (cada fase guarda seu modelo e cor; save antigo aplica a escolha a todas). Aprovados: **motor de mapas inteiro antes da Tundra** (mundo maior com câmera, trilhas/entradas, roteiro de ondas por dados, objetos interativos, objetivos variados como escolta e dois Nexus); Tundra com 18 ondas; Cemitério e Pântano revistos depois |
 | 07/10/2026 | **Motor de mapas** (F13.9) pronto: mundo maior que a tela com câmera e minimapa, entradas com trilhas, roteiro de ondas por fase (tipos e tréguas), fogueiras e nevasca, pontos extras a defender e escolta. Fases atuais inalteradas (bot confere) |
+| 07/10/2026 | Nenhuma criatura cura o Nexus: Sanguinário (e Lorde de Sangue) e o bônus de raça do Nobre Vampiro passam a curar o **herói** por abate. Sinergias de raça aprovadas com números reduzidos (roadmap, F14) |
 | 07/10/2026 | Arqueira da Górgona vira Domadora de Serpentes (evita dois arqueiros; mesma função e vertentes); jogo pausa sozinho ao perder o foco no meio de uma onda |
 | 07/10/2026 | Inimigos param no Nexus e golpeiam até morrer; velocidade 0x (tempo parado sem pausa, tecla 0); melhorias de Pulso no nível do herói (Pulso Ampliado, Eco do Pulso); melhoria da run Sabedoria (+XP); animação de ataque para todos os inimigos; recalibrado |
 | 07/10/2026 | Heróis do F10 com 3 skins cada: vencer com o herói libera a 2ª; alcançar a onda 30 do Sem Fim com ele libera a 3ª (12 conquistas novas) |
