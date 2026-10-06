@@ -61,6 +61,51 @@ export const SKINS: SkinDef[] = [
     palette: { body: '#f0c35a', bodyDark: '#a8701a', belly: '#fff4d0', wing: '#ffe07a', armor: '#e8e8f4', armorDark: '#8a8aa0' },
     unlockedBy: 'ascension',
   },
+  { id: 'lycan-grey', hero: 'lycan', name: 'Lobo Cinzento', palette: {}, unlockedBy: null },
+  {
+    id: 'lycan-arctic',
+    hero: 'lycan',
+    name: 'Lobo Ártico',
+    palette: { fur: '#e8eef8', furDark: '#9aa8c0', cape: '#3a7ad0', capeDark: '#1a3a7a', leather: '#c8d0e0' },
+    unlockedBy: 'lycanVictory',
+  },
+  {
+    id: 'lycan-shadow',
+    hero: 'lycan',
+    name: 'Lobo Sombrio',
+    palette: { fur: '#2a2632', furDark: '#0e0c12', cape: '#7a3cf0', capeDark: '#2e1460', leather: '#3a2a4a' },
+    unlockedBy: 'collector',
+  },
+  { id: 'specter-pale', hero: 'specter', name: 'Lanterna Pálida', palette: {}, unlockedBy: null },
+  {
+    id: 'specter-wisp',
+    hero: 'specter',
+    name: 'Fogo-Fátuo',
+    palette: { robe: '#4a2a6a', robeDark: '#1a0c2a', glow: '#ffb040' },
+    unlockedBy: 'specterVictory',
+  },
+  {
+    id: 'specter-reaper',
+    hero: 'specter',
+    name: 'Ceifador',
+    palette: { robe: '#2a2a30', robeDark: '#08080a', glow: '#ff3a40' },
+    unlockedBy: 'marathon',
+  },
+  { id: 'witch-pumpkin', hero: 'witch', name: 'Abóbora', palette: {}, unlockedBy: null },
+  {
+    id: 'witch-forest',
+    hero: 'witch',
+    name: 'Bruxa da Floresta',
+    palette: { dress: '#2a5a2a', dressDark: '#0e2a10', hair: '#6a3a1a', accent: '#ffd25a', hat: '#1e3a1a', hatBand: '#ffd25a' },
+    unlockedBy: 'witchVictory',
+  },
+  {
+    id: 'witch-moon',
+    hero: 'witch',
+    name: 'Bruxa da Lua',
+    palette: { dress: '#1a2450', dressDark: '#080c20', hair: '#f0f0f8', accent: '#8ce8ff', hat: '#141a3a', hatBand: '#c8d0e0' },
+    unlockedBy: 'champion',
+  },
 ];
 
 export const skinsOf = (hero: HeroId): SkinDef[] => SKINS.filter((s) => s.hero === hero);

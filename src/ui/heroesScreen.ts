@@ -22,20 +22,34 @@ export function raceBonusText(race: string, bonus: RaceBonus): string {
       return `${plural}: +${Math.round(bonus.value * 100)}% de dano.`;
     case 'killHeal':
       return `${plural}: cada abate cura ${bonus.value} de vida do Nexus.`;
+    case 'attackSpeed':
+      return `${plural}: +${Math.round(bonus.value * 100)}% de velocidade de ataque.`;
+    case 'armorPierce':
+      return `${plural}: ignoram ${bonus.value} de armadura.`;
+    case 'poisonDuration':
+      return `${plural}: venenos e poças duram +${bonus.value} s.`;
   }
 }
 
 function attackText(def: HeroDef): string {
   const a = def.attack;
   const area = a.pattern.kind === 'cone' ? 'em leque (todos à frente)' : 'num alvo';
-  const heal = a.healPerHit > 0 ? ` Cada golpe cura ${formatNumber(a.healPerHit)} do Nexus.` : '';
+  const heal =
+    (a.healPerHit > 0 ? ` Cada golpe cura ${formatNumber(a.healPerHit)} do Nexus.` : '') +
+    (a.pierceArmor ? ' Ignora armadura.' : '');
   return `${a.damage} de dano ${area} a cada ${formatNumber(a.cooldown)} s, alcance ${a.range}.${heal}`;
 }
 
 function pulseText(def: HeroDef): string {
   const p = def.pulse;
   const heal = p.healPerEnemy > 0 ? ` Cura ${p.healPerEnemy} do Nexus por inimigo atingido.` : '';
-  return `<b>${p.name}</b>: ${p.damage} de dano num raio de ${p.radius}, recarga ${p.cooldown} s.${heal}`;
+  const fear = p.fear ? ` Inimigos fogem do Nexus por ${p.fear} s.` : '';
+  const poison = p.poison ? ` Envenena: ${p.poison.dps}/s por ${p.poison.duration} s.` : '';
+  const area =
+    p.shape?.kind === 'dash'
+      ? `investida de ${p.shape.length} que atravessa o campo`
+      : `raio de ${p.radius}`;
+  return `<b>${p.name}</b>: ${p.damage} de dano, ${area}, recarga ${p.cooldown} s.${heal}${fear}${poison}`;
 }
 
 /** Skins do herói: liberadas por conquistas; clicar escolhe. */

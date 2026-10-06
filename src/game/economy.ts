@@ -33,6 +33,7 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
     frenzyTimer: 0,
     paid: cost,
     level: 1,
+    auraBonus: 0,
     facing: at.x > ARENA.center.x ? -1 : 1,
     lastAttackAt: -Infinity,
   });

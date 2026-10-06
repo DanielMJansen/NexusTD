@@ -19,6 +19,20 @@ export function abilityText(a: CreatureAbility): string {
       return `Bloqueio: segura até ${a.capacity} inimigos num raio de ${a.radius} (chefes não param).`;
     case 'lifesteal':
       return `Sustento: cada abate desta criatura cura ${a.healPerKill} de vida do Nexus.`;
+    case 'chain':
+      return `Garras em cadeia: o golpe salta para até ${a.jumps} inimigos próximos (${Math.round(a.falloff * 100)}% do dano a cada salto).`;
+    case 'aura':
+      return `Aura: criaturas num raio de ${a.radius} atacam ${Math.round(a.attackSpeed * 100)}% mais rápido.`;
+    case 'pierceArmor':
+      return a.bonusVsArmored > 0
+        ? `Ignora armadura e causa +${Math.round(a.bonusVsArmored * 100)}% de dano em inimigos com armadura.`
+        : 'Ignora toda a armadura do alvo.';
+    case 'screech':
+      return `Grito em leque: atinge todos à frente e os empurra ${a.push} para longe do Nexus (chefes resistem).`;
+    case 'poison':
+      return `Veneno: ${formatNumber(a.dps)} de dano por segundo durante ${formatNumber(a.duration)} s (ignora armadura).`;
+    case 'pool':
+      return `Poça: ${formatNumber(a.dps)} de dano por segundo num raio de ${a.radius} durante ${formatNumber(a.duration)} s.`;
     case 'none':
       return 'Alvo único, alcance alto.';
   }

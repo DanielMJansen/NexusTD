@@ -1,29 +1,40 @@
 import type { CreatureId } from '../data/creatures';
 import type { EnemyId } from '../data/enemies';
 import type { HeroId } from '../data/heroes';
-import type { SkinPalette } from '../data/skins';
+import {
+  ascended,
+  blush,
+  circle,
+  ellipse,
+  eye,
+  glowingEye,
+  GOLD,
+  line,
+  OUTLINE,
+  poly,
+  radial,
+  shape,
+  skin,
+  TAU,
+  vertical,
+  walk,
+  type Ctx,
+  type SpritePose,
+} from './spriteKit';
+import {
+  drawAlpha,
+  drawBanshee,
+  drawCauldron,
+  drawHaunt,
+  drawHunter,
+  drawLycan,
+  drawSorceress,
+  drawSpecter,
+  drawWitch,
+} from './spritesMystic';
 
 export type SpriteId = HeroId | CreatureId | EnemyId;
-
-/** Como o personagem está agora; tudo opcional exceto o tempo de animação. */
-export interface SpritePose {
-  /** Tempo contínuo (s) para animações de idle. */
-  time: number;
-  /** 1 olha para a direita, -1 para a esquerda. */
-  facing?: 1 | -1;
-  /** Força do golpe: 1 no instante do ataque, caindo até 0. */
-  attack?: number;
-  moving?: boolean;
-  /** Nível de evolução; no nível máximo aparecem os acessórios da forma evoluída. */
-  level?: number;
-  /** Cores da skin (heróis); chaves ausentes usam a cor padrão do desenho. */
-  palette?: SkinPalette;
-}
-
-const TAU = Math.PI * 2;
-const OUTLINE = '#170c24';
-
-type Ctx = CanvasRenderingContext2D;
+export type { SpritePose };
 
 /**
  * Desenha um personagem vetorial com os pés em (x, y + 14 × scale).
@@ -45,6 +56,33 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'draconian':
       drawDraconian(ctx, p);
+      break;
+    case 'lycan':
+      drawLycan(ctx, p);
+      break;
+    case 'specter':
+      drawSpecter(ctx, p);
+      break;
+    case 'witch':
+      drawWitch(ctx, p);
+      break;
+    case 'hunter':
+      drawHunter(ctx, p);
+      break;
+    case 'alpha':
+      drawAlpha(ctx, p);
+      break;
+    case 'haunt':
+      drawHaunt(ctx, p);
+      break;
+    case 'banshee':
+      drawBanshee(ctx, p);
+      break;
+    case 'sorceress':
+      drawSorceress(ctx, p);
+      break;
+    case 'cauldron':
+      drawCauldron(ctx, p);
       break;
     case 'archer':
       drawArcher(ctx, p);
@@ -87,108 +125,6 @@ export function drawShadow(ctx: Ctx, x: number, y: number, width: number): void 
   ctx.ellipse(x, y, width, width * 0.32, 0, 0, TAU);
   ctx.fill();
 }
-
-// ---------- utilitários de desenho ----------
-
-function shape(ctx: Ctx, fill: string | CanvasGradient, build: () => void, outline = 1.4): void {
-  ctx.beginPath();
-  build();
-  ctx.fillStyle = fill;
-  ctx.fill();
-  if (outline > 0) {
-    ctx.strokeStyle = OUTLINE;
-    ctx.lineWidth = outline;
-    ctx.stroke();
-  }
-}
-
-function line(ctx: Ctx, color: string, width: number, build: () => void, outline = true): void {
-  if (outline) {
-    ctx.beginPath();
-    build();
-    ctx.strokeStyle = OUTLINE;
-    ctx.lineWidth = width + 2.4;
-    ctx.stroke();
-  }
-  ctx.beginPath();
-  build();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.stroke();
-}
-
-function vertical(ctx: Ctx, top: number, bottom: number, from: string, to: string): CanvasGradient {
-  const g = ctx.createLinearGradient(0, top, 0, bottom);
-  g.addColorStop(0, from);
-  g.addColorStop(1, to);
-  return g;
-}
-
-function radial(ctx: Ctx, x: number, y: number, r: number, inner: string, outer: string): CanvasGradient {
-  const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
-  g.addColorStop(0, inner);
-  g.addColorStop(1, outer);
-  return g;
-}
-
-const circle = (ctx: Ctx, x: number, y: number, r: number) => ctx.arc(x, y, r, 0, TAU);
-const ellipse = (ctx: Ctx, x: number, y: number, rx: number, ry: number, rot = 0) =>
-  ctx.ellipse(x, y, rx, ry, rot, 0, TAU);
-
-function poly(ctx: Ctx, points: number[]): void {
-  ctx.moveTo(points[0]!, points[1]!);
-  for (let i = 2; i < points.length; i += 2) ctx.lineTo(points[i]!, points[i + 1]!);
-  ctx.closePath();
-}
-
-/** Olho expressivo: branco, íris, pupila e brilho. */
-function eye(ctx: Ctx, x: number, y: number, r: number, iris: string, look = 0.35): void {
-  shape(ctx, '#fbf7ff', () => circle(ctx, x, y, r), 1);
-  ctx.fillStyle = iris;
-  ctx.beginPath();
-  circle(ctx, x + r * look, y + r * 0.08, r * 0.62);
-  ctx.fill();
-  ctx.fillStyle = '#12081c';
-  ctx.beginPath();
-  circle(ctx, x + r * look * 1.2, y + r * 0.1, r * 0.32);
-  ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  circle(ctx, x + r * 0.05, y - r * 0.35, r * 0.24);
-  ctx.fill();
-}
-
-/** Olho brilhante (criaturas sinistras). */
-function glowingEye(ctx: Ctx, x: number, y: number, r: number, color: string): void {
-  ctx.save();
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 6;
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ellipse(ctx, x, y, r, r * 0.8);
-  ctx.fill();
-  ctx.restore();
-  ctx.fillStyle = '#fff6';
-  ctx.beginPath();
-  circle(ctx, x - r * 0.3, y - r * 0.3, r * 0.35);
-  ctx.fill();
-}
-
-function blush(ctx: Ctx, x: number, y: number): void {
-  ctx.fillStyle = '#ff7a9a55';
-  ctx.beginPath();
-  ellipse(ctx, x, y, 2.4, 1.4);
-  ctx.fill();
-}
-
-/** Forma evoluída (nível máximo). */
-const ascended = (p: Required<SpritePose>) => p.level >= 3;
-const GOLD = '#f0c35a';
-
-/** Cor da skin com fallback para a cor padrão do desenho. */
-const skin = (p: Required<SpritePose>, key: string, fallback: string): string => p.palette[key] ?? fallback;
-
-const walk = (p: Required<SpritePose>, speed = 12) => (p.moving ? Math.sin(p.time * speed) : 0);
 
 // ---------- herói ----------
 

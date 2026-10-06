@@ -7,6 +7,11 @@ export type AchievementId =
   | 'knightVictory'
   | 'vampireVictory'
   | 'draconianVictory'
+  | 'lycanVictory'
+  | 'specterVictory'
+  | 'witchVictory'
+  | 'marathon'
+  | 'champion'
   | 'untouchable'
   | 'ascension'
   | 'slayer'
@@ -22,7 +27,10 @@ export type AchievementGoal =
   /** Abates somados em todas as runs. */
   | { kind: 'totalKills'; count: number }
   /** Ter todas as criaturas na coleção. */
-  | { kind: 'fullCollection' };
+  | { kind: 'fullCollection' }
+  /** Runs jogadas / vencidas, somando todas. */
+  | { kind: 'totalRuns'; count: number }
+  | { kind: 'totalWins'; count: number };
 
 export interface AchievementDef {
   id: AchievementId;
@@ -51,6 +59,26 @@ export const ACHIEVEMENTS: Record<AchievementId, AchievementDef> = {
     description: 'Vença uma run com o Draconato.',
     goal: { kind: 'win', hero: 'draconian' },
   },
+  lycanVictory: {
+    id: 'lycanVictory',
+    name: 'Lua Cheia',
+    description: 'Vença uma run com o Licantropo.',
+    goal: { kind: 'win', hero: 'lycan' },
+  },
+  specterVictory: {
+    id: 'specterVictory',
+    name: 'Além do Véu',
+    description: 'Vença uma run com o Espectro.',
+    goal: { kind: 'win', hero: 'specter' },
+  },
+  witchVictory: {
+    id: 'witchVictory',
+    name: 'Feitiço Perfeito',
+    description: 'Vença uma run com a Bruxa.',
+    goal: { kind: 'win', hero: 'witch' },
+  },
+  marathon: { id: 'marathon', name: 'Maratonista', description: 'Jogue 25 runs.', goal: { kind: 'totalRuns', count: 25 } },
+  champion: { id: 'champion', name: 'Campeão', description: 'Vença 10 runs.', goal: { kind: 'totalWins', count: 10 } },
   untouchable: {
     id: 'untouchable',
     name: 'Intocável',

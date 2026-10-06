@@ -1,9 +1,9 @@
 import { ARENA } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { MAX_CREATURE_LEVEL } from '../data/evolution';
-import { creatureName, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
+import { creatureAbility, creatureName, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
 import { canEvolve, evolveCost, sellValue } from '../game/economy';
-import type { Creature, Enemy, Point, RunState } from '../game/state';
+import type { Creature, Enemy, Point, Pool, RunState } from '../game/state';
 import { drawAtmosphere, drawBackground, drawNexus } from './arena';
 import type { Effects } from './effects';
 import { drawShadow, drawSprite } from './sprites';
@@ -43,6 +43,9 @@ export function drawFrame(
   const shake = effects.shakeOffset();
   ctx.save();
   ctx.translate(shake.x, shake.y);
+
+  for (const pool of state.pools) drawPool(ctx, pool, time);
+  for (const creature of state.creatures) drawAuraRing(ctx, creature, time);
 
   // Tudo que tem "pé no chão" é desenhado de cima para baixo, para sobrepor corretamente.
   const layers: { y: number; draw: () => void }[] = [
@@ -99,6 +102,28 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
   });
   ctx.restore();
 
+  if (enemy.poisonTimer > 0) {
+    // bolhas verdes subindo
+    ctx.fillStyle = '#a8f080';
+    for (let i = 0; i < 3; i++) {
+      const phase = (time * 1.5 + i / 3 + enemy.animationOffset) % 1;
+      ctx.globalAlpha = 1 - phase;
+      ctx.beginPath();
+      ctx.arc(enemy.x + (i - 1) * 4 * scale, enemy.y - 10 * scale - phase * 14, 1.4, 0, TAU);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  if (enemy.fearTimer > 0) {
+    ctx.font = '700 11px Cinzel, Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#e8c890';
+    ctx.strokeStyle = '#0a0612';
+    ctx.lineWidth = 2.5;
+    ctx.strokeText('!', enemy.x, enemy.y - 30 * scale);
+    ctx.fillText('!', enemy.x, enemy.y - 30 * scale);
+  }
   if (enemy.slowTimer > 0) {
     ctx.fillStyle = '#bff0ff';
     for (let i = 0; i < 3; i++) {
@@ -124,8 +149,9 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
 }
 
 function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: Creature, time: number): void {
-  const flying = creature.def.id === 'fireDragon' || creature.def.id === 'iceDragon';
-  const hover = flying ? -5 + Math.sin(time * 3 + creature.x) * 2 : 0;
+  const dragon = creature.def.id === 'fireDragon' || creature.def.id === 'iceDragon';
+  const flying = dragon || creature.def.id === 'haunt' || creature.def.id === 'banshee';
+  const hover = dragon ? -5 + Math.sin(time * 3 + creature.x) * 2 : 0;
   drawShadow(ctx, creature.x, creature.y + 14, flying ? 9 : 11);
 
   const frenzy = creature.frenzyTimer > 0;
@@ -196,6 +222,50 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number):
     moving: hero.moving,
     attack: attackStrength(state, hero.lastAttackAt),
   });
+  ctx.restore();
+}
+
+/** Poça borbulhante do Caldeirão (desaparece no fim). */
+function drawPool(ctx: CanvasRenderingContext2D, pool: Pool, time: number): void {
+  const fade = Math.min(1, pool.remaining / 0.4) * Math.min(1, (pool.duration - pool.remaining) / 0.15 + 0.2);
+  ctx.save();
+  ctx.globalAlpha = fade;
+  ctx.translate(pool.x, pool.y + 6);
+  ctx.scale(1, 0.55);
+  const g = ctx.createRadialGradient(0, 0, 2, 0, 0, pool.radius);
+  g.addColorStop(0, withAlpha(pool.color, 0.55));
+  g.addColorStop(0.8, withAlpha(pool.color, 0.3));
+  g.addColorStop(1, withAlpha(pool.color, 0));
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(0, 0, pool.radius, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#d8ffe8';
+  for (let i = 0; i < 4; i++) {
+    const phase = (time * 1.3 + i * 0.27) % 1;
+    const a = i * 1.7 + pool.x;
+    ctx.globalAlpha = fade * (1 - phase);
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * pool.radius * 0.5, Math.sin(a) * pool.radius * 0.5, 1.5 + phase * 2.5, 0, TAU);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/** Raio da aura do Alfa (discreto). */
+function drawAuraRing(ctx: CanvasRenderingContext2D, creature: Creature, time: number): void {
+  const ability = creatureAbility(creature);
+  if (ability.kind !== 'aura') return;
+  ctx.save();
+  ctx.translate(creature.x, creature.y + 12);
+  ctx.scale(1, 0.5);
+  ctx.strokeStyle = withAlpha(creature.def.color, 0.3 + Math.sin(time * 3) * 0.1);
+  ctx.setLineDash([6, 6]);
+  ctx.lineDashOffset = -time * 10;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, ability.radius, 0, TAU);
+  ctx.stroke();
   ctx.restore();
 }
 

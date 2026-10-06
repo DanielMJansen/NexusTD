@@ -24,6 +24,11 @@ export interface Enemy extends Point {
   lastHitAt: number;
   /** Segurado por um Guarda neste quadro (não anda). */
   held: boolean;
+  /** Veneno: dano por segundo enquanto o tempo durar. */
+  poisonTimer: number;
+  poisonDps: number;
+  /** Com medo: anda para longe do Nexus enquanto o tempo durar. */
+  fearTimer: number;
   dead: boolean;
 }
 
@@ -37,6 +42,8 @@ export interface Creature extends Point {
   paid: number;
   /** Nível de evolução, de 1 até MAX_CREATURE_LEVEL. */
   level: number;
+  /** Bônus de velocidade de ataque recebido de auras neste quadro. */
+  auraBonus: number;
   /** Dicas visuais: lado para onde olha (1 direita, -1 esquerda) e momento do último ataque. */
   facing: 1 | -1;
   lastAttackAt: number;
@@ -52,6 +59,15 @@ export interface Hero extends Point {
   facing: 1 | -1;
   lastAttackAt: number;
   moving: boolean;
+}
+
+/** Poça no chão que causa dano por segundo a quem estiver dentro. */
+export interface Pool extends Point {
+  radius: number;
+  remaining: number;
+  duration: number;
+  dps: number;
+  color: string;
 }
 
 /** Multiplicadores vindos das melhorias (permanentes e da run). */
@@ -108,6 +124,8 @@ export interface RunState {
   pulse: { cooldown: number; remaining: number; radius: number };
   /** Bônus dos talentos que valem a run inteira. */
   talents: TalentBonuses;
+  /** Poças de dano no chão (Caldeirão). */
+  pools: Pool[];
   /** Égide rúnica: o próximo golpe no Nexus nesta onda é anulado. */
   wardReady: boolean;
   /** Estatísticas da run para conquistas. */
@@ -158,6 +176,7 @@ export function createRun(setup: RunSetup): RunState {
       radius: heroDef.pulse.radius * (1 + t.pulseRadius),
     },
     talents: { ...t },
+    pools: [],
     wardReady: false,
     lowestNexusRatio: 1,
     ascendedPeak: 0,

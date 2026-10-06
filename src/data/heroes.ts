@@ -1,7 +1,7 @@
 // Heróis jogáveis: um por raça. O Cavaleiro (Humano) é o inicial; os outros custam Essência.
 // Valores PROPOSTA: calibrar em playtest.
 
-export type HeroId = 'knight' | 'vampireLord' | 'draconian';
+export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch';
 
 export type HeroAttack = {
   damage: number;
@@ -12,6 +12,8 @@ export type HeroAttack = {
   pattern: { kind: 'single' } | { kind: 'cone'; halfAngle: number };
   /** Cada golpe que acerta cura o Nexus. */
   healPerHit: number;
+  /** Ignora a armadura dos inimigos. */
+  pierceArmor?: boolean;
 };
 
 export type HeroPulse = {
@@ -21,6 +23,12 @@ export type HeroPulse = {
   cooldown: number;
   /** Cura do Nexus por inimigo atingido. */
   healPerEnemy: number;
+  /** Formato: círculo ao redor do herói ou investida em linha (o herói atravessa o campo). */
+  shape?: { kind: 'circle' } | { kind: 'dash'; length: number; width: number };
+  /** Inimigos atingidos fogem do Nexus por um tempo (s). */
+  fear?: number;
+  /** Inimigos atingidos ficam envenenados. */
+  poison?: { dps: number; duration: number };
 };
 
 /** Bônus para as criaturas da mesma raça do herói. */
@@ -28,7 +36,12 @@ export type RaceBonus =
   | { kind: 'range'; value: number }
   | { kind: 'damage'; value: number }
   /** Abates dessas criaturas curam o Nexus. */
-  | { kind: 'killHeal'; value: number };
+  | { kind: 'killHeal'; value: number }
+  | { kind: 'attackSpeed'; value: number }
+  /** Ignoram mais pontos de armadura. */
+  | { kind: 'armorPierce'; value: number }
+  /** Venenos duram mais segundos. */
+  | { kind: 'poisonDuration'; value: number };
 
 export interface HeroDef {
   id: HeroId;
@@ -83,7 +96,49 @@ export const HEROES: Record<HeroId, HeroDef> = {
     color: '#ff8a2a',
     cost: 200,
   },
+  lycan: {
+    id: 'lycan',
+    name: 'Licantropo',
+    race: 'Lobisomem',
+    description: 'Fera de garras rápidas. O uivo dele espanta as hordas para longe do Nexus.',
+    speed: 135,
+    attack: { damage: 6, range: 48, cooldown: 0.3, pattern: { kind: 'single' }, healPerHit: 0 },
+    pulse: { name: 'Uivo', damage: 15, radius: 110, cooldown: 12, healPerEnemy: 0, fear: 2 },
+    raceBonus: { kind: 'attackSpeed', value: 0.15 },
+    color: '#c8a070',
+    cost: 200,
+  },
+  specter: {
+    id: 'specter',
+    name: 'Espectro',
+    race: 'Fantasma',
+    description: 'Atravessa paredes e armaduras. O Pulso é uma investida que cruza o campo ferindo tudo no caminho.',
+    speed: 120,
+    attack: { damage: 11, range: 75, cooldown: 0.5, pattern: { kind: 'single' }, healPerHit: 0, pierceArmor: true },
+    pulse: {
+      name: 'Travessia',
+      damage: 45,
+      radius: 0,
+      cooldown: 10,
+      healPerEnemy: 0,
+      shape: { kind: 'dash', length: 200, width: 26 },
+    },
+    raceBonus: { kind: 'armorPierce', value: 2 },
+    color: '#8ce8d8',
+    cost: 220,
+  },
+  witch: {
+    id: 'witch',
+    name: 'Bruxa',
+    race: 'Bruxa',
+    description: 'Ataca de longe com orbes e lança uma maldição que envenena todos ao redor.',
+    speed: 115,
+    attack: { damage: 8, range: 110, cooldown: 0.7, pattern: { kind: 'single' }, healPerHit: 0 },
+    pulse: { name: 'Maldição', damage: 10, radius: 115, cooldown: 12, healPerEnemy: 0, poison: { dps: 8, duration: 4 } },
+    raceBonus: { kind: 'poisonDuration', value: 1 },
+    color: '#7ad85a',
+    cost: 220,
+  },
 };
-
 export const HERO_IDS = Object.keys(HEROES) as HeroId[];
 export const STARTER_HERO: HeroId = 'knight';

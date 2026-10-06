@@ -23,6 +23,10 @@ function isMet(profile: Profile, def: AchievementDef, result: RunResult | null):
       return profile.stats.kills >= goal.count;
     case 'fullCollection':
       return profile.ownedCreatures.length >= CREATURE_IDS.length;
+    case 'totalRuns':
+      return profile.stats.runs >= goal.count;
+    case 'totalWins':
+      return profile.stats.wins >= goal.count;
   }
 }
 
@@ -40,5 +44,7 @@ export function achievementProgress(profile: Profile, id: AchievementId): string
   const goal = ACHIEVEMENTS[id].goal;
   if (goal.kind === 'totalKills') return `${Math.min(profile.stats.kills, goal.count)}/${goal.count}`;
   if (goal.kind === 'fullCollection') return `${profile.ownedCreatures.length}/${CREATURE_IDS.length}`;
+  if (goal.kind === 'totalRuns') return `${Math.min(profile.stats.runs, goal.count)}/${goal.count}`;
+  if (goal.kind === 'totalWins') return `${Math.min(profile.stats.wins, goal.count)}/${goal.count}`;
   return null;
 }

@@ -15,6 +15,17 @@ const PULSE_LOOK: Record<HeroId, { ring: string; inner: string; particle: string
   knight: { ring: '#c08cff', inner: '#ffffff', particle: '#c99bff' },
   vampireLord: { ring: '#ff3a50', inner: '#2a1040', particle: '#3a1a50' },
   draconian: { ring: '#ff8a2a', inner: '#ffd25a', particle: '#ff5a1a' },
+  lycan: { ring: '#e8c890', inner: '#ffffff', particle: '#c8a070' },
+  specter: { ring: '#8ce8d8', inner: '#e8fffc', particle: '#5ab8a8' },
+  witch: { ring: '#7ad85a', inner: '#2a5a1a', particle: '#a8f080' },
+};
+
+/** Golpes corpo a corpo (corte sobre o alvo) e a cor do corte. */
+const MELEE: Partial<Record<CreatureId, string>> = {
+  duelist: '#ff3a50',
+  guard: '#e8f6ff',
+  hunter: '#f0e0c0',
+  alpha: '#ffd8a0',
 };
 
 interface Shot {
@@ -26,6 +37,14 @@ interface Shot {
   duration: number;
   remaining: number;
   trailTimer: number;
+}
+
+interface Wave extends Point {
+  angle: number;
+  halfAngle: number;
+  range: number;
+  life: number;
+  maxLife: number;
 }
 
 interface Particle extends Point {
@@ -77,6 +96,7 @@ export class Effects {
   private shots: Shot[] = [];
   private particles: Particle[] = [];
   private rings: Ring[] = [];
+  private waves: Wave[] = [];
   private corpses: Corpse[] = [];
   private texts: FloatingText[] = [];
   private banners: Banner[] = [];
@@ -88,6 +108,7 @@ export class Effects {
     this.shots = [];
     this.particles = [];
     this.rings = [];
+    this.waves = [];
     this.corpses = [];
     this.texts = [];
     this.banners = [];
@@ -98,9 +119,9 @@ export class Effects {
   handle(event: GameEvent): void {
     switch (event.type) {
       case 'shot': {
-        const melee = event.source === 'duelist' || event.source === 'guard';
-        const duration = melee ? 0.16 : 0.22;
-        this.shots.push({ ...event, duration, remaining: duration, trailTimer: 0 });
+        const melee = MELEE[event.source];
+        const duration = melee ? 0.16 : event.source === 'cauldron' ? 0.4 : 0.22;
+        this.shots.push({ ...event, duration, remaining: duration, trailTimer: 0, color: melee });
         break;
       }
       case 'heroAttack': {
@@ -150,6 +171,16 @@ export class Effects {
         break;
       case 'pulse': {
         const look = PULSE_LOOK[event.hero];
+        if (event.to) {
+          // investida em linha: rastro de partículas ao longo do caminho
+          for (let i = 0; i <= 24; i++) {
+            const t = i / 24;
+            this.burst(event.x + (event.to.x - event.x) * t, event.y + (event.to.y - event.y) * t - 6, 2, look.particle, 30, 0.5, 3, true);
+          }
+          this.ring(event.to.x, event.to.y, 30, look.ring, 0.4, 4);
+          this.shake = Math.max(this.shake, 3);
+          break;
+        }
         this.ring(event.x, event.y, event.radius, look.ring, 0.45, 6);
         this.ring(event.x, event.y, event.radius * 0.6, look.inner, 0.3, 3);
         for (let i = 0; i < 26; i++) {
@@ -171,6 +202,12 @@ export class Effects {
         this.shake = Math.max(this.shake, 3);
         break;
       }
+      case 'screech':
+        this.waves.push({ ...event, life: 0.4, maxLife: 0.4 });
+        break;
+      case 'poolCreated':
+        this.burst(event.x, event.y, 12, '#a8f080', 60, 0.5, 2.6, true, -20);
+        break;
       case 'nexusHit':
         this.nexusHurt = 1;
         this.shake = Math.max(this.shake, Math.min(7, 2 + event.damage * 0.2));
@@ -241,6 +278,8 @@ export class Effects {
     this.particles = this.particles.filter((p) => p.life > 0);
     for (const r of this.rings) r.life -= dt;
     this.rings = this.rings.filter((r) => r.life > 0);
+    for (const w of this.waves) w.life -= dt;
+    this.waves = this.waves.filter((w) => w.life > 0);
     for (const c of this.corpses) c.life -= dt;
     this.corpses = this.corpses.filter((c) => c.life > 0);
     for (const t of this.texts) {
@@ -284,6 +323,22 @@ export class Effects {
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
+
+    for (const w of this.waves) {
+      // ondas do grito da Banshee: arcos que se abrem no leque
+      const progress = 1 - w.life / w.maxLife;
+      ctx.globalAlpha = 1 - progress;
+      ctx.strokeStyle = '#d8e4ff';
+      for (let k = 0; k < 3; k++) {
+        const r = w.range * Math.min(1, progress + k * 0.18);
+        ctx.lineWidth = 2.5 - k * 0.6;
+        ctx.beginPath();
+        ctx.arc(w.x, w.y - 8, r, w.angle - w.halfAngle, w.angle + w.halfAngle);
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 1;
 
     for (const shot of this.shots) drawShot(ctx, shot);
 
@@ -396,6 +451,10 @@ export class Effects {
       this.burst(pos.x, pos.y, 2, Math.random() < 0.5 ? '#ffb040' : '#ff5a1a', 20, 0.35, 2.6, true, -10);
     } else if (shot.source === 'sanguine') {
       this.burst(pos.x, pos.y, 1, '#ff3050', 14, 0.35, 2, true);
+    } else if (shot.source === 'haunt') {
+      this.burst(pos.x, pos.y, 1, '#8ce8d8', 10, 0.45, 2.2, true, -10);
+    } else if (shot.source === 'sorceress') {
+      this.burst(pos.x, pos.y, 1, '#a8f080', 14, 0.35, 1.8, true);
     } else if (shot.source === 'iceDragon') {
       this.burst(pos.x, pos.y, 1, '#dff6ff', 12, 0.4, 1.8, true);
     }
@@ -429,7 +488,18 @@ export class Effects {
         this.burst(x, y, 5, '#e8f0ff', 60, 0.25, 1.6, true);
         break;
       case 'hero':
+      case 'hunter':
+      case 'alpha':
         this.burst(x, y, 4, shot.color ?? '#e8f6ff', 70, 0.25, 1.6, true);
+        break;
+      case 'haunt':
+        this.burst(x, y, 8, '#8ce8d8', 60, 0.45, 2.2, true);
+        break;
+      case 'sorceress':
+        this.burst(x, y, 7, '#7ad85a', 60, 0.45, 2.2, true);
+        break;
+      case 'cauldron':
+      case 'banshee':
         break;
     }
   }
@@ -519,8 +589,41 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       ctx.fill();
       break;
     }
+    case 'haunt':
+    case 'sorceress': {
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, 7);
+      glow.addColorStop(0, '#ffffff');
+      glow.addColorStop(0.35, shot.source === 'haunt' ? '#8ce8d8' : '#7ad85a');
+      glow.addColorStop(1, '#00000000');
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, TAU);
+      ctx.fill();
+      break;
+    }
+    case 'cauldron': {
+      // poção arremessada em arco
+      const lift = Math.sin(progress * Math.PI) * 30;
+      ctx.translate(x, y - lift);
+      ctx.rotate(progress * 8);
+      ctx.fillStyle = '#5ad8a8';
+      ctx.strokeStyle = '#170c24';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 1.5, 3.5, 0, TAU);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#c8b8a0';
+      ctx.fillRect(-1.2, -4, 2.4, 3);
+      break;
+    }
+    case 'banshee':
+      break;
     case 'duelist':
     case 'guard':
+    case 'hunter':
+    case 'alpha':
     case 'hero': {
       // corte em meia-lua sobre o alvo
       const color = shot.color ?? (shot.source === 'duelist' ? '#ff3a50' : '#e8f6ff');

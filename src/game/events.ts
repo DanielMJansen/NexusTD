@@ -12,7 +12,11 @@ export type GameEvent =
   /** Ataque do herói; `cone` = meia-abertura do leque (radianos) quando ataca em área. */
   | { type: 'heroAttack'; hero: HeroId; from: Point; to: Point; cone: number | null; range: number }
   | { type: 'enemyKilled'; enemy: EnemyId; x: number; y: number; gold: number; color: string }
-  | { type: 'pulse'; hero: HeroId; x: number; y: number; radius: number }
+  /** Pulso do herói; `to` existe quando é uma investida em linha. */
+  | { type: 'pulse'; hero: HeroId; x: number; y: number; radius: number; to?: Point }
+  /** Grito em leque (Banshee). */
+  | { type: 'screech'; x: number; y: number; angle: number; halfAngle: number; range: number }
+  | { type: 'poolCreated'; x: number; y: number; radius: number }
   | { type: 'wardBlocked' }
   | { type: 'nexusHit'; damage: number }
   | { type: 'nexusHealed'; amount: number }

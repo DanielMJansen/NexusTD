@@ -1,4 +1,16 @@
-export type CreatureId = 'archer' | 'guard' | 'duelist' | 'sanguine' | 'fireDragon' | 'iceDragon';
+export type CreatureId =
+  | 'archer'
+  | 'guard'
+  | 'duelist'
+  | 'sanguine'
+  | 'fireDragon'
+  | 'iceDragon'
+  | 'hunter'
+  | 'alpha'
+  | 'haunt'
+  | 'banshee'
+  | 'sorceress'
+  | 'cauldron';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -19,7 +31,19 @@ export type CreatureAbility =
   /** Segura até N inimigos (exceto chefes) dentro do raio: eles param de andar. */
   | { kind: 'block'; radius: number; capacity: number }
   /** Cada abate desta criatura cura o Nexus. */
-  | { kind: 'lifesteal'; healPerKill: number };
+  | { kind: 'lifesteal'; healPerKill: number }
+  /** O golpe salta do alvo para inimigos próximos, perdendo força a cada salto. */
+  | { kind: 'chain'; jumps: number; radius: number; falloff: number }
+  /** Criaturas aliadas dentro do raio atacam mais rápido (fração). */
+  | { kind: 'aura'; radius: number; attackSpeed: number }
+  /** Ignora a armadura; dano extra (fração) contra inimigos com armadura. */
+  | { kind: 'pierceArmor'; bonusVsArmored: number }
+  /** Grito em leque na direção do alvo: atinge todos e empurra para longe do Nexus. */
+  | { kind: 'screech'; halfAngle: number; push: number }
+  /** Envenena o alvo: dano por segundo durante um tempo. */
+  | { kind: 'poison'; dps: number; duration: number }
+  /** Cria uma poça no chão onde o alvo está: dano por segundo em quem estiver dentro. */
+  | { kind: 'pool'; radius: number; duration: number; dps: number };
 
 export type CreatureUnlock = { kind: 'start' } | { kind: 'essence'; cost: number };
 
@@ -156,8 +180,109 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     unlock: { kind: 'essence', cost: 80 },
     ascended: { name: 'Dragão Glacial', ability: { kind: 'slow', speedMultiplier: 0.35, duration: 2.5 } },
   },
+  hunter: {
+    id: 'hunter',
+    name: 'Caçador',
+    race: 'Lobisomem',
+    role: 'Corpo a corpo em cadeia',
+    description: 'Garras que saltam do alvo para os inimigos ao redor. Quanto mais gente junta, melhor.',
+    lore: 'Na lua cheia, ninguém foge dele duas vezes.',
+    icon: '🐺',
+    baseCost: 25,
+    damage: 12,
+    range: 75,
+    cooldown: 0.6,
+    color: '#c8a070',
+    ability: { kind: 'chain', jumps: 2, radius: 60, falloff: 0.8 },
+    unlock: { kind: 'essence', cost: 60 },
+    ascended: { name: 'Caçador Lunar', ability: { kind: 'chain', jumps: 4, radius: 65, falloff: 0.8 } },
+  },
+  alpha: {
+    id: 'alpha',
+    name: 'Alfa',
+    race: 'Lobisomem',
+    role: 'Suporte (aura)',
+    description: 'Líder da matilha: criaturas perto dele atacam mais rápido. Também morde quem chega perto.',
+    lore: 'Um uivo dele e a matilha inteira acorda.',
+    icon: '🌕',
+    baseCost: 30,
+    damage: 10,
+    range: 65,
+    cooldown: 0.6,
+    color: '#9a8a7a',
+    ability: { kind: 'aura', radius: 80, attackSpeed: 0.25 },
+    unlock: { kind: 'essence', cost: 70 },
+    ascended: { name: 'Líder da Matilha', ability: { kind: 'aura', radius: 100, attackSpeed: 0.4 } },
+  },
+  haunt: {
+    id: 'haunt',
+    name: 'Assombração',
+    race: 'Fantasma',
+    role: 'Anti-armadura',
+    description: 'Toques gélidos que atravessam qualquer armadura. A resposta para ogros e chefes.',
+    lore: 'Não tem corpo para ferir, nem paciência para perdoar.',
+    icon: '👻',
+    baseCost: 25,
+    damage: 8,
+    range: 100,
+    cooldown: 0.7,
+    color: '#8ce8d8',
+    ability: { kind: 'pierceArmor', bonusVsArmored: 0 },
+    unlock: { kind: 'essence', cost: 60 },
+    ascended: { name: 'Espírito Vingativo', ability: { kind: 'pierceArmor', bonusVsArmored: 0.5 } },
+  },
+  banshee: {
+    id: 'banshee',
+    name: 'Banshee',
+    race: 'Fantasma',
+    role: 'Controle (empurrão)',
+    description: 'Grito em leque que fere todos à frente e os empurra para longe do Nexus.',
+    lore: 'Quem ouve o lamento dela costuma voltar correndo.',
+    icon: '😱',
+    baseCost: 30,
+    damage: 5,
+    range: 80,
+    cooldown: 1.2,
+    color: '#b8c8ff',
+    ability: { kind: 'screech', halfAngle: 0.5, push: 22 },
+    unlock: { kind: 'essence', cost: 70 },
+    ascended: { name: 'Banshee Ancestral', ability: { kind: 'screech', halfAngle: 0.75, push: 34 } },
+  },
+  sorceress: {
+    id: 'sorceress',
+    name: 'Feiticeira',
+    race: 'Bruxa',
+    role: 'Dano contínuo',
+    description: 'Envenena o alvo: pouco dano no golpe, mas o veneno continua corroendo por alguns segundos.',
+    lore: 'Sorri enquanto mexe o caldeirão — nunca é um bom sinal.',
+    icon: '🧙',
+    baseCost: 25,
+    damage: 6,
+    range: 110,
+    cooldown: 0.8,
+    color: '#7ad85a',
+    ability: { kind: 'poison', dps: 11, duration: 3 },
+    unlock: { kind: 'essence', cost: 60 },
+    ascended: { name: 'Arquibruxa', ability: { kind: 'poison', dps: 16, duration: 4 } },
+  },
+  cauldron: {
+    id: 'cauldron',
+    name: 'Caldeirão',
+    race: 'Bruxa',
+    role: 'Área no chão',
+    description: 'Arremessa poções que deixam uma poça borbulhante: quem pisar nela sofre dano por segundo.',
+    lore: 'Dizem que a receita leva olho de zumbi. Os zumbis não acham graça.',
+    icon: '🧪',
+    baseCost: 35,
+    damage: 5,
+    range: 100,
+    cooldown: 1.8,
+    color: '#5ad8a8',
+    ability: { kind: 'pool', radius: 30, duration: 3, dps: 16 },
+    unlock: { kind: 'essence', cost: 80 },
+    ascended: { name: 'Caldeirão Infernal', ability: { kind: 'pool', radius: 40, duration: 4, dps: 24 } },
+  },
 };
-
 export const CREATURE_IDS = Object.keys(CREATURES) as CreatureId[];
 
 /** Criaturas místicas são as de raças não humanas (o ovo inicial só oferece estas). */

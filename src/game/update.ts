@@ -1,7 +1,7 @@
 import { ARENA, ECONOMY, NEXUS, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
 import { offerChoices } from './choices';
-import { applyBlocks, updateCreatures, updateHero } from './combat';
+import { applyBlocks, updateCreatures, updateDamageOverTime, updateHero } from './combat';
 import { spawnEnemy, spawnInterval, startWave } from './spawning';
 import { createRun, type Point, type RunSetup, type RunState } from './state';
 
@@ -44,6 +44,7 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   applyBlocks(state);
   moveEnemies(state, dt);
   updateCreatures(state, dt);
+  updateDamageOverTime(state, dt);
   state.enemies = state.enemies.filter((e) => !e.dead);
 
   if (state.nexus.hp <= 0) endRun(state, false);
@@ -63,6 +64,14 @@ function moveEnemies(state: RunState, dt: number): void {
     const dx = center.x - enemy.x;
     const dy = center.y - enemy.y;
     const length = Math.hypot(dx, dy);
+    if (enemy.fearTimer > 0) {
+      // com medo: foge do Nexus (sem sair muito da arena)
+      enemy.fearTimer -= dt;
+      const flee = enemy.def.speed * speedFactor * 0.8 * dt;
+      enemy.x = Math.min(ARENA.width + 20, Math.max(-20, enemy.x - (dx / length) * flee));
+      enemy.y = Math.min(ARENA.height + 20, Math.max(-20, enemy.y - (dy / length) * flee));
+      continue;
+    }
     if (enemy.held) continue;
     if (length < NEXUS.contactRadius) {
       if (state.wardReady) {
