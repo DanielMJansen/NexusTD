@@ -46,6 +46,7 @@ import {
   drawSpider,
 } from './spritesEnemies';
 import { drawBatSwarm, drawCleric, drawHerbalist, drawPossessor } from './spritesClasses';
+import { drawArchdemon, drawImp, drawInfernal, drawSuccubus } from './spritesDemon';
 import { drawBasilisk, drawGorgonQueen, drawMedusa, drawSerpentArcher } from './spritesGorgon';
 import { drawDeathLord, drawDrainer, drawReaper, drawSkeletonWarrior } from './spritesNecro';
 import { drawColossus, drawCrystalGolem, drawMagmaGolem, drawWall } from './spritesGolem';
@@ -128,6 +129,18 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'cleric':
       drawCleric(ctx, p);
+      break;
+    case 'imp':
+      drawImp(ctx, p);
+      break;
+    case 'succubus':
+      drawSuccubus(ctx, p);
+      break;
+    case 'infernal':
+      drawInfernal(ctx, p);
+      break;
+    case 'archdemon':
+      drawArchdemon(ctx, p);
       break;
     case 'serpentArcher':
       drawSerpentArcher(ctx, p);

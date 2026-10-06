@@ -28,7 +28,10 @@ export type CreatureId =
   | 'drainer'
   | 'serpentArcher'
   | 'medusa'
-  | 'basilisk';
+  | 'basilisk'
+  | 'imp'
+  | 'succubus'
+  | 'infernal';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -795,6 +798,69 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ascended: [
       { name: 'Basilisco Rei', description: 'Corrói em área e mais forte.', ability: { kind: 'splash', radius: 35, damageRatio: 0.6 }, effects: [{ kind: 'corrode', armor: 4, duration: 3.5 }], color: '#ffd25a', icon: '♛' },
       { name: 'Cuspidor', description: 'O ácido vira poça no chão.', ability: { kind: 'pool', radius: 28, duration: 3, dps: 12 }, effects: [{ kind: 'corrode', armor: 3, duration: 3 }], color: '#9aff3a', icon: '♨' },
+    ],
+  },
+  imp: {
+    id: 'imp',
+    name: 'Diabrete',
+    race: 'Demônio',
+    role: 'DPS barato e rápido',
+    description: 'Pequeno, barato e rápido: dispara bolinhas de fogo sem parar.',
+    lore: 'Fugiu do inferno pela chaminé. Ainda tem fuligem nas orelhas.',
+    icon: '😈',
+    baseCost: 15,
+    damage: 5,
+    range: 95,
+    cooldown: 0.5,
+    color: '#ff5a3a',
+    flying: true,
+    ability: { kind: 'none' },
+    unlock: { kind: 'essence', cost: 80 },
+    ascended: [
+      { name: 'Diabrete Flamejante', description: 'As bolinhas de fogo deixam o alvo queimando.', ability: { kind: 'none' }, effects: [{ kind: 'poison', dps: 5, duration: 2 }], color: '#ffb040', icon: '♨' },
+      { name: 'Diabrete Ladino', description: 'Chance de roubar ouro a cada golpe.', ability: { kind: 'none' }, effects: [{ kind: 'steal', chance: 0.12, gold: 1 }], color: '#f0c35a', icon: '◉' },
+    ],
+  },
+  succubus: {
+    id: 'succubus',
+    name: 'Súcubo',
+    race: 'Demônio',
+    role: 'Controle (puxar)',
+    description: 'O chicote puxa o inimigo para perto dela, para longe do caminho do Nexus.',
+    lore: 'Ninguém resiste ao chamado dela. Os monstros só percebem tarde.',
+    icon: '💋',
+    baseCost: 30,
+    damage: 6,
+    range: 110,
+    cooldown: 1.2,
+    color: '#c86ad8',
+    flying: true,
+    ability: { kind: 'none' },
+    effects: [{ kind: 'pull', distance: 18 }],
+    unlock: { kind: 'essence', cost: 90 },
+    ascended: [
+      { name: 'Sedutora', description: 'Puxa 3 inimigos de uma vez.', ability: { kind: 'multishot', targets: 3 }, effects: [{ kind: 'pull', distance: 18 }], color: '#ff8ad0', icon: '♥' },
+      { name: 'Tormento', description: 'Puxados ficam vulneráveis: +60% de dano recebido por 2,5 s.', ability: { kind: 'none' }, effects: [{ kind: 'pull', distance: 15 }, { kind: 'vulnerable', amount: 0.6, duration: 2.5 }], color: '#ff3a4a', icon: '⛓' },
+    ],
+  },
+  infernal: {
+    id: 'infernal',
+    name: 'Infernal',
+    race: 'Demônio',
+    role: 'Área pesada',
+    description: 'Lento, mas cada bola de fogo explode com muito dano em área.',
+    lore: 'Caiu do céu como um meteoro. Gostou da sensação e não parou mais.',
+    icon: '☄',
+    baseCost: 40,
+    damage: 22,
+    range: 110,
+    cooldown: 2.4,
+    color: '#ff8a2a',
+    ability: { kind: 'splash', radius: 40, damageRatio: 0.8 },
+    unlock: { kind: 'essence', cost: 110 },
+    ascended: [
+      { name: 'Senhor do Abismo', description: 'Explosão maior e mais forte.', ability: { kind: 'splash', radius: 60, damageRatio: 0.9 }, color: '#ffd25a', icon: '♛' },
+      { name: 'Berserker', description: 'Cada abate aumenta o dano até o fim da onda.', ability: { kind: 'splash', radius: 40, damageRatio: 0.8 }, effects: [{ kind: 'killDamage', perKill: 0.05, max: 1 }], color: '#ff3a1a', icon: '⚔' },
     ],
   },
 };

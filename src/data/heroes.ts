@@ -1,7 +1,7 @@
 // Heróis jogáveis: um por raça. O Cavaleiro (Humano) é o inicial; os outros custam Essência.
 // Valores PROPOSTA: calibrar em playtest.
 
-export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus' | 'deathLord' | 'gorgonQueen';
+export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus' | 'deathLord' | 'gorgonQueen' | 'archdemon';
 
 export type HeroAttack = {
   damage: number;
@@ -225,6 +225,19 @@ export const HEROES: Record<HeroId, HeroDef> = {
     color: '#3a9a6a',
     maxHp: 100,
     cost: 260,
+  },
+  archdemon: {
+    id: 'archdemon',
+    name: 'Arquidemônio',
+    race: 'Demônio',
+    description: 'Lança chamas em leque. O Pacto custa parte da vida do herói, mas causa uma explosão enorme.',
+    speed: 120,
+    attack: { damage: 9, range: 60, cooldown: 0.55, pattern: { kind: 'cone', halfAngle: 0.5 }, healPerHit: 0 },
+    pulse: { name: 'Pacto', damage: 90, radius: 110, cooldown: 12, healPerEnemy: 0, selfDamage: 0.3 },
+    raceBonus: { kind: 'critChance', value: 0.1 },
+    color: '#ff4a2a',
+    maxHp: 130,
+    cost: 280,
   },
 };
 export const HERO_IDS = Object.keys(HEROES) as HeroId[];
