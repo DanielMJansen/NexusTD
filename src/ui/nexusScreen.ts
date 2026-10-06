@@ -1,30 +1,30 @@
 import { ACHIEVEMENTS } from '../data/achievements';
 import { NEXUS_COLORS, NEXUS_MODEL_IDS, NEXUS_MODELS, type NexusModelId } from '../data/nexusSkins';
-import { STAGES } from '../data/stages';
-import { isNexusColorUnlocked, isNexusModelUnlocked } from '../game/nexusSkins';
-import type { Profile } from '../game/profile';
+import { STAGE_IDS, STAGES, type StageId } from '../data/stages';
+import { isNexusColorUnlocked, isNexusModelUnlocked, nexusLookFor } from '../game/nexusSkins';
+import { isStageUnlocked, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
 import { showOverlay } from './overlay';
 
 export interface NexusScreenHandlers {
+  onStage(stage: StageId): void;
   onModel(model: NexusModelId | 'map'): void;
   onColor(color: string): void;
   onBuyColor(color: string): void;
   onBack(): void;
 }
 
-/** Modelo usado na prévia de cores: o escolhido, ou o da fase atual quando "do mapa". */
-function previewModel(profile: Profile): NexusModelId {
-  return profile.nexusLook.model === 'map' ? STAGES[profile.selectedStage].nexusModel : profile.nexusLook.model;
-}
-
-/** Skins do Nexus: modelo (forma) e cor (paleta), combináveis. Só visual. */
-export function showNexusSkins(profile: Profile, handlers: NexusScreenHandlers): void {
-  const look = profile.nexusLook;
-  const model = previewModel(profile);
+/** Skins do Nexus por fase: modelo (forma) e cor (paleta), combináveis. Só visual. */
+export function showNexusSkins(profile: Profile, stage: StageId, handlers: NexusScreenHandlers): void {
+  const look = nexusLookFor(profile, stage);
+  const stageModel = STAGES[stage].nexusModel;
+  const model = look.model === 'map' ? stageModel : look.model;
+  const tabs = STAGE_IDS.filter((id) => isStageUnlocked(profile, id))
+    .map((id) => `<button class="nexus-stage${id === stage ? ' active' : ''}" data-action="stage" data-value="${id}">Fase ${STAGES[id].number} · ${STAGES[id].name}</button>`)
+    .join('');
   const mapCard = `<button class="nexus-skin${look.model === 'map' ? ' selected' : ''}" data-action="model" data-value="map">
-      <canvas data-nexus="${look.color}" data-model="${STAGES[profile.selectedStage].nexusModel}"></canvas>
-      <b>Do mapa</b><small>Cada fase mostra seu Nexus</small></button>`;
+      <canvas data-nexus="${look.color}" data-model="${stageModel}"></canvas>
+      <b>Do mapa</b><small>${NEXUS_MODELS[stageModel].name}</small></button>`;
   const models = NEXUS_MODEL_IDS.map((id) => {
     const def = NEXUS_MODELS[id];
     const unlocked = isNexusModelUnlocked(profile, id);
@@ -55,13 +55,15 @@ export function showNexusSkins(profile: Profile, handlers: NexusScreenHandlers):
         <h2>Nexus</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>
-      <p class="subtitle">Escolha o modelo e a cor do Nexus. Só visual. Vencer fases libera modelos; cores vêm da Essência, de conquistas e do Altar.</p>
+      <p class="subtitle">Cada fase tem seu próprio Nexus: escolha o modelo e a cor de cada uma. Só visual. Vencer fases libera modelos; cores vêm da Essência, de conquistas e do Altar.</p>
+      <div class="nexus-stages">${tabs}</div>
       <h3>Modelo</h3>
       <div class="nexus-grid">${mapCard}${models}</div>
       <h3>Cor</h3>
       <div class="nexus-grid">${original}${colors}</div>
     </div>`,
     {
+      stage: (id) => handlers.onStage(id as StageId),
       model: (id) => handlers.onModel(id as NexusModelId | 'map'),
       color: (id) => handlers.onColor(id),
       ask: (id) => {
@@ -69,7 +71,7 @@ export function showNexusSkins(profile: Profile, handlers: NexusScreenHandlers):
         const c = NEXUS_COLORS.find((x) => x.id === id);
         if (box && c?.unlock.kind === 'essence') box.innerHTML = confirmPurchaseHtml(id, c.unlock.cost, profile.essence).replace('Desbloquear por', 'Comprar por');
       },
-      cancel: () => showNexusSkins(profile, handlers),
+      cancel: () => showNexusSkins(profile, stage, handlers),
       buy: (id) => handlers.onBuyColor(id),
       back: () => handlers.onBack(),
     },

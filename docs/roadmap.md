@@ -85,7 +85,7 @@ Dividida em três entregas, cada uma jogável ao fim:
 
 **F13.5b — Skins do Nexus** `[x]` — catálogo aprovado em 07/10 (modelos das próximas fases entram junto com cada fase)
 - Duas partes combináveis: **modelo** (forma do Nexus) e **cor** (paleta aplicada a qualquer modelo). Só visual.
-- Padrão **"do mapa"**: cada fase mostra seu Nexus temático; o jogador pode fixar outro modelo/cor (tela do Nexus no menu).
+- Padrão **"do mapa"**: cada fase mostra seu Nexus temático; o jogador pode fixar outro modelo/cor **por fase** (tela do Nexus no menu, com abas por fase).
 - Obtenção por **todas as fontes**:
   - **Vencer a fase** libera o modelo dela: Cristal Rúnico (Cemitério, já liberado), Lótus Ancestral (Pântano); depois Pináculo Glacial (Tundra), Obelisco Solar (Deserto), Olho Celeste (Cidadela).
   - **Essência** (preço fixo, 400 ✦ cada): cores Rubi, Esmeralda e Safira.
@@ -94,7 +94,7 @@ Dividida em três entregas, cada uma jogável ao fim:
 
 > **Biomas revistos em 07/10/2026:** o jogo estava escuro/gótico demais; as próximas fases vão do escuro para a luz — **Neve → Deserto → Céu**. As mecânicas destravadas continuam as mesmas.
 
-### F13.9. Motor de mapas — PROPOSTA (pedido de 07/10/2026: sair do molde "20 ondas, 3 chefes, inimigos de todas as bordas")
+### F13.9. Motor de mapas `[ ]` — aprovado em 07/10/2026: **entra inteiro antes da Tundra** (inclui escolta e dois Nexus); Cemitério e Pântano são revistos com ele depois
 Hoje o mapa é uma imagem fixa de 640×360, desenhada uma vez; inimigos nascem nas bordas e andam em linha reta até o Nexus; toda fase usa a mesma fórmula de quantidade e 20 ondas com 3 chefes. Para fases realmente diferentes, o motor precisa de:
 1. **Mundo maior que a tela + câmera**: mapas de tamanhos e formatos variados (ex.: 2–3 telas de largura), câmera que segue o herói (com arrastar/rolar e minimapa). Mapas pequenos continuam possíveis.
 2. **Trilhas e entradas**: cada mapa define de onde os inimigos vêm (bordas em 360°, 2–3 passagens, rios, portais) e por onde andam (trilhas com curvas, gargalos, pontes). Criaturas perto de gargalos passam a valer mais.
@@ -102,14 +102,14 @@ Hoje o mapa é uma imagem fixa de 640×360, desenhada uma vez; inimigos nascem n
 4. **Objetos interativos do mapa**: coisas que o herói ativa ao ficar perto (fogueiras, alavancas, pontes), terreno que muda durante a fase (gelo que racha, areia que cobre trilhas).
 5. **Objetivos variados**: além de "defenda o Nexus", ex.: escoltar uma caravana, defender dois pontos, sobreviver a um tempo, destruir ninhos.
 
-### F14. Fase 3 — Tundra Gelada + Sinergias `[ ]` — PROPOSTA (primeira fase "fora do molde")
+### F14. Fase 3 — Tundra Gelada + Sinergias `[ ]` — aprovada (07/10), com **18 ondas**; Sinergias por raça ainda em PROPOSTA
 **Mapa: o Lago Congelado** — 2 telas de largura, com câmera.
 - O Nexus (Pináculo Glacial) fica numa ilha de pedra no centro de um **lago congelado**; inimigos chegam por **3 passagens nas montanhas** (norte, leste e oeste) e seguem trilhas até o lago — não mais de todas as bordas.
 - **Gelo**: no lago, inimigos **deslizam** (mais rápidos, não podem ser segurados por bloqueio). Onde muitos inimigos passam, o gelo **racha** e, depois de rachado, vira **buraco de água**: inimigos comuns que caem morrem; o buraco congela de novo depois de um tempo. Dá para "guiar" a destruição com o posicionamento.
 - **Nevasca**: a cada ~60 s, 12 s de nevasca — névoa branca, **alcance de todas as criaturas −30%**. Há **3 fogueiras** no mapa: criaturas perto de uma fogueira acesa ignoram a nevasca. Fogueiras **apagam** na nevasca; o **herói reacende** ficando 2 s perto. O herói ganha um papel novo: correr entre fogueiras.
 - **Fogo vs. gelo**: criaturas de fogo (Dragão de Fogo, Infernal, Magma, Diabrete…) causam +25% de dano a inimigos de gelo — times diferentes brilham aqui.
 
-**Roteiro: a Expedição** — 15 ondas, não 20:
+**Roteiro: a Expedição** — 18 ondas (não 20), com tipos variados:
 | Ondas | Conteúdo |
 |---|---|
 | 1–4 | normais, poucos inimigos |
@@ -118,8 +118,12 @@ Hoje o mapa é uma imagem fixa de 640×360, desenhada uma vez; inimigos nascem n
 | 7–9 | normais + elites |
 | 10 | **Avalanche** (evento, sem chefe): uma onda gigante desce por uma passagem e esmaga tudo no caminho, inclusive inimigos; avisada 5 s antes |
 | 11 | **Trégua**: loja com melhorias raras, sem inimigos |
-| 12–14 | **Gigantes**: poucos inimigos enormes e lentos |
-| 15 | **Chefe final: Wyrm de Gelo** — nada sob o gelo do lago, emerge rachando o gelo perto das criaturas, depois volta a mergulhar |
+| 12 | **Gigantes**: poucos inimigos enormes e lentos |
+| 13 | **Nevasca Eterna** (evento): a nevasca não para durante a onda; as fogueiras viram o centro da defesa |
+| 14–15 | **Gigantes** + elites |
+| 16 | **Grande Matilha**: lobos pelas 3 passagens ao mesmo tempo |
+| 17 | normal, pesada |
+| 18 | **Chefe final: Wyrm de Gelo** — nada sob o gelo do lago, emerge rachando o gelo perto das criaturas, depois volta a mergulhar |
 
 **Inimigos novos**: Lobo Gélido (matilha), Golem de Neve (ao morrer vira bolas de neve que rolam), Espírito do Gelo (voador; encosta numa criatura e a congela), Troll da Geleira (regenera, a menos que leve dano de fogo), Kobold Escavador (atravessa o gelo por baixo e surge longe das trilhas).
 
@@ -136,6 +140,9 @@ Hoje o mapa é uma imagem fixa de 640×360, desenhada uma vez; inimigos nascem n
 - Ideia de modo diferente: **ilhas flutuantes** ligadas por pontes; defender **dois Nexus** ao mesmo tempo.
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).
 - Nexus temático: **Olho Celeste**.
+
+### Revisão das Fases 1 e 2 `[ ]` (depois da Tundra)
+- Dar ao Cemitério e ao Pântano roteiros próprios (hordas, eventos, tréguas) e, se fizer sentido, trilhas e câmera — também fora do molde.
 
 ### Em paralelo (encaixar entre fases)
 - **Raças novas** `[ ]` — PROPOSTA por lote: Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais. Ideia: cada fase libera 1–2 raças ligadas ao bioma (ex.: Sereia no Pântano, Elementais na Tundra, Goblin no Deserto, Unicórnio na Cidadela).

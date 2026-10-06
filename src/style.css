@@ -2765,3 +2765,21 @@ body:not([data-mode='run']) #side-panel {
   width: 72px;
   height: 72px;
 }
+
+.nexus-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.nexus-stage {
+  padding: 5px 14px;
+  font-size: 14px;
+}
+
+.nexus-stage.active {
+  border-color: var(--accent);
+  background: #9a7aff22;
+  color: var(--fg);
+}

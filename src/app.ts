@@ -2,7 +2,7 @@ import { buyNexusColor, selectNexusLook } from './game/nexusSkins';
 import { showNexusSkins } from './ui/nexusScreen';
 import { rollAltar, selectVariant, type AltarResult } from './game/altar';
 import { showAltar } from './ui/altarScreen';
-import { STAGE_IDS, STAGES } from './data/stages';
+import { STAGE_IDS, STAGES, type StageId } from './data/stages';
 import type { CreatureId } from './data/creatures';
 import { SoundPlayer } from './audio/audio';
 import { Music } from './audio/music';
@@ -576,18 +576,20 @@ export class App {
     );
   }
 
-  private openNexusSkins(): void {
+  /** stage: fase cujo Nexus está sendo editado (padrão: a fase escolhida). */
+  private openNexusSkins(stage: StageId = this.profile.selectedStage): void {
     const changed = (ok: boolean, sound: 'place' | 'coin' = 'place') => {
       if (!ok) return;
       saveProfile(this.profile);
       this.sound.play(sound);
       this.run = createRun(runSetup(this.profile));
-      this.openNexusSkins();
+      this.openNexusSkins(stage);
     };
-    showNexusSkins(this.profile, {
-      onModel: (model) => changed(selectNexusLook(this.profile, { model })),
-      onColor: (color) => changed(selectNexusLook(this.profile, { color })),
-      onBuyColor: (color) => changed(buyNexusColor(this.profile, color), 'coin'),
+    showNexusSkins(this.profile, stage, {
+      onStage: (id) => this.openNexusSkins(id),
+      onModel: (model) => changed(selectNexusLook(this.profile, stage, { model })),
+      onColor: (color) => changed(selectNexusLook(this.profile, stage, { color })),
+      onBuyColor: (color) => changed(buyNexusColor(this.profile, color, stage), 'coin'),
       onBack: () => this.openMenu(),
     });
   }

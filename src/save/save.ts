@@ -1,4 +1,4 @@
-import { findNexusColor, NEXUS_COLORS, NEXUS_MODEL_IDS, type NexusModelId } from '../data/nexusSkins';
+import { findNexusColor, NEXUS_COLORS, NEXUS_MODEL_IDS, type NexusLook, type NexusModelId } from '../data/nexusSkins';
 import { isNexusColorUnlocked, isNexusModelUnlocked } from '../game/nexusSkins';
 import { LOADOUTS } from '../data/config';
 import { VARIANT_TIERS, type VariantTier } from '../data/altar';
@@ -175,13 +175,22 @@ function sanitize(data: unknown): Profile {
   // skins do Nexus (campos novos: padrão "do mapa", cor original)
   const colors = Array.isArray(raw.nexusColors) ? raw.nexusColors : [];
   profile.nexusColors = NEXUS_COLORS.filter((c) => colors.includes(c.id)).map((c) => c.id);
-  const look = (raw.nexusLook ?? {}) as Record<string, unknown>;
-  profile.nexusLook = { model: 'map', color: 'original' };
-  if (typeof look.model === 'string' && look.model !== 'map' && NEXUS_MODEL_IDS.includes(look.model as NexusModelId) && isNexusModelUnlocked(profile, look.model as NexusModelId)) {
-    profile.nexusLook.model = look.model as NexusModelId;
+  const readLook = (raw: unknown): NexusLook => {
+    const look = (raw ?? {}) as Record<string, unknown>;
+    const out: NexusLook = { model: 'map', color: 'original' };
+    if (typeof look.model === 'string' && look.model !== 'map' && NEXUS_MODEL_IDS.includes(look.model as NexusModelId) && isNexusModelUnlocked(profile, look.model as NexusModelId)) {
+      out.model = look.model as NexusModelId;
+    }
+    const color = findNexusColor(String(look.color ?? ''));
+    if (color && isNexusColorUnlocked(profile, color)) out.color = color.id;
+    return out;
+  };
+  const looks = (raw.nexusLooks ?? {}) as Record<string, unknown>;
+  profile.nexusLooks = {};
+  for (const id of STAGE_IDS) {
+    const source = looks[id] ?? (raw as Record<string, unknown>).nexusLook;
+    if (source) profile.nexusLooks[id] = readLook(source);
   }
-  const color = findNexusColor(String(look.color ?? ''));
-  if (color && isNexusColorUnlocked(profile, color)) profile.nexusLook.color = color.id;
   const stage = raw.selectedStage as StageId;
   profile.selectedStage = STAGE_IDS.includes(stage) ? stage : FIRST_STAGE;
   const skins = (raw.selectedSkins ?? {}) as Record<string, unknown>;

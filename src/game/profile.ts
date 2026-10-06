@@ -1,3 +1,4 @@
+import { nexusLookFor } from './nexusSkins';
 import type { NexusLook } from '../data/nexusSkins';
 import { LOADOUTS } from '../data/config';
 import type { VariantTier } from '../data/altar';
@@ -46,8 +47,8 @@ export interface Profile {
   variants: Partial<Record<CreatureId, VariantTier[]>>;
   selectedVariants: Partial<Record<CreatureId, VariantTier>>;
   altarPity: { epic: number; legendary: number };
-  /** Skins do Nexus: escolha (modelo 'map' = o da fase) e cores compradas/ganhas no Altar. */
-  nexusLook: NexusLook;
+  /** Skins do Nexus por fase (modelo 'map' = o da fase) e cores compradas/ganhas no Altar. */
+  nexusLooks: Partial<Record<StageId, NexusLook>>;
   nexusColors: string[];
   /** Fase escolhida para a próxima run. */
   selectedStage: StageId;
@@ -79,7 +80,7 @@ export function createProfile(): Profile {
     variants: {},
     selectedVariants: {},
     altarPity: { epic: 0, legendary: 0 },
-    nexusLook: { model: 'map', color: 'original' },
+    nexusLooks: {},
     nexusColors: [],
     stageRecords: {},
   };
@@ -280,7 +281,7 @@ export function runSetup(profile: Profile): RunSetup {
     stage: isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE,
     sanctuary: { ...profile.sanctuary },
     variants: { ...profile.selectedVariants },
-    nexusLook: { ...profile.nexusLook },
+    nexusLook: { ...nexusLookFor(profile, isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE) },
     talents: talentBonuses(profile.talents),
     team: profile.team.filter((id) => ownsCreature(profile, id)),
     hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,
