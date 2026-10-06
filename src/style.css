@@ -1207,3 +1207,102 @@ button:disabled {
   color: var(--gold);
   font-size: 14px;
 }
+
+/* skins */
+.skin-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.skin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  font: 600 11px var(--font-label);
+  flex: 1;
+}
+
+.skin canvas {
+  width: 44px;
+  height: 44px;
+}
+
+.skin.selected {
+  border-color: var(--card-color);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--card-color) 45%, transparent);
+}
+
+/* conquistas */
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.achievement {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: linear-gradient(#1c1430, #120c20);
+  opacity: 0.7;
+}
+
+.achievement.done {
+  opacity: 1;
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 10px #f0c35a22;
+}
+
+.achievement-icon {
+  font-size: 22px;
+}
+
+.achievement-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 15px;
+}
+
+.achievement-text b {
+  font: 700 15px var(--font-label);
+}
+
+.achievement-text em {
+  color: var(--muted);
+}
+
+.achievement-reward {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.achievement-reward canvas {
+  width: 40px;
+  height: 40px;
+}
+
+.achievement-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 10px;
+  background: #f0c35a12;
+  text-align: left;
+  font-size: 15px;
+}
+
+.achievement-list li + li {
+  margin-top: 6px;
+}

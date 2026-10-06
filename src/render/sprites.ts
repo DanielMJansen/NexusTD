@@ -1,6 +1,7 @@
 import type { CreatureId } from '../data/creatures';
 import type { EnemyId } from '../data/enemies';
 import type { HeroId } from '../data/heroes';
+import type { SkinPalette } from '../data/skins';
 
 export type SpriteId = HeroId | CreatureId | EnemyId;
 
@@ -15,6 +16,8 @@ export interface SpritePose {
   moving?: boolean;
   /** Nível de evolução; no nível máximo aparecem os acessórios da forma evoluída. */
   level?: number;
+  /** Cores da skin (heróis); chaves ausentes usam a cor padrão do desenho. */
+  palette?: SkinPalette;
 }
 
 const TAU = Math.PI * 2;
@@ -32,7 +35,7 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
   ctx.scale(scale * (pose.facing ?? 1), scale);
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
-  const p: Required<SpritePose> = { facing: 1, attack: 0, moving: false, level: 1, ...pose };
+  const p: Required<SpritePose> = { facing: 1, attack: 0, moving: false, level: 1, palette: {}, ...pose };
   switch (id) {
     case 'knight':
       drawHero(ctx, p);
@@ -182,6 +185,9 @@ function blush(ctx: Ctx, x: number, y: number): void {
 const ascended = (p: Required<SpritePose>) => p.level >= 3;
 const GOLD = '#f0c35a';
 
+/** Cor da skin com fallback para a cor padrão do desenho. */
+const skin = (p: Required<SpritePose>, key: string, fallback: string): string => p.palette[key] ?? fallback;
+
 const walk = (p: Required<SpritePose>, speed = 12) => (p.moving ? Math.sin(p.time * speed) : 0);
 
 // ---------- herói ----------
@@ -192,21 +198,21 @@ function drawHero(ctx: Ctx, p: Required<SpritePose>): void {
   const sway = Math.sin(p.time * 3) * 1.5 + step * 2;
 
   // capa
-  shape(ctx, vertical(ctx, -8, 12, '#3a4fa8', '#1d2763'), () =>
+  shape(ctx, vertical(ctx, -8, 12, skin(p, 'cape', '#3a4fa8'), skin(p, 'capeDark', '#1d2763')), () =>
     poly(ctx, [-6, -7 + bob, 5, -7 + bob, 2, 11, -6 - sway, 13, -12 - sway, 10]),
   );
   // pernas
   shape(ctx, '#3a2a22', () => ctx.roundRect(-5 + step * 2, 6, 4, 8, 1.5));
   shape(ctx, '#3a2a22', () => ctx.roundRect(1 - step * 2, 6, 4, 8, 1.5));
   // túnica
-  shape(ctx, vertical(ctx, -8, 9, '#7d9be8', '#3c55b0'), () =>
+  shape(ctx, vertical(ctx, -8, 9, skin(p, 'tunic', '#7d9be8'), skin(p, 'tunicDark', '#3c55b0')), () =>
     ctx.roundRect(-7, -8 + bob, 14, 16 - bob, [5, 5, 3, 3]),
   );
   shape(ctx, '#5a3a24', () => ctx.rect(-7, 2 + bob * 0.5, 14, 2.6), 1);
   shape(ctx, '#f0c35a', () => ctx.rect(-1.5, 1.8 + bob * 0.5, 3, 3), 0.8);
   // cachecol
-  shape(ctx, '#4fd2e8', () => ctx.roundRect(-6, -9 + bob, 12, 3.5, 1.5), 1);
-  shape(ctx, '#3ab0c8', () => poly(ctx, [-5, -7 + bob, -9 - sway * 0.6, -3 + bob, -6, -2 + bob]), 1);
+  shape(ctx, skin(p, 'scarf', '#4fd2e8'), () => ctx.roundRect(-6, -9 + bob, 12, 3.5, 1.5), 1);
+  shape(ctx, skin(p, 'scarfDark', '#3ab0c8'), () => poly(ctx, [-5, -7 + bob, -9 - sway * 0.6, -3 + bob, -6, -2 + bob]), 1);
 
   // espada: levantada no repouso, gira para frente no golpe
   ctx.save();
@@ -224,7 +230,7 @@ function drawHero(ctx: Ctx, p: Required<SpritePose>): void {
   // cabeça
   const hy = -16 + bob;
   shape(ctx, radial(ctx, 0, hy, 8.5, '#ffe6cf', '#e9b994'), () => circle(ctx, 0, hy, 8.5));
-  shape(ctx, vertical(ctx, hy - 9, hy, '#8a5230', '#5e3420'), () => {
+  shape(ctx, vertical(ctx, hy - 9, hy, skin(p, 'hair', '#8a5230'), skin(p, 'hairDark', '#5e3420')), () => {
     ctx.moveTo(-8.6, hy + 1);
     ctx.quadraticCurveTo(-9, hy - 10, 1, hy - 9.5);
     ctx.quadraticCurveTo(9.5, hy - 9, 8.6, hy - 2);
@@ -250,14 +256,14 @@ function drawVampireLord(ctx: Ctx, p: Required<SpritePose>): void {
   const sway = Math.sin(p.time * 3) * 1.5 + step * 2.5;
 
   // capa longa com forro vermelho
-  shape(ctx, vertical(ctx, -9, 14, '#2a1440', '#0e0618'), () =>
+  shape(ctx, vertical(ctx, -9, 14, skin(p, 'cape', '#2a1440'), skin(p, 'capeDark', '#0e0618')), () =>
     poly(ctx, [-6, -8 + bob, 6, -8 + bob, 9, 14, -2 - sway, 12, -14 - sway, 14]),
   );
-  shape(ctx, vertical(ctx, -6, 12, '#c8203a', '#5e0a1a'), () => poly(ctx, [-5, -6 + bob, -12 - sway, 12, -4 - sway, 10]), 0);
+  shape(ctx, vertical(ctx, -6, 12, skin(p, 'lining', '#c8203a'), skin(p, 'liningDark', '#5e0a1a')), () => poly(ctx, [-5, -6 + bob, -12 - sway, 12, -4 - sway, 10]), 0);
   // pernas e sobretudo
   shape(ctx, '#140a20', () => ctx.roundRect(-4.5 + step * 2, 6, 4, 8, 1.5));
   shape(ctx, '#140a20', () => ctx.roundRect(0.5 - step * 2, 6, 4, 8, 1.5));
-  shape(ctx, vertical(ctx, -8, 9, '#4a2a6a', '#24123a'), () => ctx.roundRect(-6.5, -8 + bob, 13, 16 - bob, [4, 4, 2, 2]));
+  shape(ctx, vertical(ctx, -8, 9, skin(p, 'coat', '#4a2a6a'), skin(p, 'coatDark', '#24123a')), () => ctx.roundRect(-6.5, -8 + bob, 13, 16 - bob, [4, 4, 2, 2]));
   shape(ctx, '#f4eef8', () => poly(ctx, [-2.2, -8 + bob, 2.2, -8 + bob, 0, -2 + bob]), 0.8);
   shape(ctx, GOLD, () => ctx.rect(-6.5, 2 + bob * 0.5, 13, 1.6), 0.6);
 
@@ -281,9 +287,9 @@ function drawVampireLord(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.lineTo(-2, hy - 4);
     ctx.closePath();
   });
-  shape(ctx, '#140a20', () => ctx.roundRect(-7, hy - 9.5, 14, 2.5, 1));
-  shape(ctx, '#1e1030', () => ctx.roundRect(-4.5, hy - 19, 9, 10, 1.5));
-  shape(ctx, '#c8203a', () => ctx.rect(-4.5, hy - 12, 9, 2), 0.6);
+  shape(ctx, skin(p, 'hat', '#140a20'), () => ctx.roundRect(-7, hy - 9.5, 14, 2.5, 1));
+  shape(ctx, skin(p, 'hat', '#1e1030'), () => ctx.roundRect(-4.5, hy - 19, 9, 10, 1.5));
+  shape(ctx, skin(p, 'hatBand', '#c8203a'), () => ctx.rect(-4.5, hy - 12, 9, 2), 0.6);
   glowingEye(ctx, 1.6, hy + 0.8, 1.4, '#ff3048');
   glowingEye(ctx, 5.2, hy + 0.8, 1.4, '#ff3048');
   shape(ctx, '#ffffff', () => poly(ctx, [2.5, hy + 4.4, 3.4, hy + 4.4, 3, hy + 6]), 0.4);
@@ -299,7 +305,7 @@ function drawDraconian(ctx: Ctx, p: Required<SpritePose>): void {
   const flap = Math.sin(p.time * 5) * 0.15;
 
   // cauda e asinhas nas costas
-  shape(ctx, '#8a2418', () => {
+  shape(ctx, skin(p, 'bodyDark', '#8a2418'), () => {
     ctx.moveTo(-4, 6);
     ctx.quadraticCurveTo(-14, 10, -17, 3 + tail);
     ctx.quadraticCurveTo(-12, 8, -3, 10);
@@ -309,18 +315,18 @@ function drawDraconian(ctx: Ctx, p: Required<SpritePose>): void {
   ctx.save();
   ctx.translate(-3, -6 + bob);
   ctx.rotate(-0.3 + flap);
-  shape(ctx, '#c8402a', () => poly(ctx, [0, 0, -12, -10, -13, -2, -8, 2]));
+  shape(ctx, skin(p, 'wing', '#c8402a'), () => poly(ctx, [0, 0, -12, -10, -13, -2, -8, 2]));
   ctx.restore();
   // pernas
-  shape(ctx, '#5a1810', () => ctx.roundRect(-5 + step * 2, 6, 4.5, 8, 2));
-  shape(ctx, '#5a1810', () => ctx.roundRect(0.5 - step * 2, 6, 4.5, 8, 2));
+  shape(ctx, skin(p, 'bodyDark', '#5a1810'), () => ctx.roundRect(-5 + step * 2, 6, 4.5, 8, 2));
+  shape(ctx, skin(p, 'bodyDark', '#5a1810'), () => ctx.roundRect(0.5 - step * 2, 6, 4.5, 8, 2));
   // corpo escamado com peitoral
-  shape(ctx, radial(ctx, 0, 0 + bob, 10, '#d8452a', '#7a1a10'), () => ctx.roundRect(-7, -9 + bob, 14, 17, [5, 5, 4, 4]));
-  shape(ctx, '#f0c890', () => ctx.roundRect(-3, -7 + bob, 7, 13, 3), 1);
+  shape(ctx, radial(ctx, 0, 0 + bob, 10, skin(p, 'body', '#d8452a'), skin(p, 'bodyDark', '#7a1a10')), () => ctx.roundRect(-7, -9 + bob, 14, 17, [5, 5, 4, 4]));
+  shape(ctx, skin(p, 'belly', '#f0c890'), () => ctx.roundRect(-3, -7 + bob, 7, 13, 3), 1);
   // cinto e ombreira de bronze
   shape(ctx, '#3a1a10', () => ctx.rect(-7, 3 + bob, 14, 2.4), 0.8);
   shape(ctx, GOLD, () => ctx.rect(-1.2, 2.8 + bob, 2.4, 2.8), 0.6);
-  shape(ctx, vertical(ctx, -10, -4, '#ffe07a', '#b8801a'), () => ellipse(ctx, -4, -7 + bob, 4.5, 3), 1);
+  shape(ctx, vertical(ctx, -10, -4, skin(p, 'armor', '#ffe07a'), skin(p, 'armorDark', '#b8801a')), () => ellipse(ctx, -4, -7 + bob, 4.5, 3), 1);
   ctx.strokeStyle = '#c8803a';
   ctx.lineWidth = 0.7;
   for (const y of [-4, -1, 2]) {
@@ -330,14 +336,14 @@ function drawDraconian(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.stroke();
   }
   // braço com garras
-  shape(ctx, '#c8402a', () => circle(ctx, 7, 1 + bob, 2.6), 1);
+  shape(ctx, skin(p, 'wing', '#c8402a'), () => circle(ctx, 7, 1 + bob, 2.6), 1);
 
   // cabeça de dragão: focinho, chifres, olhos
   const hy = -16 + bob;
   shape(ctx, '#fff0d0', () => poly(ctx, [-3, hy - 5, -10, hy - 12, -1, hy - 8]), 1);
   shape(ctx, '#fff0d0', () => poly(ctx, [1, hy - 7, -2, hy - 15, 4, hy - 8]), 1);
-  shape(ctx, radial(ctx, 1, hy, 8.5, '#d8452a', '#7a1a10'), () => circle(ctx, 1, hy, 8));
-  shape(ctx, radial(ctx, 8, hy + 2, 5, '#d8452a', '#9a2a18'), () => ellipse(ctx, 7.5, hy + 2.5, 5, 3.6));
+  shape(ctx, radial(ctx, 1, hy, 8.5, skin(p, 'body', '#d8452a'), skin(p, 'bodyDark', '#7a1a10')), () => circle(ctx, 1, hy, 8));
+  shape(ctx, radial(ctx, 8, hy + 2, 5, skin(p, 'body', '#d8452a'), skin(p, 'bodyDark', '#9a2a18')), () => ellipse(ctx, 7.5, hy + 2.5, 5, 3.6));
   ctx.fillStyle = '#5a1a0a';
   ctx.beginPath();
   circle(ctx, 11, hy + 1.5, 0.7);

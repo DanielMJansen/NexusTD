@@ -1,5 +1,7 @@
 import { CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
+import type { AchievementId } from '../data/achievements';
 import { HEROES, STARTER_HERO, type HeroId } from '../data/heroes';
+import { defaultSkin, findSkin, type SkinDef } from '../data/skins';
 import { TALENTS, talentMaxLevel, type TalentId } from '../data/talents';
 import type { RunSetup } from './state';
 import { talentBonuses, type TalentLevels } from './talents';
@@ -18,6 +20,11 @@ export interface Profile {
   team: CreatureId[];
   ownedHeroes: HeroId[];
   selectedHero: HeroId;
+  /** Skin escolhida de cada herói (id da skin). */
+  selectedSkins: Partial<Record<HeroId, string>>;
+  achievements: AchievementId[];
+  /** Totais de todas as runs. */
+  stats: { runs: number; wins: number; kills: number };
 }
 
 /** Criaturas que já vêm na coleção. */
@@ -31,6 +38,9 @@ export function createProfile(): Profile {
     team: [...STARTER_CREATURES],
     ownedHeroes: [STARTER_HERO],
     selectedHero: STARTER_HERO,
+    selectedSkins: {},
+    achievements: [],
+    stats: { runs: 0, wins: 0, kills: 0 },
   };
 }
 
@@ -115,10 +125,28 @@ export function selectHero(profile: Profile, id: HeroId): boolean {
   return true;
 }
 
+// ---------- skins ----------
+
+export const isSkinUnlocked = (profile: Profile, skin: SkinDef): boolean =>
+  skin.unlockedBy === null || profile.achievements.includes(skin.unlockedBy);
+
+export function heroSkin(profile: Profile, hero: HeroId): SkinDef {
+  const skin = findSkin(profile.selectedSkins[hero] ?? '');
+  return skin && skin.hero === hero && isSkinUnlocked(profile, skin) ? skin : defaultSkin(hero);
+}
+
+export function selectSkin(profile: Profile, skinId: string): boolean {
+  const skin = findSkin(skinId);
+  if (!skin || !isSkinUnlocked(profile, skin)) return false;
+  profile.selectedSkins[skin.hero] = skin.id;
+  return true;
+}
+
 export function runSetup(profile: Profile): RunSetup {
   return {
     talents: talentBonuses(profile.talents),
     team: profile.team.filter((id) => ownsCreature(profile, id)),
     hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,
+    heroPalette: heroSkin(profile, profile.selectedHero).palette,
   };
 }

@@ -70,6 +70,7 @@ function moveEnemies(state: RunState, dt: number): void {
         state.events.push({ type: 'wardBlocked' });
       } else {
         state.nexus.hp -= enemy.def.nexusDamage;
+        state.lowestNexusRatio = Math.min(state.lowestNexusRatio, Math.max(0, state.nexus.hp) / state.nexus.maxHp);
         state.events.push({ type: 'nexusHit', damage: enemy.def.nexusDamage });
       }
       enemy.dead = true;
@@ -93,6 +94,14 @@ function endRun(state: RunState, victory: boolean): void {
     Math.floor(state.kills / REWARDS.killsPerEssence) +
     (victory ? REWARDS.victoryBonus + t.victoryEssence : 0);
   const essence = Math.floor(base * (1 + t.essenceGain));
-  state.result = { victory, wave: state.wave, kills: state.kills, essence };
+  state.result = {
+    victory,
+    wave: state.wave,
+    kills: state.kills,
+    essence,
+    hero: state.hero.def.id,
+    lowestNexusRatio: state.lowestNexusRatio,
+    ascendedPeak: state.ascendedPeak,
+  };
   state.events.push({ type: 'runEnded', result: state.result });
 }

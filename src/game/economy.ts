@@ -58,6 +58,7 @@ export function evolveCreature(state: RunState, creature: Creature): boolean {
   creature.paid += cost;
   creature.level++;
   creature.hitCount = 0;
+  state.ascendedPeak = Math.max(state.ascendedPeak, state.creatures.filter(isAscended).length);
   state.events.push({
     type: 'creatureEvolved',
     creature: creature.def.id,

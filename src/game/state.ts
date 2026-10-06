@@ -3,6 +3,7 @@ import { HEROES, type HeroDef, type HeroId, type RaceBonus } from '../data/heroe
 import type { CreatureDef, CreatureId } from '../data/creatures';
 import type { EnemyDef, EnemyId } from '../data/enemies';
 import type { RunUpgradeDef } from '../data/upgrades';
+import type { SkinPalette } from '../data/skins';
 import type { TalentBonuses } from './talents';
 import type { GameEvent } from './events';
 
@@ -43,6 +44,8 @@ export interface Creature extends Point {
 
 export interface Hero extends Point {
   def: HeroDef;
+  /** Cores da skin escolhida (só visual). */
+  palette: SkinPalette;
   target: Point;
   attackTimer: number;
   /** Dicas visuais, como nas criaturas. */
@@ -67,6 +70,11 @@ export interface RunResult {
   wave: number;
   kills: number;
   essence: number;
+  hero: HeroId;
+  /** Menor fração de vida do Nexus durante a run (conquistas). */
+  lowestNexusRatio: number;
+  /** Maior número de criaturas na forma evoluída ao mesmo tempo (conquistas). */
+  ascendedPeak: number;
 }
 
 export type Phase = 'playing' | 'choosing' | 'ended';
@@ -78,6 +86,8 @@ export interface RunSetup {
   /** Equipe da run: criaturas disponíveis, na ordem dos atalhos 1–6. */
   team: readonly CreatureId[];
   hero: HeroId;
+  /** Cores da skin do herói (só visual). */
+  heroPalette: SkinPalette;
 }
 
 export interface RunState {
@@ -100,6 +110,9 @@ export interface RunState {
   talents: TalentBonuses;
   /** Égide rúnica: o próximo golpe no Nexus nesta onda é anulado. */
   wardReady: boolean;
+  /** Estatísticas da run para conquistas. */
+  lowestNexusRatio: number;
+  ascendedPeak: number;
   spawnQueue: EnemyId[];
   spawnTimer: number;
   incomeTimer: number;
@@ -128,7 +141,7 @@ export function createRun(setup: RunSetup): RunState {
     nexus: { hp: maxHp, maxHp },
     gold: ECONOMY.startGold + t.startGold,
     kills: 0,
-    hero: { ...heroStart, def: heroDef, target: { ...heroStart }, attackTimer: 0, facing: 1, lastAttackAt: -Infinity, moving: false },
+    hero: { ...heroStart, def: heroDef, palette: { ...setup.heroPalette }, target: { ...heroStart }, attackTimer: 0, facing: 1, lastAttackAt: -Infinity, moving: false },
     enemies: [],
     creatures: [],
     team: [...setup.team],
@@ -146,6 +159,8 @@ export function createRun(setup: RunSetup): RunState {
     },
     talents: { ...t },
     wardReady: false,
+    lowestNexusRatio: 1,
+    ascendedPeak: 0,
     spawnQueue: [],
     spawnTimer: 0,
     incomeTimer: 0,

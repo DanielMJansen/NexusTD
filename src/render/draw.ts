@@ -190,6 +190,7 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number):
   drawHeroRing(ctx, hero.x, hero.y + 14, time, hero.def.color);
   ctx.save();
   drawSprite(ctx, hero.def.id, hero.x, hero.y, 1.05, {
+    palette: hero.palette,
     time,
     facing: hero.facing,
     moving: hero.moving,

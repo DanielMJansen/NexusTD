@@ -1,5 +1,7 @@
 import { CREATURE_IDS, type CreatureId } from '../data/creatures';
+import { ACHIEVEMENT_IDS } from '../data/achievements';
 import { HERO_IDS, STARTER_HERO, type HeroId } from '../data/heroes';
+import { findSkin } from '../data/skins';
 import { TALENT_IDS, talentMaxLevel, type TalentId } from '../data/talents';
 import { createProfile, STARTER_CREATURES, TEAM_SIZE, type Profile } from '../game/profile';
 
@@ -99,6 +101,16 @@ function sanitize(data: unknown): Profile {
   profile.ownedHeroes = HERO_IDS.filter((id) => id === STARTER_HERO || heroes.includes(id));
   const selected = raw.selectedHero as HeroId;
   profile.selectedHero = profile.ownedHeroes.includes(selected) ? selected : STARTER_HERO;
+
+  const achievements = Array.isArray(raw.achievements) ? raw.achievements : [];
+  profile.achievements = ACHIEVEMENT_IDS.filter((id) => achievements.includes(id));
+  const stats = (raw.stats ?? {}) as Record<string, unknown>;
+  profile.stats = { runs: toNumber(stats.runs), wins: toNumber(stats.wins), kills: toNumber(stats.kills) };
+  const skins = (raw.selectedSkins ?? {}) as Record<string, unknown>;
+  for (const hero of HERO_IDS) {
+    const skin = findSkin(String(skins[hero] ?? ''));
+    if (skin && skin.hero === hero) profile.selectedSkins[hero] = skin.id;
+  }
   return profile;
 }
 

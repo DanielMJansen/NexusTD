@@ -2,6 +2,7 @@ import { SoundPlayer } from './audio/audio';
 import { Music } from './audio/music';
 import { GAME_TITLE, SIMULATION } from './data/config';
 import { WAVES } from './data/waves';
+import { checkAchievements, recordRun } from './game/achievements';
 import { chooseOption } from './game/choices';
 import { firePulse } from './game/combat';
 import type { GameEvent } from './game/events';
@@ -11,6 +12,7 @@ import {
   grantStarterCreature,
   runSetup,
   selectHero,
+  selectSkin,
   toggleTeamMember,
   unlockCreature,
   type Profile,
@@ -27,6 +29,7 @@ import { fitArenaCanvas } from './render/viewport';
 import { downloadBackup, importBackup, pickBackupFile } from './save/backup';
 import { loadProfile, saveProfile } from './save/save';
 import { loadSettings, saveSettings, type Settings } from './save/settings';
+import { showAchievements } from './ui/achievementsScreen';
 import { showCollection } from './ui/collection';
 import { showEntry } from './ui/entry';
 import { showHeroes } from './ui/heroesScreen';
@@ -131,7 +134,7 @@ export class App {
         : this.paused
           ? () => this.showPauseScreen()
           : this.run.result
-            ? () => showRunEnd(this.run.result!, () => this.openMenu())
+            ? () => showRunEnd(this.run.result!, [], () => this.openMenu())
             : () => this.showChoices();
     showSettings(this.settings, {
       onChange: (change) => this.updateSettings(change),
@@ -235,8 +238,10 @@ export class App {
         resetInteraction(this.interaction);
         this.music.play('menu');
         this.profile.essence += event.result.essence;
+        recordRun(this.profile, event.result);
+        const unlocked = checkAchievements(this.profile, event.result);
         saveProfile(this.profile);
-        showRunEnd(event.result, () => this.openMenu());
+        showRunEnd(event.result, unlocked, () => this.openMenu());
         break;
       default:
         break;
@@ -277,6 +282,7 @@ export class App {
       onHeroes: () => this.openHeroes(),
       onCollection: () => this.openCollection(),
       onTalents: () => this.openTalents(),
+      onAchievements: () => showAchievements(this.profile, () => this.openMenu()),
       onSettings: () => this.openSettings(),
     });
   }
@@ -300,13 +306,24 @@ export class App {
         this.run = createRun(runSetup(this.profile));
         this.openHeroes();
       },
+      onSkin: (skinId) => {
+        if (!selectSkin(this.profile, skinId)) return;
+        saveProfile(this.profile);
+        this.sound.play('place');
+        this.run = createRun(runSetup(this.profile));
+        this.openHeroes();
+      },
       onBack: () => this.openMenu(),
     });
   }
 
   private openCollection(): void {
     showCollection(this.profile, {
-      onBuy: (id) => this.afterPurchase(unlockCreature(this.profile, id), () => this.openCollection()),
+      onBuy: (id) => {
+        const bought = unlockCreature(this.profile, id);
+        if (bought) checkAchievements(this.profile);
+        this.afterPurchase(bought, () => this.openCollection());
+      },
       onBack: () => this.openMenu(),
     });
   }
