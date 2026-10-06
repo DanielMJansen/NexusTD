@@ -6,6 +6,7 @@ import { WAVES } from '../data/waves';
 import type { GameEvent } from '../game/events';
 import type { Point } from '../game/state';
 import { drawSprite } from './sprites';
+import { drawLayered } from './spriteKit';
 
 const TAU = Math.PI * 2;
 const GOLD = '#ffd25a';
@@ -550,8 +551,10 @@ export class Effects {
       ctx.globalAlpha = fade;
       ctx.translate(c.x, c.y);
       ctx.rotate((1 - fade) * 0.5);
-      ctx.filter = 'brightness(1.8) saturate(0.3)';
-      drawSprite(ctx, c.enemy, 0, (1 - fade) * 4, def.scale * (0.6 + fade * 0.4), { time });
+      const size = def.scale * (0.6 + fade * 0.4);
+      drawLayered(ctx, 0, (1 - fade) * 4 - 6 * size, 40 * size, { filter: 'brightness(1.8) saturate(0.3)' }, (g) =>
+        drawSprite(g, c.enemy, 0, (1 - fade) * 4, size, { time }),
+      );
       ctx.restore();
     }
 

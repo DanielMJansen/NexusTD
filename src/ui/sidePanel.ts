@@ -41,6 +41,7 @@ export class SidePanel {
   private pulseStatus = document.querySelector<HTMLElement>('#pulse-status')!;
   private pulseName = this.pulseButton.querySelector<HTMLElement>('.pulse-label b')!;
   private pulseTooltip = this.pulseButton.querySelector<HTMLElement>('.pulse-tooltip')!;
+  private pulseKey = '';
   private selectionInfo = document.querySelector<HTMLElement>('#selection-info')!;
 
   constructor(private readonly handlers: SidePanelHandlers) {
@@ -55,6 +56,7 @@ export class SidePanel {
     this.team = [...team];
     this.heroId = hero.id;
     this.pulseTooltip.innerHTML = `<h4>Pulso do ${hero.name} <kbd>Espaço</kbd></h4><p class="special">${pulseText(hero)}</p>`;
+    this.pulseKey = '';
     this.pulseTooltip.style.setProperty('--card-color', hero.color);
     this.cards.clear();
     this.list.innerHTML = '';
@@ -120,8 +122,13 @@ export class SidePanel {
     this.pulseButton.classList.toggle('ready', ready);
     const status = remaining > 0 ? `recarregando ${Math.ceil(remaining)} s` : 'pronto';
     // tooltip do Pulso com os valores atuais (nível do herói, melhorias e talentos)
+    // (só refaz o texto quando algum valor muda)
     const live = { power: pulsePower(run), size: 1 + run.heroStats.pulseSize, radius: run.pulse.radius, cooldown: run.pulse.cooldown };
-    setHtml(this.pulseTooltip, `<h4>Pulso do ${run.hero.def.name} <kbd>Espaço</kbd></h4><p class="special">${pulseText(run.hero.def, live)}</p>`);
+    const key = `${run.hero.def.id} ${live.power} ${live.size} ${live.radius} ${live.cooldown}`;
+    if (key !== this.pulseKey) {
+      this.pulseKey = key;
+      setHtml(this.pulseTooltip, `<h4>Pulso do ${run.hero.def.name} <kbd>Espaço</kbd></h4><p class="special">${pulseText(run.hero.def, live)}</p>`);
+    }
     const name = run.hero.def.pulse.name;
     if (this.pulseName.textContent !== name) this.pulseName.textContent = name;
     if (this.pulseStatus.textContent !== status) this.pulseStatus.textContent = status;

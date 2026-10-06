@@ -16,11 +16,15 @@ overlay.addEventListener('click', (event) => {
   actions[button.dataset.action!]?.(button.dataset.value ?? '');
 });
 
-/** Mostra o overlay e devolve o elemento (para telas que precisam de mais eventos, como sliders). */
-export function showOverlay(html: string, newActions: OverlayActions): HTMLElement {
+/**
+ * Mostra o overlay e devolve o elemento (para telas que precisam de mais eventos, como sliders).
+ * keepScroll: redesenha a mesma tela sem voltar ao topo (ex.: depois de uma compra).
+ */
+export function showOverlay(html: string, newActions: OverlayActions, options: { keepScroll?: boolean } = {}): HTMLElement {
   actions = newActions;
+  const scroll = overlay.scrollTop;
   overlay.innerHTML = html;
-  overlay.scrollTop = 0;
+  overlay.scrollTop = options.keepScroll ? scroll : 0;
   overlay.classList.add('visible');
   portraits = [...overlay.querySelectorAll<HTMLCanvasElement>('canvas[data-sprite]')];
   return overlay;

@@ -1,3 +1,4 @@
+import type { CreatureId } from './data/creatures';
 import { SoundPlayer } from './audio/audio';
 import { Music } from './audio/music';
 import { GAME_TITLE, SIMULATION } from './data/config';
@@ -530,15 +531,20 @@ export class App {
     });
   }
 
-  private openCollection(): void {
-    showCollection(this.profile, {
-      onBuy: (id) => {
-        const bought = unlockCreature(this.profile, id);
-        if (bought) checkAchievements(this.profile);
-        this.afterPurchase(bought, () => this.openCollection());
+  /** justUnlocked: depois de comprar, redesenha no mesmo lugar com a criatura liberada em destaque. */
+  private openCollection(justUnlocked?: CreatureId): void {
+    showCollection(
+      this.profile,
+      {
+        onBuy: (id) => {
+          const bought = unlockCreature(this.profile, id);
+          if (bought) checkAchievements(this.profile);
+          this.afterPurchase(bought, () => this.openCollection(id));
+        },
+        onBack: () => this.openMenu(),
       },
-      onBack: () => this.openMenu(),
-    });
+      justUnlocked,
+    );
   }
 
   private openTeam(): void {

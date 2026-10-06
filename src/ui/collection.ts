@@ -14,19 +14,21 @@ export function racesInOrder(): string[] {
   return [...new Set(CREATURE_IDS.map((id) => CREATURES[id].race))];
 }
 
-function cardHtml(profile: Profile, def: CreatureDef): string {
+/** Rodapé do card: na equipe/coleção ou o botão de desbloquear. */
+function footerHtml(profile: Profile, def: CreatureDef): string {
+  if (ownsCreature(profile, def.id)) return `<span class="cc-tag">${profile.team.includes(def.id) ? '✓ Na equipe' : '✓ Na coleção'}</span>`;
+  if (def.unlock.kind !== 'essence') return '';
+  return `<button data-action="ask" data-value="${def.id}"${profile.essence >= def.unlock.cost ? '' : ' disabled'}>
+      Desbloquear ${essence(def.unlock.cost)}</button>`;
+}
+
+function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): string {
   const owned = ownsCreature(profile, def.id);
-  const inTeam = profile.team.includes(def.id);
   const stats = creatureStats(def)
     .map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`)
     .join('');
-  let footer = '';
-  if (owned) footer = `<span class="cc-tag">${inTeam ? '✓ Na equipe' : '✓ Na coleção'}</span>`;
-  else if (def.unlock.kind === 'essence') {
-    footer = `<button data-action="buy" data-value="${def.id}"${profile.essence >= def.unlock.cost ? '' : ' disabled'}>
-      Desbloquear ${essence(def.unlock.cost)}</button>`;
-  }
-  return `<div class="creature-card${owned ? '' : ' locked'}" style="--card-color:${def.color}">
+  const footer = footerHtml(profile, def);
+  return `<div class="creature-card${owned ? '' : ' locked'}${justUnlocked ? ' just-unlocked' : ''}" data-card="${def.id}" style="--card-color:${def.color}">
     <div class="cc-portraits">
       <canvas data-sprite="${def.id}"${owned ? '' : ' data-silhouette'}></canvas>
       <span class="cc-evolve-label">Nível 3</span>
@@ -51,18 +53,33 @@ function cardHtml(profile: Profile, def: CreatureDef): string {
   </div>`;
 }
 
-/** Coleção: ficha de cada criatura, agrupada por raça; desbloqueio com Essência. */
-export function showCollection(profile: Profile, handlers: CollectionHandlers): void {
+/** Confirmação no próprio card: preço e quanto de Essência sobra. */
+function confirmHtml(profile: Profile, def: CreatureDef): string {
+  const cost = def.unlock.kind === 'essence' ? def.unlock.cost : 0;
+  return `<div class="cc-confirm">
+    <span>Desbloquear por ${essence(cost)}? Sobram ${essence(profile.essence - cost)}</span>
+    <button data-action="cancel" data-value="${def.id}">Cancelar</button>
+    <button class="play-button" data-action="buy" data-value="${def.id}">Confirmar</button>
+  </div>`;
+}
+
+/**
+ * Coleção: ficha de cada criatura, agrupada por raça; desbloqueio com Essência (pede confirmação).
+ * justUnlocked: criatura recém-liberada; a tela é redesenhada na mesma posição, com ela em destaque.
+ */
+export function showCollection(profile: Profile, handlers: CollectionHandlers, justUnlocked?: CreatureId): void {
   const groups = racesInOrder()
     .map((race) => {
       const cards = CREATURE_IDS.filter((id) => CREATURES[id].race === race)
-        .map((id) => cardHtml(profile, CREATURES[id]))
+        .map((id) => cardHtml(profile, CREATURES[id], id === justUnlocked))
         .join('');
       return `<h3>${race}</h3><div class="creature-grid">${cards}</div>`;
     })
     .join('');
 
-  showOverlay(
+  // troca o rodapé de um card entre o botão de desbloquear e a confirmação, sem redesenhar a tela
+  const footer = (id: string) => element.querySelector<HTMLElement>(`[data-card="${id}"] .cc-footer`);
+  const element = showOverlay(
     `<div class="panel screen">
       <div class="screen-head">
         <button data-action="back">← Voltar</button>
@@ -71,6 +88,18 @@ export function showCollection(profile: Profile, handlers: CollectionHandlers): 
       </div>
       ${groups}
     </div>`,
-    { buy: (id) => handlers.onBuy(id as CreatureId), back: () => handlers.onBack() },
+    {
+      ask: (id) => {
+        const target = footer(id);
+        if (target) target.innerHTML = confirmHtml(profile, CREATURES[id as CreatureId]);
+      },
+      cancel: (id) => {
+        const target = footer(id);
+        if (target) target.innerHTML = footerHtml(profile, CREATURES[id as CreatureId]);
+      },
+      buy: (id) => handlers.onBuy(id as CreatureId),
+      back: () => handlers.onBack(),
+    },
+    { keepScroll: justUnlocked !== undefined },
   );
 }

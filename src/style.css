@@ -2265,3 +2265,34 @@ button.danger {
 .hero-now b {
   color: var(--fg);
 }
+
+/* coleção: confirmação da compra no card e destaque da criatura recém-liberada */
+.cc-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font: 400 14px var(--font-body);
+  color: var(--muted);
+}
+
+.cc-confirm span {
+  flex-basis: 100%;
+  text-align: right;
+}
+
+.creature-card.just-unlocked {
+  animation: just-unlocked 1.6s ease-out;
+}
+
+@keyframes just-unlocked {
+  0% {
+    box-shadow: 0 0 0 2px var(--card-color), 0 0 40px var(--card-color);
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: none;
+    transform: none;
+  }
+}

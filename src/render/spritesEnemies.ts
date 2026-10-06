@@ -1,6 +1,6 @@
 // Inimigos do F5: Esqueleto Arqueiro, Lodo, Aranha, Gárgula, Cavaleiro Sem Cabeça,
 // Banshee Sombria, Necromante e os chefes Rainha Aranha e Lich.
-import { circle, ellipse, glowingEye, line, poly, radial, shape, vertical, type Ctx, type Pose } from './spriteKit';
+import { circle, ellipse, glowingEye, line, poly, radial, shape, vertical, type Ctx, type Pose, halo } from './spriteKit';
 
 const BONE = '#ece4cc';
 const BONE_DARK = '#a89c80';
@@ -252,8 +252,7 @@ export function drawHeadless(ctx: Ctx, p: Pose): void {
   shape(ctx, radial(ctx, 11, -1, 5, '#ffb04a', '#c85a10'), () => ellipse(ctx, 11, -1, 5, 4.3));
   shape(ctx, '#3a6a2a', () => ctx.rect(10.3, -6.5, 1.6, 2.2), 0.6);
   ctx.save();
-  ctx.shadowColor = '#ffd23a';
-  ctx.shadowBlur = 5;
+  halo(ctx, 10.7, -2, 4.5, '#ffd23a', 0.7);
   ctx.fillStyle = '#ffe07a';
   ctx.beginPath();
   poly(ctx, [10, -2.5, 11.4, -2.5, 10.7, -1]);
@@ -291,8 +290,7 @@ export function drawDarkBanshee(ctx: Ctx, p: Pose): void {
       ctx.lineTo(side * 11, -1 + Math.sin(p.time * 3 + side) * 2);
     });
     ctx.save();
-    ctx.shadowColor = '#7affb0';
-    ctx.shadowBlur = 8;
+    halo(ctx, side * 11.5, -1 + Math.sin(p.time * 3 + side) * 2, 6, '#7affb0', 0.8);
     ctx.fillStyle = '#9affc8';
     ctx.beginPath();
     circle(ctx, side * 11.5, -1 + Math.sin(p.time * 3 + side) * 2, 1.6);
@@ -323,8 +321,7 @@ export function drawNecromancer(ctx: Ctx, p: Pose): void {
   });
   skull(ctx, 10, -20, 3, '#5adca0');
   ctx.save();
-  ctx.shadowColor = '#5adca0';
-  ctx.shadowBlur = 8;
+  halo(ctx, 10, -25, 7, '#5adca0', 0.8);
   ctx.fillStyle = '#9affd0';
   ctx.beginPath();
   const flicker = Math.sin(p.time * 12) * 0.8 + p.attack * 6;
@@ -375,8 +372,7 @@ export function drawLich(ctx: Ctx, p: Pose): void {
     ctx.lineTo(13, -6 - p.attack * 3);
   });
   ctx.save();
-  ctx.shadowColor = '#7af0d8';
-  ctx.shadowBlur = 10;
+  halo(ctx, 14, -9 - p.attack * 3, 9, '#7af0d8', 0.8);
   shape(ctx, radial(ctx, 14, -9 - p.attack * 3, 3.5, '#ffffff', '#3ac0b0'), () => circle(ctx, 14, -9 - p.attack * 3, 3.2), 0.8);
   ctx.restore();
   skull(ctx, 1, -17, 6, '#7af0d8');
