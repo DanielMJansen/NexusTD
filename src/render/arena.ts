@@ -75,22 +75,22 @@ let cache: HTMLCanvasElement | null = null;
 let cacheBiome = '';
 
 /** Chão, props estáticos e névoa do bioma. A parte estática é desenhada uma vez em cache. */
-export function drawBackground(ctx: CanvasRenderingContext2D, time: number, stage: StageDef): void {
-  const target = ctx.canvas;
-  if (!cache || cache.width !== target.width || cache.height !== target.height || cacheBiome !== stage.biome) {
+export function drawBackground(ctx: CanvasRenderingContext2D, time: number, stage: StageDef, world: { width: number; height: number } = { width: W, height: H }): void {
+  // cache do mundo inteiro na resolução da tela; desenhado no espaço do mundo (a câmera já está no contexto)
+  const pxPerUnit = ctx.canvas.width / W;
+  const cw = Math.round(world.width * pxPerUnit);
+  const ch = Math.round(world.height * (ctx.canvas.height / H));
+  if (!cache || cache.width !== cw || cache.height !== ch || cacheBiome !== stage.biome) {
     cacheBiome = stage.biome;
     cache = document.createElement('canvas');
-    cache.width = target.width;
-    cache.height = target.height;
+    cache.width = cw;
+    cache.height = ch;
     const c = cache.getContext('2d')!;
-    c.setTransform(target.width / W, 0, 0, target.height / H, 0, 0);
+    c.setTransform(cw / world.width, 0, 0, ch / world.height, 0, 0);
     if (stage.biome === 'swamp') paintSwampStatic(c, stage.terrain);
     else paintStatic(c);
   }
-  ctx.save();
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.drawImage(cache, 0, 0);
-  ctx.restore();
+  ctx.drawImage(cache, 0, 0, world.width, world.height);
 
   if (stage.biome === 'swamp') drawSwampLife(ctx, time, stage.terrain);
   drawRuneCircle(ctx, time);

@@ -40,13 +40,20 @@ export function drawFrame(
   effects: Effects,
   interaction: InteractionView,
   time: number,
+  camera: { x: number; y: number } = { x: 0, y: 0 },
 ): void {
   effects.nexusAt = state.nexus;
-  drawBackground(ctx, time, STAGES[state.stage]);
-
+  // limpa o quadro (fora do mundo pintado fica o fundo escuro)
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#07040d';
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.restore();
+  // mundo: câmera (e tremor) aplicados; atmosfera e faixas ficam presas à tela
   const shake = effects.shakeOffset();
   ctx.save();
-  ctx.translate(shake.x, shake.y);
+  ctx.translate(shake.x - camera.x, shake.y - camera.y);
+  drawBackground(ctx, time, STAGES[state.stage], state.map);
 
   drawNexusGround(ctx, state, !!interaction.nexusOpen, time);
   for (const pool of state.pools) drawPool(ctx, pool, time);

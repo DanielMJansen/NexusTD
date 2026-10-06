@@ -55,6 +55,8 @@ function deltaRows(now: Stats, next: Stats): string {
 
 /** Quadro sobre a criatura clicada: atributos, habilidade, evolução (com as vertentes lado a lado) e venda. */
 export class CreaturePopup {
+  /** Câmera da arena (posição do popup na tela). */
+  camera: { x: number; y: number } = { x: 0, y: 0 };
   private root = document.querySelector<HTMLElement>('#creature-popup')!;
 
   constructor(
@@ -150,9 +152,9 @@ export class CreaturePopup {
     const width = this.root.offsetWidth;
     const height = this.root.offsetHeight;
     const margin = 8;
-    const x = creature.x * scale;
-    const above = (creature.y - 30) * scale - height;
-    const below = (creature.y + 24) * scale;
+    const x = (creature.x - this.camera.x) * scale;
+    const above = (creature.y - this.camera.y - 30) * scale - height;
+    const below = (creature.y - this.camera.y + 24) * scale;
     const top = above >= margin ? above : Math.min(below, stage.clientHeight - height - margin);
     const left = Math.max(margin, Math.min(stage.clientWidth - width - margin, x - width / 2));
     this.root.style.left = `${Math.round(left)}px`;

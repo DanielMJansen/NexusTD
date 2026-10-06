@@ -2783,3 +2783,21 @@ body:not([data-mode='run']) #side-panel {
   background: #9a7aff22;
   color: var(--fg);
 }
+
+/* minimapa (mapas maiores que a tela) */
+#minimap {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 180px;
+  height: 101px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px #000a;
+  cursor: pointer;
+  z-index: 5;
+}
+
+#minimap[hidden] {
+  display: none;
+}

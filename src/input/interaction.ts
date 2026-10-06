@@ -13,6 +13,8 @@ export interface Interaction {
   /** Última posição do mouse, em coordenadas da arena. */
   pointer: Point;
   pointerInArena: boolean;
+  /** Mouse em coordenadas da vista (rolagem pela borda); null fora da arena. */
+  viewPointer: Point | null;
   inspected: Creature | null;
   /** Venda armada: o próximo clique em "Vender" confirma. */
   sellArmed: boolean;
@@ -31,6 +33,7 @@ export function createInteraction(): Interaction {
     holding: false,
     pointer: { x: 0, y: 0 },
     pointerInArena: false,
+    viewPointer: null,
     inspected: null,
     sellArmed: false,
     nexusOpen: false,

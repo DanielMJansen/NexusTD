@@ -10,6 +10,8 @@ const NEXUS_CLICK_RADIUS = 20;
 
 export interface PointerContext {
   canvas: HTMLCanvasElement;
+  /** Deslocamento da câmera (o mouse vira coordenada do mundo). */
+  camera: { x: number; y: number };
   interaction: Interaction;
   getRun(): RunState;
   /** Só aceita comandos durante uma onda, sem pausa. */
@@ -33,18 +35,17 @@ export interface PointerControls {
  * - sem carta: clicar numa criatura mostra o botão de venda; clicar/segurar no chão guia o herói;
  * - botão direito cancela.
  */
-export function attachPointer({ canvas, interaction, getRun, isActive }: PointerContext): PointerControls {
+export function attachPointer({ canvas, camera, interaction, getRun, isActive }: PointerContext): PointerControls {
   const toArena = (event: PointerEvent): { point: Point; inside: boolean } => {
     const rect = canvas.getBoundingClientRect();
     const inside =
       event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
-    return {
-      point: {
-        x: ((event.clientX - rect.left) * ARENA.width) / rect.width,
-        y: ((event.clientY - rect.top) * ARENA.height) / rect.height,
-      },
-      inside,
+    const view = {
+      x: ((event.clientX - rect.left) * ARENA.width) / rect.width,
+      y: ((event.clientY - rect.top) * ARENA.height) / rect.height,
     };
+    interaction.viewPointer = inside ? view : null;
+    return { point: { x: view.x + camera.x, y: view.y + camera.y }, inside };
   };
 
   const tryPlace = (): boolean => {

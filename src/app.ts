@@ -1,3 +1,4 @@
+import { Camera, drawMinimap } from './render/camera';
 import { buyNexusColor, selectNexusLook } from './game/nexusSkins';
 import { showNexusSkins } from './ui/nexusScreen';
 import { rollAltar, selectVariant, type AltarResult } from './game/altar';
@@ -77,6 +78,8 @@ export class App {
   private settings: Settings = loadSettings();
   private run: RunState;
   private mode: Mode = 'entry';
+  private camera = new Camera();
+  private minimap = document.querySelector<HTMLCanvasElement>('#minimap')!;
   /** Para onde a tela de heróis volta (menu ou equipes). */
   private heroesReturn: (() => void) | null = null;
   /** Para onde voltar ao fechar as configurações (null = fechadas). */
@@ -110,11 +113,21 @@ export class App {
 
     this.pointer = attachPointer({
       canvas: this.canvas,
+      camera: this.camera,
       interaction: this.interaction,
       getRun: () => this.run,
       isActive: () => this.isPlaying(),
     });
     this.sound.onReady = (ctx, output) => this.music.connect(ctx, output);
+    // minimapa: clicar move a vista para aquele ponto do mundo
+    this.minimap.addEventListener('pointerdown', (event) => {
+      const rect = this.minimap.getBoundingClientRect();
+      this.camera.lookAt(this.run, {
+        x: ((event.clientX - rect.left) / rect.width) * this.run.map.width,
+        y: ((event.clientY - rect.top) / rect.height) * this.run.map.height,
+      });
+      event.stopPropagation();
+    });
     this.keyboard = new Keyboard((key, event) => this.onKey(key, event));
     addEventListener('pointerdown', () => this.sound.unlock());
 
@@ -303,6 +316,8 @@ export class App {
       this.setFrozen(!this.frozen);
     } else if (key === 'p') {
       this.togglePause();
+    } else if (key === 'c') {
+      this.camera.snap(this.run);
     } else if (key === 'n') {
       this.toggleNexusPanel();
     } else if (/^[1-9]$/.test(key)) {
@@ -374,7 +389,14 @@ export class App {
     view.heroRange =
       this.keyboard.isDown('shift') ||
       (this.interaction.pointerInArena && Math.hypot(this.interaction.pointer.x - hero.x, this.interaction.pointer.y - hero.y) < 18);
-    drawFrame(this.ctx, this.run, this.effects, view, time);
+    // câmera: segue o herói; mouse na borda rola; WASD volta a seguir
+    if (this.keyboard.direction().x || this.keyboard.direction().y) this.camera.follow = true;
+    this.camera.update(this.run, elapsed, this.mode === 'run' && this.interaction.pointerInArena ? this.interaction.viewPointer : null, this.interaction.draggingCard);
+    this.creaturePopup.camera = this.camera;
+    drawFrame(this.ctx, this.run, this.effects, view, time, this.camera);
+    const showMinimap = this.mode === 'run' && this.camera.scrolls(this.run);
+    if (this.minimap.hidden === showMinimap) this.minimap.hidden = !showMinimap;
+    if (showMinimap) drawMinimap(this.minimap, this.run, this.camera);
     // HUD e painel da run só aparecem na run; fora dela, o topo mostra o perfil
     if (document.body.dataset.mode !== this.mode) document.body.dataset.mode = this.mode;
     if (this.mode === 'run') updateHud(this.run);
@@ -707,6 +729,7 @@ export class App {
     this.effects.clear();
     resetInteraction(this.interaction);
     this.run = run;
+    this.camera.snap(run);
     this.mode = 'run';
     this.music.play(waveBoss(run.stage, run.wave) && run.phase === 'playing' ? 'boss' : 'run');
     this.music.setIntensity(Math.min(1, (run.wave - 1) / (WAVES.total - 1)));
@@ -729,6 +752,7 @@ export class App {
     this.music.play('run');
     this.music.setIntensity(0);
     this.run = startRun(runSetup(this.profile));
+    this.camera.snap(this.run);
     if (!this.settings.tutorialDone) this.tutorial.start();
   }
 
