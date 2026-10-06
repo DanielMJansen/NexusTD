@@ -37,10 +37,49 @@ Sem conteúdo novo; prepara o terreno.
 - Perfil: progresso por fase (campo novo com padrão no `sanitize`, sem trocar a chave `nx4`); a run salva guarda a fase.
 - Render do cenário parametrizado por bioma; bot de calibragem recebe a fase.
 
-### F13. Fase 2 — Pântano + Fragmentos de raça + Altar de Variantes `[ ]` — conteúdo em PROPOSTA
-- Regra de mapa: **poças de lama** que deixam criaturas e herói mais lentos; inimigos do pântano as ignoram.
-- 4 inimigos novos e 3 chefes (Hidra como chefe final; cabeças que renascem).
-- Destrava **Fragmentos de raça**: caem só a partir da Fase 2, um tipo por raça, ao jogar com criaturas daquela raça. Usados no **Santuário** (nível permanente das criaturas, pequeno: ex. +3% por nível, até 5).
+### F13. Fase 2 — Pântano `[ ]` — PROPOSTA detalhada (aguardando aprovação)
+Dividida em três entregas, cada uma jogável ao fim:
+
+**F13a — A fase**
+- Liberada ao vencer a Fase 1. Força base: inimigos com +35% de vida e +20% de dano em relação à Fase 1 (calibrar com o bot).
+- Cenário: água escura, juncos, vitórias-régias, troncos podres, névoa verde e vagalumes.
+- **Regra de mapa — lama:**
+  - 4 poças fixas de lama.
+  - Criatura invocada dentro de uma poça ataca 25% mais devagar.
+  - O herói anda 40% mais devagar na lama.
+  - Inimigos do pântano não são afetados.
+  - Efeito: escolher onde invocar passa a importar.
+- **Inimigos novos:**
+
+| Inimigo | Papel | Habilidade nova |
+|---|---|---|
+| Sapo-Boi | comum | **Salto**: a cada poucos segundos pula para a frente, passando por cima de bloqueios |
+| Sanguessuga | rápido e fraco, em bando | **Suga**: cada golpe no herói ou no Nexus cura ela mesma |
+| Bruxa do Brejo | à distância | **Praga**: amaldiçoa a criatura mais próxima (−40% de velocidade de ataque por 4 s) |
+| Crocodilo | tanque com armadura | **Submerso**: entra na lama e fica intocável enquanto atravessa a poça |
+| Fogo-fátuo | voador | **Isca**: atrai os tiros das criaturas próximas (fica como alvo preferido) |
+
+- **Chefes:**
+  - **Onda 7 — Rei Sapo:** engole uma criatura, que fica fora de combate por 6 s ou até o Rei Sapo levar 15% da vida em dano; também pula.
+  - **Onda 14 — Crocodilo Ancião:** some na lama e reaparece perto do Nexus com uma investida; armadura alta.
+  - **Onda 20 — Hidra:** nasce com 3 cabeças, e cada cabeça é uma barra de vida. Uma cabeça cortada renasce em 2 cabeças após 8 s, a não ser que todas morram nesse intervalo, até no máximo 5 cabeças. Cada cabeça cospe ácido (área).
+- Recompensa: Essência um pouco maior por onda (+25%).
+
+**F13b — Fragmentos de raça e Santuário**
+- **Origem:** só caem em fases a partir da 2. No fim da run, cada raça que você usou rende Fragmentos daquela raça, proporcionais às ondas vencidas e às criaturas dela invocadas. Chefes rendem um bônus.
+- **Santuário** (menu): nível permanente por criatura, de 1 a 5. Cada nível dá +4% de dano e +2% de velocidade de ataque. Custo em Fragmentos da raça: 10 / 20 / 35 / 55 / 80.
+- **Balanceamento:** fica de fora a "economia de poder" que a Essência já cobre; o teto total é +20% de dano e +10% de velocidade por criatura.
+
+**F13c — Altar de Variantes**
+- **Liberação:** ao vencer a Fase 2.
+- **Custo:** cada invocação gasta Essência (sorteio por 150 ✦; 10 sorteios por 1.350 ✦).
+- **Prêmio:** uma **variante cosmética** de criatura que você já possui:
+  - Rara (paleta alternativa, 80%);
+  - Épica (paleta + aura, 18%);
+  - Lendária (paleta + aura + rastro, 2%).
+- **Garantia:** uma Épica a cada 10 sorteios sem Épica e uma Lendária a cada 60 sem Lendária; o contador aparece na tela.
+- **Repetidas:** viram Fragmentos da raça da criatura.
+- **Uso:** a variante é escolhida na Coleção, como as skins dos heróis. Não dá poder.
 
 ### F14. Fase 3 — Floresta Sombria + Sinergias `[ ]` — PROPOSTA
 - Regra de mapa: **árvores** ocupam espaço (não dá para invocar ali) e bloqueiam parte dos tiros.
