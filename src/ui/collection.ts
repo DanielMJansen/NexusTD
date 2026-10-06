@@ -1,3 +1,4 @@
+import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
 import { VARIANTS, type VariantTier } from '../data/altar';
 import { CREATURES, CREATURE_IDS, type CreatureDef, type CreatureId } from '../data/creatures';
 import { ownsCreature, type Profile } from '../game/profile';
@@ -71,14 +72,17 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
  * justUnlocked: criatura recém-liberada; a tela é redesenhada na mesma posição, com ela em destaque.
  */
 export function showCollection(profile: Profile, handlers: CollectionHandlers, justUnlocked?: CreatureId): void {
-  const groups = racesInOrder()
-    .map((race) => {
-      const cards = CREATURE_IDS.filter((id) => CREATURES[id].race === race)
-        .map((id) => cardHtml(profile, CREATURES[id], id === justUnlocked))
-        .join('');
-      return `<h3>${race}</h3><div class="creature-grid">${cards}</div>`;
-    })
+  // uma raça por aba (com quantas criaturas dela o jogador já tem)
+  const tabs: Tab[] = racesInOrder().map((race) => {
+    const ids = CREATURE_IDS.filter((id) => CREATURES[id].race === race);
+    return { id: race, label: race, badge: `${ids.filter((id) => profile.ownedCreatures.includes(id)).length}/${ids.length}`, color: CREATURES[ids[0]!].color };
+  });
+  if (justUnlocked) setTab('collection', CREATURES[justUnlocked].race);
+  const race = currentTab('collection', tabs);
+  const cards = CREATURE_IDS.filter((id) => CREATURES[id].race === race)
+    .map((id) => cardHtml(profile, CREATURES[id], id === justUnlocked))
     .join('');
+  const groups = `${tabsHtml(tabs, race)}<div class="creature-grid three">${cards}</div>`;
 
   // troca o rodapé de um card entre o botão de desbloquear e a confirmação, sem redesenhar a tela
   const footer = (id: string) => element.querySelector<HTMLElement>(`[data-card="${id}"] .cc-footer`);
@@ -104,6 +108,10 @@ export function showCollection(profile: Profile, handlers: CollectionHandlers, j
         if (target) target.innerHTML = footerHtml(profile, CREATURES[id as CreatureId]);
       },
       buy: (id) => handlers.onBuy(id as CreatureId),
+      tab: (id) => {
+        setTab('collection', id);
+        showCollection(profile, handlers);
+      },
       variant: (value) => {
         const [id, tier] = value.split(':');
         handlers.onVariant(id as CreatureId, (tier || null) as VariantTier | null);

@@ -7,7 +7,6 @@ import { ENEMIES } from '../data/enemies';
 import { HEROES } from '../data/heroes';
 import { hasSanctuary, heroSkin, TEAM_SIZE, type Profile, runSetup } from '../game/profile';
 import type { SavedRunSummary } from '../save/runSave';
-import { essence } from './currency';
 import { CODEX_ENEMIES } from './codexScreen';
 import { showOverlay } from './overlay';
 
@@ -40,16 +39,19 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
   const team = hero + profile.team.map((id) => `<canvas class="team-mini" data-sprite="${id}"></canvas>`).join('');
 
   showOverlay(
-    `<div class="panel menu-hub">
+    `<div class="menu-page">
+      <section class="hub-hero">
       <h1>${GAME_TITLE}</h1>
       <p class="subtitle">Um herói. Um exército de monstros.</p>
-      <div class="essence">${essence(profile.essence)} de Essência</div>
-      <p>${goal}</p>
+      <p class="hub-goal">${goal}</p>
       <div class="hub-team">${team}</div>
       ${profile.loadouts.length > 1 ? `<div class="hub-loadouts">${profile.loadouts.map((l, i) => `<button class="${i === profile.activeLoadout ? 'active' : ''}" data-action="loadout" data-value="${i}" title="${HEROES[l.hero].name} + ${l.team.length} criatura(s)">${l.name}</button>`).join('')}</div>` : ''}
-      <div class="hub-buttons">
+      <div class="hub-play">
         ${saved ? `<button class="play-button" data-action="continue">▶ Continuar run <small>onda ${saved.wave} · ${HEROES[saved.hero].name}</small></button>` : ''}
         <button class="${saved ? '' : 'play-button'}" data-action="play"${profile.team.length ? '' : ' disabled'}>${saved ? 'Nova run' : '▶ Jogar'}</button>
+      </div>
+      </section>
+      <section class="hub-buttons">
         <button data-action="stages">Fase <small>${stage.number} · ${stage.name}</small></button>
         <button data-action="heroes">Herói <small>${HEROES[profile.selectedHero].name}</small></button>
         <button data-action="team">Equipes <small>${profile.loadouts[profile.activeLoadout]?.name ?? ''} · ${profile.team.length} de ${TEAM_SIZE}</small></button>
@@ -61,7 +63,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
         <button data-action="achievements">Conquistas <small>${profile.achievements.length} de ${ACHIEVEMENT_IDS.length}</small></button>
         <button data-action="codex">Códex <small>${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length} de ${CODEX_ENEMIES.length} vistos</small></button>
         <button data-action="settings">⚙ Configurações</button>
-      </div>
+      </section>
     </div>`,
     {
       play: () => handlers.onPlay(),

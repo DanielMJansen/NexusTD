@@ -92,9 +92,9 @@ Dividida em três entregas, cada uma jogável ao fim:
   - **Conquistas**: Prata Lunar (Intocável), Sangue (Exterminador), Ouro Real (Campeão), Obsidiana (Colecionador).
   - **Altar**: cores exclusivas Vazio (Épica) e Aurora (Lendária, animada). Quando sai Épica/Lendária, 20% de chance de vir a cor do Nexus dessa raridade (se ainda não tiver).
 
-### F13.95. Interface 2.0 `[~]` (pedido de 07/10/2026; referência: Soulstone Survivors)
+### F13.95. Interface 2.0 `[x]` (pedido de 07/10/2026; referência: Soulstone Survivors)
 - **I1 — HUD da run** `[x]`: arena em tela cheia (16:9, sem painel lateral); topo central com onda, ouro e inimigos; canto superior esquerdo com a vida do Nexus e as melhorias dele; canto superior direito com botões e minimapa; barra inferior com o herói (vida e XP grandes), as criaturas da equipe como "habilidades" (retrato, tecla, custo; tooltip abre para cima) e o Pulso. Controles foram para a tela de pausa.
-- **I2 — Menus como páginas** `[ ]`: menu e telas de meta-progressão em página cheia com fundo próprio (sem a arena atrás e sem caixa com rolagem); telas longas com abas (ex.: Coleção por raça); "Jogar" leva à run.
+- **I2 — Menus como páginas** `[x]`: fora da run, a arena some e as telas ocupam a página (sem caixa com rolagem). Menu em duas colunas (identidade, equipe e Jogar | atalhos). Abas: Coleção, Santuário e coleção das Equipes por raça; Heróis como lista + ficha; Códex por fase; Conquistas Gerais/Heróis. Talentos compactos (detalhes no tooltip). Tudo cabe em 1440×900.
 
 > **Biomas revistos em 07/10/2026:** o jogo estava escuro/gótico demais; as próximas fases vão do escuro para a luz — **Neve → Deserto → Céu**. As mecânicas destravadas continuam as mesmas.
 

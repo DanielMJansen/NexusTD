@@ -1,3 +1,4 @@
+import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
 import { ACHIEVEMENT_IDS, ACHIEVEMENTS } from '../data/achievements';
 import { HEROES } from '../data/heroes';
 import { SKINS } from '../data/skins';
@@ -7,7 +8,20 @@ import { showOverlay } from './overlay';
 
 /** Lista de conquistas, com progresso e a skin que cada uma libera. */
 export function showAchievements(profile: Profile, onBack: () => void): void {
-  const items = ACHIEVEMENT_IDS.map((id) => {
+  // abas: gerais e as dos heróis (vencer com o herói / Sem Fim com ele)
+  const byHero = (id: (typeof ACHIEVEMENT_IDS)[number]) => {
+    const goal = ACHIEVEMENTS[id].goal as { hero?: string };
+    return goal.hero !== undefined;
+  };
+  const count = (ids: (typeof ACHIEVEMENT_IDS)[number][]) => `${ids.filter((id) => profile.achievements.includes(id)).length}/${ids.length}`;
+  const general = ACHIEVEMENT_IDS.filter((id) => !byHero(id));
+  const heroes = ACHIEVEMENT_IDS.filter(byHero);
+  const tabs: Tab[] = [
+    { id: 'general', label: 'Gerais', badge: count(general) },
+    { id: 'heroes', label: 'Heróis', badge: count(heroes) },
+  ];
+  const shown = currentTab('achievements', tabs);
+  const items = (shown === 'heroes' ? heroes : general).map((id) => {
     const def = ACHIEVEMENTS[id];
     const done = profile.achievements.includes(id);
     const progress = achievementProgress(profile, id);
@@ -33,8 +47,15 @@ export function showAchievements(profile: Profile, onBack: () => void): void {
         <span class="muted">${profile.achievements.length}/${ACHIEVEMENT_IDS.length}</span>
       </div>
       <p class="subtitle">${profile.stats.runs} runs · ${profile.stats.wins} vitórias · ${profile.stats.kills} abates</p>
+      ${tabsHtml(tabs, shown)}
       <div class="achievement-grid">${items}</div>
     </div>`,
-    { back: () => onBack() },
+    {
+      back: () => onBack(),
+      tab: (id) => {
+        setTab('achievements', id);
+        showAchievements(profile, onBack);
+      },
+    },
   );
 }

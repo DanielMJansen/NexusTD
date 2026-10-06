@@ -36,8 +36,8 @@ function nodeHtml(profile: Profile, id: TalentId): string {
       <span class="node-icon">${def.icon}</span>
       <div><b>${def.name}</b><span class="node-pips">${pips}</span></div>
     </div>
-    <div class="node-desc">${def.description}</div>
-    <div class="node-effect">${now ? `Atual: <b>${now}</b>` : ''}${now && next ? '<br>' : ''}${next ? `${now ? 'Próximo' : 'Nível 1'}: <b>${next}</b>` : ''}</div>
+    <div class="node-tip"><b>${def.name}</b><div class="node-desc">${def.description}</div>
+    <div class="node-effect">${now ? `Atual: <b>${now}</b>` : ''}${now && next ? '<br>' : ''}${next ? `${now ? 'Próximo' : 'Nível 1'}: <b>${next}</b>` : ''}</div></div>
     ${footer}
   </div>`;
 }

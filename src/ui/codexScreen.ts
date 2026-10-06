@@ -1,3 +1,4 @@
+import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
 import { ENEMIES, ENEMY_IDS, type EnemyDef, type EnemyId } from '../data/enemies';
 import { STAGE_IDS, STAGES } from '../data/stages';
 import type { Profile } from '../game/profile';
@@ -51,7 +52,15 @@ function entry(def: EnemyDef, seen: boolean): string {
 /** Códex: vida, dano, armadura, velocidade e habilidades dos inimigos já enfrentados. */
 export function showCodex(profile: Profile, onBack: () => void): void {
   const seen = CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length;
-  const items = CODEX_ENEMIES.map((id) => entry(ENEMIES[id], profile.seenEnemies.includes(id))).join('');
+  // uma aba por fase (inimigos pela primeira fase em que aparecem)
+  const stageOf = (id: EnemyId) =>
+    STAGE_IDS.find((s) => STAGES[s].composition.some((c) => c.enemy === id) || STAGES[s].bosses.some((b) => b.enemy === id) || (STAGES[s].script ?? []).some((w) => (w.groups ?? []).some((g) => g.enemy === id))) ?? STAGE_IDS[0]!;
+  const tabs: Tab[] = STAGE_IDS.map((s) => {
+    const ids = CODEX_ENEMIES.filter((id) => stageOf(id) === s);
+    return { id: s, label: `Fase ${STAGES[s].number} · ${STAGES[s].name}`, badge: `${ids.filter((id) => profile.seenEnemies.includes(id)).length}/${ids.length}`, color: STAGES[s].color };
+  });
+  const shown = currentTab('codex', tabs);
+  const items = tabsHtml(tabs, shown) + '<div class="codex-grid">' + CODEX_ENEMIES.filter((id) => stageOf(id) === shown).map((id) => entry(ENEMIES[id], profile.seenEnemies.includes(id))).join('') + '</div>';
   showOverlay(
     `<div class="panel screen">
       <div class="screen-head">
@@ -60,8 +69,14 @@ export function showCodex(profile: Profile, onBack: () => void): void {
         <span class="muted">${seen}/${CODEX_ENEMIES.length}</span>
       </div>
       <p class="subtitle">Valores da onda 1. A cada onda os inimigos ganham vida, velocidade e dano; elites (contorno dourado) são ainda mais fortes.</p>
-      <div class="codex-grid">${items}</div>
+      ${items}
     </div>`,
-    { back: () => onBack() },
+    {
+      back: () => onBack(),
+      tab: (id) => {
+        setTab('codex', id);
+        showCodex(profile, onBack);
+      },
+    },
   );
 }

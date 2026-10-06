@@ -1,3 +1,5 @@
+import { racesInOrder } from './collection';
+import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
 import { CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
 import { LOADOUTS } from '../data/config';
 import { HEROES } from '../data/heroes';
@@ -39,7 +41,14 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
   }).join('');
 
   const full = profile.team.length >= TEAM_SIZE;
-  const options = CREATURE_IDS.filter((id) => ownsCreature(profile, id))
+  // coleção em abas por raça (só raças que o jogador tem)
+  const races = racesInOrder().filter((race) => CREATURE_IDS.some((id) => CREATURES[id].race === race && ownsCreature(profile, id)));
+  const tabs: Tab[] = races.map((race) => {
+    const ids = CREATURE_IDS.filter((id) => CREATURES[id].race === race && ownsCreature(profile, id));
+    return { id: race, label: race, badge: `${ids.filter((id) => profile.team.includes(id)).length}`, color: CREATURES[ids[0]!].color };
+  });
+  const race = currentTab('team', tabs);
+  const options = CREATURE_IDS.filter((id) => ownsCreature(profile, id) && CREATURES[id].race === race)
     .map((id) => {
       const def = CREATURES[id];
       const inTeam = profile.team.includes(id);
@@ -69,11 +78,16 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
       </div>
       <div class="team-slots">${slots}</div>
       <h3>Sua coleção</h3>
+      ${tabsHtml(tabs, race)}
       <div class="team-options">${options}</div>
       ${missing > 0 ? `<p class="hint">Mais ${missing} criatura(s) para desbloquear na Coleção.</p>` : ''}
     </div>`,
     {
       toggle: (id) => handlers.onToggle(id as CreatureId),
+      tab: (id) => {
+        setTab('team', id);
+        showTeam(profile, handlers);
+      },
       loadout: (i) => handlers.onSelectLoadout(Number(i)),
       askSlot: () => {
         const box = element.querySelector<HTMLElement>('.loadout-buy');

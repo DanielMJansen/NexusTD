@@ -1,3 +1,4 @@
+import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
 import { HERO_IDS, HEROES, type HeroId } from '../data/heroes';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { skinsOf } from '../data/skins';
@@ -45,7 +46,17 @@ export interface HeroScreenOptions {
 
 /** Heróis jogáveis: um por raça; desbloqueio com Essência e escolha do herói da run. */
 export function showHeroes(profile: Profile, handlers: HeroHandlers, options: HeroScreenOptions = {}): void {
-  const cards = HERO_IDS.map((id) => {
+  // lista de heróis (abas) e a ficha do escolhido
+  const tabs: Tab[] = HERO_IDS.map((id) => ({
+    id,
+    label: `${ownsHero(profile, id) ? '' : '🔒 '}${HEROES[id].name}`,
+    badge: profile.selectedHero === id ? '✓' : undefined,
+    color: HEROES[id].color,
+  }));
+  if (options.justUnlocked) setTab('heroes', options.justUnlocked);
+  if (!options.keepScroll && !options.justUnlocked) setTab('heroes', profile.selectedHero);
+  const shown = currentTab('heroes', tabs) as HeroId;
+  const cards = [shown].map((id) => {
     const def = HEROES[id];
     const owned = ownsHero(profile, id);
     const selected = profile.selectedHero === id;
@@ -73,7 +84,8 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
         <div class="essence">${essence(profile.essence)}</div>
       </div>
       <p class="subtitle">O herói luta ao lado do exército e fortalece as criaturas da sua raça.</p>
-      <div class="creature-grid">${cards}</div>
+      ${tabsHtml(tabs, shown)}
+      <div class="hero-detail">${cards}</div>
     </div>`,
     {
       ask: (id) => {
@@ -87,6 +99,10 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
       buy: (id) => handlers.onBuy(id as HeroId),
       select: (id) => handlers.onSelect(id as HeroId),
       skin: (id) => handlers.onSkin(id),
+      tab: (id) => {
+        setTab('heroes', id);
+        showHeroes(profile, handlers, { keepScroll: true });
+      },
       back: () => handlers.onBack(),
     },
     { keepScroll: options.keepScroll },
