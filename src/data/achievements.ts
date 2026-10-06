@@ -15,7 +15,8 @@ export type AchievementId =
   | 'untouchable'
   | 'ascension'
   | 'slayer'
-  | 'collector';
+  | 'collector'
+  | 'noTowers';
 
 export type AchievementGoal =
   /** Vencer uma run (com um herói específico, se informado). */
@@ -30,7 +31,9 @@ export type AchievementGoal =
   | { kind: 'fullCollection' }
   /** Runs jogadas / vencidas, somando todas. */
   | { kind: 'totalRuns'; count: number }
-  | { kind: 'totalWins'; count: number };
+  | { kind: 'totalWins'; count: number }
+  /** Vencer sem invocar nenhuma criatura. */
+  | { kind: 'winNoCreatures' };
 
 export interface AchievementDef {
   id: AchievementId;
@@ -79,6 +82,12 @@ export const ACHIEVEMENTS: Record<AchievementId, AchievementDef> = {
   },
   marathon: { id: 'marathon', name: 'Maratonista', description: 'Jogue 25 runs.', goal: { kind: 'totalRuns', count: 25 } },
   champion: { id: 'champion', name: 'Campeão', description: 'Vença 10 runs.', goal: { kind: 'totalWins', count: 10 } },
+  noTowers: {
+    id: 'noTowers',
+    name: 'Sem Torres',
+    description: 'Vença uma run sem invocar nenhuma criatura — só o herói.',
+    goal: { kind: 'winNoCreatures' },
+  },
   untouchable: {
     id: 'untouchable',
     name: 'Intocável',

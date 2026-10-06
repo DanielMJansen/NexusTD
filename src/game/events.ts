@@ -30,4 +30,7 @@ export type GameEvent =
   | { type: 'shopPurchase'; item: 'reroll' | 'extraSlot' }
   | { type: 'waveStarted'; wave: number }
   | { type: 'choicesOffered'; reason: 'start' | 'waveCleared'; wave: number }
-  | { type: 'runEnded'; result: RunResult };
+  | { type: 'runEnded'; result: RunResult }
+  | { type: 'heroLevelUp'; level: number }
+  | { type: 'heroDied'; x: number; y: number; respawn: number }
+  | { type: 'heroRespawned'; x: number; y: number };

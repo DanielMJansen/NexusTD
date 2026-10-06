@@ -30,6 +30,7 @@
 **Run:** onda 1 → posicionar criaturas da equipe (pagando ouro) e mover o herói → onda vencida → escolha de 1 entre 3 **melhorias** (+ **loja**) → próxima onda → chefe na onda 10 → vitória/derrota → **Essência** e conquistas → menu.
 
 **Herói** `FEITO`: mover por WASD/setas ou clique; ataca sozinho; habilidade **Pulso** com recarga. **Um herói por raça** `FEITO`: o Cavaleiro (Humano) é o inicial; os outros são desbloqueados com Essência. Cada herói tem ataque e Pulso próprios e um **bônus para as criaturas da mesma raça** (seção 9). **Skins** `FEITO`: só cosméticas, liberadas por conquistas.
+**Herói vivo** `FEITO`: o herói tem vida e leva dano de contato dos inimigos; ao cair, renasce no Nexus depois de 8 s. Ganha XP a cada abate e, a cada nível, escolhe 1 entre 3 **melhorias só do herói** (o jogo pausa).
 
 ## 4. Raças e classes
 **Estrutura** `DECIDIDO`: `Raça` → `Classe` → `Nível`. Nível permanente (duplicatas/fragmentos): `TBD`. Variantes (comum/rara com trait): **adiadas** (`TBD`).
@@ -127,6 +128,9 @@ Criaturas atacam o inimigo mais próximo do Nexus dentro do alcance.
 | Espectro | Fantasma | 120 | 11 a cada 0,5 s, alcance 75, ignora armadura | Travessia: investida de 200 (largura 26), 45, 10 s | ignoram 2 de armadura | 220 ✦ |
 | Bruxa | Bruxa | 115 | 8 a cada 0,7 s, alcance 110 | Maldição: 10, raio 115, 12 s; veneno 8/s por 4 s | venenos e poças +1 s | 220 ✦ |
 
+**Herói vivo:** vida máxima Cavaleiro 120 · Nobre Vampiro 100 · Draconato 150 · Licantropo 110 · Espectro 90 · Bruxa 90. Dano de contato por segundo (raio 10): Zumbi 8 · Morcego 6 · Ogro 16 · Rei Ogro 35. Renascimento: 8 s. XP por abate: Zumbi 3 · Morcego 2 · Ogro 7 · Rei Ogro 40. XP para o próximo nível: 10 + 8 × (nível − 1).
+Melhorias do herói (somam): Lâmina Afiada +15% dano · Agilidade +12% vel. de ataque · Alcance +12% · Vigor +25 vida máx. · Recuperação +1,5 vida/s · Passos Rápidos +10% velocidade (até 4×) · Foco −10% recarga do Pulso (até 4×) · Pulso Potente +25% dano do Pulso · Sede cura 10% do dano causado (até 3×) · Espinhos 8 de dano/s a quem encosta · Couraça −15% de dano recebido (até 4×, máx. 60%).
+
 **Inimigos**
 
 | Inimigo | Vida | Vel. | Dano ao Nexus | Ouro | Notas |
@@ -218,6 +222,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 05/10/2026 | Lobisomem, Fantasma e Bruxa implementados (2 classes + herói cada) |
 | 06/10/2026 | Melhorias 2.0: famílias com tiers (Comum → Lendária), chance de tier alto crescendo na run, % somando por categoria, crítico e sinergias de raça |
 | 06/10/2026 | Melhorias da run com raridade; run salva com continuar; tutorial guiado; velocidade 1x/2x/4x |
+| 06/10/2026 | Herói vivo: vida, dano de contato, renascimento em 8 s, XP por abate e melhorias só do herói a cada nível; conquista "Sem Torres" |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.

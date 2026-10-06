@@ -3,6 +3,7 @@ import { CREATURES, type CreatureId } from '../data/creatures';
 import { MAX_CREATURE_LEVEL } from '../data/evolution';
 import { creatureAbility, creatureName, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
 import { canEvolve, evolveCost, sellValue } from '../game/economy';
+import { heroMaxHp } from '../game/hero';
 import type { Creature, Enemy, Point, Pool, RunState } from '../game/state';
 import { drawAtmosphere, drawBackground, drawNexus } from './arena';
 import type { Effects } from './effects';
@@ -230,6 +231,25 @@ function drawLevelStars(ctx: CanvasRenderingContext2D, x: number, y: number, lev
 
 function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, highlightRange: boolean): void {
   const { hero } = state;
+  if (hero.dead) {
+    // marcador no Nexus com a contagem para renascer
+    const x = ARENA.center.x;
+    const y = ARENA.center.y + 42;
+    ctx.save();
+    ctx.globalAlpha = 0.55 + Math.sin(time * 4) * 0.15;
+    drawSprite(ctx, hero.def.id, x, y - 4, 0.8, { palette: hero.palette, time });
+    ctx.restore();
+    ctx.font = '700 9px Cinzel, Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#0a0612';
+    const label = `Renasce em ${Math.ceil(hero.respawnTimer)} s`;
+    ctx.strokeText(label, x, y + 16);
+    ctx.fillStyle = '#ff9aa4';
+    ctx.fillText(label, x, y + 16);
+    return;
+  }
   if (Math.hypot(hero.target.x - hero.x, hero.target.y - hero.y) > 6) {
     ctx.strokeStyle = '#ffd25a99';
     ctx.lineWidth = 1.2;
@@ -248,11 +268,12 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
   ctx.setLineDash([4, 5]);
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.arc(hero.x, hero.y, hero.def.attack.range, 0, TAU);
+  ctx.arc(hero.x, hero.y, hero.def.attack.range * (1 + state.heroStats.range), 0, TAU);
   ctx.fill();
   ctx.stroke();
   ctx.restore();
   ctx.save();
+  if (state.time - hero.lastHitAt < 0.08) ctx.filter = 'brightness(1.8) saturate(0.5)';
   drawSprite(ctx, hero.def.id, hero.x, hero.y, 1.05, {
     palette: hero.palette,
     time,
@@ -261,6 +282,19 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
     attack: attackStrength(state, hero.lastAttackAt),
   });
   ctx.restore();
+  // vida do herói (só quando ferido)
+  const ratio = hero.hp / heroMaxHp(state);
+  if (ratio < 1) {
+    const top = hero.y - 30;
+    ctx.fillStyle = '#07040dcc';
+    ctx.beginPath();
+    ctx.roundRect(hero.x - 13, top - 1, 26, 5, 2.5);
+    ctx.fill();
+    ctx.fillStyle = ratio > 0.35 ? '#4fd88a' : '#ff5a6a';
+    ctx.beginPath();
+    ctx.roundRect(hero.x - 12, top, 24 * ratio, 3, 1.5);
+    ctx.fill();
+  }
 }
 
 /** Poça borbulhante do Caldeirão (desaparece no fim). */

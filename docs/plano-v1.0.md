@@ -63,10 +63,11 @@ Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de le
   - efeitos especiais (crítico, perfuração, ricochete, explosão ao morrer, abate rende ouro extra).
 - Painel "**Bônus ativos**" na lateral (como no Myth TD), mostrando os totais.
 
-### F4. Herói vivo `[ ]` — D1, D2
+### F4. Herói vivo `[x]` — D1, D2
 - Vida e regeneração do herói; dano de contato dos inimigos; morte e **renascimento** com contagem na tela.
 - **Barra de XP** sob o HUD; XP por inimigo derrotado (chefes e elites dão mais).
 - Ao subir de nível, escolher 1 entre 3 **melhorias só do herói**: dano, velocidade, alcance, recarga do Pulso, vida, roubo de vida, Pulso em dobro, aura ao redor do herói.
+- **Feito:** 11 melhorias do herói (Lâmina Afiada, Agilidade, Alcance, Vigor, Recuperação, Passos Rápidos, Foco, Pulso Potente, Sede, Espinhos, Couraça). "Pulso em dobro" e "aura" ficaram para depois. Conquista "Sem Torres" criada. A curva de XP será recalibrada no F5, já com 20 ondas: hoje o herói chega ao nível ~14 em 10 ondas e quase nunca morre, porque o bot fica parado.
 
 ### F5. Dificuldade e inimigos `[ ]` — D3
 - Escalonamento por onda: vida ×(1 + 0,15·o + 0,01·o²), velocidade +2%/onda, dano ao Nexus +5%/onda (calibrar por simulação).

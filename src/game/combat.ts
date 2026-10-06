@@ -1,5 +1,6 @@
 import { ARENA, HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureDamage, creatureRange } from './creatureStats';
+import { grantXp, healHero } from './hero';
 import { random } from './random';
 import { distance, type Creature, type Enemy, type Point, type RunState } from './state';
 
@@ -47,6 +48,7 @@ export function damageEnemy(
     enemy.dead = true;
     state.kills++;
     state.gold += Math.round(enemy.def.gold * (1 + state.talents.killGold));
+    grantXp(state, enemy.def.xp);
     state.events.push({
       type: 'enemyKilled',
       enemy: enemy.def.id,
@@ -109,7 +111,7 @@ const clampToArena = (p: Point): Point => {
  * sem mira, vai no inimigo mais próximo.
  */
 export function firePulse(state: RunState, aim?: Point): boolean {
-  if (state.phase !== 'playing' || state.pulse.remaining > 0) return false;
+  if (state.phase !== 'playing' || state.pulse.remaining > 0 || state.hero.dead) return false;
   const { hero } = state;
   const pulse = hero.def.pulse;
   state.pulse.remaining = state.pulse.cooldown;
@@ -137,7 +139,7 @@ export function firePulse(state: RunState, aim?: Point): boolean {
   let hit = 0;
   for (const enemy of state.enemies) {
     if (enemy.dead || !isHit(enemy)) continue;
-    damageEnemy(state, enemy, pulse.damage * (1 + state.talents.heroDamage), undefined, {
+    damageEnemy(state, enemy, pulse.damage * (1 + state.talents.heroDamage) * (1 + state.heroStats.pulseDamage), undefined, {
       ignoreArmor: hero.def.attack.pierceArmor,
     });
     if (pulse.fear && !enemy.def.isBoss) enemy.fearTimer = Math.max(enemy.fearTimer, pulse.fear);
@@ -152,7 +154,8 @@ export function firePulse(state: RunState, aim?: Point): boolean {
 /** Move o herói (direção do teclado tem prioridade sobre o alvo de toque) e ataca. */
 export function updateHero(state: RunState, dt: number, direction: Point): void {
   const { hero } = state;
-  const step = hero.def.speed * (1 + state.talents.heroSpeed) * dt;
+  if (hero.dead) return;
+  const step = hero.def.speed * (1 + state.talents.heroSpeed + state.heroStats.speed) * dt;
   const startX = hero.x;
   const startY = hero.y;
   if (direction.x || direction.y) {
@@ -180,7 +183,8 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
   if (hero.attackTimer > 0) return;
   const attack = hero.def.attack;
   let target: Enemy | null = null;
-  let best = attack.range;
+  const range = attack.range * (1 + state.heroStats.range);
+  let best = range;
   for (const enemy of state.enemies) {
     if (enemy.dead) continue;
     const d = distance(enemy, hero);
@@ -197,17 +201,19 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
   const victims =
     pattern.kind === 'cone'
       ? state.enemies.filter((e) => {
-          if (e.dead || distance(e, hero) > attack.range) return false;
+          if (e.dead || distance(e, hero) > range) return false;
           const diff = Math.abs(((Math.atan2(e.y - hero.y, e.x - hero.x) - aim + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);
           return diff <= pattern.halfAngle;
         })
       : [target];
   const crit = random() < state.modifiers.critChance;
-  const damage = attack.damage * state.modifiers.damage * (1 + state.talents.heroDamage) * (crit ? 2 : 1);
+  const damage =
+    attack.damage * state.modifiers.damage * (1 + state.talents.heroDamage + state.heroStats.damage) * (crit ? 2 : 1);
   for (const victim of victims) damageEnemy(state, victim, damage, undefined, { ignoreArmor: attack.pierceArmor, crit });
   if (attack.healPerHit > 0) healNexus(state, attack.healPerHit * victims.length);
+  if (state.heroStats.lifesteal > 0) healHero(state, damage * victims.length * state.heroStats.lifesteal);
 
-  hero.attackTimer = attack.cooldown / state.modifiers.attackSpeed;
+  hero.attackTimer = attack.cooldown / (state.modifiers.attackSpeed + state.heroStats.attackSpeed);
   hero.lastAttackAt = state.time;
   if (!hero.moving) hero.facing = target.x >= hero.x ? 1 : -1;
   state.events.push({
@@ -216,7 +222,7 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
     from: { x: hero.x, y: hero.y },
     to: { x: target.x, y: target.y },
     cone: pattern.kind === 'cone' ? pattern.halfAngle : null,
-    range: attack.range,
+    range,
   });
 }
 

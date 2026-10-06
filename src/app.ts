@@ -33,6 +33,8 @@ import { loadSettings, saveSettings, type Settings } from './save/settings';
 import { showAchievements } from './ui/achievementsScreen';
 import { showCollection } from './ui/collection';
 import { showEntry } from './ui/entry';
+import { showHeroLevelUp } from './ui/heroLevelUp';
+import { chooseHeroUpgrade } from './game/hero';
 import { showHeroes } from './ui/heroesScreen';
 import { updateHud } from './ui/hud';
 import { showMenu } from './ui/menu';
@@ -193,7 +195,7 @@ export class App {
   }
 
   private isPlaying(): boolean {
-    return this.mode === 'run' && this.run.phase === 'playing' && !this.paused;
+    return this.mode === 'run' && this.run.phase === 'playing' && !this.paused && !this.run.heroChoices.length;
   }
 
   private onKey(key: string, event: KeyboardEvent): void {
@@ -289,10 +291,16 @@ export class App {
       case 'choicesOffered':
         saveRun(this.run);
         resetInteraction(this.interaction);
-        this.showChoices();
+        // A escolha do herói (se aberta) vem primeiro; ela mesma abre a de fim de onda depois.
+        if (this.run.heroChoices.length) this.showHeroChoices();
+        else this.showChoices();
         break;
       case 'shopPurchase':
         this.showChoices();
+        break;
+      case 'heroLevelUp':
+        resetInteraction(this.interaction);
+        this.showHeroChoices();
         break;
       case 'waveStarted':
         this.music.setIntensity((event.wave - 1) / (WAVES.total - 1));
@@ -315,11 +323,23 @@ export class App {
     }
   }
 
+  /** Escolha de melhoria do herói; depois volta para a escolha de fim de onda, se houver. */
+  private showHeroChoices(): void {
+    if (!this.run.heroChoices.length) return;
+    showHeroLevelUp(this.run, (index) => {
+      chooseHeroUpgrade(this.run, index);
+      if (this.run.heroChoices.length) this.showHeroChoices();
+      else if (this.run.phase === 'choosing') this.showChoices();
+      else hideOverlay();
+    });
+  }
+
   private showChoices(): void {
     showWaveChoices(this.run, this.run.choiceReason, {
       onChoose: (index) => {
         chooseOption(this.run, index);
-        hideOverlay();
+        if (this.run.heroChoices.length) this.showHeroChoices();
+        else hideOverlay();
       },
       onReroll: () => reroll(this.run),
       onBuyExtraSlot: () => buyExtraSlot(this.run),
@@ -434,7 +454,10 @@ export class App {
     this.mode = 'run';
     this.music.play(run.wave >= WAVES.total ? 'boss' : 'run');
     this.music.setIntensity((run.wave - 1) / (WAVES.total - 1));
-    if (run.phase === 'choosing') {
+    if (run.heroChoices.length) {
+      this.paused = false;
+      this.showHeroChoices();
+    } else if (run.phase === 'choosing') {
       this.paused = false;
       this.showChoices();
     } else {

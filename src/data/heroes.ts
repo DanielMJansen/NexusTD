@@ -54,6 +54,8 @@ export interface HeroDef {
   raceBonus: RaceBonus;
   /** Cor da marca sob os pés e dos efeitos. */
   color: string;
+  /** Vida máxima do herói (morto, renasce no Nexus). */
+  maxHp: number;
   /** null = herói inicial (gratuito). */
   cost: number | null;
 }
@@ -70,6 +72,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     pulse: { name: 'Onda de Choque', damage: 35, radius: 95, cooldown: 12, healPerEnemy: 0 },
     raceBonus: { kind: 'range', value: 0.1 },
     color: '#ffd25a',
+    maxHp: 120,
     cost: null,
   },
   vampireLord: {
@@ -82,6 +85,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     pulse: { name: 'Revoada de Morcegos', damage: 25, radius: 100, cooldown: 12, healPerEnemy: 1 },
     raceBonus: { kind: 'killHeal', value: 1 },
     color: '#ff3a50',
+    maxHp: 100,
     cost: 150,
   },
   draconian: {
@@ -94,6 +98,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     pulse: { name: 'Rugido Flamejante', damage: 30, radius: 130, cooldown: 13, healPerEnemy: 0 },
     raceBonus: { kind: 'damage', value: 0.1 },
     color: '#ff8a2a',
+    maxHp: 150,
     cost: 200,
   },
   lycan: {
@@ -106,6 +111,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     pulse: { name: 'Uivo', damage: 15, radius: 110, cooldown: 12, healPerEnemy: 0, fear: 2 },
     raceBonus: { kind: 'attackSpeed', value: 0.15 },
     color: '#c8a070',
+    maxHp: 110,
     cost: 200,
   },
   specter: {
@@ -125,6 +131,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     },
     raceBonus: { kind: 'armorPierce', value: 2 },
     color: '#8ce8d8',
+    maxHp: 90,
     cost: 220,
   },
   witch: {
@@ -137,6 +144,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     pulse: { name: 'Maldição', damage: 10, radius: 115, cooldown: 12, healPerEnemy: 0, poison: { dps: 8, duration: 4 } },
     raceBonus: { kind: 'poisonDuration', value: 1 },
     color: '#7ad85a',
+    maxHp: 90,
     cost: 220,
   },
 };

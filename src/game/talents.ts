@@ -25,6 +25,8 @@ const ZERO: TalentBonuses = {
   essenceGain: 0,
   victoryEssence: 0,
   essencePerWave: 0,
+  heroRespawn: 0,
+  heroXp: 0,
 };
 
 export const noTalentBonuses = (): TalentBonuses => ({ ...ZERO });

@@ -24,7 +24,9 @@ export type TalentEffectKind =
   | 'pulseRadius' // fração de raio do Pulso
   | 'essenceGain' // fração extra de Essência por run
   | 'victoryEssence' // Essência extra ao vencer
-  | 'essencePerWave'; // Essência extra por onda alcançada
+  | 'essencePerWave' // Essência extra por onda alcançada
+  | 'heroRespawn' // fração a menos no tempo de renascer
+  | 'heroXp'; // fração extra de XP do herói
 
 export type TalentId =
   | 'nexusVitality'

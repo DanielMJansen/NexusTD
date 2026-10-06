@@ -90,5 +90,9 @@ export function talentEffectText(kind: TalentEffectKind, value: number): string 
       return `+${value} de Essência ao vencer`;
     case 'essencePerWave':
       return `+${value} de Essência por onda`;
+    case 'heroRespawn':
+      return `Herói renasce ${pct(value)} mais rápido`;
+    case 'heroXp':
+      return `+${pct(value)} de XP do herói`;
   }
 }

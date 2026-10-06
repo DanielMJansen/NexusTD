@@ -2,6 +2,7 @@ import { ARENA, ECONOMY, NEXUS, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
 import { offerChoices } from './choices';
 import { applyBlocks, updateCreatures, updateDamageOverTime, updateHero } from './combat';
+import { updateHeroVitals } from './hero';
 import { spawnEnemy, spawnInterval, startWave } from './spawning';
 import { createRun, type Point, type RunSetup, type RunState } from './state';
 
@@ -18,7 +19,8 @@ export function startRun(setup: RunSetup): RunState {
 
 /** Avança a simulação. Só age durante uma onda. */
 export function updateRun(state: RunState, dt: number, input: FrameInput): void {
-  if (state.phase !== 'playing') return;
+  // Pausa enquanto a escolha de melhoria do herói estiver aberta.
+  if (state.phase !== 'playing' || state.heroChoices.length) return;
   state.time += dt;
 
   state.incomeTimer += dt;
@@ -40,6 +42,7 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
     state.spawnTimer = spawnInterval(state.wave);
   }
 
+  updateHeroVitals(state, dt);
   updateHero(state, dt, input.direction);
   applyBlocks(state);
   moveEnemies(state, dt);
@@ -111,6 +114,7 @@ function endRun(state: RunState, victory: boolean): void {
     hero: state.hero.def.id,
     lowestNexusRatio: state.lowestNexusRatio,
     ascendedPeak: state.ascendedPeak,
+    creaturesPlaced: state.creaturesPlaced,
   };
   state.events.push({ type: 'runEnded', result: state.result });
 }

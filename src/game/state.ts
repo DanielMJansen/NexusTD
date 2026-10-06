@@ -3,6 +3,7 @@ import { HEROES, type HeroDef, type HeroId, type RaceBonus } from '../data/heroe
 import type { CreatureDef, CreatureId } from '../data/creatures';
 import type { EnemyDef, EnemyId } from '../data/enemies';
 import type { OfferedUpgrade } from '../data/upgrades';
+import type { HeroStat, HeroUpgradeDef } from '../data/heroUpgrades';
 import type { SkinPalette } from '../data/skins';
 import type { TalentBonuses } from './talents';
 import type { GameEvent } from './events';
@@ -59,6 +60,14 @@ export interface Hero extends Point {
   facing: 1 | -1;
   lastAttackAt: number;
   moving: boolean;
+  hp: number;
+  dead: boolean;
+  /** Segundos até renascer (quando morto). */
+  respawnTimer: number;
+  level: number;
+  xp: number;
+  /** Momento do último dano recebido (clarão). */
+  lastHitAt: number;
 }
 
 /** Poça no chão que causa dano por segundo a quem estiver dentro. */
@@ -97,6 +106,7 @@ export interface RunResult {
   lowestNexusRatio: number;
   /** Maior número de criaturas na forma evoluída ao mesmo tempo (conquistas). */
   ascendedPeak: number;
+  creaturesPlaced: number;
 }
 
 export type Phase = 'playing' | 'choosing' | 'ended';
@@ -150,10 +160,33 @@ export interface RunState {
   extraSlots: number;
   /** Quantas vezes cada melhoria foi escolhida nesta run. */
   upgradePicks: Record<string, number>;
+  /** Bônus das melhorias do herói (níveis). */
+  heroStats: Record<HeroStat, number>;
+  /** Escolha de melhoria do herói aberta (a simulação pausa enquanto houver). */
+  heroChoices: HeroUpgradeDef[];
+  /** Níveis ganhos ainda sem melhoria escolhida. */
+  pendingLevels: number;
+  heroUpgradePicks: Record<string, number>;
+  /** Criaturas invocadas na run (conquista Sem Torres). */
+  creaturesPlaced: number;
   result: RunResult | null;
   /** Fila de eventos do quadro; quem consome esvazia. */
   events: GameEvent[];
 }
+
+export const noHeroStats = (): Record<HeroStat, number> => ({
+  damage: 0,
+  attackSpeed: 0,
+  range: 0,
+  maxHp: 0,
+  regen: 0,
+  speed: 0,
+  pulseCooldown: 0,
+  pulseDamage: 0,
+  lifesteal: 0,
+  thorns: 0,
+  armor: 0,
+});
 
 export function createRun(setup: RunSetup): RunState {
   const t = setup.talents;
@@ -167,7 +200,27 @@ export function createRun(setup: RunSetup): RunState {
     nexus: { hp: maxHp, maxHp },
     gold: ECONOMY.startGold + t.startGold,
     kills: 0,
-    hero: { ...heroStart, def: heroDef, palette: { ...setup.heroPalette }, target: { ...heroStart }, attackTimer: 0, facing: 1, lastAttackAt: -Infinity, moving: false },
+    hero: {
+      ...heroStart,
+      def: heroDef,
+      palette: { ...setup.heroPalette },
+      target: { ...heroStart },
+      attackTimer: 0,
+      facing: 1,
+      lastAttackAt: -Infinity,
+      moving: false,
+      hp: heroDef.maxHp,
+      dead: false,
+      respawnTimer: 0,
+      level: 1,
+      xp: 0,
+      lastHitAt: -Infinity,
+    },
+    heroStats: noHeroStats(),
+    heroChoices: [],
+    pendingLevels: 0,
+    heroUpgradePicks: {},
+    creaturesPlaced: 0,
     enemies: [],
     creatures: [],
     team: [...setup.team],

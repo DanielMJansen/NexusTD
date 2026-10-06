@@ -11,7 +11,11 @@ export interface EnemyDef {
   scale: number;
   color: string;
   nexusDamage: number;
+  /** Dano por segundo ao herói enquanto encostado nele. */
+  heroDps: number;
   gold: number;
+  /** XP que o herói ganha quando este inimigo morre. */
+  xp: number;
   /** Reduz o dano de cada golpe: max(1, dano − armadura). */
   armor: number;
   /** Movimento lateral em zigue-zague; null = anda reto. */
@@ -31,7 +35,9 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     scale: 1,
     color: '#8c8',
     nexusDamage: 5,
+    heroDps: 8,
     gold: 3,
+    xp: 3,
     armor: 0,
     zigzag: null,
     pack: { chance: 0.3, angleOffsets: [0.08, -0.08] },
@@ -46,7 +52,9 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     scale: 0.8,
     color: '#ee5',
     nexusDamage: 3,
+    heroDps: 6,
     gold: 2,
+    xp: 2,
     armor: 0,
     zigzag: { lateralSpeed: 66, frequency: 5 },
     pack: null,
@@ -61,7 +69,9 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     scale: 1.4,
     color: '#c85',
     nexusDamage: 15,
+    heroDps: 16,
     gold: 8,
+    xp: 7,
     armor: 3,
     zigzag: null,
     pack: null,
@@ -76,7 +86,9 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     scale: 2.2,
     color: '#f55',
     nexusDamage: 40,
+    heroDps: 35,
     gold: 30,
+    xp: 40,
     armor: 4,
     zigzag: null,
     pack: null,

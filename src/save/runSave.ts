@@ -4,12 +4,13 @@
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { ENEMIES, type EnemyId } from '../data/enemies';
 import { HEROES, type HeroId } from '../data/heroes';
+import { HERO_UPGRADES } from '../data/heroUpgrades';
 import { findFamily, type Tier } from '../data/upgrades';
 import type { RunState } from '../game/state';
 
 export const RUN_KEY = 'nexus-run-v1';
-/** v2: melhorias com tier (as runs salvas na v1 são descartadas). */
-const RUN_VERSION = 2;
+/** v3: herói com vida/XP (runs salvas em versões anteriores são descartadas). */
+const RUN_VERSION = 3;
 
 interface SavedRun {
   version: number;
@@ -37,6 +38,7 @@ function serialize(state: RunState): Record<string, unknown> {
     creatures: state.creatures.map((c) => ({ ...c, def: c.def.id })),
     unlocked: [...state.unlocked],
     choices: state.choices.map((c) => ({ kind: c.kind, family: c.upgrade.family.id, tier: c.upgrade.tier, race: c.upgrade.race })),
+    heroChoices: state.heroChoices.map((u) => u.id),
   };
 }
 
@@ -55,6 +57,7 @@ function deserialize(raw: Record<string, unknown>): RunState {
       ...hero,
       def: need(HEROES[hero.def as HeroId], 'herói'),
       lastAttackAt: restoreTime(hero.lastAttackAt),
+      lastHitAt: restoreTime(hero.lastHitAt),
     },
     enemies: (raw.enemies as Record<string, unknown>[]).map((e) => ({
       ...e,
@@ -67,6 +70,12 @@ function deserialize(raw: Record<string, unknown>): RunState {
       lastAttackAt: restoreTime(c.lastAttackAt),
     })),
     unlocked: new Set(raw.unlocked as CreatureId[]),
+    heroChoices: ((raw.heroChoices as string[] | undefined) ?? []).map((id) =>
+      need(
+        HERO_UPGRADES.find((u) => u.id === id),
+        'melhoria do herói',
+      ),
+    ),
     choices: (raw.choices as { kind: 'upgrade'; family: string; tier: Tier; race?: string }[]).map((c) => {
       const family = need(findFamily(c.family), 'melhoria');
       return { kind: c.kind, upgrade: { family, tier: c.tier, value: need(family.values[c.tier], 'tier'), race: c.race } };

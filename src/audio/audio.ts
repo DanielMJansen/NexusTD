@@ -110,7 +110,14 @@ export class SoundPlayer {
         this.play('heal');
         break;
       case 'creatureEvolved':
+      case 'heroLevelUp':
         this.play('evolve');
+        break;
+      case 'heroDied':
+        this.play('hurt');
+        break;
+      case 'heroRespawned':
+        this.play('heal');
         break;
       case 'creatureSold':
       case 'choiceMade':

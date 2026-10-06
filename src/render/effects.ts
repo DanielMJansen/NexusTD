@@ -153,6 +153,18 @@ export class Effects {
         }
         break;
       }
+      case 'heroDied':
+        this.burst(event.x, event.y - 8, 18, '#ff5a6a', 90, 0.6, 2.6, true);
+        this.text(event.x, event.y - 30, 'Herói caiu!', '#ff7a84', 12);
+        this.shake = Math.max(this.shake, 5);
+        break;
+      case 'heroRespawned':
+        this.ring(event.x, event.y + 12, 30, '#ffd25a', 0.6, 3);
+        this.burst(event.x, event.y, 14, '#ffe9a8', 60, 0.7, 2.2, true, -50);
+        break;
+      case 'heroLevelUp':
+        this.banner(`Nível ${event.level}`, 'Herói', '#ffd25a', 1.2);
+        break;
       case 'enemyDamaged':
         if (this.showDamageNumbers) {
           const amount = event.amount >= 10 ? Math.round(event.amount) : Math.round(event.amount * 10) / 10;

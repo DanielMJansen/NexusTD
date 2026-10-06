@@ -27,6 +27,8 @@ function isMet(profile: Profile, def: AchievementDef, result: RunResult | null):
       return profile.stats.runs >= goal.count;
     case 'totalWins':
       return profile.stats.wins >= goal.count;
+    case 'winNoCreatures':
+      return !!result?.victory && result.creaturesPlaced === 0;
   }
 }
 
