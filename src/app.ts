@@ -27,6 +27,7 @@ import { drawFrame } from './render/draw';
 import { Effects } from './render/effects';
 import { fitArenaCanvas } from './render/viewport';
 import { downloadBackup, importBackup, pickBackupFile } from './save/backup';
+import { clearRun, loadRun, savedRunSummary, saveRun } from './save/runSave';
 import { loadProfile, saveProfile } from './save/save';
 import { loadSettings, saveSettings, type Settings } from './save/settings';
 import { showAchievements } from './ui/achievementsScreen';
@@ -104,6 +105,10 @@ export class App {
       this.openSettings();
     });
     this.updateSettings({});
+    // Fechar ou recarregar a aba no meio da run: salva onde está.
+    addEventListener('pagehide', () => {
+      if (this.mode === 'run' && this.run.phase !== 'ended') saveRun(this.run);
+    });
   }
 
   start(): void {
@@ -222,6 +227,7 @@ export class App {
     this.sound.handle(event);
     switch (event.type) {
       case 'choicesOffered':
+        saveRun(this.run);
         resetInteraction(this.interaction);
         this.showChoices();
         break;
@@ -236,6 +242,7 @@ export class App {
         break;
       case 'runEnded':
         resetInteraction(this.interaction);
+        clearRun();
         this.music.play('menu');
         this.profile.essence += event.result.essence;
         recordRun(this.profile, event.result);
@@ -276,8 +283,9 @@ export class App {
       });
       return;
     }
-    showMenu(this.profile, {
+    showMenu(this.profile, savedRunSummary(), {
       onPlay: () => this.startRun(),
+      onContinue: () => this.continueRun(),
       onTeam: () => this.openTeam(),
       onHeroes: () => this.openHeroes(),
       onCollection: () => this.openCollection(),
@@ -350,7 +358,33 @@ export class App {
     redraw();
   }
 
+  /** Retoma a run salva: na escolha entre ondas ou pausada, para o jogador se situar. */
+  private continueRun(): void {
+    const run = loadRun();
+    if (!run) {
+      clearRun();
+      alert('Não foi possível carregar a run salva.');
+      this.openMenu();
+      return;
+    }
+    this.effects.clear();
+    resetInteraction(this.interaction);
+    this.run = run;
+    this.mode = 'run';
+    this.music.play(run.wave >= WAVES.total ? 'boss' : 'run');
+    this.music.setIntensity((run.wave - 1) / (WAVES.total - 1));
+    if (run.phase === 'choosing') {
+      this.paused = false;
+      this.showChoices();
+    } else {
+      this.paused = true;
+      this.showPauseScreen();
+    }
+  }
+
   private startRun(): void {
+    if (savedRunSummary() && !confirm('Começar uma nova run descarta a run salva. Continuar?')) return;
+    clearRun();
     this.effects.clear();
     resetInteraction(this.interaction);
     hideOverlay();
@@ -374,8 +408,16 @@ export class App {
   private showPauseScreen(): void {
     showPause({
       onResume: () => this.togglePause(),
-      onQuit: () => this.openMenu(),
       onSettings: () => this.openSettings(),
+      onSaveAndQuit: () => {
+        saveRun(this.run);
+        this.openMenu();
+      },
+      onAbandon: () => {
+        if (!confirm('Abandonar a run? O progresso dela será perdido e não rende Essência.')) return;
+        clearRun();
+        this.openMenu();
+      },
     });
   }
 }

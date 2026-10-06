@@ -5,11 +5,13 @@ import { ENEMIES } from '../data/enemies';
 import { HEROES } from '../data/heroes';
 import { WAVES } from '../data/waves';
 import { heroSkin, TEAM_SIZE, type Profile } from '../game/profile';
+import type { SavedRunSummary } from '../save/runSave';
 import { essence } from './currency';
 import { showOverlay } from './overlay';
 
 export interface MenuHandlers {
   onPlay(): void;
+  onContinue(): void;
   onTeam(): void;
   onHeroes(): void;
   onCollection(): void;
@@ -19,7 +21,8 @@ export interface MenuHandlers {
 }
 
 /** Menu principal: atalhos para jogar e para as telas de meta-progressão. */
-export function showMenu(profile: Profile, handlers: MenuHandlers): void {
+/** `saved`: run em andamento salva (mostra "Continuar run"). */
+export function showMenu(profile: Profile, saved: SavedRunSummary | null, handlers: MenuHandlers): void {
   const finalBoss = WAVES.bosses.at(-1);
   const goal = finalBoss
     ? `Proteja o Nexus por ${WAVES.total} ondas e derrote o <b>${ENEMIES[finalBoss.enemy].name}</b>.`
@@ -35,7 +38,8 @@ export function showMenu(profile: Profile, handlers: MenuHandlers): void {
       <p>${goal}</p>
       <div class="hub-team">${team}</div>
       <div class="hub-buttons">
-        <button class="play-button" data-action="play"${profile.team.length ? '' : ' disabled'}>▶ Jogar</button>
+        ${saved ? `<button class="play-button" data-action="continue">▶ Continuar run <small>onda ${saved.wave} · ${HEROES[saved.hero].name}</small></button>` : ''}
+        <button class="${saved ? '' : 'play-button'}" data-action="play"${profile.team.length ? '' : ' disabled'}>${saved ? 'Nova run' : '▶ Jogar'}</button>
         <button data-action="heroes">Herói <small>${HEROES[profile.selectedHero].name}</small></button>
         <button data-action="team">Equipe <small>${profile.team.length}/${TEAM_SIZE}</small></button>
         <button data-action="collection">Coleção <small>${profile.ownedCreatures.length}/${CREATURE_IDS.length}</small></button>
@@ -46,6 +50,7 @@ export function showMenu(profile: Profile, handlers: MenuHandlers): void {
     </div>`,
     {
       play: () => handlers.onPlay(),
+      continue: () => handlers.onContinue(),
       team: () => handlers.onTeam(),
       heroes: () => handlers.onHeroes(),
       collection: () => handlers.onCollection(),

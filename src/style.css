@@ -1327,3 +1327,10 @@ button:disabled {
       inset 0 0 24px #ffd25a33;
   }
 }
+
+.play-button small {
+  display: block;
+  font: 600 13px var(--font-label);
+  letter-spacing: 1px;
+  color: #e2c8ff;
+}

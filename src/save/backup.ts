@@ -1,6 +1,7 @@
 // Exportar/importar todo o progresso num arquivo JSON, para levar a outro
 // computador ou navegador. Formato inspirado no backup do Myth TD.
 import { loadProfile, PROFILE_VERSION, profileFromData, saveProfile } from './save';
+import { rawSavedRun, writeRawSavedRun } from './runSave';
 import { loadSettings, sanitizeSettings, saveSettings } from './settings';
 
 const FORMAT = 'nexus-save';
@@ -10,7 +11,8 @@ interface BackupFile {
   format: typeof FORMAT;
   version: number;
   exportedAt: string;
-  data: { profileVersion: number; profile: unknown; settings: unknown };
+  /** run: run em andamento salva (opcional). */
+  data: { profileVersion: number; profile: unknown; settings: unknown; run?: unknown };
 }
 
 export function exportBackup(): string {
@@ -18,7 +20,7 @@ export function exportBackup(): string {
     format: FORMAT,
     version: FORMAT_VERSION,
     exportedAt: new Date().toISOString(),
-    data: { profileVersion: PROFILE_VERSION, profile: loadProfile(), settings: loadSettings() },
+    data: { profileVersion: PROFILE_VERSION, profile: loadProfile(), settings: loadSettings(), run: rawSavedRun() },
   };
   return JSON.stringify(file, null, 2);
 }
@@ -41,6 +43,7 @@ export function importBackup(text: string): void {
   const profile = profileFromData(file.data.profile, file.data.profileVersion);
   saveProfile(profile);
   saveSettings(sanitizeSettings(file.data.settings));
+  writeRawSavedRun(file.data.run);
 }
 
 export const backupFileName = (): string => `nexus-save-${new Date().toISOString().slice(0, 10)}.json`;
