@@ -31,7 +31,10 @@ export type CreatureId =
   | 'basilisk'
   | 'imp'
   | 'succubus'
-  | 'infernal';
+  | 'infernal'
+  | 'cherub'
+  | 'valkyrie'
+  | 'guardianAngel';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -861,6 +864,69 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ascended: [
       { name: 'Senhor do Abismo', description: 'Explosão maior e mais forte.', ability: { kind: 'splash', radius: 60, damageRatio: 0.9 }, color: '#ffd25a', icon: '♛' },
       { name: 'Berserker', description: 'Cada abate aumenta o dano até o fim da onda.', ability: { kind: 'splash', radius: 40, damageRatio: 0.8 }, effects: [{ kind: 'killDamage', perKill: 0.05, max: 1 }], color: '#ff3a1a', icon: '⚔' },
+    ],
+  },
+  cherub: {
+    id: 'cherub',
+    name: 'Querubim',
+    race: 'Anjo',
+    role: 'Ricochete',
+    description: 'Flechas de luz que ricocheteiam de um inimigo para o próximo.',
+    lore: 'Pequeno, gorducho e certeiro. Não subestime quem tem asas desde bebê.',
+    icon: '👼',
+    baseCost: 25,
+    damage: 7,
+    range: 110,
+    cooldown: 0.8,
+    color: '#fff0a0',
+    flying: true,
+    ability: { kind: 'chain', jumps: 2, radius: 70, falloff: 0.85 },
+    unlock: { kind: 'essence', cost: 80 },
+    ascended: [
+      { name: 'Serafim', description: 'As flechas ricocheteiam até 4 vezes.', ability: { kind: 'chain', jumps: 4, radius: 75, falloff: 0.9 }, color: '#ffd25a', icon: '✶' },
+      { name: 'Arauto', description: 'As flechas marcam: +20% de dano recebido por 3 s.', ability: { kind: 'chain', jumps: 2, radius: 70, falloff: 0.85 }, effects: [{ kind: 'mark', amount: 0.2, duration: 3 }], color: '#bfe8ff', icon: '♪' },
+    ],
+  },
+  valkyrie: {
+    id: 'valkyrie',
+    name: 'Valquíria',
+    race: 'Anjo',
+    role: 'Caçadora de fortes',
+    description: 'Mira sempre no inimigo mais forte ao alcance: chefes e elites primeiro.',
+    lore: 'Escolhe quem cai na batalha. Prefere os grandes.',
+    icon: '🛡',
+    baseCost: 35,
+    damage: 14,
+    range: 105,
+    cooldown: 1.1,
+    color: '#c8d8ff',
+    targeting: 'strongest',
+    ability: { kind: 'none' },
+    unlock: { kind: 'essence', cost: 100 },
+    ascended: [
+      { name: 'Matadora de Reis', description: '+60% de dano contra elites e chefes.', ability: { kind: 'none' }, effects: [{ kind: 'vsStrong', bonus: 0.6 }], color: '#ffd25a', icon: '♛' },
+      { name: 'Lança Celeste', description: 'A lança de luz atravessa todos em linha.', ability: { kind: 'pierce', width: 10, beams: 1 }, color: '#9fdcff', icon: '➵' },
+    ],
+  },
+  guardianAngel: {
+    id: 'guardianAngel',
+    name: 'Guardião',
+    race: 'Anjo',
+    role: 'Suporte (proteção)',
+    description: 'Protege as criaturas ao redor: ficam imunes a teia e atordoamento (Aranhas, Rei Ogro).',
+    lore: 'Jurou proteger o Nexus. Leva a sério até as criaturas que não gostam dele.',
+    icon: '😇',
+    baseCost: 30,
+    damage: 5,
+    range: 90,
+    cooldown: 1,
+    color: '#e0e8ff',
+    flying: true,
+    ability: { kind: 'bless', radius: 80, protect: true },
+    unlock: { kind: 'essence', cost: 90 },
+    ascended: [
+      { name: 'Égide Celeste', description: 'Proteção maior que também dá +12% de dano.', ability: { kind: 'bless', radius: 100, protect: true, damage: 0.12 }, color: '#ffd25a', icon: '☀' },
+      { name: 'Juiz', description: 'Inimigos dentro da aura sofrem dano por segundo.', ability: { kind: 'bless', radius: 80, protect: true, dps: 10 }, color: '#bfe8ff', icon: '⚖' },
     ],
   },
 };

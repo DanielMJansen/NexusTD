@@ -81,6 +81,9 @@ Gacha com dinheiro real: ver seção 10.
 | Demônio | Diabrete | DPS barato e rápido | Dano 5 a cada 0,5 s, alcance 95 (voa); 15 ouro, 80 ✦ | Diabrete Flamejante (queimadura 5/s por 2 s) · Diabrete Ladino (12% de roubar 1 ouro por golpe) |
 | Demônio | Súcubo | Controle (puxar) | Puxa o alvo 18 na direção dela (chefes resistem); 30 ouro, 90 ✦ | Sedutora (puxa 3 de uma vez) · Tormento (puxa 15 e deixa vulnerável: +60% de dano por 2,5 s) |
 | Demônio | Infernal | Área pesada | Bola de fogo 22 a cada 2,4 s, área raio 40 com 80%; 40 ouro, 110 ✦ | Senhor do Abismo (raio 60 com 90%) · Berserker (+5% de dano por abate na onda, máx. +100%) |
+| Anjo | Querubim | Ricochete | Cadeia: 2 saltos, raio 70, 85% (voa); 25 ouro, 80 ✦ | Serafim (4 saltos, 90%) · Arauto (marca: +20% de dano recebido por 3 s) |
+| Anjo | Valquíria | Caçadora de fortes | Mira no mais forte ao alcance (chefes e elites primeiro); dano 14 a cada 1,1 s; 35 ouro, 100 ✦ | Matadora de Reis (+60% contra elites e chefes) · Lança Celeste (lança que atravessa em linha) |
+| Anjo | Guardião | Suporte (proteção) | Aura raio 80: criaturas imunes a teia e atordoamento (voa); 30 ouro, 90 ✦ | Égide Celeste (raio 100, +12% dano) · Juiz (inimigos na aura sofrem 10/s) |
 <!-- f10-rows -->
 
 **Heróis novos:**
@@ -89,6 +92,7 @@ Gacha com dinheiro real: ver seção 10.
 - **Senhor dos Mortos** (Necromante, 260 ✦): vida 110, vel. 110; foice em leque 9 a cada 0,6 s, alcance 55; Pulso **Erguer Mortos**: 10 de dano (raio 80) e 3 esqueletos aliados por 8 s (recarga 14 s); bônus: Necromantes +12% de vel. de ataque.
 - **Rainha Górgona** (Górgona, 260 ✦): vida 100, vel. 115; lança-serpente 9 a cada 0,55 s, alcance 85; Pulso **Olhar Fatal**: 20 de dano em leque (alcance 140, ±0,5 rad) e petrifica 2,2 s (recarga 13 s); bônus: efeitos das Górgonas +1 s.
 - **Arquidemônio** (Demônio, 280 ✦): vida 130, vel. 120; chamas em leque 9 a cada 0,55 s, alcance 60; Pulso **Pacto**: 90 de dano (raio 110), custa 30% da vida do herói (recarga 12 s); bônus: Demônios +10% de chance de crítico.
+- **Arcanjo** (Anjo, 280 ✦): vida 120, vel. 125; espada de luz 11 a cada 0,5 s, alcance 60; Pulso **Juízo**: raio sagrado em linha de 220 (largura 22), 70 de dano (recarga 12 s); bônus: Anjos +25% de dano contra elites e chefes.
 <!-- f10-heroes -->
 
 **Efeitos de golpe** `FEITO` (combináveis, reaproveitados pelas raças novas): dano contínuo, atordoar/raízes/petrificar, medo/confusão, marca (+dano recebido, pode explodir), vulnerável, corrosão de armadura, enfraquecer (lento e menos dano ao Nexus), puxar, possuir (aliado temporário), executar, +dano contra fortes, acúmulo por abate (velocidade ou dano), roubar ouro, ouro ao abater, erguer esqueleto aliado. Padrões de ataque novos: **bênção** (aura de dano/alcance/velocidade/crítico/proteção), **golpe em área ao redor de si** e **raio que atravessa em linha**.
@@ -342,6 +346,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | F10: raça Necromante (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Górgona (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Demônio (3 classes com vertentes + herói) |
+| 07/10/2026 | F10: raça Anjo (3 classes com vertentes + herói) |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.

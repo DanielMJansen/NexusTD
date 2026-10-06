@@ -1,7 +1,7 @@
 // Heróis jogáveis: um por raça. O Cavaleiro (Humano) é o inicial; os outros custam Essência.
 // Valores PROPOSTA: calibrar em playtest.
 
-export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus' | 'deathLord' | 'gorgonQueen' | 'archdemon';
+export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus' | 'deathLord' | 'gorgonQueen' | 'archdemon' | 'archangel';
 
 export type HeroAttack = {
   damage: number;
@@ -237,6 +237,19 @@ export const HEROES: Record<HeroId, HeroDef> = {
     raceBonus: { kind: 'critChance', value: 0.1 },
     color: '#ff4a2a',
     maxHp: 130,
+    cost: 280,
+  },
+  archangel: {
+    id: 'archangel',
+    name: 'Arcanjo',
+    race: 'Anjo',
+    description: 'Espada de luz rápida. O Juízo dispara um raio sagrado em linha que atravessa o campo.',
+    speed: 125,
+    attack: { damage: 11, range: 60, cooldown: 0.5, pattern: { kind: 'single' }, healPerHit: 0 },
+    pulse: { name: 'Juízo', damage: 70, radius: 0, cooldown: 12, healPerEnemy: 0, shape: { kind: 'beam', length: 220, width: 22 } },
+    raceBonus: { kind: 'vsStrong', value: 0.25 },
+    color: '#ffe9a8',
+    maxHp: 120,
     cost: 280,
   },
 };

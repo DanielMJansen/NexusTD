@@ -12,6 +12,7 @@ const GOLD = '#ffd25a';
 
 /** Cores do Pulso de cada herói. */
 const PULSE_LOOK: Record<HeroId, { ring: string; inner: string; particle: string }> = {
+  archangel: { ring: '#fff6c0', inner: '#ffffff', particle: '#ffe9a8' },
   archdemon: { ring: '#ff4a2a', inner: '#ffd25a', particle: '#ff8a2a' },
   gorgonQueen: { ring: '#ffd25a', inner: '#c8ff6a', particle: '#9a9a9a' },
   deathLord: { ring: '#7affb0', inner: '#1e2e28', particle: '#9affc8' },
