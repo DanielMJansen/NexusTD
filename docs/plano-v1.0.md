@@ -129,6 +129,12 @@ Decisão de 06/10/2026: entram **Necromante, Golem, Fada, Górgona, Demônios, A
 | Górgona | Arqueira Serpente (veneno que perfura) · Medusa (olhar petrifica) · Basilisco (ácido que reduz armadura) | Rainha Górgona (Pulso petrifica em leque) |
 | Demônios, Anjos, Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais | a definir no lote | a definir |
 
+### Decisões de 07/10/2026
+- Propostas de `docs/proposta-f9-f10.md` **aprovadas**: F9 (6 terceiras classes, sem cura do Nexus) e F10 com 6 raças (Fada, Golem, Necromante, Górgona, Demônios, Anjos), uma raça por commit, sem parar entre elas.
+- Depois do F10: **recalibragem completa** (XP do herói, valores dos talentos, força de cada raça/personagem, escalonamento do Sem Fim). O jogo está fácil demais até a onda 20 e no Sem Fim, conforme a build.
+- Depois da recalibragem: **revisar com o usuário os Pulsos de cada herói**.
+- As outras 6 raças (Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais) ficam para um lote seguinte, também com proposta antes.
+
 ## 4. Ordem sugerida
-F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8 (vertentes) → F9 (terceiras classes) → F10+ (raças novas em lotes de 2).
+F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8 (vertentes) → F9 (terceiras classes) → F10 (6 raças, uma por commit) → recalibragem completa → revisão dos Pulsos → próximas raças.
 O F1 e o F2 não dependem de decisão e começam já. A partir do F3, cada etapa espera as decisões correspondentes. O F5 (dificuldade) só deve ser calibrado depois do F3 e do F4, porque melhorias e herói mudam muito o poder do jogador. A calibragem usa a simulação, com o bot passando a usar ouro e a mover o herói.
