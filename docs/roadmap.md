@@ -21,6 +21,7 @@ Regras e valores do jogo ficam no [GDD](GDD.md); números exatos em [valores.md]
 
 - **Fases antes da Ascensão.** Cada fase nova traz um bioma, inimigos e chefes próprios **e destrava uma mecânica nova para o jogo todo** — a sensação de progressão vem de "o jogo cresce", não só de "mais uma fase para vencer".
 - **Moedas novas** entram junto com as fases (Fragmentos a partir de uma fase intermediária).
+- **Referências**: usar jogos do gênero como base e melhorar a partir deles (ex.: Soulstone Survivors para o HUD; Kingdom Rush/Bloons para vertentes; Slay the Spire/Hades para Ascensão).
 - **Steam fica para depois**, quando houver conteúdo suficiente. Até lá: web (GitHub Pages; itch.io quando fizer sentido).
 - Nome: **Nexus TD** (adotado em 07/10/2026; pode mudar antes de lojas).
 
