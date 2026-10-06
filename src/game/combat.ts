@@ -4,7 +4,7 @@ import { applyHitEffects, isHostile, onEnemyKilled, sourceDamageMultiplier, vuln
 import { heroTransform } from './pulses';
 import { WAVES } from '../data/waves';
 import { enemyArmor, shieldFactor } from './enemies';
-import { grantXp, healHero } from './hero';
+import { grantXp, healHero, heroRange } from './hero';
 import { dropLoot } from './loot';
 import { spawnEnemyAt } from './spawning';
 import { random } from './random';
@@ -159,7 +159,7 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
   if (hero.attackTimer > 0) return;
   const attack = hero.def.attack;
   let target: Enemy | null = null;
-  const range = attack.range * (1 + state.heroStats.range);
+  const range = heroRange(state);
   let best = range;
   for (const enemy of state.enemies) {
     if (!isHostile(enemy)) continue;

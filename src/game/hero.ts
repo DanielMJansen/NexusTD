@@ -14,6 +14,10 @@ import { distance, type RunState } from './state';
 
 // Vida, XP e níveis do herói durante a run.
 
+/** Alcance do ataque do herói: base × bônus de alcance da run/talentos × melhorias do herói (somam por categoria). */
+export const heroRange = (state: RunState): number =>
+  state.hero.def.attack.range * state.modifiers.range * (1 + state.heroStats.range);
+
 export const heroMaxHp = (state: RunState): number =>
   state.hero.def.maxHp + state.talents.heroMaxHp + state.heroStats.maxHp;
 

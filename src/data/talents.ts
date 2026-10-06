@@ -20,7 +20,7 @@ export type TalentEffectKind =
   | 'killGold' // fração extra de ouro por abate
   | 'damage' // fração de dano das criaturas e do herói
   | 'attackSpeed' // fração de velocidade de ataque
-  | 'range' // fração de alcance das criaturas
+  | 'range' // fração de alcance das criaturas e do herói
   | 'creatureSlots' // vagas extras de criatura
   | 'heroDamage' // fração de dano do herói
   | 'heroMaxHp' // +vida máxima do herói
@@ -231,7 +231,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     branch: 'army',
     name: 'Olhos Atentos',
     icon: '◎',
-    description: 'Criaturas alcançam mais longe.',
+    description: 'Criaturas e herói alcançam mais longe.',
     costs: [60, 120, 180],
     effect: { kind: 'range', perLevel: 0.04 },
     requires: { id: 'armySpeed', level: 1 },

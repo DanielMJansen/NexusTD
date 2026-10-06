@@ -25,7 +25,7 @@ export const TIER_WEIGHTS = {
 export type UpgradeEffectKind =
   | 'damage' // +fração de dano (criaturas e herói)
   | 'attackSpeed' // +fração de velocidade de ataque
-  | 'range' // +fração de alcance (criaturas)
+  | 'range' // +fração de alcance (criaturas e herói)
   | 'gold' // +ouro na hora
   | 'nexusMaxHp' // +vida máxima (e cura o mesmo)
   | 'nexusHeart' // +vida máxima e cura total
@@ -84,7 +84,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     id: 'keenEye',
     name: 'Olhar Aguçado',
     icon: '◎',
-    text: '+{v} de alcance',
+    text: '+{v} de alcance (criaturas e herói)',
     kind: 'range',
     format: 'percent',
     values: { common: 0.05, uncommon: 0.08, rare: 0.12, epic: 0.18, legendary: 0.28 },

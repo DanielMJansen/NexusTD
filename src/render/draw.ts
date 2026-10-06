@@ -4,7 +4,7 @@ import { CREATURES, type CreatureId } from '../data/creatures';
 import { MAX_CREATURE_LEVEL } from '../data/evolution';
 import { ascendedForm, creatureAbility, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
 import { canEvolve, needsBranchChoice } from '../game/economy';
-import { heroMaxHp } from '../game/hero';
+import { heroMaxHp, heroRange } from '../game/hero';
 import type { Creature, Enemy, Point, Pool, RunState } from '../game/state';
 import { drawAtmosphere, drawBackground, drawNexus } from './arena';
 import type { Effects } from './effects';
@@ -529,7 +529,7 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
   ctx.setLineDash([4, 5]);
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.arc(hero.x, hero.y, hero.def.attack.range * (1 + state.heroStats.range), 0, TAU);
+  ctx.arc(hero.x, hero.y, heroRange(state), 0, TAU);
   ctx.fill();
   ctx.stroke();
   ctx.restore();
