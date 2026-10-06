@@ -1,4 +1,6 @@
-# Nexus — GDD v0.9
+# Nexus — GDD
+
+Documento de design (regras, decisões). Plano e propostas: [roadmap.md](roadmap.md). Números exatos: [valores.md](valores.md).
 
 **Status das decisões:** `DECIDIDO` · `PROPOSTA` (testar) · `TBD` (em aberto) · `FEITO` (implementado no protótipo)
 **Regra:** nada vira `DECIDIDO` sem entrar no Registro de Decisões (seção 12). Valores numéricos estão na seção 9 e são ponto de partida de balanceamento, não verdade final.
@@ -141,7 +143,7 @@ Cartas verdes quando dá para invocar e vermelhas sem ouro ou sem vaga (não dei
 Painel lateral com retrato, custo, atalho e tooltip (descrição, atributos, habilidade, forma evoluída e bônus do herói). Coleção com ficha de cada criatura (descrição, lore, atributos, forma evoluída).
 
 ## 8. Modos
-**Run normal:** 20 ondas, chefes nas ondas 7, 14 e 20. **Sem Fim** `FEITO`: depois da vitória, a mesma run pode seguir; as ondas continuam escalando, com um chefe a cada 5 ondas (Rei Ogro → Rainha Aranha → Lich, em rodízio). A vitória e a Essência das 20 ondas são pagas na hora; a Essência das ondas extras vem quando o Nexus cair. O perfil guarda a onda mais alta. **Campanha** (estágios) segue fora do MVP.
+**Run normal:** 20 ondas, chefes nas ondas 7, 14 e 20. **Sem Fim** `FEITO`: depois da vitória, a mesma run pode seguir; as ondas continuam escalando, com um chefe a cada 5 ondas (Rei Ogro → Rainha Aranha → Lich, em rodízio). A vitória e a Essência das 20 ondas são pagas na hora; a Essência das ondas extras vem quando o Nexus cair. O perfil guarda a onda mais alta. **Fases** (`PROPOSTA`, ver roadmap F12–F16): a run atual vira a Fase 1 (Cemitério); cada fase nova traz bioma, inimigos, chefes e uma regra de mapa, e destrava uma mecânica para o jogo todo (Fragmentos, Sinergias, Relíquias, Ascensão e Desafio diário). Ascensão vem depois das fases.
 
 ## 9. Valores atuais do protótipo
 Todos `PROPOSTA` até o playtest. **Os números exatos ficam em [`docs/valores.md`](valores.md)**, gerado a partir de `src/data` com `npm run docs:values` (criaturas, vertentes, heróis, Pulsos, inimigos, ondas, talentos, Nexus, loot, XP). Esta seção guarda as regras e a calibragem.
@@ -155,7 +157,7 @@ Todos `PROPOSTA` até o playtest. **Os números exatos ficam em [`docs/valores.m
 - Sem Fim: além disso, por onda depois da 20, vida ×1,08 e dano ×1,05 (exponencial) e elites até 35%.
 - XP do herói para o próximo nível: 15 + 12·(n − 1) + 3·(n − 1)² (≈ nível 14–15 numa vitória; Sem Fim vai além).
 - Dano do Pulso: × (1 + 0,1 × (nível do herói − 1)), além dos talentos e melhorias do herói. Pulsos que curam, curam o **herói** (nunca o Nexus).
-- **Pulsos com personalidade** (`docs/proposta-pulsos.md`): Carga Heroica (Cavaleiro), Revoada que caça (Vampiro), Lança-Chamas contínuo (Draconato), Fúria Lunar (Licantropo vira lobisomem gigante), Travessia que desliza (Espectro), Feitiço do Sapo (Bruxa), Bênção Feérica (Fada), Fenda Sísmica (Colosso), Erguer Mortos dos caídos (Senhor dos Mortos), Olhar Fatal (Górgona; petrificados se despedaçam), Chuva de Meteoros (Arquidemônio), Juízo Celestial (Arcanjo). Pulsos direcionais miram no mouse ou no WASD.
+- **Pulsos com personalidade** (`docs/arquivo/proposta-pulsos.md`): Carga Heroica (Cavaleiro), Revoada que caça (Vampiro), Lança-Chamas contínuo (Draconato), Fúria Lunar (Licantropo vira lobisomem gigante), Travessia que desliza (Espectro), Feitiço do Sapo (Bruxa), Bênção Feérica (Fada), Fenda Sísmica (Colosso), Erguer Mortos dos caídos (Senhor dos Mortos), Olhar Fatal (Górgona; petrificados se despedaçam), Chuva de Meteoros (Arquidemônio), Juízo Celestial (Arcanjo). Pulsos direcionais miram no mouse ou no WASD.
 
 **Calibragem de 07/10/2026** (simulação real, 30 runs por equipe; bot que invoca, evolui escolhendo vertentes ao acaso, compra vagas e Nexus, abre baús, busca loot e usa o Pulso; cada raça com o Arqueiro + suas 3 classes e o próprio herói). Talentos comprados do mais barato para o mais caro:
 
@@ -169,7 +171,7 @@ Todos `PROPOSTA` até o playtest. **Os números exatos ficam em [`docs/valores.m
 Depois dos Pulsos novos (mesma média: ~25% sem talentos, ~68% com 2.500 ✦): Bruxa, Fantasma, Lobisomem e Fada no topo (~85–95% com 2.500 ✦); Necromante, Humano e Anjo embaixo (~35–45%). Revisar com playtest real: o bot não posiciona criaturas nem move o herói como um jogador.
 
 ## 10. Monetização (adiada)
-Nada no MVP. Opções futuras: venda direta, cosméticos (as skins já existem como base), passe de batalha, doação. Gacha pago exige checar regras (no Brasil, ECA Digital sobre caixas de recompensa, além das lojas). Evitar economia com troca entre jogadores.
+Nada por enquanto. Direção de 07/10/2026: demo grátis na web; versão paga na Steam só quando houver bem mais conteúdo (fases), com DLCs de conteúdo e cosméticos. Sem moeda paga, sem gacha pago (save local editável; ECA Digital e lojas restringem caixas de recompensa). Gacha só com moeda do jogo e só cosmético (Altar de Variantes, `PROPOSTA` no roadmap).
 
 ## 11. Riscos
 Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heróis) · combinações demais para balancear "no feeling" (usar simulação) · humanos obsoletos após as criaturas · herói roubando o protagonismo · posição irrelevante · power creep da Essência.
@@ -191,7 +193,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 05/10/2026 | Guarda = bloqueio de até 2 inimigos (chefes passam); Sanguinário = abates curam o Nexus |
 | 05/10/2026 | Herói começa Humano; outras raças de herói desbloqueáveis com Essência |
 | 05/10/2026 | Próximas raças: Lobisomem, Fantasma e Bruxa |
-| 05/10/2026 | Myth TD como referência de meta-progressão (plano em `docs/plano-v0.9.md`) |
+| 05/10/2026 | Myth TD como referência de meta-progressão (plano em `docs/arquivo/plano-v0.9.md`) |
 | 05/10/2026 | Equipe de até 6 criaturas da coleção, toda disponível desde a onda 1; **ovos removidos**; primeiro companheiro místico grátis |
 | 05/10/2026 | Um herói jogável por raça; skins dos heróis liberadas por conquistas |
 | 05/10/2026 | Moeda permanente única: Essência (talentos, criaturas, heróis) |
@@ -217,6 +219,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | Melhorias do herói mostram o total acumulado (carta "Agora → depois", "Seu herói agora", "Seus bônus" entre ondas); tooltip do Pulso mostra dano, área e recarga atuais da run |
 | 07/10/2026 | Desempenho: brilho (shadowBlur) e filtros dos personagens aplicados uma vez por sprite (camada), olhos brilhantes com halo pré-desenhado; com ~70 inimigos o quadro caiu de ~57 ms para ~32 ms no teste. Coleção: desbloquear pede confirmação mostrando a Essência que sobra e redesenha no mesmo lugar, com a criatura liberada em destaque |
 | 07/10/2026 | Grito da Banshee: cada inimigo só é empurrado/assustado de novo após um tempo (base 2 s, Ancestral 2,5 s, Arauto do Pavor 3,5 s; o dano continua), evitando prender o mesmo inimigo para sempre. HUD: contador de inimigos da onda (restantes/total); ficha do herói (passar o mouse no chip do herói e na pausa). Fora da run, o topo mostra o perfil (Essência, melhor onda, coleção, heróis, vitórias) e esconde HUD, painel, pausa e velocidade. Heróis: compra pede confirmação. Ataque do Enxame com morcegos visíveis e mordida |
+| 07/10/2026 | Documentação unificada (GDD + roadmap + checklist + valores; antigos em `docs/arquivo/`). Direção: fases novas antes da Ascensão, cada fase destrava uma mecânica para o jogo todo; Fragmentos a partir de uma fase intermediária; Steam só com mais conteúdo; sem gacha pago |
 | 07/10/2026 | Arqueira da Górgona vira Domadora de Serpentes (evita dois arqueiros; mesma função e vertentes); jogo pausa sozinho ao perder o foco no meio de uma onda |
 | 07/10/2026 | Inimigos param no Nexus e golpeiam até morrer; velocidade 0x (tempo parado sem pausa, tecla 0); melhorias de Pulso no nível do herói (Pulso Ampliado, Eco do Pulso); melhoria da run Sabedoria (+XP); animação de ataque para todos os inimigos; recalibrado |
 | 07/10/2026 | Heróis do F10 com 3 skins cada: vencer com o herói libera a 2ª; alcançar a onda 30 do Sem Fim com ele libera a 3ª (12 conquistas novas) |
@@ -228,7 +231,4 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.
 
 ## 13. Próximos passos
-2. Playtest com a nova dificuldade; ajustar as raças mais fortes/fracas.
-3. Próximo lote de raças (Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais), com proposta antes.
-2. Playtest com outras pessoas pelo GitHub Pages.
-3. Só depois decidir engine final e arte.
+Ver [roadmap.md](roadmap.md).
