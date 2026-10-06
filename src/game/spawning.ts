@@ -17,10 +17,12 @@ export function spawnInterval(wave: number): number {
 export function waveScaling(wave: number): { hp: number; speed: number; damage: number } {
   const s = WAVES.scaling;
   const o = Math.max(0, wave - 1);
+  // Sem Fim: escalada exponencial por onda além da última
+  const extra = Math.max(0, wave - WAVES.total);
   return {
-    hp: 1 + s.hp.linear * o + s.hp.quadratic * o * o,
+    hp: (1 + s.hp.linear * o + s.hp.quadratic * o * o) * (1 + WAVES.endless.hpGrowth) ** extra,
     speed: 1 + Math.min(s.maxSpeedBonus, s.speedPerWave * o),
-    damage: 1 + s.damagePerWave * o,
+    damage: (1 + s.damagePerWave * o) * (1 + WAVES.endless.damageGrowth) ** extra,
   };
 }
 
@@ -85,7 +87,8 @@ function spawnPoint(angle: number): Point {
 function eliteChance(wave: number): number {
   const e = WAVES.elites;
   if (wave < e.fromWave) return 0;
-  return Math.min(e.maxChance, e.chance + e.chancePerWave * (wave - e.fromWave));
+  const max = wave > WAVES.total ? WAVES.endless.eliteChance : e.maxChance;
+  return Math.min(max, e.chance + e.chancePerWave * (wave - e.fromWave));
 }
 
 /** Cria um inimigo já com a força da onda (e talvez elite). */

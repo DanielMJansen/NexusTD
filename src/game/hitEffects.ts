@@ -195,7 +195,7 @@ export function updateAlly(state: RunState, ally: Enemy, dt: number): void {
     ally.y += ((target.y - ally.y) / best) * step;
   } else {
     // dano de contato contra o inimigo (mínimo razoável para inimigos fracos)
-    damageEnemy(state, target, Math.max(10, ally.heroDps * 1.5) * dt, undefined, { ignoreArmor: true, overTime: true });
+    damageEnemy(state, target, Math.max(8, ally.heroDps) * dt, undefined, { ignoreArmor: true, overTime: true });
   }
   ally.x = Math.min(ARENA.width + 20, Math.max(-20, ally.x));
   ally.y = Math.min(ARENA.height + 20, Math.max(-20, ally.y));

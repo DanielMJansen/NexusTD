@@ -14,8 +14,7 @@ import {
 import { evolveCost, needsBranchChoice, sellValue } from '../game/economy';
 import { drawPortrait } from '../render/portrait';
 import { gold } from './currency';
-import { abilityText, ascendedFormsHtml, creatureStats, formatNumber } from './describe';
-import { pulseText, raceBonusText } from './heroesScreen';
+import { abilityText, ascendedFormsHtml, creatureStats, formatNumber, pulseText, raceBonusText } from './describe';
 import type { HeroDef, HeroId } from '../data/heroes';
 
 interface Card {

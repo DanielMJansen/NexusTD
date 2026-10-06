@@ -1,6 +1,7 @@
 import { ECONOMY } from '../data/config';
 import type { AscendedForm, CreatureAbility, CreatureDef, HitEffect } from '../data/creatures';
 import { ENEMIES, type EnemyTrait } from '../data/enemies';
+import type { HeroDef, RaceBonus } from '../data/heroes';
 import type { TalentEffectKind } from '../data/talents';
 
 export const formatNumber = (n: number): string => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
@@ -235,4 +236,59 @@ export function talentEffectText(kind: TalentEffectKind, value: number): string 
     case 'heroXp':
       return `+${pct(value)} de XP do herói`;
   }
+}
+
+/** Bônus do herói para as criaturas da raça dele, em texto. */
+export function raceBonusText(race: string, bonus: RaceBonus): string {
+  const plural = `Criaturas da raça ${race}`;
+  switch (bonus.kind) {
+    case 'range':
+      return `${plural}: +${Math.round(bonus.value * 100)}% de alcance.`;
+    case 'damage':
+      return `${plural}: +${Math.round(bonus.value * 100)}% de dano.`;
+    case 'killHeal':
+      return `${plural}: cada abate cura ${bonus.value} de vida do Nexus.`;
+    case 'attackSpeed':
+      return `${plural}: +${Math.round(bonus.value * 100)}% de velocidade de ataque.`;
+    case 'armorPierce':
+      return `${plural}: ignoram ${bonus.value} de armadura.`;
+    case 'poisonDuration':
+      return `${plural}: venenos, poças e efeitos de golpe duram +${bonus.value} s.`;
+    case 'critChance':
+      return `${plural}: +${Math.round(bonus.value * 100)}% de chance de crítico.`;
+    case 'vsStrong':
+      return `${plural}: +${Math.round(bonus.value * 100)}% de dano contra elites e chefes.`;
+  }
+}
+
+/** Ataque básico do herói, em texto. */
+export function attackText(def: HeroDef): string {
+  const a = def.attack;
+  const area = a.pattern.kind === 'cone' ? 'em leque (todos à frente)' : 'num alvo';
+  const heal =
+    (a.healPerHit > 0 ? ` Cada golpe cura ${formatNumber(a.healPerHit)} do Nexus.` : '') +
+    (a.pierceArmor ? ' Ignora armadura.' : '');
+  return `${a.damage} de dano ${area} a cada ${formatNumber(a.cooldown)} s, alcance ${a.range}.${heal}`;
+}
+
+/** Pulso do herói, em texto (com o nome em negrito). */
+export function pulseText(def: HeroDef): string {
+  const p = def.pulse;
+  const heal = p.healPerEnemy > 0 ? ` Cura ${p.healPerEnemy} do Nexus por inimigo atingido.` : '';
+  const fear = p.fear ? ` Inimigos fogem do Nexus por ${p.fear} s.` : '';
+  const poison = p.poison ? ` Envenena: ${p.poison.dps}/s por ${p.poison.duration} s.` : '';
+  const stun = p.stun ? ` ${p.stun.look === 'stone' ? 'Petrifica' : 'Atordoa'} por ${formatNumber(p.stun.duration)} s (chefes resistem).` : '';
+  const haste = p.haste ? ` Todas as criaturas atacam ${Math.round(p.haste.amount * 100)}% mais rápido por ${formatNumber(p.haste.duration)} s.` : '';
+  const raise = p.raise ? ` Ergue ${p.raise.count} esqueletos aliados por ${formatNumber(p.raise.duration)} s.` : '';
+  const cost = p.selfDamage ? ` Custa ${Math.round(p.selfDamage * 100)}% da vida do herói.` : '';
+  const area =
+    p.shape?.kind === 'dash'
+      ? `investida de ${p.shape.length} que atravessa o campo`
+      : p.shape?.kind === 'cone'
+        ? `leque à frente (alcance ${p.shape.length})`
+        : p.shape?.kind === 'beam'
+          ? `raio em linha (alcance ${p.shape.length})`
+          : `raio de ${p.radius}`;
+  const damage = p.damage > 0 ? `${p.damage} de dano, ` : '';
+  return `<b>${p.name}</b>: ${damage}${area}, recarga ${p.cooldown} s.${heal}${fear}${poison}${stun}${haste}${raise}${cost}`;
 }

@@ -2,14 +2,15 @@
 
 ## Projeto
 Jogo de **navegador para computador** (paisagem 16:9, mouse e teclado): Tower Defense + Survivor + Roguelite + Coleção de Criaturas místicas. TypeScript + Vite + Canvas 2D, publicado no GitHub Pages (https://danielmjansen.github.io/NexusTD/, repositório `DanielMJansen/NexusTD`). O nome "Nexus" é provisório.
-**Fonte de verdade do design:** `docs/Nexus_GDD_v0_9_PT-BR.md` (valores numéricos na seção 9).
-**Plano em andamento:** `docs/plano-v0.9.md` (etapas com status).
+**Fonte de verdade do design:** `docs/Nexus_GDD_v0_9_PT-BR.md` (regras e calibragem na seção 9; números exatos em `docs/valores.md`, gerado).
+**Plano em andamento:** `docs/plano-v1.0.md` (etapas com status).
 
 ## Comandos
 - `npm install` · `npm run dev` (http://localhost:5173) · `npm run typecheck` · `npm run build` (typecheck + build) · `npm run preview`
 - Deploy: push na branch `main` (workflow em `.github/workflows/deploy.yml`, Node 24).
 - Em `npm run dev`, o app fica em `window.nexus` no console (ex.: `nexus.run.gold = 999`) para testes.
 - Regressão manual: `docs/checklist-regressao.md`.
+- `npm run docs:values` gera `docs/valores.md` (números atuais lidos de `src/data`); rode após mudar balanceamento.
 
 ## Arquitetura (`src/`)
 - `data/` — tudo que é conteúdo e balanceamento, como dados: `config` (arena, Nexus, economia, loja, recompensas), `creatures` (criaturas, habilidades e efeitos de golpe como uniões discriminadas, duas vertentes no nível 3, descrição/lore), `evolution`, `heroes` (um por raça: ataque, Pulso, bônus de raça), `enemies` (habilidades como uniões discriminadas), `waves` (20 ondas, escalonamento, elites, Sem Fim), `heroUpgrades`, `nexusUpgrades` (melhorias do Nexus e loot), `upgrades` (melhorias da run), `talents` (árvore), `achievements`, `skins`.

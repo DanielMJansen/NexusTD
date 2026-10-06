@@ -144,163 +144,26 @@ Painel lateral com retrato, custo, atalho e tooltip (descrição, atributos, hab
 **Run normal:** 20 ondas, chefes nas ondas 7, 14 e 20. **Sem Fim** `FEITO`: depois da vitória, a mesma run pode seguir; as ondas continuam escalando, com um chefe a cada 5 ondas (Rei Ogro → Rainha Aranha → Lich, em rodízio). A vitória e a Essência das 20 ondas são pagas na hora; a Essência das ondas extras vem quando o Nexus cair. O perfil guarda a onda mais alta. **Campanha** (estágios) segue fora do MVP.
 
 ## 9. Valores atuais do protótipo
-Todos `PROPOSTA` até o playtest. Balanceados por simulação (30 runs por equipe/herói; bot que gasta ouro, evolui, compra vagas, escolhe melhorias e deixa o herói parado). Com o F6 o bot também compra melhorias do Nexus quando o exército está no máximo e busca loot a até 140 do herói. Resultado: bruxas 30/30, fantasmas 30/30, lobisomens 24/30, vampiros 23/30, humanos + dragões 9/30, só arqueiro 8/30 (média ~69%); gasta ~2.000–3.000 de ouro no Nexus e abre ~3–6 baús por run; sobram 200–500 de ouro.
+Todos `PROPOSTA` até o playtest. **Os números exatos ficam em [`docs/valores.md`](valores.md)**, gerado a partir de `src/data` com `npm run docs:values` (criaturas, vertentes, heróis, Pulsos, inimigos, ondas, talentos, Nexus, loot, XP). Esta seção guarda as regras e a calibragem.
 
-**Nexus:** 100 de vida (+10 de cura entre ondas). **Ouro inicial:** 30. **Renda passiva:** +1 a cada 2 s. **Limite de criaturas:** 5.
-**Custo:** base × 1,5^(cópias já posicionadas da classe). **Venda:** 60% de tudo que foi pago.
+**Regras de cálculo**
+- Custo de invocar: base × 1,5^(cópias da mesma classe em campo). Evoluir: 1,5× (nível 2) e 3× (nível 3) o custo daquela cópia; vender devolve 60% do pago.
+- Dano por golpe contra armadura = `max(1, dano − armadura)`; veneno, poças e auras que ferem ignoram armadura. Marca e vulnerável multiplicam o dano de todas as fontes.
+- Melhorias da run: % somam dentro da categoria (com os talentos); categorias diferentes multiplicam.
+- Força dos inimigos por onda (o = onda − 1): vida × (1 + 0,18·o + 0,026·o²); velocidade +2%/onda (máx. +40%); dano +6%/onda. Quantidade = 4 + 3 × onda.
+- Sem Fim: além disso, por onda depois da 20, vida ×1,08 e dano ×1,05 (exponencial) e elites até 35%.
+- XP do herói para o próximo nível: 15 + 12·(n − 1) + 3·(n − 1)² (≈ nível 14–15 numa vitória; Sem Fim vai além).
 
-| Criatura | Custo base | Dano | Alcance | Recarga | Especial | Desbloqueio |
-|---|---|---|---|---|---|---|
-| Arqueiro | 15 | 7 | 120 | 0,7 s | — | inicial |
-| Guarda | 20 | 5 | 45 | 0,8 s | Bloqueio: 2 inimigos, raio 30 | 30 ✦ |
-| Duelista | 20 | 8 | 90 | 0,5 s | Frenesi: 6 golpes → 3 s, ×1,5 dano, 2× vel. | 40 ✦ |
-| Sanguinário | 25 | 6 | 100 | 0,8 s | Abate cura 2 | 50 ✦ |
-| Dragão Fogo | 30 | 14 | 110 | 1,4 s | Área raio 40, 60% | 80 ✦ |
-| Dragão Gelo | 25 | 4 | 100 | 1,0 s | Lentidão 50% por 1,5 s | 80 ✦ |
-| Caçador | 25 | 12 | 75 | 0,6 s | Cadeia: 2 saltos, raio 60, 80% por salto | 60 ✦ |
-| Alfa | 30 | 10 | 65 | 0,6 s | Aura: raio 80, +25% vel. de ataque | 70 ✦ |
-| Assombração | 25 | 8 | 100 | 0,7 s | Ignora armadura | 60 ✦ |
-| Banshee | 30 | 5 | 80 | 1,2 s | Leque ±0,5 rad, empurra 22 | 70 ✦ |
-| Feiticeira | 25 | 6 | 110 | 0,8 s | Veneno 11/s por 3 s | 60 ✦ |
-| Caldeirão | 35 | 5 | 100 | 1,8 s | Poça raio 30, 16/s por 3 s | 80 ✦ |
-| Clériga | 25 | 5 | 90 | 1,0 s | Bênção raio 80: +15% dano | 70 ✦ |
-| Enxame | 30 | 6 | 95 | 1,0 s | Área raio 32 com 100% (voa) | 80 ✦ |
-| Tempestade | 30 | 9 | 105 | 1,1 s | Cadeia: 3 saltos, raio 70, 85% (voa) | 80 ✦ |
-| Uivador | 30 | 4 | 70 | 3,0 s | Uivo em área raio 70; 60% de medo por 1,5 s | 70 ✦ |
-| Possessor | 35 | 4 | 90 | 4,0 s | Possui o alvo por 4 s (chefes resistem) (voa) | 90 ✦ |
-| Herbalista | 25 | 5 | 100 | 1,1 s | 35% de prender em raízes por 1,4 s | 70 ✦ |
+**Calibragem de 07/10/2026** (simulação real, 30 runs por equipe; bot que invoca, evolui escolhendo vertentes ao acaso, compra vagas e Nexus, abre baús, busca loot e usa o Pulso; cada raça com o Arqueiro + suas 3 classes e o próprio herói). Talentos comprados do mais barato para o mais caro:
 
-Criaturas atacam o inimigo mais próximo do Nexus dentro do alcance.
-
-**Evolução:** nível 2 custa 1,5 × o custo de invocação daquela cópia (+50% dano, +10% alcance); nível 3 custa 3 × esse custo (+120% dano, +20% alcance) e o jogador **escolhe uma de duas vertentes** (forma evoluída com nome, habilidade, aura e emblema próprios). A melhoria Ascensão sorteia a vertente.
-
-| Criatura | Vertente A | Vertente B |
+| Talentos | Vitórias (média das 12 raças + time misto) | Leitura |
 |---|---|---|
-| Arqueiro | Patrulheiro: multi-tiro 2 | Atirador de Elite: +35% crítico ×3,5; +30% alcance, ataca 15% mais devagar |
-| Guarda | Paladino: bloqueia 4 (raio 36) | Martelo Sagrado: 35% de atordoar por 1,2 s; +40% dano (sem bloqueio) |
-| Duelista | Conde Vampiro: frenesi a cada 4 golpes, 4 s, ×1,8 | Lâmina Carmesim: +40% crítico ×2,5; ataca 15% mais rápido |
-| Sanguinário | Lorde de Sangue: abate cura 4 | Mago de Sangue: cadeia 3 saltos (raio 60, 80%); +50% dano |
-| Dragão de Fogo | Dragão Ancião: área 60 com 80% | Wyrm Infernal: chão em chamas (raio 34, 20/s por 3 s) |
-| Dragão de Gelo | Dragão Glacial: lentidão 65% por 2,5 s | Dragão Congelante: 30% de congelar por 1,4 s; +30% dano |
-| Caçador | Caçador Lunar: cadeia 4 saltos (raio 65, 80%) | Caçador Feral: frenesi a cada 5 golpes, 3 s, ×1,6 dano, 1,8× vel. |
-| Alfa | Líder da Matilha: aura raio 100, +40% | Fera Devastadora: área 38 com 75%; +30% dano (sem aura) |
-| Assombração | Espírito Vingativo: +50% contra blindados | Aparição Gélida: lentidão 45% por 2 s; +60% dano (sem perfurar) |
-| Banshee | Banshee Ancestral: leque ±0,75 rad, empurra 34 | Arauto do Pavor: leque ±0,6 rad que assusta por 1,4 s; +30% dano |
-| Feiticeira | Arquibruxa: veneno 16/s por 4 s | Feiticeira do Caos: cadeia 3 saltos (raio 70, 85%); +140% dano, 15% mais rápida |
-| Caldeirão | Caldeirão Infernal: poça raio 40, 24/s por 4 s | Caldeirão Alquímico: poça dourada raio 32, 16/s por 3 s; +3 de ouro por inimigo que morre nela |
-| Clériga | Sacerdotisa: bênção raio 100, +25% dano e proteção (imune a teia/atordoar) | Inquisidora: sem bênção; 35% de atordoar por 1,2 s; +160% dano, +15% alcance |
-| Enxame | Nuvem Sangrenta: área raio 45; sangramento 6/s por 3 s | Revoada Faminta: +5% vel. de ataque por abate na onda (máx. +75%) |
-| Tempestade | Dragão do Trovão: 6 saltos, raio 75, 88% | Olho da Tormenta: 3 saltos; 30% de atordoar por 1 s |
-| Uivador | Uivo Lunar: raio 90; 85% de medo por 2,2 s; +20% alcance | Grito de Guerra: bênção raio 90, +35% vel. de ataque; ataca 2,5× mais rápido com o dobro de dano |
-| Possessor | Marionetista: possui 2 alvos por 4,5 s | Devorador: possui por 4 s e o possuído explode (raio 50, 60% da vida dele) |
-| Herbalista | Jardim Venenoso: 40% de raízes por 1,5 s + veneno 10/s por 3 s | Guardiã do Bosque: área raio 40 com 60%; 35% de raízes por 1,4 s |
+| Nenhum | ~23% | primeira run difícil; perder rende Essência |
+| ~1.000 ✦ (≈ 8 runs) | ~44% | |
+| ~2.500 ✦ (≈ 20 runs) | ~66% | |
+| Árvore completa (7.255 ✦) | ~93%; Sem Fim termina entre as ondas 24 e 40 (média ~32) | |
 
-Simulação (bot, 30 runs): todas A — 11/24/25/30/30/8 vitórias; todas B — 21/27/27/30/29/9 (humanos+dragões / vampiros / lobisomens / fantasmas / bruxas / só arqueiro). As duas vertentes são viáveis.
-**Loja entre ondas:** sortear de novo custa 10 (+10 a cada uso na run); +1 vaga custa 60, dobrando a cada compra, até +3 vagas.
-**Nexus (ouro, por nível):**
-
-| Melhoria | Custos | Efeito por nível |
-|---|---|---|
-| Vitalidade | 60 / 100 / 150 / 210 / 280 | +25 de vida máxima por nível (cura o mesmo ao comprar) |
-| Muralha | 70 / 120 / 180 / 250 / 330 | −6% / −12% / −18% / −24% / −30% de dano recebido (mínimo 1) |
-| Raio do Nexus | 120 / 220 / 350 | 10 a cada 1,3 s (alcance 105) · 16 a cada 1,1 s (120) · 24 a cada 0,9 s (135); usa o bônus de dano das melhorias |
-| Escudo | 120 / 200 / 300 | imune por 2 / 3 / 4 s; recarga 40 / 32 / 25 s |
-| Campo de Lentidão | 100 / 180 / 280 | −25% / −35% / −45% de velocidade num raio de 60 / 75 / 90 |
-
-Ordem de proteção do Nexus contra um golpe: Égide → Escudo → Muralha.
-**Loot:** moeda com 8% de chance (valor = 1,5 × ouro do inimigo, mínimo 2); baú: comum 0,2%, elite 6%, chefe 100%; some após 12 s de onda; raio de coleta 16 (Ímã: +50% por escolha, até 3).
-
-**Heróis**
-
-| Herói | Raça | Vel. | Ataque | Pulso | Bônus de raça | Preço |
-|---|---|---|---|---|---|---|
-| Cavaleiro | Humano | 115 | 10 a cada 0,5 s, alcance 60 | Onda de Choque: 35, raio 95, 12 s | +10% de alcance | inicial |
-| Nobre Vampiro | Vampiro | 125 | 8 a cada 0,45 s, alcance 55; cada golpe cura 0,5 | Revoada de Morcegos: 25, raio 100, 12 s; cura 1 por inimigo | abates curam 1 | 150 ✦ |
-| Draconato | Dragão | 105 | 8 em leque a cada 0,65 s, alcance 55 | Rugido Flamejante: 30, raio 130, 13 s | +10% de dano | 200 ✦ |
-| Licantropo | Lobisomem | 135 | 6 a cada 0,3 s, alcance 48 | Uivo: 15, raio 110, 12 s; medo 2 s | +15% vel. de ataque | 200 ✦ |
-| Espectro | Fantasma | 120 | 11 a cada 0,5 s, alcance 75, ignora armadura | Travessia: investida de 200 (largura 26), 45, 10 s | ignoram 2 de armadura | 220 ✦ |
-| Bruxa | Bruxa | 115 | 8 a cada 0,7 s, alcance 110 | Maldição: 10, raio 115, 12 s; veneno 8/s por 4 s | venenos e poças +1 s | 220 ✦ |
-
-**Herói vivo:** vida máxima Cavaleiro 120 · Nobre Vampiro 100 · Draconato 150 · Licantropo 110 · Espectro 90 · Bruxa 90. Dano de contato por segundo (raio 10) e XP por abate: na tabela de inimigos. Renascimento: 8 s. XP para o próximo nível: 10 + 8 × (n − 1) + 1,2 × (n − 1)² (≈ nível 17 numa run de 20 ondas).
-Melhorias do herói (somam): Lâmina Afiada +15% dano · Agilidade +12% vel. de ataque · Alcance +12% · Vigor +25 vida máx. · Recuperação +1,5 vida/s · Passos Rápidos +10% velocidade (até 4×) · Foco −10% recarga do Pulso (até 4×) · Pulso Potente +25% dano do Pulso · Sede cura 10% do dano causado (até 3×) · Espinhos 8 de dano/s a quem encosta · Couraça −15% de dano recebido (até 4×, máx. 60%).
-
-**Inimigos**
-
-| Inimigo | Vida | Vel. | Armadura | Dano ao Nexus | Dano ao herói/s | Ouro | XP | Habilidade | Onda |
-|---|---|---|---|---|---|---|---|---|---|
-| Zumbi | 20 | 30 | 0 | 5 | 8 | 3 | 3 | 30% de chance de bando de 3 | 1+ |
-| Morcego | 12 | 62 | 0 | 3 | 6 | 2 | 2 | voa em zigue-zague | 2+ |
-| Esqueleto Arqueiro | 18 | 26 | 0 | 5 | 4 | 4 | 3 | tiro no herói: 6 a cada 1,6 s, alcance 90; anda a 35% enquanto mira | 3+ |
-| Ogro | 90 | 18 | 3 | 15 | 16 | 8 | 7 | — | 4+ |
-| Lodo | 34 | 22 | 0 | 6 | 8 | 3 | 3 | vira 2 Lodinhos (10 de vida, vel. 34, 2 ao Nexus) | 5+ |
-| Aranha | 26 | 40 | 0 | 5 | 10 | 4 | 4 | teia a cada 4 s (alcance 80): criatura 50% mais lenta por 2,5 s | 6+ |
-| Gárgula | 50 | 44 | 1 | 8 | 10 | 6 | 5 | voa 2,5 s, pousa 1,5 s como pedra (+6 de armadura) | 8+ |
-| Cavaleiro Sem Cabeça | 80 | 24 | 2 | 10 | 18 | 8 | 7 | investida a cada 6 s: 2,6× vel. por 0,8 s | 9+ |
-| Banshee Sombria | 40 | 28 | 0 | 6 | 6 | 7 | 6 | cura 15% da vida de inimigos num raio de 70 a cada 4 s | 11+ |
-| Necromante | 55 | 20 | 1 | 10 | 8 | 9 | 8 | ergue 2 zumbis a cada 6 s | 12+ |
-| Rei Ogro (chefe) | 450 | 13 | 4 | 30 | 35 | 30 | 40 | pisão a cada 7 s: atordoa criaturas num raio de 75 por 1,2 s | 7 |
-| Rainha Aranha (chefe) | 600 | 15 | 3 | 35 | 30 | 45 | 60 | teia em até 3 criaturas (60%, 3 s, a cada 3,5 s); choca 2 aranhas a cada 7 s | 14 |
-| Lich (chefe final) | 800 | 12 | 4 | 60 | 40 | 80 | 100 | tiro no herói 14 a cada 1,4 s; 2 esqueletos a cada 8 s; escudo −80% de dano por 3 s a cada 12 s; abaixo de 50%: +40% vel. e recargas ×0,6 | 20 |
-
-Dano por golpe contra armadura = `max(1, dano − armadura)`; veneno e poças ignoram armadura.
-**Escalonamento** (o = onda − 1): vida × (1 + 0,15·o + 0,013·o²) (onda 20 ≈ ×8,5); velocidade +2% por onda (máx. +40%); dano ao Nexus e ao herói +5% por onda.
-**Sorteio por onda:** pesos Zumbi 10 (−0,3/onda, mín. 3) · Morcego 4 · Esqueleto 3 (+0,05) · Ogro 2 (+0,04) · Lodo 3 · Aranha 3 · Gárgula 2,5 · Cavaleiro 2 (+0,05) · Banshee 1,2 · Necromante 1 (+0,03), cada um a partir da sua onda.
-**Elites:** a partir da onda 8, chance 5% (+1% por onda, máx. 20%): vida ×2,5, dano ×1,5, ouro e XP ×2, tamanho ×1,15; 6% de chance de baú.
-**Arena:** 640 × 360 unidades (16:9), Nexus no centro.
-**Ondas (1–20):** quantidade = 4 + 2,5 × onda; intervalo de spawn = máx(0,3 s; 1,2 − 0,05 × onda) s; inimigos surgem 24 unidades além da borda da tela. **Essência** = 3 por onda + 1 a cada 5 abates + 30 ao vencer.
-**Melhorias temporárias (2.0)** `PROPOSTA`: 17 famílias com valor por tier — Comum / Incomum / Rara / Épica / Lendária. Pesos dos tiers vão de 62/27/9/2/0 (onda 1) a 28/30/22/13/7 (última onda). Os % **somam** com os talentos na mesma categoria; categorias diferentes multiplicam. Exemplos: Fúria (dano) 6/10/16/25/40% · Ritmo (vel. ataque) 5/8/13/20/32% · Olhar Aguçado (alcance) 5/8/12/18/28% · Precisão (crítico ×2) 3/5/8/12/18% · Laços de Sangue (dano de uma raça da equipe) 10/16/25/38/60% · Campeão (dano do herói) 8/12/20/30/45% · Concentração (recarga do Pulso, mín. 35%) 6/10/15/22/32% · Saque · Reforço · Raízes Vivas · Cobiça · Alquimia. Só tiers altos: Recrutamento (+vaga, Rara+), Égide Eterna (Rara), Ascensão (Épica +1 nível / Lendária +2), Coração do Nexus (Épica/Lendária), Sentença (Lendária: comuns abaixo de 10% morrem). A tela de escolha mostra "Seus bônus".
-**Essência por run:** (3 × onda alcançada + 1 por 5 abates + 30 se vencer) com os bônus de talento.
-
-**Árvore de talentos** (custos em Essência por nível)
-
-| Ramo | Nó (pré-requisito) | Níveis | Custo | Efeito por nível |
-|---|---|---|---|---|
-| Nexus | **Vitalidade do Nexus** | 5 | 20, 40, 60, 80, 100 | +15 de vida máxima |
-| Nexus | Restauração (Vitalidade 2) | 3 | 40, 80, 120 | +5 de cura entre ondas |
-| Nexus | Pulsar Vital (Restauração 1) | 2 | 100, 200 | +0,25 de vida/s |
-| Nexus | Égide Rúnica (Pulsar Vital 1) | 1 | 250 | anula o 1º golpe de cada onda |
-| Nexus+ | **Engenharia Arcana** | 3 | 40, 80, 120 | −8% no custo das melhorias do Nexus |
-| Nexus+ | Raio Desperto (Engenharia 1) | 1 | 150 | começa a run com o Raio do Nexus nível 1 |
-| Nexus+ | Campo Gélido (Raio Desperto 1) | 1 | 200 | começa a run com o Campo de Lentidão nível 1 |
-| Nexus+ | Escudo Ancestral (Campo Gélido 1) | 1 | 250 | começa a run com o Escudo nível 1 |
-| Ouro | **Tesouro Inicial** | 5 | 15, 30, 45, 60, 75 | +10 de ouro inicial |
-| Ouro | Fluxo Dourado (Tesouro 2) | 2 | 60, 120 | renda 0,25 s mais rápida |
-| Ouro | Alquimia (Fluxo 1) | 3 | 50, 100, 150 | −10% no custo de evoluir |
-| Ouro | Recompensa (Alquimia 1) | 2 | 100, 200 | +20% de ouro por abate |
-| Exército | **Fúria do Exército** | 5 | 20, 40, 60, 80, 100 | +8% de dano |
-| Exército | Prontidão (Fúria 2) | 3 | 60, 120, 180 | +6% vel. de ataque |
-| Exército | Olhos Atentos (Prontidão 1) | 3 | 60, 120, 180 | +6% de alcance |
-| Exército | Legião (Olhos Atentos 2) | 1 | 300 | +1 vaga de criatura |
-| Herói | **Força do Herói** | 3 | 30, 60, 90 | +15% de dano do herói |
-| Herói | Vigor (Força 1) | 3 | 30, 60, 90 | +15 de vida do herói |
-| Herói | Foco do Pulso (Vigor 1) | 3 | 50, 100, 150 | −10% na recarga do Pulso |
-| Herói | Passos Leves (Foco 1) | 2 | 40, 80 | +10% de velocidade do herói |
-| Herói | Renascer (Passos Leves 1) | 2 | 60, 120 | renasce 20% mais rápido |
-| Herói | Sabedoria (Renascer 1) | 3 | 50, 100, 150 | +10% de XP do herói |
-| Herói | Pulso Amplo (Sabedoria 2) | 1 | 200 | +20% de raio do Pulso |
-| Essência | **Colheita de Almas** | 5 | 30, 60, 90, 120, 150 | +10% de Essência por run |
-| Essência | Dízimo da Vitória (Colheita 2) | 2 | 80, 160 | +20 de Essência ao vencer |
-| Essência | Veterano (Dízimo 1) | 2 | 100, 200 | +1 de Essência por onda |
-
-As 3 melhorias permanentes antigas viraram as raízes (mesmo nível): dano → Fúria do Exército, vida → Vitalidade do Nexus, ouro → Tesouro Inicial.
-
-**Conquistas e skins**
-
-| Conquista | Meta | Skin liberada |
-|---|---|---|
-| Primeira Vitória | vencer uma run | — |
-| Juramento Cumprido | vencer com o Cavaleiro | Templário |
-| Intocável | vencer sem o Nexus abaixo de 50% | Cavaleiro Negro |
-| Noite Eterna | vencer com o Nobre Vampiro | Conde Carmesim |
-| Exterminador | 1000 abates no total | Lua de Sangue (Vampiro) |
-| Sangue de Dragão | vencer com o Draconato | Obsidiana |
-| Ascensão | 3 criaturas evoluídas ao mesmo tempo | Escama Dourada (Draconato) |
-| Lua Cheia | vencer com o Licantropo | Lobo Ártico |
-| Colecionador | todas as criaturas na coleção | Lobo Sombrio (Licantropo) |
-| Além do Véu | vencer com o Espectro | Fogo-Fátuo |
-| Maratonista | 25 runs | Ceifador (Espectro) |
-| Feitiço Perfeito | vencer com a Bruxa | Bruxa da Floresta |
-| Campeão | 10 vitórias | Bruxa da Lua |
+Diferença entre raças com ~2.500 ✦: Fantasma, Fada, Bruxa, Dragão e Lobisomem no topo (~85–95%); Humano e Necromante embaixo (~35–50%). Revisar com playtest real: o bot não posiciona criaturas nem move o herói como um jogador.
 
 ## 10. Monetização (adiada)
 Nada no MVP. Opções futuras: venda direta, cosméticos (as skins já existem como base), passe de batalha, doação. Gacha pago exige checar regras (no Brasil, ECA Digital sobre caixas de recompensa, além das lojas). Evitar economia com troca entre jogadores.
@@ -347,11 +210,14 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | F10: raça Górgona (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Demônio (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Anjo (3 classes com vertentes + herói) |
+| 07/10/2026 | Recalibragem completa: talentos bem mais fracos (Nexus+ e Legião mais caros), inimigos mais fortes e numerosos, Sem Fim com escalada exponencial, XP do herói mais lenta, raças aproximadas; valores exatos em `docs/valores.md` (gerado) |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.
 
 ## 13. Próximos passos
-1. Seguir o `docs/plano-v1.0.md`: terceira classe das raças atuais e equipe de 8 (F9), depois as 12 raças novas em lotes de 2 (F10+).
+1. Revisar com o usuário os Pulsos de cada herói.
+2. Playtest com a nova dificuldade; ajustar as raças mais fortes/fracas.
+3. Próximo lote de raças (Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais), com proposta antes.
 2. Playtest com outras pessoas pelo GitHub Pages.
 3. Só depois decidir engine final e arte.

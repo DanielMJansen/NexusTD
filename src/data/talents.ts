@@ -94,7 +94,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '♥',
     description: 'Aumenta a vida máxima do Nexus.',
     costs: linear(20, 5),
-    effect: { kind: 'nexusMaxHp', perLevel: 15 },
+    effect: { kind: 'nexusMaxHp', perLevel: 10 },
   },
   nexusMending: {
     id: 'nexusMending',
@@ -103,7 +103,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '✚',
     description: 'O Nexus cura mais ao fim de cada onda.',
     costs: [40, 80, 120],
-    effect: { kind: 'nexusHeal', perLevel: 5 },
+    effect: { kind: 'nexusHeal', perLevel: 3 },
     requires: { id: 'nexusVitality', level: 2 },
   },
   nexusRegen: {
@@ -113,7 +113,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '❦',
     description: 'O Nexus regenera vida aos poucos durante as ondas.',
     costs: [100, 200],
-    effect: { kind: 'nexusRegen', perLevel: 0.25 },
+    effect: { kind: 'nexusRegen', perLevel: 0.15 },
     requires: { id: 'nexusMending', level: 1 },
   },
   nexusWard: {
@@ -134,7 +134,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '⚙',
     description: 'As melhorias do Nexus na run custam menos ouro.',
     costs: [40, 80, 120],
-    effect: { kind: 'nexusUpgradeDiscount', perLevel: 0.08 },
+    effect: { kind: 'nexusUpgradeDiscount', perLevel: 0.05 },
   },
   awakenedBolt: {
     id: 'awakenedBolt',
@@ -142,7 +142,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     name: 'Raio Desperto',
     icon: 'ϟ',
     description: 'Toda run começa com o Raio do Nexus no nível 1.',
-    costs: [150],
+    costs: [250],
     effect: { kind: 'startNexusBolt', perLevel: 1 },
     requires: { id: 'nexusEngineering', level: 1 },
   },
@@ -152,7 +152,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     name: 'Campo Gélido',
     icon: '❄',
     description: 'Toda run começa com o Campo de Lentidão no nível 1.',
-    costs: [200],
+    costs: [350],
     effect: { kind: 'startNexusField', perLevel: 1 },
     requires: { id: 'awakenedBolt', level: 1 },
   },
@@ -162,7 +162,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     name: 'Escudo Ancestral',
     icon: '◈',
     description: 'Toda run começa com o Escudo do Nexus no nível 1.',
-    costs: [250],
+    costs: [450],
     effect: { kind: 'startNexusShield', perLevel: 1 },
     requires: { id: 'frostField', level: 1 },
   },
@@ -174,7 +174,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '◉',
     description: 'Começa cada run com mais ouro.',
     costs: linear(15, 5),
-    effect: { kind: 'startGold', perLevel: 10 },
+    effect: { kind: 'startGold', perLevel: 6 },
   },
   goldenFlow: {
     id: 'goldenFlow',
@@ -183,7 +183,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '⧗',
     description: 'A renda passiva de ouro chega mais rápido.',
     costs: [60, 120],
-    effect: { kind: 'incomeInterval', perLevel: 0.25 },
+    effect: { kind: 'incomeInterval', perLevel: 0.15 },
     requires: { id: 'startingGold', level: 2 },
   },
   cheapEvolution: {
@@ -193,7 +193,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '⚗',
     description: 'Evoluir criaturas fica mais barato.',
     costs: [50, 100, 150],
-    effect: { kind: 'evolveDiscount', perLevel: 0.1 },
+    effect: { kind: 'evolveDiscount', perLevel: 0.06 },
     requires: { id: 'goldenFlow', level: 1 },
   },
   bounty: {
@@ -203,7 +203,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '☠',
     description: 'Cada abate rende mais ouro.',
     costs: [100, 200],
-    effect: { kind: 'killGold', perLevel: 0.2 },
+    effect: { kind: 'killGold', perLevel: 0.1 },
     requires: { id: 'cheapEvolution', level: 1 },
   },
 
@@ -214,7 +214,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '⚔',
     description: 'Criaturas e herói causam mais dano.',
     costs: linear(20, 5),
-    effect: { kind: 'damage', perLevel: 0.08 },
+    effect: { kind: 'damage', perLevel: 0.04 },
   },
   armySpeed: {
     id: 'armySpeed',
@@ -223,7 +223,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '➶',
     description: 'Criaturas e herói atacam mais rápido.',
     costs: [60, 120, 180],
-    effect: { kind: 'attackSpeed', perLevel: 0.06 },
+    effect: { kind: 'attackSpeed', perLevel: 0.03 },
     requires: { id: 'armyDamage', level: 2 },
   },
   armyRange: {
@@ -233,7 +233,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '◎',
     description: 'Criaturas alcançam mais longe.',
     costs: [60, 120, 180],
-    effect: { kind: 'range', perLevel: 0.06 },
+    effect: { kind: 'range', perLevel: 0.04 },
     requires: { id: 'armySpeed', level: 1 },
   },
   legion: {
@@ -242,7 +242,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     name: 'Legião',
     icon: '✠',
     description: 'Mais uma vaga de criatura em campo.',
-    costs: [300],
+    costs: [400],
     effect: { kind: 'creatureSlots', perLevel: 1 },
     requires: { id: 'armyRange', level: 2 },
   },
@@ -254,7 +254,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '✪',
     description: 'O herói causa mais dano.',
     costs: [30, 60, 90],
-    effect: { kind: 'heroDamage', perLevel: 0.15 },
+    effect: { kind: 'heroDamage', perLevel: 0.1 },
   },
   heroVigor: {
     id: 'heroVigor',
@@ -263,7 +263,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '♥',
     description: 'O herói tem mais vida.',
     costs: [30, 60, 90],
-    effect: { kind: 'heroMaxHp', perLevel: 15 },
+    effect: { kind: 'heroMaxHp', perLevel: 10 },
     requires: { id: 'heroMight', level: 1 },
   },
   pulseFocus: {
@@ -273,7 +273,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '✺',
     description: 'O Pulso recarrega mais rápido.',
     costs: [50, 100, 150],
-    effect: { kind: 'pulseCooldown', perLevel: 0.1 },
+    effect: { kind: 'pulseCooldown', perLevel: 0.06 },
     requires: { id: 'heroVigor', level: 1 },
   },
   heroSwiftness: {
@@ -303,7 +303,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '❂',
     description: 'O herói ganha mais XP e sobe de nível mais rápido.',
     costs: [50, 100, 150],
-    effect: { kind: 'heroXp', perLevel: 0.1 },
+    effect: { kind: 'heroXp', perLevel: 0.06 },
     requires: { id: 'heroRebirth', level: 1 },
   },
   pulseReach: {
@@ -313,7 +313,7 @@ export const TALENTS: Record<TalentId, TalentDef> = {
     icon: '◌',
     description: 'O Pulso atinge uma área maior.',
     costs: [200],
-    effect: { kind: 'pulseRadius', perLevel: 0.2 },
+    effect: { kind: 'pulseRadius', perLevel: 0.12 },
     requires: { id: 'heroWisdom', level: 2 },
   },
 

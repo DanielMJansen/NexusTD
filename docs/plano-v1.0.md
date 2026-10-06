@@ -119,7 +119,7 @@ Como no Kingdom Rush / Bloons TD 6: níveis 1 e 2 lineares; no **nível 3 o joga
 Equipe passa de 6 para **8 vagas** (atalhos 1–8).
 - **Feito** (versão aprovada em 07/10, sem cura do Nexus): ver `docs/proposta-f9-f10.md`. Entrou o sistema de **efeitos de golpe** e os padrões bênção, área ao redor de si e raio em linha, que as raças do F10 reaproveitam. Painel com cartas compactas em duas colunas a partir de 6 criaturas. Calibragem fina fica para a recalibragem completa depois do F10.
 
-### F10+. Raças novas `[ ]` (3 classes + herói cada, com vertentes)
+### F10+. Raças novas `[~]` (3 classes + herói cada, com vertentes)
 Decisão de 06/10/2026: entram **Necromante, Golem, Fada, Górgona, Demônios, Anjos, Zumbis, Unicórnio, Sereia, Centauro, Goblin e Elementais** — 12 raças, 48 personagens. Feitas em lotes de 2 raças por etapa (cada lote com commit, arte, dados, herói e calibragem). Ideias iniciais (`PROPOSTA`, revisar antes de cada lote):
 
 | Raça | Classes | Herói |
@@ -132,6 +132,7 @@ Decisão de 06/10/2026: entram **Necromante, Golem, Fada, Górgona, Demônios, A
 
 ### Decisões de 07/10/2026
 - Propostas de `docs/proposta-f9-f10.md` **aprovadas**: F9 (6 terceiras classes, sem cura do Nexus) e F10 com 6 raças (Fada, Golem, Necromante, Górgona, Demônios, Anjos), uma raça por commit, sem parar entre elas.
+- **Feito (07/10):** F10 com as 6 raças (Fada, Golem, Necromante, Górgona, Demônio, Anjo), uma por commit; **recalibragem completa** concluída (ver GDD, seção 9, e `docs/valores.md`).
 - Depois do F10: **recalibragem completa** (XP do herói, valores dos talentos, força de cada raça/personagem, escalonamento do Sem Fim). O jogo está fácil demais até a onda 20 e no Sem Fim, conforme a build.
 - Depois da recalibragem: **revisar com o usuário os Pulsos de cada herói**.
 - As outras 6 raças (Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais) ficam para um lote seguinte, também com proposta antes.
