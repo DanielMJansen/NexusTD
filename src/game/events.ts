@@ -20,7 +20,7 @@ export type GameEvent =
   | { type: 'wardBlocked' }
   | { type: 'nexusHit'; damage: number }
   /** Golpe direto num inimigo (números de dano). */
-  | { type: 'enemyDamaged'; x: number; y: number; amount: number }
+  | { type: 'enemyDamaged'; x: number; y: number; amount: number; crit?: boolean }
   | { type: 'nexusHealed'; amount: number }
   | { type: 'bossSpawned'; enemy: EnemyId }
   | { type: 'creaturePlaced'; creature: CreatureId; x: number; y: number }

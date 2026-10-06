@@ -1,5 +1,6 @@
 import { ARENA, HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureDamage, creatureRange } from './creatureStats';
+import { random } from './random';
 import { distance, type Creature, type Enemy, type Point, type RunState } from './state';
 
 export interface HitOptions {
@@ -7,6 +8,8 @@ export interface HitOptions {
   ignoreArmor?: boolean;
   /** Dano contínuo (veneno, poça): sem clarão de golpe e sem mínimo de 1 por tique. */
   overTime?: boolean;
+  /** Golpe crítico (só para o número na tela; o dano já vem dobrado). */
+  crit?: boolean;
 }
 
 /** Armadura efetiva contra um golpe (habilidades e bônus de raça que perfuram). */
@@ -35,7 +38,10 @@ export function damageEnemy(
   const reduced = amount - effectiveArmor(state, enemy, source, options);
   const dealt = options.overTime ? Math.max(0, reduced) : Math.max(1, reduced);
   enemy.hp -= dealt;
-  if (!options.overTime) state.events.push({ type: 'enemyDamaged', x: enemy.x, y: enemy.y, amount: dealt });
+  if (!options.overTime) state.events.push({ type: 'enemyDamaged', x: enemy.x, y: enemy.y, amount: dealt, crit: options.crit });
+  // Sentença: inimigos comuns com pouca vida morrem na hora
+  const execute = state.modifiers.executeBelow;
+  if (execute > 0 && enemy.hp > 0 && !enemy.def.isBoss && enemy.hp <= enemy.maxHp * execute) enemy.hp = 0;
   if (!options.overTime) enemy.lastHitAt = state.time;
   if (enemy.hp <= 0 && !enemy.dead) {
     enemy.dead = true;
@@ -196,8 +202,9 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
           return diff <= pattern.halfAngle;
         })
       : [target];
-  const damage = attack.damage * state.modifiers.damage * (1 + state.talents.heroDamage);
-  for (const victim of victims) damageEnemy(state, victim, damage, undefined, { ignoreArmor: attack.pierceArmor });
+  const crit = random() < state.modifiers.critChance;
+  const damage = attack.damage * state.modifiers.damage * (1 + state.talents.heroDamage) * (crit ? 2 : 1);
+  for (const victim of victims) damageEnemy(state, victim, damage, undefined, { ignoreArmor: attack.pierceArmor, crit });
   if (attack.healPerHit > 0) healNexus(state, attack.healPerHit * victims.length);
 
   hero.attackTimer = attack.cooldown / state.modifiers.attackSpeed;
@@ -269,11 +276,12 @@ export function updateCreatures(state: RunState, dt: number): void {
     if (!target) continue;
 
     const inFrenzy = ability.kind === 'frenzy' && creature.frenzyTimer > 0;
-    const damage = creatureDamage(creature, modifiers) * (inFrenzy ? ability.damageMultiplier : 1);
+    const crit = random() < modifiers.critChance;
+    const damage = creatureDamage(creature, modifiers) * (inFrenzy ? ability.damageMultiplier : 1) * (crit ? 2 : 1);
     const raceSpeed = bonus.kind === 'attackSpeed' && def.race === race ? bonus.value : 0;
     const speed = modifiers.attackSpeed * (1 + raceSpeed + creature.auraBonus) * (inFrenzy ? ability.attackSpeedMultiplier : 1);
     creature.attackTimer = def.cooldown / speed;
-    for (const t of targets) damageEnemy(state, t, damage, creature);
+    for (const t of targets) damageEnemy(state, t, damage, creature, { crit });
     creature.lastAttackAt = state.time;
     creature.facing = target.x >= creature.x ? 1 : -1;
 

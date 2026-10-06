@@ -1307,26 +1307,6 @@ button:disabled {
   margin-top: 6px;
 }
 
-/* raridade das melhorias */
-.choice.rarity-uncommon {
-  box-shadow: 0 0 12px #5ae08a33;
-}
-
-.choice.rarity-rare {
-  border-width: 2px;
-  box-shadow:
-    0 0 18px #ffd25a55,
-    inset 0 0 20px #ffd25a22;
-  animation: rare-glow 2.4s ease-in-out infinite;
-}
-
-@keyframes rare-glow {
-  50% {
-    box-shadow:
-      0 0 28px #ffd25a88,
-      inset 0 0 24px #ffd25a33;
-  }
-}
 
 .play-button small {
   display: block;
@@ -1553,4 +1533,58 @@ button.danger {
   50% {
     outline-color: #ffd25a44;
   }
+}
+
+/* tiers das melhorias */
+.choice.tier-uncommon {
+  box-shadow: 0 0 10px #5ae08a33;
+}
+
+.choice.tier-rare {
+  box-shadow: 0 0 14px #5aa8ff44;
+}
+
+.choice.tier-epic {
+  border-width: 2px;
+  box-shadow:
+    0 0 18px #c07aff55,
+    inset 0 0 18px #c07aff22;
+}
+
+.choice.tier-legendary {
+  border-width: 2px;
+  box-shadow:
+    0 0 22px #ffb02a66,
+    inset 0 0 22px #ffb02a33;
+  animation: legendary-glow 2s ease-in-out infinite;
+}
+
+@keyframes legendary-glow {
+  50% {
+    box-shadow:
+      0 0 34px #ffb02aaa,
+      inset 0 0 26px #ffb02a44;
+  }
+}
+
+.bonus-summary {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #ffffff14;
+}
+
+.bonus-summary h3 {
+  margin: 0 0 6px;
+}
+
+.bonus-summary > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 16px;
+  font-size: 14px;
+}
+
+.bonus-summary small {
+  color: var(--muted);
 }

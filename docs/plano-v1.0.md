@@ -17,7 +17,7 @@
 - **D1 + D2:** XP por abate → nível do herói com melhorias só dele; herói com vida, dano de contato e renascimento (~8 s).
 - **D3:** run mais longa — **20 ondas, 3 chefes**, inimigos novos com habilidades e escalonamento; **modo Sem Fim** após a vitória.
 - **D4 + D7:** **loot** dos inimigos, **Nexus upável** com ouro e **evolução progressiva**. Consumíveis ficam de fora.
-- **D5 + D6:** em aberto (resposta "Other" sem texto) — perguntar de novo antes do F3.
+- **D5 + D6:** como recomendado — tiers por valor (Comum → Lendária), chance de tier alto sobe com a onda, % somam por categoria.
 - **D8:** cadeia vertical + visual por ramo (pedido direto do playtest).
 
 Propostas originais:
@@ -55,7 +55,7 @@ Propostas originais:
 ### F2. Tutorial guiado `[x]` (pendente da E11)
 Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de leitura pausam o jogo; passos de ação avançam quando o jogador faz a ação. Os passos são: Nexus → mover o herói → ouro → invocar → Pulso → evoluir/vender → melhorias entre ondas. "Rever tutorial" nas Configurações.
 
-### F3. Melhorias da run 2.0 `[ ]` — D5, D6
+### F3. Melhorias da run 2.0 `[x]` — D5, D6
 - Bônus percentuais **somam por categoria** e as categorias multiplicam entre si.
 - Melhorias com **tiers por valor** (Comum → Lendária), com chance de tier alto crescendo com a onda.
 - Elenco ampliado (~30), incluindo:

@@ -139,10 +139,7 @@ Criaturas atacam o inimigo mais próximo do Nexus dentro do alcance.
 Dano por golpe contra armadura = `max(1, dano − armadura)`; veneno e poças ignoram armadura. Vida de todo inimigo × (1 + 0,12 × onda).
 **Arena:** 640 × 360 unidades (16:9), Nexus no centro.
 **Ondas (1–10):** quantidade = 4 + 3 × onda; intervalo de spawn = máx(0,35 s; 1,2 − 0,07 × onda) s; inimigos surgem 24 unidades além da borda da tela.
-**Melhorias temporárias** (cada carta sorteia a raridade e depois a melhoria; os % da run multiplicam entre si — revisão no plano v1.0, F3):
-Comuns — Afiar Armas +20% dano · Olhar Aguçado +15% alcance · Ritmo de Batalha +18% vel. de ataque · Saque +40 ouro · Reforço +30 vida máx. · Concentração Pulso −20% recarga.
-Incomuns — Fúria +35% dano · Frenesi Coletivo +30% vel. de ataque · Alquimia Rápida −25% no custo de evoluir (até 2×) · Recrutamento +1 vaga (até 2×) · Raízes Vivas Nexus +0,5 vida/s · Cobiça +50% ouro por abate (até 2×).
-Raras — Ascensão (criaturas em campo sobem 1 nível) · Coração do Nexus (+50 vida máx. e cura total) · Maestria (+25% dano e +25% vel. de ataque) · Égide Eterna (1º golpe de cada onda anulado) · Tesouro do Dragão (+150 ouro).
+**Melhorias temporárias (2.0)** `PROPOSTA`: 17 famílias com valor por tier — Comum / Incomum / Rara / Épica / Lendária. Pesos dos tiers vão de 62/27/9/2/0 (onda 1) a 28/30/22/13/7 (última onda). Os % **somam** com os talentos na mesma categoria; categorias diferentes multiplicam. Exemplos: Fúria (dano) 6/10/16/25/40% · Ritmo (vel. ataque) 5/8/13/20/32% · Olhar Aguçado (alcance) 5/8/12/18/28% · Precisão (crítico ×2) 3/5/8/12/18% · Laços de Sangue (dano de uma raça da equipe) 10/16/25/38/60% · Campeão (dano do herói) 8/12/20/30/45% · Concentração (recarga do Pulso, mín. 35%) 6/10/15/22/32% · Saque · Reforço · Raízes Vivas · Cobiça · Alquimia. Só tiers altos: Recrutamento (+vaga, Rara+), Égide Eterna (Rara), Ascensão (Épica +1 nível / Lendária +2), Coração do Nexus (Épica/Lendária), Sentença (Lendária: comuns abaixo de 10% morrem). A tela de escolha mostra "Seus bônus".
 **Essência por run:** (3 × onda alcançada + 1 por 5 abates + 30 se vencer) com os bônus de talento.
 
 **Árvore de talentos** (custos em Essência por nível)
@@ -219,6 +216,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 05/10/2026 | Árvore de talentos em 5 ramos substitui as melhorias permanentes |
 | 05/10/2026 | Música procedural gótica (menu, run, chefe); volumes de música e efeitos independentes; exportar/importar save |
 | 05/10/2026 | Lobisomem, Fantasma e Bruxa implementados (2 classes + herói cada) |
+| 06/10/2026 | Melhorias 2.0: famílias com tiers (Comum → Lendária), chance de tier alto crescendo na run, % somando por categoria, crítico e sinergias de raça |
 | 06/10/2026 | Melhorias da run com raridade; run salva com continuar; tutorial guiado; velocidade 1x/2x/4x |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 

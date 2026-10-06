@@ -159,9 +159,9 @@ export class Effects {
           this.texts.push({
             x: event.x + random(-6, 6),
             y: event.y - 14,
-            text: String(amount),
-            color: '#f4ecff',
-            size: 7,
+            text: event.crit ? `${amount}!` : String(amount),
+            color: event.crit ? '#ffb02a' : '#f4ecff',
+            size: event.crit ? 10 : 7,
             life: 0.5,
             maxLife: 0.5,
           });

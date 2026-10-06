@@ -1,5 +1,5 @@
-import { CHOICES, SHOP } from '../data/config';
-import { rollWaveChoices, waveChoicePool } from './choices';
+import { SHOP } from '../data/config';
+import { canRollDifferent, rollWaveChoices } from './choices';
 import type { RunState } from './state';
 
 /** A loja só abre na escolha de fim de onda. */
@@ -9,7 +9,7 @@ export const rerollCost = (state: RunState): number => SHOP.reroll.baseCost + SH
 
 /** Só faz sentido sortear se existem mais opções possíveis do que as mostradas. */
 export function canReroll(state: RunState): boolean {
-  return shopOpen(state) && waveChoicePool(state).length > CHOICES.count && state.gold >= rerollCost(state);
+  return shopOpen(state) && canRollDifferent(state) && state.gold >= rerollCost(state);
 }
 
 /** Paga para sortear de novo as opções da escolha atual. */

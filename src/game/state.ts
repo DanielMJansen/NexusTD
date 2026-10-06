@@ -2,7 +2,7 @@ import { ARENA, ECONOMY, HERO_PLACEMENT, NEXUS } from '../data/config';
 import { HEROES, type HeroDef, type HeroId, type RaceBonus } from '../data/heroes';
 import type { CreatureDef, CreatureId } from '../data/creatures';
 import type { EnemyDef, EnemyId } from '../data/enemies';
-import type { RunUpgradeDef } from '../data/upgrades';
+import type { OfferedUpgrade } from '../data/upgrades';
 import type { SkinPalette } from '../data/skins';
 import type { TalentBonuses } from './talents';
 import type { GameEvent } from './events';
@@ -77,9 +77,15 @@ export interface Modifiers {
   attackSpeed: number;
   /** Bônus do herói para criaturas da raça dele. */
   raceBonus: { race: string; bonus: RaceBonus };
+  /** Chance de crítico (dano ×2) de criaturas e herói. */
+  critChance: number;
+  /** Dano extra por raça (melhorias de sinergia), somado ao bônus do herói. */
+  raceDamage: Record<string, number>;
+  /** Inimigos comuns abaixo desta fração de vida morrem na hora (0 = inativo). */
+  executeBelow: number;
 }
 
-export type Choice = { kind: 'upgrade'; upgrade: RunUpgradeDef };
+export type Choice = { kind: 'upgrade'; upgrade: OfferedUpgrade };
 
 export interface RunResult {
   victory: boolean;
@@ -171,9 +177,12 @@ export function createRun(setup: RunSetup): RunState {
       range: 1 + t.range,
       attackSpeed: 1 + t.attackSpeed,
       raceBonus: { race: heroDef.race, bonus: heroDef.raceBonus },
+      critChance: 0,
+      raceDamage: {},
+      executeBelow: 0,
     },
     pulse: {
-      cooldown: heroDef.pulse.cooldown * (1 - t.pulseCooldown),
+      cooldown: heroDef.pulse.cooldown * Math.max(0.35, 1 - t.pulseCooldown),
       remaining: 0,
       radius: heroDef.pulse.radius * (1 + t.pulseRadius),
     },
