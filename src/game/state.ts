@@ -75,6 +75,11 @@ export interface Enemy extends Point {
   summonedAlly: boolean;
   /** Morreu executado (Ceifador). */
   executed: boolean;
+  /** Recarga do próximo golpe no Nexus (quando colado nele). */
+  nexusTimer: number;
+  /** Momento e direção do último ataque (golpe no Nexus ou no herói, tiro, teia...): só visual. */
+  lastAttackAt: number;
+  attackAngle: number;
   /** Virou sapo (Feitiço do Sapo): lento, frágil e inofensivo enquanto durar. */
   hexTimer: number;
   hexVuln: number;
@@ -316,6 +321,8 @@ export const noHeroStats = (): Record<HeroStat, number> => ({
   thorns: 0,
   armor: 0,
   pickup: 0,
+  pulseSize: 0,
+  pulseEcho: 0,
 });
 
 export function createRun(setup: RunSetup): RunState {

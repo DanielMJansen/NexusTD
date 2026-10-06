@@ -80,7 +80,8 @@ export function drawSkeletonArcher(ctx: Ctx, p: Pose): void {
 /** Lodo: gota gelatinosa que pulsa (o Lodinho é o mesmo desenho, menor). */
 export function drawSlime(ctx: Ctx, p: Pose): void {
   const squish = Math.sin(p.time * 5);
-  const w = 11 + squish * 1.2;
+  ctx.translate(p.attack * 3, 0);
+  const w = 11 + squish * 1.2 + p.attack * 3;
   const h = 10 - squish * 1.2;
   const g = ctx.createRadialGradient(-3, 4 - h, 1, 0, 8, 14);
   g.addColorStop(0, '#d8ffe0');
@@ -110,6 +111,7 @@ export function drawSlime(ctx: Ctx, p: Pose): void {
 /** Aranha (e Rainha Aranha, com coroa e marca vermelha). */
 export function drawSpider(ctx: Ctx, p: Pose, queen: boolean): void {
   const scuttle = p.moving || queen ? p.time * 14 : 0;
+  ctx.rotate(p.attack * 0.25);
   const body = queen ? '#6a2a8a' : '#3a2a50';
   const bodyLight = queen ? '#c05ae0' : '#8a6ab8';
   ctx.translate(0, 4);
@@ -161,6 +163,7 @@ export function drawSpider(ctx: Ctx, p: Pose, queen: boolean): void {
 /** Gárgula: asas de morcego em pedra; pousada (sem `moving`) dobra as asas e fica cinza. */
 export function drawGargoyle(ctx: Ctx, p: Pose): void {
   const flying = p.moving;
+  ctx.rotate(p.attack * 0.35);
   const flap = flying ? Math.sin(p.time * 10) : -0.6;
   ctx.translate(0, flying ? -8 + Math.sin(p.time * 4) * 1.5 : 0);
   const stone = '#8a90a8';
@@ -238,7 +241,7 @@ export function drawHeadless(ctx: Ctx, p: Pose): void {
   // espada erguida
   line(ctx, '#d0dce8', 2, () => {
     ctx.moveTo(-6, -6);
-    ctx.lineTo(-11, -22);
+    ctx.lineTo(-11 + p.attack * 22, -22 + p.attack * 14);
   });
   shape(ctx, '#5a3a1a', () => ctx.rect(-8.5, -8, 5, 2), 0.8);
   // braço com a abóbora
@@ -303,7 +306,7 @@ export function drawDarkBanshee(ctx: Ctx, p: Pose): void {
   shape(ctx, radial(ctx, 1.5, -15, 5, '#e8e0f8', '#9a8ab8'), () => ellipse(ctx, 1.5, -15, 4.5, 5.5));
   glowingEye(ctx, 0, -16, 1.1, '#7affb0');
   glowingEye(ctx, 3.6, -16, 1.1, '#7affb0');
-  shape(ctx, '#1a0a2a', () => ellipse(ctx, 2, -11.5, 1.4, 1.6 + Math.sin(p.time * 4) * 0.5), 0);
+  shape(ctx, '#1a0a2a', () => ellipse(ctx, 2, -11.5, 1.4 + p.attack, 1.6 + Math.sin(p.time * 4) * 0.5 + p.attack * 2), 0);
 }
 
 /** Necromante: manto verde-escuro, cajado com crânio e chama verde. */
@@ -324,7 +327,7 @@ export function drawNecromancer(ctx: Ctx, p: Pose): void {
   ctx.shadowBlur = 8;
   ctx.fillStyle = '#9affd0';
   ctx.beginPath();
-  const flicker = Math.sin(p.time * 12) * 0.8;
+  const flicker = Math.sin(p.time * 12) * 0.8 + p.attack * 6;
   ctx.moveTo(8, -23);
   ctx.quadraticCurveTo(10, -30 - flicker, 12, -23);
   ctx.closePath();

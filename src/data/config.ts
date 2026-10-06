@@ -14,6 +14,9 @@ export const NEXUS = {
   healBetweenWaves: 10,
   /** Distância em que um inimigo atinge o Nexus. */
   contactRadius: 16,
+  /** Inimigos colados no Nexus golpeiam a cada N segundos até morrer (chefes mais devagar). */
+  enemyAttackInterval: 2,
+  bossAttackInterval: 2.5,
   /** Distância mínima do Nexus para posicionar criaturas. */
   placementClearance: 28,
 };

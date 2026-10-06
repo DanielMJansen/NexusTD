@@ -11,6 +11,12 @@ import { distance, type Enemy, type RunState } from './state';
 const findTrait = <K extends EnemyTrait['kind']>(enemy: Enemy, kind: K) =>
   enemy.def.traits.find((t): t is Extract<EnemyTrait, { kind: K }> => t.kind === kind);
 
+/** Registra um ataque (só para a animação): quando e em que direção. */
+export function markAttack(enemy: Enemy, time: number, target: { x: number; y: number }): void {
+  enemy.lastAttackAt = time;
+  enemy.attackAngle = Math.atan2(target.y - enemy.y, target.x - enemy.x);
+}
+
 /** Armadura atual (Gárgula pousada como pedra ganha armadura extra). */
 export function enemyArmor(enemy: Enemy): number {
   const stone = enemy.stone ? findTrait(enemy, 'stone') : undefined;
@@ -51,6 +57,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         if (inRange) pace = Math.min(pace, AIMING_SPEED);
         if (inRange && ready) {
           damageHero(state, trait.damage * enemy.damageScale);
+          markAttack(enemy, state.time, hero);
           state.events.push({ type: 'enemyShot', kind: enemy.def.isBoss ? 'bolt' : 'arrow', from: { x: enemy.x, y: enemy.y - 8 }, to: { x: hero.x, y: hero.y - 6 } });
           enemy.timers[i] = trait.cooldown;
         }
@@ -78,6 +85,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         for (const c of caught) {
           c.webTimer = trait.duration;
           c.webSlow = trait.slow;
+          markAttack(enemy, state.time, c);
           state.events.push({ type: 'enemyShot', kind: 'web', from: { x: enemy.x, y: enemy.y - 4 }, to: { x: c.x, y: c.y - 6 } });
         }
         enemy.timers[i] = trait.cooldown;
@@ -86,6 +94,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
       case 'summon':
         if (!ready || !onScreen(enemy)) break;
         for (let k = 0; k < trait.count; k++) spawnEnemyAt(state, trait.enemy, enemy, 16);
+        enemy.lastAttackAt = state.time;
         state.events.push({ type: 'enemySummoned', x: enemy.x, y: enemy.y, color: enemy.def.color });
         enemy.timers[i] = trait.cooldown;
         break;
@@ -102,6 +111,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         );
         if (!hurt.length) break;
         for (const e of hurt) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * trait.amount);
+        enemy.lastAttackAt = state.time;
         state.events.push({ type: 'enemyHealed', x: enemy.x, y: enemy.y, radius: trait.radius });
         enemy.timers[i] = trait.cooldown;
         break;
@@ -111,6 +121,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         const near = state.creatures.filter((c) => distance(c, enemy) <= trait.radius);
         if (!near.length) break;
         for (const c of near) c.stunTimer = Math.max(c.stunTimer, trait.stun);
+        enemy.lastAttackAt = state.time;
         state.events.push({ type: 'stomp', x: enemy.x, y: enemy.y, radius: trait.radius });
         enemy.timers[i] = trait.cooldown;
         break;
@@ -166,8 +177,15 @@ export function updateEnemies(state: RunState, dt: number): void {
     }
     if (enemy.held || pace === 0) continue;
     if (length < NEXUS.contactRadius) {
-      if (enemy.hexTimer <= 0) damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
-      enemy.dead = true;
+      // colado no Nexus: para e golpeia até morrer (sapos não ferem)
+      enemy.nexusTimer -= dt;
+      if (enemy.nexusTimer <= 0) {
+        enemy.nexusTimer = enemy.def.isBoss ? NEXUS.bossAttackInterval : NEXUS.enemyAttackInterval;
+        if (enemy.hexTimer <= 0) {
+          damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
+          markAttack(enemy, state.time, ARENA.center);
+        }
+      }
       continue;
     }
     const zigzag = enemy.def.zigzag;

@@ -55,6 +55,7 @@ export function bonusRows(run: RunState): [string, string][] {
   if (t.pulseCooldown > 0) rows.push(['Recarga do Pulso', `−${pct(Math.min(0.65, t.pulseCooldown))}`]);
   if (t.nexusRegen > 0) rows.push(['Regeneração', `${formatNumber(Math.round(t.nexusRegen * 100) / 100)}/s`]);
   if (t.killGold > 0) rows.push(['Ouro por abate', `+${pct(t.killGold)}`]);
+  if (t.heroXp > 0) rows.push(['XP do herói', `+${pct(t.heroXp)}`]);
   if (t.evolveDiscount > 0) rows.push(['Custo de evoluir', `−${pct(t.evolveDiscount)}`]);
   if (m.executeBelow > 0) rows.push(['Sentença', `< ${pct(m.executeBelow)} de vida`]);
   if (t.nexusWard > 0) rows.push(['Égide', 'ativa']);

@@ -49,7 +49,7 @@ export const WAVES: WaveRules = {
   enemyCount: { base: 4, perWave: 3 },
   spawnInterval: { base: 1.2, perWave: -0.05, min: 0.3 },
   scaling: {
-    hp: { linear: 0.18, quadratic: 0.026 },
+    hp: { linear: 0.18, quadratic: 0.023 },
     speedPerWave: 0.02,
     maxSpeedBonus: 0.4,
     damagePerWave: 0.06,

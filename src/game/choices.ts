@@ -155,6 +155,9 @@ export function applyChoice(state: RunState, choice: Choice): void {
     case 'killGold':
       state.talents.killGold += value;
       break;
+    case 'heroXp':
+      state.talents.heroXp += value;
+      break;
     case 'evolveDiscount':
       state.talents.evolveDiscount = Math.min(0.75, state.talents.evolveDiscount + value);
       break;

@@ -128,6 +128,8 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 | Pulso Potente | +25% de dano do Pulso | — |
 | Sede | Golpes do herói devolvem 10% do dano como vida | 3 |
 | Espinhos | Inimigos encostados no herói sofrem 8 de dano/s | — |
+| Pulso Ampliado | Pulso +20% maior: área, alcance, duração e quantidade (morcegos, meteoros, esqueletos) | 3 |
+| Eco do Pulso | 25% de chance de o Pulso recarregar quase na hora | 2 |
 | Ímã | Coleta moedas e baús 50% mais longe | 3 |
 | Couraça | O herói recebe 15% menos dano | 4 |
 
@@ -152,21 +154,21 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 
 ## Ondas
 - 20 ondas; quantidade = 4 + 3 × onda; chefes: onda 7 Rei Ogro, onda 14 Rainha Aranha, onda 20 Lich.
-- Força (o = onda − 1): vida × (1 + 0,18·o + 0,03·o²); velocidade +2% por onda (máx. +40%); dano +6% por onda.
+- Força (o = onda − 1): vida × (1 + 0,18·o + 0,02·o²); velocidade +2% por onda (máx. +40%); dano +6% por onda.
 - Elites a partir da onda 8: chance 5% (+1%/onda, máx. 25%); vida ×2,5, dano ×1,5, recompensa ×2.
 - Sem Fim: chefe a cada 5 ondas; por onda além da 20, vida ×1,08 e dano ×1,05 a mais (exponencial); elites até 35%.
 
 | Onda | Inimigos | Vida × | Velocidade × | Dano × |
 |---|---|---|---|---|
 | 1 | 7 | 1 | 1 | 1 |
-| 5 | 19 | 2,14 | 1,08 | 1,24 |
-| 7 | 25 | 3,02 | 1,12 | 1,36 |
-| 10 | 34 | 4,73 | 1,18 | 1,54 |
-| 14 | 46 | 7,73 | 1,26 | 1,78 |
-| 20 | 64 | 13,81 | 1,38 | 2,14 |
-| 25 | 79 | 29,82 | 1,4 | 3,11 |
-| 30 | 94 | 60,64 | 1,4 | 4,46 |
-| 40 | 124 | 221,7 | 1,4 | 8,86 |
+| 5 | 19 | 2,09 | 1,08 | 1,24 |
+| 7 | 25 | 2,91 | 1,12 | 1,36 |
+| 10 | 34 | 4,48 | 1,18 | 1,54 |
+| 14 | 46 | 7,23 | 1,26 | 1,78 |
+| 20 | 64 | 12,72 | 1,38 | 2,14 |
+| 25 | 79 | 27,28 | 1,4 | 3,11 |
+| 30 | 94 | 55,19 | 1,4 | 4,46 |
+| 40 | 124 | 200,44 | 1,4 | 8,86 |
 
 ## Talentos
 | Ramo | Talento (requisito) | Custos | Efeito por nível |

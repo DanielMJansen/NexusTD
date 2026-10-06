@@ -82,7 +82,10 @@ export function firePulse(state: RunState, aim?: Point): boolean {
   const power = pulsePower(state);
   const damage = pulse.damage * power;
   const start = { x: hero.x, y: hero.y };
-  const reach = 1 + state.talents.pulseRadius;
+  // Pulso Ampliado: mais alcance, duração e quantidade
+  const size = 1 + state.heroStats.pulseSize;
+  const reach = (1 + state.talents.pulseRadius) * size;
+  const more = (n: number) => Math.round(n * size);
   const radius = state.pulse.radius;
   const inRadius = (e: Enemy) => distance(e, hero) < radius;
   let hit = 0;
@@ -127,7 +130,7 @@ export function firePulse(state: RunState, aim?: Point): boolean {
       const targets = state.enemies
         .filter((e) => isHostile(e) && distance(e, hero) <= effect.range * reach)
         .sort((a, b) => distance(a, hero) - distance(b, hero))
-        .slice(0, effect.count);
+        .slice(0, more(effect.count));
       state.events.push({ type: 'pulseSwarm', from: start, to: targets.map((e) => ({ x: e.x, y: e.y })) });
       for (const e of targets) {
         pulseHit(state, e, damage);
@@ -137,21 +140,21 @@ export function firePulse(state: RunState, aim?: Point): boolean {
       break;
     }
     case 'flame':
-      state.pulseFx.flame = { remaining: effect.duration, angle: aimAngle(state, aim) };
+      state.pulseFx.flame = { remaining: effect.duration * size, angle: aimAngle(state, aim) };
       break;
     case 'transform':
-      state.pulseFx.transform = effect.duration;
+      state.pulseFx.transform = effect.duration * size;
       hit = hitWhere(state, inRadius, damage);
       break;
     case 'hex':
       hit = hitWhere(state, inRadius, damage, (e) => {
         if (e.def.isBoss) return;
-        e.hexTimer = effect.duration;
+        e.hexTimer = effect.duration * size;
         e.hexVuln = effect.vulnerable;
       });
       break;
     case 'haste':
-      state.haste = { amount: effect.amount, remaining: effect.duration };
+      state.haste = { amount: effect.amount, remaining: effect.duration * size };
       hit = hitWhere(state, inRadius, damage);
       break;
     case 'fissure': {
@@ -167,8 +170,8 @@ export function firePulse(state: RunState, aim?: Point): boolean {
           x: start.x + (end.x - start.x) * t,
           y: start.y + (end.y - start.y) * t,
           radius: effect.width / 2 + 4,
-          remaining: effect.duration,
-          duration: effect.duration,
+          remaining: effect.duration * size,
+          duration: effect.duration * size,
           dps: 0,
           color: '#5a3a2a',
           slow: effect.slow,
@@ -181,17 +184,17 @@ export function firePulse(state: RunState, aim?: Point): boolean {
     case 'raise': {
       // ergue onde inimigos caíram há pouco; sem corpos, ergue alguns ao redor do herói
       hit = hitWhere(state, inRadius, damage);
-      const corpses = state.recentDeaths.filter((d) => state.time - d.at <= 6).slice(-effect.count);
+      const corpses = state.recentDeaths.filter((d) => state.time - d.at <= 6).slice(-more(effect.count));
       if (corpses.length) for (const c of corpses) raiseSkeleton(state, c, effect.duration);
-      else for (let i = 0; i < effect.fallback; i++) raiseSkeleton(state, hero, effect.duration);
+      else for (let i = 0; i < more(effect.fallback); i++) raiseSkeleton(state, hero, effect.duration);
       state.recentDeaths = state.recentDeaths.filter((d) => !corpses.includes(d));
       break;
     }
     case 'meteors': {
       const center = aimPoint(state, aim);
-      for (let i = 0; i < effect.count; i++) {
+      for (let i = 0; i < more(effect.count); i++) {
         const a = random() * Math.PI * 2;
-        const r = random() * effect.spread;
+        const r = random() * effect.spread * size;
         state.pulseFx.strikes.push({
           x: Math.min(ARENA.width, Math.max(0, center.x + Math.cos(a) * r)),
           y: Math.min(ARENA.height, Math.max(0, center.y + Math.sin(a) * r)),
@@ -210,6 +213,11 @@ export function firePulse(state: RunState, aim?: Point): boolean {
   }
 
   if (pulse.selfDamage) hero.hp = Math.max(1, hero.hp - heroMaxHp(state) * pulse.selfDamage);
+  // Eco do Pulso: às vezes recarrega quase na hora
+  if (state.heroStats.pulseEcho > 0 && random() < state.heroStats.pulseEcho) {
+    state.pulse.remaining = Math.min(state.pulse.remaining, 1);
+    state.events.push({ type: 'pulseEcho', x: hero.x, y: hero.y });
+  }
   if (pulse.healPerEnemy > 0 && hit > 0) healHero(state, pulse.healPerEnemy * hit);
   state.events.push({ type: 'pulse', hero: hero.def.id, kind: effect.kind, x: start.x, y: start.y, radius: radius || 30, to, cone });
   return true;
@@ -245,7 +253,7 @@ export function updatePulses(state: RunState, dt: number, aim?: Point): void {
     const f = fx.flame;
     f.remaining -= dt;
     if (aim) f.angle = Math.atan2(aim.y - hero.y, aim.x - hero.x);
-    const length = effect.length * (1 + state.talents.pulseRadius);
+    const length = effect.length * (1 + state.talents.pulseRadius) * (1 + state.heroStats.pulseSize);
     for (const enemy of [...state.enemies]) {
       if (!isHostile(enemy) || distance(enemy, hero) > length) continue;
       if (angleDiff(Math.atan2(enemy.y - hero.y, enemy.x - hero.x), f.angle) > effect.halfAngle) continue;
@@ -265,12 +273,14 @@ export function updatePulses(state: RunState, dt: number, aim?: Point): void {
   fx.strikes = fx.strikes.filter((s) => s.delay > 0);
   for (const strike of ready) {
     if (strike.kind === 'meteor' && effect.kind === 'meteors') {
-      state.events.push({ type: 'pulseStrike', kind: 'meteor', x: strike.x, y: strike.y, radius: effect.radius });
-      hitWhere(state, (e) => distance(e, strike) <= effect.radius, hero.def.pulse.damage * power);
-      state.pools.push({ x: strike.x, y: strike.y, radius: effect.radius * 0.7, remaining: effect.burn.duration, duration: effect.burn.duration, dps: effect.burn.dps * power, color: '#ff6a1a' });
+      const radius = effect.radius * (1 + state.heroStats.pulseSize);
+      state.events.push({ type: 'pulseStrike', kind: 'meteor', x: strike.x, y: strike.y, radius });
+      hitWhere(state, (e) => distance(e, strike) <= radius, hero.def.pulse.damage * power);
+      state.pools.push({ x: strike.x, y: strike.y, radius: radius * 0.7, remaining: effect.burn.duration, duration: effect.burn.duration, dps: effect.burn.dps * power, color: '#ff6a1a' });
     } else if (strike.kind === 'judgment' && effect.kind === 'judgment') {
-      state.events.push({ type: 'pulseStrike', kind: 'judgment', x: strike.x, y: strike.y, radius: effect.radius });
-      hitWhere(state, (e) => distance(e, strike) <= effect.radius, hero.def.pulse.damage * power, (e) => {
+      const radius = effect.radius * (1 + state.heroStats.pulseSize);
+      state.events.push({ type: 'pulseStrike', kind: 'judgment', x: strike.x, y: strike.y, radius });
+      hitWhere(state, (e) => distance(e, strike) <= radius, hero.def.pulse.damage * power, (e) => {
         e.markTimer = Math.max(e.markTimer, effect.mark.duration);
         e.markAmount = Math.max(e.markAmount, effect.mark.amount);
       });

@@ -2204,3 +2204,41 @@ button.danger {
   font-size: 10px;
   padding: 0 4px;
 }
+
+/* a carta sob o mouse (e a tooltip dela) fica acima das cartas vizinhas, inclusive em duas colunas */
+.card:hover {
+  z-index: 30;
+}
+
+/* tempo parado (0x) */
+#speed-button.frozen {
+  border-color: #9fdcff;
+  color: #bfe8ff;
+  box-shadow: 0 0 12px #5ab0ff66;
+}
+
+#freeze-badge {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 7;
+  translate: -50% 0;
+  padding: 4px 12px;
+  border: 1px solid #5ab0ff;
+  border-radius: 999px;
+  background: #0a1430e0;
+  color: #bfe8ff;
+  font: 700 13px var(--font-label);
+  letter-spacing: 1px;
+  pointer-events: none;
+}
+
+#freeze-badge[hidden] {
+  display: none;
+}
+
+/* cartas compactas: a tooltip começa um pouco acima da carta (não sai pelo topo da tela) */
+#card-list.compact .card .tooltip {
+  top: -40px;
+  translate: 0 0;
+}

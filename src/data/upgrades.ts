@@ -32,6 +32,7 @@ export type UpgradeEffectKind =
   | 'pulseCooldown' // −fração da recarga do Pulso
   | 'nexusRegen' // +vida/s do Nexus
   | 'killGold' // +fração de ouro por abate
+  | 'heroXp' // +fração de XP do herói
   | 'evolveDiscount' // −fração no custo de evoluir
   | 'raceDamage' // +fração de dano para uma raça da equipe
   | 'critChance' // +chance de crítico (dano ×2)
@@ -130,6 +131,15 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     icon: '☠',
     text: '+{v} de ouro por abate',
     kind: 'killGold',
+    format: 'percent',
+    values: { common: 0.1, uncommon: 0.18, rare: 0.3, epic: 0.45, legendary: 0.7 },
+  },
+  {
+    id: 'wisdom',
+    name: 'Sabedoria',
+    icon: '❂',
+    text: '+{v} de XP do herói',
+    kind: 'heroXp',
     format: 'percent',
     values: { common: 0.1, uncommon: 0.18, rare: 0.3, epic: 0.45, legendary: 0.7 },
   },

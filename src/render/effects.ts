@@ -391,6 +391,10 @@ export class Effects {
       case 'screech':
         this.waves.push({ ...event, life: 0.4, maxLife: 0.4 });
         break;
+      case 'pulseEcho':
+        this.text(event.x, event.y - 34, 'Eco!', '#c8a8ff', 12);
+        this.ring(event.x, event.y, 26, '#c8a8ff', 0.4, 3);
+        break;
       case 'pulseSwarm':
         // morcegos voam do herói até cada alvo
         for (const to of event.to) {

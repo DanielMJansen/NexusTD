@@ -36,6 +36,8 @@ export type GameEvent =
   | { type: 'pulseSwarm'; from: Point; to: Point[] }
   /** Lança-Chamas (a cada quadro enquanto dura). */
   | { type: 'pulseFlame'; x: number; y: number; angle: number; halfAngle: number; length: number }
+  /** Eco do Pulso: recarregou quase na hora. */
+  | { type: 'pulseEcho'; x: number; y: number }
   /** Meteoro ou coluna de luz caindo. */
   | { type: 'pulseStrike'; kind: 'meteor' | 'judgment'; x: number; y: number; radius: number }
   /** Grito em leque (Banshee). */

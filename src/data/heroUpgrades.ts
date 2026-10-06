@@ -13,7 +13,9 @@ export type HeroStat =
   | 'lifesteal' // fração do dano dos golpes que volta como vida
   | 'thorns' // dano por segundo em inimigos encostados no herói
   | 'armor' // fração a menos de dano recebido (máx. 60%)
-  | 'pickup'; // fração a mais no raio de coleta de loot
+  | 'pickup' // fração a mais no raio de coleta de loot
+  | 'pulseSize' // fração a mais de área, alcance, duração e quantidade do Pulso
+  | 'pulseEcho'; // chance de o Pulso recarregar quase na hora
 
 export interface HeroUpgradeDef {
   id: string;
@@ -36,6 +38,8 @@ export const HERO_UPGRADES: HeroUpgradeDef[] = [
   { id: 'surge', name: 'Pulso Potente', icon: '✹', text: '+25% de dano do Pulso', stat: 'pulseDamage', value: 0.25 },
   { id: 'leech', name: 'Sede', icon: '♦', text: 'Golpes do herói devolvem 10% do dano como vida', stat: 'lifesteal', value: 0.1, maxPicks: 3 },
   { id: 'thorns', name: 'Espinhos', icon: '✷', text: 'Inimigos encostados no herói sofrem 8 de dano/s', stat: 'thorns', value: 8 },
+  { id: 'pulseSize', name: 'Pulso Ampliado', icon: '✸', text: 'Pulso +20% maior: área, alcance, duração e quantidade (morcegos, meteoros, esqueletos)', stat: 'pulseSize', value: 0.2, maxPicks: 3 },
+  { id: 'pulseEcho', name: 'Eco do Pulso', icon: '↻', text: '25% de chance de o Pulso recarregar quase na hora', stat: 'pulseEcho', value: 0.25, maxPicks: 2 },
   { id: 'magnet', name: 'Ímã', icon: '⊛', text: 'Coleta moedas e baús 50% mais longe', stat: 'pickup', value: 0.5, maxPicks: 3 },
   { id: 'bulwark', name: 'Couraça', icon: '⛨', text: 'O herói recebe 15% menos dano', stat: 'armor', value: 0.15, maxPicks: 4 },
 ];

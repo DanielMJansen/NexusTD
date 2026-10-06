@@ -150,7 +150,8 @@ Todos `PROPOSTA` até o playtest. **Os números exatos ficam em [`docs/valores.m
 - Custo de invocar: base × 1,5^(cópias da mesma classe em campo). Evoluir: 1,5× (nível 2) e 3× (nível 3) o custo daquela cópia; vender devolve 60% do pago.
 - Dano por golpe contra armadura = `max(1, dano − armadura)`; veneno, poças e auras que ferem ignoram armadura. Marca e vulnerável multiplicam o dano de todas as fontes.
 - Melhorias da run: % somam dentro da categoria (com os talentos); categorias diferentes multiplicam.
-- Força dos inimigos por onda (o = onda − 1): vida × (1 + 0,18·o + 0,026·o²); velocidade +2%/onda (máx. +40%); dano +6%/onda. Quantidade = 4 + 3 × onda.
+- Inimigos que chegam ao Nexus **param e golpeiam até morrer** (dano por golpe a cada 2 s; chefes a cada 2,5 s). Égide, Escudo e Muralha valem para cada golpe.
+- Força dos inimigos por onda (o = onda − 1): vida × (1 + 0,18·o + 0,023·o²); velocidade +2%/onda (máx. +40%); dano +6%/onda. Quantidade = 4 + 3 × onda.
 - Sem Fim: além disso, por onda depois da 20, vida ×1,08 e dano ×1,05 (exponencial) e elites até 35%.
 - XP do herói para o próximo nível: 15 + 12·(n − 1) + 3·(n − 1)² (≈ nível 14–15 numa vitória; Sem Fim vai além).
 - Dano do Pulso: × (1 + 0,1 × (nível do herói − 1)), além dos talentos e melhorias do herói. Pulsos que curam, curam o **herói** (nunca o Nexus).
@@ -160,10 +161,10 @@ Todos `PROPOSTA` até o playtest. **Os números exatos ficam em [`docs/valores.m
 
 | Talentos | Vitórias (média das 12 raças + time misto) | Leitura |
 |---|---|---|
-| Nenhum | ~23% | primeira run difícil; perder rende Essência |
+| Nenhum | ~27% | primeira run difícil; perder rende Essência |
 | ~1.000 ✦ (≈ 8 runs) | ~44% | |
-| ~2.500 ✦ (≈ 20 runs) | ~66% | |
-| Árvore completa (7.255 ✦) | ~93%; Sem Fim termina entre as ondas 24 e 40 (média ~32) | |
+| ~2.500 ✦ (≈ 20 runs) | ~65% | |
+| Árvore completa (7.255 ✦) | ~88% | |
 
 Depois dos Pulsos novos (mesma média: ~25% sem talentos, ~68% com 2.500 ✦): Bruxa, Fantasma, Lobisomem e Fada no topo (~85–95% com 2.500 ✦); Necromante, Humano e Anjo embaixo (~35–45%). Revisar com playtest real: o bot não posiciona criaturas nem move o herói como um jogador.
 
@@ -212,6 +213,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | F10: raça Górgona (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Demônio (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Anjo (3 classes com vertentes + herói) |
+| 07/10/2026 | Inimigos param no Nexus e golpeiam até morrer; velocidade 0x (tempo parado sem pausa, tecla 0); melhorias de Pulso no nível do herói (Pulso Ampliado, Eco do Pulso); melhoria da run Sabedoria (+XP); animação de ataque para todos os inimigos; recalibrado |
 | 07/10/2026 | Heróis do F10 com 3 skins cada: vencer com o herói libera a 2ª; alcançar a onda 30 do Sem Fim com ele libera a 3ª (12 conquistas novas) |
 | 07/10/2026 | Pulsos refeitos com personalidade (12 tipos); ataque do Nobre Vampiro cura o herói; ajuste de raças (Golem, Demônio, Necromante +; Fantasma, Bruxa, Fada −) |
 | 07/10/2026 | Pulsos: dano cresce +10% por nível do herói; a Revoada do Vampiro cura o herói em vez do Nexus |

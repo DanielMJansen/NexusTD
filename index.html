@@ -30,7 +30,7 @@
         </div>
         <div class="top-buttons">
           <button id="pause-button" class="icon-button" type="button" title="Pausar (P / Esc)">❚❚</button>
-          <button id="speed-button" class="icon-button" type="button" title="Velocidade do jogo (F)">1x</button>
+          <button id="speed-button" class="icon-button" type="button" title="Velocidade do jogo (F) · 0 congela o tempo">1x</button>
           <button id="mute-button" class="icon-button" type="button" title="Silenciar">🔊</button>
           <button id="settings-button" class="icon-button" type="button" title="Configurações">⚙</button>
         </div>
@@ -38,6 +38,7 @@
       <div id="layout">
         <main id="stage">
           <canvas id="arena"></canvas>
+          <div id="freeze-badge" hidden>❄ Tempo parado · F ou 0 para voltar</div>
           <div id="creature-popup" hidden></div>
           <div id="overlay"></div>
         </main>
@@ -62,6 +63,7 @@
             <dt>N / clique no Nexus</dt><dd>melhorar o Nexus</dd>
             <dt>Botão direito</dt><dd>cancelar</dd>
             <dt>P / Esc</dt><dd>pausar</dd>
+            <dt>F / 0</dt><dd>velocidade / congelar</dd>
           </dl>
         </aside>
       </div>

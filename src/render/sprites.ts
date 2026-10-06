@@ -1031,9 +1031,9 @@ function drawZombie(ctx: Ctx, p: Required<SpritePose>): void {
   // braço da frente
   line(ctx, '#8fc06a', 3.6, () => {
     ctx.moveTo(2, -4);
-    ctx.lineTo(15, -3 - shamble * 1.5);
+    ctx.lineTo(15 + p.attack * 5, -3 - shamble * 1.5 - p.attack * 2);
   });
-  shape(ctx, '#8fc06a', () => circle(ctx, 15.5, -3 - shamble * 1.5, 2.2), 1);
+  shape(ctx, '#8fc06a', () => circle(ctx, 15.5 + p.attack * 5, -3 - shamble * 1.5 - p.attack * 2, 2.2), 1);
 
   // cabeça
   const hy = -16;
@@ -1060,6 +1060,8 @@ function drawZombie(ctx: Ctx, p: Required<SpritePose>): void {
 
 function drawBat(ctx: Ctx, p: Required<SpritePose>): void {
   const flap = Math.sin(p.time * 16);
+  ctx.translate(p.attack * 3, p.attack * 5);
+  ctx.rotate(p.attack * 0.5);
   ctx.translate(0, -6 + Math.sin(p.time * 5) * 1.5);
 
   for (const side of [-1, 1]) {
@@ -1121,7 +1123,7 @@ function drawOgre(ctx: Ctx, p: Required<SpritePose>, king: boolean): void {
   // clava no ombro
   ctx.save();
   ctx.translate(9, -2 + bob);
-  ctx.rotate(0.45 + stomp * 0.08);
+  ctx.rotate(0.45 + stomp * 0.08 + p.attack * 1.4);
   shape(ctx, vertical(ctx, -18, 0, '#9a6a3a', '#5a3a1a'), () => {
     ctx.moveTo(-1.6, 0);
     ctx.lineTo(-3.5, -16);

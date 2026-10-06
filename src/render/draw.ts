@@ -128,11 +128,16 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
   if (enemy.allyTimer > 0) filters.push('hue-rotate(90deg) saturate(0.7)');
   if (state.time - enemy.lastHitAt < HIT_FLASH) filters.push('brightness(2.4) saturate(0.4)');
   if (filters.length) ctx.filter = filters.join(' ');
+  // ataque: tranco curto na direção do golpe e pose de ataque do sprite
+  const lunge = Math.max(0, 1 - (state.time - enemy.lastAttackAt) / 0.3);
+  const ex = enemy.x + Math.cos(enemy.attackAngle) * lunge * 5;
+  const ey = enemy.y + Math.sin(enemy.attackAngle) * lunge * 5;
   if (enemy.hexTimer > 0) drawFrog(ctx, enemy.x, enemy.y, scale, time + enemy.animationOffset);
   else {
-    drawSprite(ctx, enemy.def.id, enemy.x, enemy.y, scale, {
+    drawSprite(ctx, enemy.def.id, ex, ey, scale, {
+      attack: lunge,
       time: time + enemy.animationOffset,
-      facing: enemy.x < ARENA.center.x ? 1 : -1,
+      facing: lunge > 0 ? (Math.cos(enemy.attackAngle) >= 0 ? 1 : -1) : enemy.x < ARENA.center.x ? 1 : -1,
       moving: !enemy.stone,
     });
   }

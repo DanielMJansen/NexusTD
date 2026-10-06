@@ -9,8 +9,8 @@ import { findFamily, type Tier } from '../data/upgrades';
 import type { Choice, RunState } from '../game/state';
 
 export const RUN_KEY = 'nexus-run-v1';
-/** v7: Pulsos com personalidade (runs salvas em versões anteriores são descartadas). */
-const RUN_VERSION = 7;
+/** v8: inimigos atacam o Nexus até morrer (runs salvas em versões anteriores são descartadas). */
+const RUN_VERSION = 8;
 
 interface SavedRun {
   version: number;
@@ -79,6 +79,7 @@ function deserialize(raw: Record<string, unknown>): RunState {
       ...e,
       def: need(ENEMIES[e.def as EnemyId], 'inimigo'),
       lastHitAt: restoreTime(e.lastHitAt),
+      lastAttackAt: restoreTime(e.lastAttackAt),
     })),
     creatures: (raw.creatures as Record<string, unknown>[]).map((c) => ({
       ...c,

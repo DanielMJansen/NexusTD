@@ -83,6 +83,9 @@ export class App {
   private readonly muteButton: HTMLButtonElement;
   private readonly tutorial = new Tutorial(() => this.updateSettings({ tutorialDone: true }));
   private readonly speedButton = document.querySelector<HTMLButtonElement>('#speed-button')!;
+  private readonly freezeBadge = document.querySelector<HTMLElement>('#freeze-badge')!;
+  /** Velocidade 0x: o tempo para sem abrir a pausa (não é salvo; o jogo nunca abre congelado). */
+  private frozen = false;
 
   constructor() {
     this.canvas = document.querySelector<HTMLCanvasElement>('#arena')!;
@@ -172,7 +175,9 @@ export class App {
     saveSettings(this.settings);
     this.sound.applySettings(this.settings);
     this.muteButton.textContent = this.settings.muted ? '🔇' : '🔊';
-    this.speedButton.textContent = `${this.settings.gameSpeed}x`;
+    this.speedButton.textContent = this.frozen ? '0x' : `${this.settings.gameSpeed}x`;
+    this.speedButton.classList.toggle('frozen', this.frozen);
+    this.freezeBadge.hidden = !this.frozen || this.mode !== 'run';
     this.effects.showDamageNumbers = this.settings.damageNumbers;
   }
 
@@ -203,8 +208,18 @@ export class App {
     back?.();
   }
 
+  /** 1x → 2x → 4x → 0x (tempo parado) → 1x. */
   private cycleSpeed(): void {
-    const next = this.settings.gameSpeed === 1 ? 2 : this.settings.gameSpeed === 2 ? 4 : 1;
+    if (this.frozen) {
+      this.frozen = false;
+      this.updateSettings({ gameSpeed: 1 });
+      return;
+    }
+    if (this.settings.gameSpeed === 4) {
+      this.setFrozen(true);
+      return;
+    }
+    const next = this.settings.gameSpeed === 1 ? 2 : 4;
     this.updateSettings({ gameSpeed: next });
   }
 
@@ -261,6 +276,8 @@ export class App {
       this.pointer.evolveInspected();
     } else if (key === 'f') {
       this.cycleSpeed();
+    } else if (key === '0') {
+      this.setFrozen(!this.frozen);
     } else if (key === 'p') {
       this.togglePause();
     } else if (key === 'n') {
@@ -277,6 +294,12 @@ export class App {
     const hero = this.run.hero;
     if (dir.x || dir.y) return { x: hero.x + dir.x * 100, y: hero.y + dir.y * 100 };
     return this.interaction.pointerInArena ? { ...this.interaction.pointer } : undefined;
+  }
+
+  /** Congela (0x) ou volta à velocidade escolhida. */
+  private setFrozen(frozen: boolean): void {
+    this.frozen = frozen && this.mode === 'run';
+    this.updateSettings({});
   }
 
   private pulse(): void {
@@ -299,7 +322,7 @@ export class App {
     this.lastFrame = now;
     const time = now / 1000;
 
-    if (this.mode === 'run' && !this.paused && !this.tutorial.freezes) {
+    if (this.mode === 'run' && !this.paused && !this.frozen && !this.tutorial.freezes) {
       // Velocidade 2x/4x e quadros lentos: divide o tempo em passos curtos (mesma física).
       let remaining = elapsed * this.settings.gameSpeed;
       while (remaining > 1e-6) {
@@ -438,6 +461,8 @@ export class App {
 
   private openMenu(): void {
     this.tutorial.stop();
+    this.frozen = false;
+    this.updateSettings({});
     this.mode = 'menu';
     this.music.play('menu');
     this.paused = false;
