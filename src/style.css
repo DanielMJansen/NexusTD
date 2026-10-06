@@ -1106,9 +1106,43 @@ button:disabled {
   height: 84px;
 }
 
-.cc-portraits .cc-evolved {
-  width: 60px;
-  height: 60px;
+.cc-evolve-label {
+  margin-top: 2px;
+  font: 700 10px var(--font-label);
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* as duas vertentes do nível 3, lado a lado sob a criatura */
+.cc-branches {
+  display: flex;
+  gap: 4px;
+}
+
+.cc-branches figure {
+  --branch-color: var(--gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 62px;
+  margin: 0;
+}
+
+.cc-portraits .cc-branches canvas {
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--branch-color);
+  border-radius: 8px;
+  background: radial-gradient(color-mix(in srgb, var(--branch-color) 18%, transparent), transparent 70%);
+}
+
+.cc-branches figcaption {
+  margin-top: 2px;
+  font: 700 9.5px var(--font-label);
+  line-height: 1.1;
+  text-align: center;
+  color: var(--branch-color);
 }
 
 .cc-body {

@@ -29,7 +29,15 @@ function cardHtml(profile: Profile, def: CreatureDef): string {
   return `<div class="creature-card${owned ? '' : ' locked'}" style="--card-color:${def.color}">
     <div class="cc-portraits">
       <canvas data-sprite="${def.id}"${owned ? '' : ' data-silhouette'}></canvas>
-      <canvas class="cc-evolved" data-sprite="${def.id}" data-level="3"${owned ? '' : ' data-silhouette'}></canvas>
+      <span class="cc-evolve-label">Nível 3</span>
+      <div class="cc-branches">${def.ascended
+        .map(
+          (form, i) => `<figure style="--branch-color:${form.color}">
+            <canvas data-sprite="${def.id}" data-level="3" data-branch="${i}"${owned ? '' : ' data-silhouette'}></canvas>
+            <figcaption>${form.icon} ${form.name}</figcaption>
+          </figure>`,
+        )
+        .join('')}</div>
     </div>
     <div class="cc-body">
       <div class="cc-head"><b>${def.name}</b><span>${def.race} · ${def.role}</span></div>
@@ -37,7 +45,7 @@ function cardHtml(profile: Profile, def: CreatureDef): string {
       <p class="cc-lore">“${def.lore}”</p>
       <dl class="cc-stats">${stats}</dl>
       <p class="cc-ability">${abilityText(def.ability)}</p>
-      ${ascendedFormsHtml(def, undefined, owned)}
+      ${ascendedFormsHtml(def)}
       <div class="cc-footer">${footer}</div>
     </div>
   </div>`;
