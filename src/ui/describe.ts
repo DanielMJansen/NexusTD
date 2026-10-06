@@ -1,5 +1,6 @@
 import { ECONOMY } from '../data/config';
 import type { CreatureAbility, CreatureDef } from '../data/creatures';
+import { ENEMIES, type EnemyTrait } from '../data/enemies';
 import type { TalentEffectKind } from '../data/talents';
 
 export const formatNumber = (n: number): string => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
@@ -35,6 +36,32 @@ export function abilityText(a: CreatureAbility): string {
       return `Poça: ${formatNumber(a.dps)} de dano por segundo num raio de ${a.radius} durante ${formatNumber(a.duration)} s.`;
     case 'none':
       return 'Alvo único, alcance alto.';
+  }
+}
+
+/** Texto de uma habilidade de inimigo (códex). */
+export function enemyTraitText(t: EnemyTrait): string {
+  switch (t.kind) {
+    case 'ranged':
+      return `Tiro: com o herói a até ${t.range}, avança devagar e atira (${formatNumber(t.damage)} de dano a cada ${formatNumber(t.cooldown)} s).`;
+    case 'split':
+      return `Divisão: ao morrer, vira ${t.count} ${ENEMIES[t.into].name}s.`;
+    case 'stone':
+      return `Pedra: voa ${formatNumber(t.fly)} s e pousa ${formatNumber(t.rest)} s com +${t.armor} de armadura.`;
+    case 'web':
+      return `Teia: a cada ${formatNumber(t.cooldown)} s, prende ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}): atacam ${Math.round(t.slow * 100)}% mais devagar por ${formatNumber(t.duration)} s.`;
+    case 'summon':
+      return `Invocação: a cada ${formatNumber(t.cooldown)} s, ergue ${t.count} ${ENEMIES[t.enemy].name}s.`;
+    case 'charge':
+      return `Investida: a cada ${formatNumber(t.cooldown)} s, corre ${formatNumber(t.speedMultiplier)}× mais rápido por ${formatNumber(t.duration)} s.`;
+    case 'heal':
+      return `Lamento: a cada ${formatNumber(t.cooldown)} s, cura ${Math.round(t.amount * 100)}% da vida dos inimigos num raio de ${t.radius} (chefes não).`;
+    case 'stomp':
+      return `Pisão: a cada ${formatNumber(t.cooldown)} s, atordoa as criaturas num raio de ${t.radius} por ${formatNumber(t.stun)} s.`;
+    case 'shield':
+      return `Escudo: a cada ${formatNumber(t.cooldown)} s, reduz o dano recebido em ${Math.round(t.reduction * 100)}% por ${formatNumber(t.duration)} s.`;
+    case 'enrage':
+      return `Fúria: abaixo de ${Math.round(t.below * 100)}% da vida, fica ${Math.round((t.speedMultiplier - 1) * 100)}% mais rápido e usa habilidades mais vezes.`;
   }
 }
 

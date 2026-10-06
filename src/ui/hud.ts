@@ -13,7 +13,7 @@ const heroHp = document.querySelector<HTMLElement>('#hud-hero-hp')!;
 const heroXp = document.querySelector<HTMLElement>('#hud-hero-xp')!;
 
 export function updateHud(run: RunState): void {
-  setText(wave, `Onda ${Math.max(1, run.wave)}/${WAVES.total}`);
+  setText(wave, run.endless ? `Onda ${run.wave} · Sem Fim` : `Onda ${Math.max(1, run.wave)}/${WAVES.total}`);
   setText(gold, `${run.gold}`);
   const hp = Math.max(0, Math.trunc(run.nexus.hp));
   const ratio = hp / run.nexus.maxHp;

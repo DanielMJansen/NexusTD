@@ -119,6 +119,24 @@ export class SoundPlayer {
       case 'heroRespawned':
         this.play('heal');
         break;
+      case 'enemyShot':
+        this.play(event.kind === 'arrow' ? 'enemyArrow' : event.kind === 'bolt' ? 'enemyBolt' : 'web');
+        break;
+      case 'enemySummoned':
+        this.play('summon');
+        break;
+      case 'stomp':
+        this.play('stomp');
+        break;
+      case 'bossShield':
+        this.play('shield');
+        break;
+      case 'bossEnraged':
+        this.play('enrage');
+        break;
+      case 'enemyHealed':
+        this.play('enemyHeal');
+        break;
       case 'creatureSold':
       case 'choiceMade':
       case 'shopPurchase':

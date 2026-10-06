@@ -11,7 +11,15 @@ export type GameEvent =
   | { type: 'shot'; source: CreatureId; from: Point; to: Point }
   /** Ataque do herói; `cone` = meia-abertura do leque (radianos) quando ataca em área. */
   | { type: 'heroAttack'; hero: HeroId; from: Point; to: Point; cone: number | null; range: number }
-  | { type: 'enemyKilled'; enemy: EnemyId; x: number; y: number; gold: number; color: string }
+  | { type: 'enemyKilled'; enemy: EnemyId; x: number; y: number; gold: number; color: string; elite: boolean }
+  /** Tiro de inimigo: flecha/raio no herói ou teia numa criatura. */
+  | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web'; from: Point; to: Point }
+  | { type: 'enemySummoned'; x: number; y: number; color: string }
+  | { type: 'enemyCharge'; x: number; y: number }
+  | { type: 'enemyHealed'; x: number; y: number; radius: number }
+  | { type: 'stomp'; x: number; y: number; radius: number }
+  | { type: 'bossShield'; x: number; y: number }
+  | { type: 'bossEnraged'; enemy: EnemyId; x: number; y: number }
   /** Pulso do herói; `to` existe quando é uma investida em linha. */
   | { type: 'pulse'; hero: HeroId; x: number; y: number; radius: number; to?: Point }
   /** Grito em leque (Banshee). */

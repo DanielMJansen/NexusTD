@@ -1613,3 +1613,85 @@ button.danger {
   height: 100%;
   background: linear-gradient(90deg, #5aa8ff, #9fdcff);
 }
+
+/* códex de inimigos */
+.codex-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.codex-entry {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: linear-gradient(#1c1430, #120c20);
+}
+
+.codex-entry.boss {
+  border-color: #ff5a5a66;
+  box-shadow: 0 0 10px #ff5a5a1a;
+}
+
+.codex-entry.unknown {
+  align-items: center;
+  opacity: 0.6;
+}
+
+.codex-entry canvas {
+  flex: none;
+  width: 64px;
+  height: 64px;
+}
+
+.codex-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 14px;
+}
+
+.codex-text > b {
+  font: 700 15px var(--font-label);
+}
+
+.codex-text .tag {
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #ff5a5a33;
+  color: #ff9a9a;
+  font-size: 11px;
+}
+
+.codex-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.codex-stats b {
+  color: var(--fg);
+}
+
+.codex-traits {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 13px;
+  color: #d8c8f0;
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.codex-text .codex-when {
+  font: italic 13px var(--font-body);
+  color: var(--muted);
+}

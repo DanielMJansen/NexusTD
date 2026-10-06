@@ -7,6 +7,7 @@ import { WAVES } from '../data/waves';
 import { heroSkin, TEAM_SIZE, type Profile } from '../game/profile';
 import type { SavedRunSummary } from '../save/runSave';
 import { essence } from './currency';
+import { CODEX_ENEMIES } from './codexScreen';
 import { showOverlay } from './overlay';
 
 export interface MenuHandlers {
@@ -17,6 +18,7 @@ export interface MenuHandlers {
   onCollection(): void;
   onTalents(): void;
   onAchievements(): void;
+  onCodex(): void;
   onSettings(): void;
 }
 
@@ -45,6 +47,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
         <button data-action="collection">Coleção <small>${profile.ownedCreatures.length}/${CREATURE_IDS.length}</small></button>
         <button data-action="talents">Talentos</button>
         <button data-action="achievements">Conquistas <small>${profile.achievements.length}/${ACHIEVEMENT_IDS.length}</small></button>
+        <button data-action="codex">Códex <small>${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length}/${CODEX_ENEMIES.length}</small></button>
         <button data-action="settings">⚙ Configurações</button>
       </div>
     </div>`,
@@ -56,6 +59,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       collection: () => handlers.onCollection(),
       talents: () => handlers.onTalents(),
       achievements: () => handlers.onAchievements(),
+      codex: () => handlers.onCodex(),
       settings: () => handlers.onSettings(),
     },
   );

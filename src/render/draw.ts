@@ -1,4 +1,5 @@
 import { ARENA } from '../data/config';
+import { WAVES } from '../data/waves';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { MAX_CREATURE_LEVEL } from '../data/evolution';
 import { creatureAbility, creatureName, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
@@ -80,8 +81,8 @@ const attackStrength = (state: RunState, lastAttackAt: number) =>
   Math.max(0, 1 - (state.time - lastAttackAt) / ATTACK_ANIMATION);
 
 function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy, time: number): void {
-  const { scale } = enemy.def;
-  const flying = enemy.def.zigzag !== null;
+  const scale = enemy.def.scale * (enemy.elite ? WAVES.elites.scale : 1);
+  const flying = enemy.def.flying && !enemy.stone;
   drawShadow(ctx, enemy.x, enemy.y + 14 * scale, (flying ? 6 : 9) * scale);
   if (enemy.held) {
     // segurado por um Guarda
@@ -94,18 +95,56 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     ctx.setLineDash([]);
   }
 
+  if (enemy.charging > 0) {
+    // rastro da investida
+    const angle = Math.atan2(ARENA.center.y - enemy.y, ARENA.center.x - enemy.x);
+    ctx.strokeStyle = '#9ae8ff88';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    for (const off of [-5, 0, 5]) {
+      const sx = enemy.x - Math.cos(angle) * 10 - Math.sin(angle) * off;
+      const sy = enemy.y - Math.sin(angle) * 10 + Math.cos(angle) * off;
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx - Math.cos(angle) * 14, sy - Math.sin(angle) * 14);
+    }
+    ctx.stroke();
+  }
+
   ctx.save();
+  if (enemy.elite || enemy.enraged) {
+    ctx.shadowColor = enemy.enraged ? '#ff2a3a' : '#ffd25a';
+    ctx.shadowBlur = 8 + Math.sin(time * 5) * 3;
+  }
   if (enemy.slowTimer > 0) {
     ctx.shadowColor = '#7fd8ff';
     ctx.shadowBlur = 12;
   }
-  if (state.time - enemy.lastHitAt < HIT_FLASH) ctx.filter = 'brightness(2.4) saturate(0.4)';
+  const filters: string[] = [];
+  if (enemy.stone) filters.push('grayscale(0.8) brightness(0.9)');
+  if (state.time - enemy.lastHitAt < HIT_FLASH) filters.push('brightness(2.4) saturate(0.4)');
+  if (filters.length) ctx.filter = filters.join(' ');
   drawSprite(ctx, enemy.def.id, enemy.x, enemy.y, scale, {
     time: time + enemy.animationOffset,
     facing: enemy.x < ARENA.center.x ? 1 : -1,
-    moving: true,
+    moving: !enemy.stone,
   });
   ctx.restore();
+  if (enemy.shield > 0) {
+    // escudo do Lich
+    ctx.save();
+    ctx.globalAlpha = 0.5 + Math.sin(time * 8) * 0.15;
+    const g = ctx.createRadialGradient(enemy.x, enemy.y - 6 * scale, 4 * scale, enemy.x, enemy.y - 6 * scale, 22 * scale);
+    g.addColorStop(0, '#7af0d800');
+    g.addColorStop(1, '#7af0d866');
+    ctx.fillStyle = g;
+    ctx.strokeStyle = '#bafff0';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(enemy.x, enemy.y - 6 * scale, 22 * scale, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
 
   if (enemy.poisonTimer > 0) {
     // bolhas verdes subindo
@@ -146,7 +185,7 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     ctx.beginPath();
     ctx.roundRect(enemy.x - width / 2 - 1, top - 1, width + 2, 5, 2.5);
     ctx.fill();
-    ctx.fillStyle = enemy.def.isBoss ? '#ff4a5a' : '#e8454f';
+    ctx.fillStyle = enemy.elite ? '#ffc43a' : enemy.def.isBoss ? '#ff4a5a' : '#e8454f';
     ctx.beginPath();
     ctx.roundRect(enemy.x - width / 2, top, width * Math.max(0, enemy.hp / enemy.maxHp), 3, 1.5);
     ctx.fill();
@@ -191,8 +230,52 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
     level: creature.level,
   });
   ctx.restore();
+  if (creature.webTimer > 0) drawWeb(ctx, creature.x, creature.y - 4, Math.min(1, creature.webTimer * 2));
+  if (creature.stunTimer > 0) drawStunStars(ctx, creature.x, creature.y - 26, time);
   if (creature.level > 1) drawLevelStars(ctx, creature.x, creature.y + 20, creature.level);
   if (canEvolve(state, creature)) drawEvolveHint(ctx, creature.x, creature.y - 30 * levelInfo(creature).scale, time);
+}
+
+/** Teia de aranha sobre a criatura (ataca mais devagar). */
+function drawWeb(ctx: CanvasRenderingContext2D, x: number, y: number, alpha: number): void {
+  ctx.save();
+  ctx.globalAlpha = 0.75 * alpha;
+  ctx.strokeStyle = '#ece4ff';
+  ctx.lineWidth = 0.7;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * TAU;
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(a) * 13, y + Math.sin(a) * 11);
+  }
+  for (const r of [5, 9, 13]) {
+    for (let i = 0; i <= 6; i++) {
+      const a = (i / 6) * TAU;
+      const px = x + Math.cos(a) * r;
+      const py = y + Math.sin(a) * r * 0.85;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Estrelinhas girando: criatura atordoada. */
+function drawStunStars(ctx: CanvasRenderingContext2D, x: number, y: number, time: number): void {
+  ctx.font = '700 7px Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ffe07a';
+  ctx.strokeStyle = '#0a0612';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 3; i++) {
+    const a = time * 5 + (i * TAU) / 3;
+    const sx = x + Math.cos(a) * 8;
+    const sy = y + Math.sin(a) * 3;
+    ctx.strokeText('✦', sx, sy);
+    ctx.fillText('✦', sx, sy);
+  }
 }
 
 /** Seta verde discreta: esta criatura pode evoluir agora. */

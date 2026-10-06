@@ -1,5 +1,6 @@
 import { CREATURE_IDS, type CreatureId } from '../data/creatures';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
+import { ENEMY_IDS } from '../data/enemies';
 import { HERO_IDS, STARTER_HERO, type HeroId } from '../data/heroes';
 import { findSkin } from '../data/skins';
 import { TALENT_IDS, talentMaxLevel, type TalentId } from '../data/talents';
@@ -115,6 +116,9 @@ function sanitize(data: unknown): Profile {
   profile.achievements = ACHIEVEMENT_IDS.filter((id) => achievements.includes(id));
   const stats = (raw.stats ?? {}) as Record<string, unknown>;
   profile.stats = { runs: toNumber(stats.runs), wins: toNumber(stats.wins), kills: toNumber(stats.kills) };
+  const seen = Array.isArray(raw.seenEnemies) ? raw.seenEnemies : [];
+  profile.seenEnemies = ENEMY_IDS.filter((id) => seen.includes(id));
+  profile.bestWave = Math.floor(toNumber(raw.bestWave));
   const skins = (raw.selectedSkins ?? {}) as Record<string, unknown>;
   for (const hero of HERO_IDS) {
     const skin = findSkin(String(skins[hero] ?? ''));

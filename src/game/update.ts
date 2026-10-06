@@ -1,7 +1,8 @@
-import { ARENA, ECONOMY, NEXUS, REWARDS } from '../data/config';
+import { ECONOMY, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
 import { offerChoices } from './choices';
 import { applyBlocks, updateCreatures, updateDamageOverTime, updateHero } from './combat';
+import { updateEnemies } from './enemies';
 import { updateHeroVitals } from './hero';
 import { spawnEnemy, spawnInterval, startWave } from './spawning';
 import { createRun, type Point, type RunSetup, type RunState } from './state';
@@ -45,65 +46,36 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   updateHeroVitals(state, dt);
   updateHero(state, dt, input.direction);
   applyBlocks(state);
-  moveEnemies(state, dt);
+  updateEnemies(state, dt);
   updateCreatures(state, dt);
   updateDamageOverTime(state, dt);
   state.enemies = state.enemies.filter((e) => !e.dead);
 
   if (state.nexus.hp <= 0) endRun(state, false);
   else if (!state.spawnQueue.length && !state.enemies.length) {
-    if (state.wave >= WAVES.total) endRun(state, true);
+    if (state.wave >= WAVES.total && !state.endless) endRun(state, true);
     else offerChoices(state);
   }
 }
 
-/** Inimigos andam até o Nexus; ao encostar, causam dano e somem (sem recompensa). */
-function moveEnemies(state: RunState, dt: number): void {
-  const center = ARENA.center;
-  for (const enemy of state.enemies) {
-    if (enemy.dead) continue;
-    enemy.slowTimer -= dt;
-    const speedFactor = enemy.slowTimer > 0 ? enemy.slowMultiplier : 1;
-    const dx = center.x - enemy.x;
-    const dy = center.y - enemy.y;
-    const length = Math.hypot(dx, dy);
-    if (enemy.fearTimer > 0) {
-      // com medo: foge do Nexus (sem sair muito da arena)
-      enemy.fearTimer -= dt;
-      const flee = enemy.def.speed * speedFactor * 0.8 * dt;
-      enemy.x = Math.min(ARENA.width + 20, Math.max(-20, enemy.x - (dx / length) * flee));
-      enemy.y = Math.min(ARENA.height + 20, Math.max(-20, enemy.y - (dy / length) * flee));
-      continue;
-    }
-    if (enemy.held) continue;
-    if (length < NEXUS.contactRadius) {
-      if (state.wardReady) {
-        state.wardReady = false;
-        state.events.push({ type: 'wardBlocked' });
-      } else {
-        state.nexus.hp -= enemy.def.nexusDamage;
-        state.lowestNexusRatio = Math.min(state.lowestNexusRatio, Math.max(0, state.nexus.hp) / state.nexus.maxHp);
-        state.events.push({ type: 'nexusHit', damage: enemy.def.nexusDamage });
-      }
-      enemy.dead = true;
-      continue;
-    }
-    const zigzag = enemy.def.zigzag;
-    const lateral = zigzag
-      ? Math.sin(state.time * zigzag.frequency + enemy.animationOffset) * zigzag.lateralSpeed
-      : 0;
-    const speed = enemy.def.speed * speedFactor;
-    enemy.x += ((dx / length) * speed - (dy / length) * lateral) * dt;
-    enemy.y += ((dy / length) * speed + (dx / length) * lateral) * dt;
-  }
+/** Depois da vitória: segue no modo Sem Fim, começando pela escolha de fim de onda. */
+export function enterEndless(state: RunState): void {
+  if (!state.result?.victory || state.endless) return;
+  state.endless = true;
+  state.endlessKills = state.kills;
+  state.result = null;
+  offerChoices(state);
 }
 
 function endRun(state: RunState, victory: boolean): void {
   state.phase = 'ended';
   const t = state.talents;
+  // No Sem Fim, a Essência das 20 ondas já foi paga na vitória: conta só o que veio depois.
+  const waves = state.endless ? state.wave - WAVES.total : state.wave;
+  const kills = state.kills - (state.endless ? state.endlessKills : 0);
   const base =
-    state.wave * (REWARDS.essencePerWave + t.essencePerWave) +
-    Math.floor(state.kills / REWARDS.killsPerEssence) +
+    waves * (REWARDS.essencePerWave + t.essencePerWave) +
+    Math.floor(kills / REWARDS.killsPerEssence) +
     (victory ? REWARDS.victoryBonus + t.victoryEssence : 0);
   const essence = Math.floor(base * (1 + t.essenceGain));
   state.result = {
@@ -115,6 +87,9 @@ function endRun(state: RunState, victory: boolean): void {
     lowestNexusRatio: state.lowestNexusRatio,
     ascendedPeak: state.ascendedPeak,
     creaturesPlaced: state.creaturesPlaced,
+    seenEnemies: [...state.seenEnemies],
+    endless: state.endless,
+    previousKills: state.endless ? state.endlessKills : 0,
   };
   state.events.push({ type: 'runEnded', result: state.result });
 }

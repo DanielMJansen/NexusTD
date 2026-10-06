@@ -39,7 +39,7 @@ export const HERO_UPGRADES: HeroUpgradeDef[] = [
 ];
 
 /** XP para passar do nível N para o N+1. */
-export const xpToNextLevel = (level: number): number => 10 + 8 * (level - 1);
+export const xpToNextLevel = (level: number): number => Math.round(10 + 8 * (level - 1) + 1.2 * (level - 1) ** 2);
 
 /** Tempo para renascer depois de morrer (s). */
 export const HERO_RESPAWN_TIME = 8;

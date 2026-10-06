@@ -69,7 +69,7 @@ Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de le
 - Ao subir de nível, escolher 1 entre 3 **melhorias só do herói**: dano, velocidade, alcance, recarga do Pulso, vida, roubo de vida, Pulso em dobro, aura ao redor do herói.
 - **Feito:** 11 melhorias do herói (Lâmina Afiada, Agilidade, Alcance, Vigor, Recuperação, Passos Rápidos, Foco, Pulso Potente, Sede, Espinhos, Couraça). "Pulso em dobro" e "aura" ficaram para depois. Conquista "Sem Torres" criada. A curva de XP será recalibrada no F5, já com 20 ondas: hoje o herói chega ao nível ~14 em 10 ondas e quase nunca morre, porque o bot fica parado.
 
-### F5. Dificuldade e inimigos `[ ]` — D3
+### F5. Dificuldade e inimigos `[x]` — D3
 - Escalonamento por onda: vida ×(1 + 0,15·o + 0,01·o²), velocidade +2%/onda, dano ao Nexus +5%/onda (calibrar por simulação).
 - **Elites** a partir da metade (contorno dourado, 2× vida, soltam baú).
 - **Inimigos novos com personalidade:**
@@ -85,6 +85,7 @@ Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de le
   - **Lich** (chefe final): invoca, protege-se com escudo e tem fases.
 - **Codex de inimigos** no menu (vida, dano, armadura, velocidade, passivas, habilidades; desconhecidos em silhueta até serem enfrentados).
 - **Conquista "Sem Torres"**: vencer só com o herói. Cria um modo de desafio natural junto com o F4.
+- **Feito:** os 7 inimigos, os 3 chefes, elites, escalonamento, códex e Sem Fim. O chefe do meio (onda 14) virou a **Rainha Aranha** (`PROPOSTA`, o plano não o definia). O Esqueleto Arqueiro anda devagar enquanto mira em vez de parar, para não travar a onda. Elites ainda não soltam baú (vem com o loot do F6). Calibragem: ~40% de vitórias para o bot, com 1.500–3.000 de ouro sobrando, que é o espaço para o F6.
 
 ### F6. Ouro com destino `[ ]` — D4, D7
 - **Evolução progressiva:** a evolução custa em proporção ao que aquela cópia custou para invocar (2ª cópia mais cara → evoluções dela também).

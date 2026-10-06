@@ -5,7 +5,7 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 ## Entrada, menu e configurações
 - [ ] Tela "Clique para começar" (ou Enter/Espaço) leva ao menu e a música do menu começa.
 - [ ] Jogador novo: aparece "Escolha seu primeiro companheiro" (só criaturas místicas); a escolhida entra na coleção e na equipe; não aparece de novo.
-- [ ] Menu: Essência, herói + equipe em miniatura, botões Jogar / Herói / Equipe / Coleção / Talentos / Conquistas / Configurações.
+- [ ] Menu: Essência, herói + equipe em miniatura, botões Jogar / Herói / Equipe / Coleção / Talentos / Conquistas / Códex / Configurações.
 - [ ] Essência sempre com ✦ lilás e ouro sempre com ◉ dourado, em todas as telas.
 - [ ] ⚙ (topo, menu ou pausa): sliders de música e efeitos mudam o volume ao vivo; "Silenciar tudo" e o botão 🔊 ficam sincronizados; tudo persiste ao recarregar.
 - [ ] Exportar save baixa `nexus-save-AAAA-MM-DD.json`; importar pede confirmação, substitui tudo e recarrega; arquivo inválido mostra erro e não quebra nada.
@@ -24,7 +24,12 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] "Abandonar run" pede confirmação e apaga a run salva (sem Essência).
 
 ## Run
-- [ ] Começa direto na onda 1 (sem ovos), com faixa "Onda 1" e música da run acelerando a cada onda; música do chefe na onda 10.
+- [ ] Começa direto na onda 1 (sem ovos), com faixa "Onda 1" e música da run acelerando a cada onda; música do chefe nas ondas 7, 14 e 20 (volta à trilha normal na onda seguinte).
+- [ ] Inimigos novos aparecem conforme as ondas: Esqueleto atira no herói (flecha), Lodo se divide, Aranha prende criaturas na teia, Gárgula pousa cinza como pedra, Cavaleiro Sem Cabeça dispara com rastro, Banshee Sombria cura (anel verde), Necromante ergue zumbis.
+- [ ] Chefes: Rei Ogro pisa (anel e criaturas com estrelinhas), Rainha Aranha prende 3 criaturas, Lich atira no herói, invoca esqueletos, ganha escudo (bolha) e enfurece ("Segunda fase").
+- [ ] Elites com brilho dourado, barra de vida dourada e mais ouro.
+- [ ] Menu → Códex: inimigos enfrentados com ficha; os outros em silhueta com a onda em que aparecem.
+- [ ] Vencer a onda 20 → "Seguir no Sem Fim" → escolha de recompensa → "Onda 21 · Sem Fim" no HUD; ao cair, "Fim do Sem Fim" com a Essência só das ondas extras.
 - [ ] HUD: onda, ouro, vida do Nexus, criaturas/limite. Renda +1 ouro a cada 2 s (talentos aceleram).
 - [ ] Herói anda com WASD/setas e clique/segurar; anel sob os pés na cor do herói (sem brilho ciano).
 - [ ] Painel mostra só a equipe; tooltip com descrição, atributos, habilidade, forma evoluída e bônus do herói (em dourado) quando a raça bate.

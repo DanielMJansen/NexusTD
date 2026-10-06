@@ -41,13 +41,19 @@ export function updateHeroVitals(state: RunState, dt: number): void {
   let incoming = 0;
   for (const enemy of state.enemies) {
     if (enemy.dead || distance(enemy, hero) > enemy.def.radius + HERO_CONTACT_RANGE) continue;
-    incoming += enemy.def.heroDps * dt;
+    incoming += enemy.heroDps * dt;
     if (state.heroStats.thorns > 0) {
       damageEnemy(state, enemy, state.heroStats.thorns * dt, undefined, { ignoreArmor: true, overTime: true });
     }
   }
-  if (incoming <= 0) return;
-  hero.hp -= incoming * (1 - Math.min(0.6, state.heroStats.armor));
+  if (incoming > 0) damageHero(state, incoming);
+}
+
+/** Dano ao herói (contato ou tiros), reduzido pela Couraça; pode derrubá-lo. */
+export function damageHero(state: RunState, amount: number): void {
+  const { hero } = state;
+  if (hero.dead || amount <= 0) return;
+  hero.hp -= amount * (1 - Math.min(0.6, state.heroStats.armor));
   hero.lastHitAt = state.time;
   if (hero.hp <= 0) {
     hero.hp = 0;

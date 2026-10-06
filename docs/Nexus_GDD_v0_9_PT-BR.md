@@ -27,7 +27,7 @@
 
 ## 3. Loop
 **Fora da run (menu):** escolher **herói** e **equipe** (até 6 criaturas da coleção), comprar **talentos**, **criaturas** e **heróis** com Essência, ver **conquistas** e escolher **skins**.
-**Run:** onda 1 → posicionar criaturas da equipe (pagando ouro) e mover o herói → onda vencida → escolha de 1 entre 3 **melhorias** (+ **loja**) → próxima onda → chefe na onda 10 → vitória/derrota → **Essência** e conquistas → menu.
+**Run:** onda 1 → posicionar criaturas da equipe (pagando ouro) e mover o herói → onda vencida → escolha de 1 entre 3 **melhorias** (+ **loja**) → próxima onda → chefes nas ondas 7, 14 e 20 → vitória/derrota → **Essência** e conquistas → menu. Depois da vitória, a run pode seguir no **Sem Fim**.
 
 **Herói** `FEITO`: mover por WASD/setas ou clique; ataca sozinho; habilidade **Pulso** com recarga. **Um herói por raça** `FEITO`: o Cavaleiro (Humano) é o inicial; os outros são desbloqueados com Essência. Cada herói tem ataque e Pulso próprios e um **bônus para as criaturas da mesma raça** (seção 9). **Skins** `FEITO`: só cosméticas, liberadas por conquistas.
 **Herói vivo** `FEITO`: o herói tem vida e leva dano de contato dos inimigos; ao cair, renasce no Nexus depois de 8 s. Ganha XP a cada abate e, a cada nível, escolhe 1 entre 3 **melhorias só do herói** (o jogo pausa).
@@ -63,9 +63,18 @@ Cada tipo cria um problema novo, não só mais vida.
 - **Zumbi** (básico): às vezes vem em bando de 3. `FEITO`
 - **Morcego** (rápido): voa em zigue-zague. `FEITO`
 - **Ogro** (tanque): armadura que reduz dano por golpe, punindo dano fraco. `FEITO`
-- **Rei Ogro** (chefe, onda 10): muita vida e armadura, causa muito dano ao Nexus. `FEITO`
-- Estados `FEITO`: lento, segurado (Guarda), envenenado, com medo (foge do Nexus), empurrado. Chefes não são segurados, empurrados nem assustados.
-- `PROPOSTA` próximos: ranged, invocador, anti-criatura.
+- **Esqueleto Arqueiro** (a distância): atira no herói, avançando devagar enquanto mira. `FEITO`
+- **Lodo** (divisão): ao morrer, vira 2 Lodinhos. `FEITO`
+- **Aranha** (anti-criatura): teia na criatura mais próxima, que ataca 50% mais devagar. `FEITO`
+- **Gárgula** (voadora blindada): voa rápido e pousa como pedra, parada e com armadura extra. `FEITO`
+- **Cavaleiro Sem Cabeça** (investida): de tempos em tempos corre muito mais rápido. `FEITO`
+- **Banshee Sombria** (curandeira): cura os inimigos ao redor. `FEITO`
+- **Necromante** (invocador): ergue zumbis enquanto caminha. `FEITO`
+- **Chefes** `FEITO`: **Rei Ogro** (onda 7) pisa e atordoa criaturas próximas · **Rainha Aranha** (onda 14, `PROPOSTA`: o plano não definia o chefe do meio) prende até 3 criaturas na teia e choca aranhas · **Lich** (onda 20, final) atira no herói, invoca esqueletos, se protege com escudo e enfurece abaixo de 50% da vida.
+- **Elites** `FEITO`: a partir da onda 8, inimigos comuns podem vir como elite (brilho dourado, maiores, mais fortes e rendem mais).
+- **Escalonamento** `FEITO`: a cada onda, mais vida, velocidade e dano (seção 9).
+- **Códex** `FEITO` no menu: ficha de cada inimigo (atributos, habilidades, onda em que aparece); os ainda não enfrentados ficam em silhueta.
+- Estados `FEITO`: lento, segurado (Guarda), envenenado, com medo (foge do Nexus), empurrado. Chefes não são segurados, empurrados nem assustados. Criaturas podem ficar presas na teia (atacam devagar) ou atordoadas (não atacam).
 
 ## 6. Economia e progressão
 **Na run** `FEITO`
@@ -83,16 +92,16 @@ Cada tipo cria um problema novo, não só mais vida.
 - `TBD` nível permanente de criatura (fragmentos).
 
 ## 7. Controles e interface (`FEITO`)
-Tela de entrada "Clique para começar" (libera o áudio). Menu principal: Continuar run (se houver), Jogar, Herói, Equipe, Coleção, Talentos, Conquistas, Configurações. **Tutorial guiado** na primeira run (7 passos; pular a qualquer momento; rever nas Configurações).
+Tela de entrada "Clique para começar" (libera o áudio). Menu principal: Continuar run (se houver), Jogar, Herói, Equipe, Coleção, Talentos, Conquistas, Códex, Configurações. **Tutorial guiado** na primeira run (7 passos; pular a qualquer momento; rever nas Configurações).
 Na run: mover o herói com WASD/setas ou clicar/segurar no chão. Invocar: arrastar a carta do painel até a arena, ou tecla 1–6 (ordem da equipe) e clicar (prévia mostra alcance; vermelha se não pode). Evoluir/vender: clicar na criatura e nos botões (ou tecla E). Pulso: Espaço ou botão (mostra o nome do Pulso do herói). Cancelar: botão direito ou Esc. Pausa: P, Esc ou botão. Velocidade 1x/2x/4x: botão ou F. Alcance do herói sempre visível (destacado com Shift ou mouse sobre ele). ⚙ abre as Configurações (volumes, silenciar, números de dano, rever tutorial, exportar/importar, apagar progresso).
 Cartas verdes quando dá para invocar e vermelhas sem ouro ou sem vaga (não deixa escolher). Criatura selecionada: quadro de atributos (dano, ataques/s, alcance, investido, venda, próxima evolução), botão Evoluir verde quando há ouro, seta ⇧ sobre criaturas que podem evoluir e venda com confirmação.
 Painel lateral com retrato, custo, atalho e tooltip (descrição, atributos, habilidade, forma evoluída e bônus do herói). Coleção com ficha de cada criatura (descrição, lore, atributos, forma evoluída).
 
 ## 8. Modos
-**Campanha** (estágios) e **Endless**. Ambos **fora do MVP** (hoje existe 1 estágio de 10 ondas).
+**Run normal:** 20 ondas, chefes nas ondas 7, 14 e 20. **Sem Fim** `FEITO`: depois da vitória, a mesma run pode seguir; as ondas continuam escalando, com um chefe a cada 5 ondas (Rei Ogro → Rainha Aranha → Lich, em rodízio). A vitória e a Essência das 20 ondas são pagas na hora; a Essência das ondas extras vem quando o Nexus cair. O perfil guarda a onda mais alta. **Campanha** (estágios) segue fora do MVP.
 
 ## 9. Valores atuais do protótipo
-Todos `PROPOSTA` até o playtest. Balanceados por simulação (30 runs por equipe/herói, bot com o herói parado): equipes de todas as raças e todos os heróis ficam entre 23 e 26 vitórias em 30 com 4 criaturas.
+Todos `PROPOSTA` até o playtest. Balanceados por simulação (30 runs por equipe/herói; bot que gasta ouro, evolui, compra vagas, escolhe melhorias e deixa o herói parado). Com 20 ondas (F5): vampiros 18/30, bruxas 20/30, lobisomens 13/30, fantasmas 10/30, só arqueiro 9/30, humanos + dragões 0/30 (sofrem com inimigos blindados); derrotas concentradas nos chefes. O bot termina com 1.500–3.000 de ouro sem uso: o F6 (ouro com destino) deve deixar o jogador mais forte, e então recalibramos.
 
 **Nexus:** 100 de vida (+10 de cura entre ondas). **Ouro inicial:** 30. **Renda passiva:** +1 a cada 2 s. **Limite de criaturas:** 5.
 **Custo:** base × 1,5^(cópias já posicionadas da classe). **Venda:** 60% de tudo que foi pago.
@@ -128,21 +137,33 @@ Criaturas atacam o inimigo mais próximo do Nexus dentro do alcance.
 | Espectro | Fantasma | 120 | 11 a cada 0,5 s, alcance 75, ignora armadura | Travessia: investida de 200 (largura 26), 45, 10 s | ignoram 2 de armadura | 220 ✦ |
 | Bruxa | Bruxa | 115 | 8 a cada 0,7 s, alcance 110 | Maldição: 10, raio 115, 12 s; veneno 8/s por 4 s | venenos e poças +1 s | 220 ✦ |
 
-**Herói vivo:** vida máxima Cavaleiro 120 · Nobre Vampiro 100 · Draconato 150 · Licantropo 110 · Espectro 90 · Bruxa 90. Dano de contato por segundo (raio 10): Zumbi 8 · Morcego 6 · Ogro 16 · Rei Ogro 35. Renascimento: 8 s. XP por abate: Zumbi 3 · Morcego 2 · Ogro 7 · Rei Ogro 40. XP para o próximo nível: 10 + 8 × (nível − 1).
+**Herói vivo:** vida máxima Cavaleiro 120 · Nobre Vampiro 100 · Draconato 150 · Licantropo 110 · Espectro 90 · Bruxa 90. Dano de contato por segundo (raio 10) e XP por abate: na tabela de inimigos. Renascimento: 8 s. XP para o próximo nível: 10 + 8 × (n − 1) + 1,2 × (n − 1)² (≈ nível 17 numa run de 20 ondas).
 Melhorias do herói (somam): Lâmina Afiada +15% dano · Agilidade +12% vel. de ataque · Alcance +12% · Vigor +25 vida máx. · Recuperação +1,5 vida/s · Passos Rápidos +10% velocidade (até 4×) · Foco −10% recarga do Pulso (até 4×) · Pulso Potente +25% dano do Pulso · Sede cura 10% do dano causado (até 3×) · Espinhos 8 de dano/s a quem encosta · Couraça −15% de dano recebido (até 4×, máx. 60%).
 
 **Inimigos**
 
-| Inimigo | Vida | Vel. | Dano ao Nexus | Ouro | Notas |
-|---|---|---|---|---|---|
-| Zumbi | 20 | 30 | 5 | 3 | 30% de chance de bando de 3 |
-| Morcego | 12 | 62 | 3 | 2 | zigue-zague; a partir da onda 2 |
-| Ogro | 90 | 18 | 15 | 8 | armadura 3; a partir da onda 4 |
-| Rei Ogro | 450 | 13 | 40 | 30 | armadura 4; onda 10 |
+| Inimigo | Vida | Vel. | Armadura | Dano ao Nexus | Dano ao herói/s | Ouro | XP | Habilidade | Onda |
+|---|---|---|---|---|---|---|---|---|---|
+| Zumbi | 20 | 30 | 0 | 5 | 8 | 3 | 3 | 30% de chance de bando de 3 | 1+ |
+| Morcego | 12 | 62 | 0 | 3 | 6 | 2 | 2 | voa em zigue-zague | 2+ |
+| Esqueleto Arqueiro | 18 | 26 | 0 | 5 | 4 | 4 | 3 | tiro no herói: 6 a cada 1,6 s, alcance 90; anda a 35% enquanto mira | 3+ |
+| Ogro | 90 | 18 | 3 | 15 | 16 | 8 | 7 | — | 4+ |
+| Lodo | 34 | 22 | 0 | 6 | 8 | 3 | 3 | vira 2 Lodinhos (10 de vida, vel. 34, 2 ao Nexus) | 5+ |
+| Aranha | 26 | 40 | 0 | 5 | 10 | 4 | 4 | teia a cada 4 s (alcance 80): criatura 50% mais lenta por 2,5 s | 6+ |
+| Gárgula | 50 | 44 | 1 | 8 | 10 | 6 | 5 | voa 2,5 s, pousa 1,5 s como pedra (+6 de armadura) | 8+ |
+| Cavaleiro Sem Cabeça | 80 | 24 | 2 | 10 | 18 | 8 | 7 | investida a cada 6 s: 2,6× vel. por 0,8 s | 9+ |
+| Banshee Sombria | 40 | 28 | 0 | 6 | 6 | 7 | 6 | cura 15% da vida de inimigos num raio de 70 a cada 4 s | 11+ |
+| Necromante | 55 | 20 | 1 | 10 | 8 | 9 | 8 | ergue 2 zumbis a cada 6 s | 12+ |
+| Rei Ogro (chefe) | 450 | 13 | 4 | 30 | 35 | 30 | 40 | pisão a cada 7 s: atordoa criaturas num raio de 75 por 1,2 s | 7 |
+| Rainha Aranha (chefe) | 600 | 15 | 3 | 35 | 30 | 45 | 60 | teia em até 3 criaturas (60%, 3 s, a cada 3,5 s); choca 2 aranhas a cada 7 s | 14 |
+| Lich (chefe final) | 800 | 12 | 4 | 60 | 40 | 80 | 100 | tiro no herói 14 a cada 1,4 s; 2 esqueletos a cada 8 s; escudo −80% de dano por 3 s a cada 12 s; abaixo de 50%: +40% vel. e recargas ×0,6 | 20 |
 
-Dano por golpe contra armadura = `max(1, dano − armadura)`; veneno e poças ignoram armadura. Vida de todo inimigo × (1 + 0,12 × onda).
+Dano por golpe contra armadura = `max(1, dano − armadura)`; veneno e poças ignoram armadura.
+**Escalonamento** (o = onda − 1): vida × (1 + 0,12·o + 0,008·o²) (onda 20 ≈ ×6,2); velocidade +2% por onda (máx. +40%); dano ao Nexus e ao herói +5% por onda.
+**Sorteio por onda:** pesos Zumbi 10 (−0,3/onda, mín. 3) · Morcego 4 · Esqueleto 3 (+0,05) · Ogro 2 (+0,04) · Lodo 3 · Aranha 3 · Gárgula 2,5 · Cavaleiro 2 (+0,05) · Banshee 1,2 · Necromante 1 (+0,03), cada um a partir da sua onda.
+**Elites:** a partir da onda 8, chance 5% (+1% por onda, máx. 20%): vida ×2,5, dano ×1,5, ouro e XP ×3, tamanho ×1,15.
 **Arena:** 640 × 360 unidades (16:9), Nexus no centro.
-**Ondas (1–10):** quantidade = 4 + 3 × onda; intervalo de spawn = máx(0,35 s; 1,2 − 0,07 × onda) s; inimigos surgem 24 unidades além da borda da tela.
+**Ondas (1–20):** quantidade = 4 + 2,5 × onda; intervalo de spawn = máx(0,3 s; 1,2 − 0,05 × onda) s; inimigos surgem 24 unidades além da borda da tela. **Essência** = 3 por onda + 1 a cada 5 abates + 30 ao vencer.
 **Melhorias temporárias (2.0)** `PROPOSTA`: 17 famílias com valor por tier — Comum / Incomum / Rara / Épica / Lendária. Pesos dos tiers vão de 62/27/9/2/0 (onda 1) a 28/30/22/13/7 (última onda). Os % **somam** com os talentos na mesma categoria; categorias diferentes multiplicam. Exemplos: Fúria (dano) 6/10/16/25/40% · Ritmo (vel. ataque) 5/8/13/20/32% · Olhar Aguçado (alcance) 5/8/12/18/28% · Precisão (crítico ×2) 3/5/8/12/18% · Laços de Sangue (dano de uma raça da equipe) 10/16/25/38/60% · Campeão (dano do herói) 8/12/20/30/45% · Concentração (recarga do Pulso, mín. 35%) 6/10/15/22/32% · Saque · Reforço · Raízes Vivas · Cobiça · Alquimia. Só tiers altos: Recrutamento (+vaga, Rara+), Égide Eterna (Rara), Ascensão (Épica +1 nível / Lendária +2), Coração do Nexus (Épica/Lendária), Sentença (Lendária: comuns abaixo de 10% morrem). A tela de escolha mostra "Seus bônus".
 **Essência por run:** (3 × onda alcançada + 1 por 5 abates + 30 se vencer) com os bônus de talento.
 
@@ -223,6 +244,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 06/10/2026 | Melhorias 2.0: famílias com tiers (Comum → Lendária), chance de tier alto crescendo na run, % somando por categoria, crítico e sinergias de raça |
 | 06/10/2026 | Melhorias da run com raridade; run salva com continuar; tutorial guiado; velocidade 1x/2x/4x |
 | 06/10/2026 | Herói vivo: vida, dano de contato, renascimento em 8 s, XP por abate e melhorias só do herói a cada nível; conquista "Sem Torres" |
+| 06/10/2026 | Run de 20 ondas com chefes nas ondas 7 (Rei Ogro), 14 (Rainha Aranha) e 20 (Lich); escalonamento de vida, velocidade e dano; elites; 7 inimigos novos com habilidades; códex; modo Sem Fim; curva de XP do herói mais íngreme |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.

@@ -10,7 +10,8 @@ export interface SoundDef {
   volume?: number;
 }
 
-export type SoundId = CreatureId | 'kill' | 'coin' | 'place' | 'pulse' | 'hurt' | 'boss' | 'evolve' | 'heal';
+export type SoundId = CreatureId | 'kill' | 'coin' | 'place' | 'pulse' | 'hurt' | 'boss' | 'evolve' | 'heal'
+  | 'enemyArrow' | 'enemyBolt' | 'web' | 'summon' | 'stomp' | 'shield' | 'enrage' | 'enemyHeal';
 
 export const SOUNDS: Record<SoundId, SoundDef> = {
   archer: { from: 600, to: 300, duration: 0.05, wave: 'triangle' },
@@ -33,4 +34,12 @@ export const SOUNDS: Record<SoundId, SoundDef> = {
   boss: { from: 70, to: 40, duration: 0.5, wave: 'sawtooth' },
   evolve: { from: 440, to: 1760, duration: 0.4, wave: 'triangle' },
   heal: { from: 620, to: 930, duration: 0.12, wave: 'sine' },
+  enemyArrow: { from: 420, to: 220, duration: 0.05, wave: 'triangle', volume: 0.5 },
+  enemyBolt: { from: 260, to: 700, duration: 0.14, wave: 'sine', volume: 0.7 },
+  web: { from: 1500, to: 1100, duration: 0.07, wave: 'sine', volume: 0.4 },
+  summon: { from: 120, to: 60, duration: 0.3, wave: 'triangle', volume: 0.8 },
+  stomp: { from: 60, to: 30, duration: 0.35, wave: 'square' },
+  shield: { from: 400, to: 800, duration: 0.25, wave: 'sine', volume: 0.7 },
+  enrage: { from: 50, to: 120, duration: 0.6, wave: 'sawtooth' },
+  enemyHeal: { from: 500, to: 380, duration: 0.2, wave: 'sine', volume: 0.5 },
 };

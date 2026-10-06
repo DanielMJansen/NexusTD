@@ -19,7 +19,8 @@ import {
 } from './game/profile';
 import { buyExtraSlot, reroll } from './game/shop';
 import { createRun, type RunState } from './game/state';
-import { startRun, updateRun } from './game/update';
+import { waveBoss } from './game/spawning';
+import { enterEndless, startRun, updateRun } from './game/update';
 import { createInteraction, interactionView, resetInteraction } from './input/interaction';
 import { Keyboard } from './input/keyboard';
 import { attachPointer, type PointerControls } from './input/pointer';
@@ -31,6 +32,7 @@ import { clearRun, loadRun, savedRunSummary, saveRun } from './save/runSave';
 import { deleteProfile, loadProfile, saveProfile } from './save/save';
 import { loadSettings, saveSettings, type Settings } from './save/settings';
 import { showAchievements } from './ui/achievementsScreen';
+import { showCodex } from './ui/codexScreen';
 import { showCollection } from './ui/collection';
 import { showEntry } from './ui/entry';
 import { showHeroLevelUp } from './ui/heroLevelUp';
@@ -303,7 +305,9 @@ export class App {
         this.showHeroChoices();
         break;
       case 'waveStarted':
-        this.music.setIntensity((event.wave - 1) / (WAVES.total - 1));
+        // depois de uma onda de chefe, volta a trilha normal
+        this.music.play('run');
+        this.music.setIntensity(Math.min(1, (event.wave - 1) / (WAVES.total - 1)));
         break;
       case 'bossSpawned':
         this.music.play('boss');
@@ -316,11 +320,22 @@ export class App {
         recordRun(this.profile, event.result);
         const unlocked = checkAchievements(this.profile, event.result);
         saveProfile(this.profile);
-        showRunEnd(event.result, unlocked, () => this.openMenu());
+        showRunEnd(
+          event.result,
+          unlocked,
+          () => this.openMenu(),
+          event.result.victory ? () => this.enterEndless() : undefined,
+        );
         break;
       default:
         break;
     }
+  }
+
+  /** Depois da vitória: a mesma run segue no modo Sem Fim. */
+  private enterEndless(): void {
+    enterEndless(this.run);
+    this.music.play('run');
   }
 
   /** Escolha de melhoria do herói; depois volta para a escolha de fim de onda, se houver. */
@@ -372,6 +387,7 @@ export class App {
       onCollection: () => this.openCollection(),
       onTalents: () => this.openTalents(),
       onAchievements: () => showAchievements(this.profile, () => this.openMenu()),
+      onCodex: () => showCodex(this.profile, () => this.openMenu()),
       onSettings: () => this.openSettings(),
     });
   }
@@ -452,8 +468,8 @@ export class App {
     resetInteraction(this.interaction);
     this.run = run;
     this.mode = 'run';
-    this.music.play(run.wave >= WAVES.total ? 'boss' : 'run');
-    this.music.setIntensity((run.wave - 1) / (WAVES.total - 1));
+    this.music.play(waveBoss(run.wave) && run.phase === 'playing' ? 'boss' : 'run');
+    this.music.setIntensity(Math.min(1, (run.wave - 1) / (WAVES.total - 1)));
     if (run.heroChoices.length) {
       this.paused = false;
       this.showHeroChoices();

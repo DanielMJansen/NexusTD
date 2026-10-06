@@ -17,6 +17,24 @@ export interface Enemy extends Point {
   def: EnemyDef;
   hp: number;
   maxHp: number;
+  /** Atributos já com a força da onda (e de elite). */
+  speed: number;
+  nexusDamage: number;
+  heroDps: number;
+  /** Multiplicador de dano da onda (também vale para tiros). */
+  damageScale: number;
+  /** Elite: mais forte, contorno dourado, rende mais. */
+  elite: boolean;
+  /** Recarga de cada habilidade (mesma ordem de def.traits). */
+  timers: number[];
+  /** Segundos restantes de investida. */
+  charging: number;
+  /** Gárgula pousada como pedra. */
+  stone: boolean;
+  /** Segundos restantes de escudo. */
+  shield: number;
+  /** Chefe na segunda fase. */
+  enraged: boolean;
   slowTimer: number;
   slowMultiplier: number;
   /** Defasagem aleatória da animação e do zigue-zague. */
@@ -48,6 +66,11 @@ export interface Creature extends Point {
   /** Dicas visuais: lado para onde olha (1 direita, -1 esquerda) e momento do último ataque. */
   facing: 1 | -1;
   lastAttackAt: number;
+  /** Atordoada (pisão do Rei Ogro): não ataca. */
+  stunTimer: number;
+  /** Presa na teia: ataca mais devagar. */
+  webTimer: number;
+  webSlow: number;
 }
 
 export interface Hero extends Point {
@@ -107,6 +130,12 @@ export interface RunResult {
   /** Maior número de criaturas na forma evoluída ao mesmo tempo (conquistas). */
   ascendedPeak: number;
   creaturesPlaced: number;
+  /** Inimigos enfrentados (códex). */
+  seenEnemies: EnemyId[];
+  /** Fim de uma partida no Sem Fim (a vitória já foi contada antes). */
+  endless: boolean;
+  /** Abates já contados no perfil antes do Sem Fim. */
+  previousKills: number;
 }
 
 export type Phase = 'playing' | 'choosing' | 'ended';
@@ -169,6 +198,12 @@ export interface RunState {
   heroUpgradePicks: Record<string, number>;
   /** Criaturas invocadas na run (conquista Sem Torres). */
   creaturesPlaced: number;
+  /** Inimigos que já apareceram nesta run (códex). */
+  seenEnemies: EnemyId[];
+  /** Modo Sem Fim (depois da vitória): ondas continuam até o Nexus cair. */
+  endless: boolean;
+  /** Abates ao entrar no Sem Fim (a Essência conta só o que vier depois). */
+  endlessKills: number;
   result: RunResult | null;
   /** Fila de eventos do quadro; quem consome esvazia. */
   events: GameEvent[];
@@ -221,6 +256,9 @@ export function createRun(setup: RunSetup): RunState {
     pendingLevels: 0,
     heroUpgradePicks: {},
     creaturesPlaced: 0,
+    seenEnemies: [],
+    endless: false,
+    endlessKills: 0,
     enemies: [],
     creatures: [],
     team: [...setup.team],

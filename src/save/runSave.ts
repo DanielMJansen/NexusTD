@@ -9,8 +9,8 @@ import { findFamily, type Tier } from '../data/upgrades';
 import type { RunState } from '../game/state';
 
 export const RUN_KEY = 'nexus-run-v1';
-/** v3: herói com vida/XP (runs salvas em versões anteriores são descartadas). */
-const RUN_VERSION = 3;
+/** v4: inimigos com habilidades e força da onda (runs salvas em versões anteriores são descartadas). */
+const RUN_VERSION = 4;
 
 interface SavedRun {
   version: number;

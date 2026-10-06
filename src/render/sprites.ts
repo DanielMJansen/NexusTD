@@ -32,6 +32,16 @@ import {
   drawSpecter,
   drawWitch,
 } from './spritesMystic';
+import {
+  drawDarkBanshee,
+  drawGargoyle,
+  drawHeadless,
+  drawLich,
+  drawNecromancer,
+  drawSkeletonArcher,
+  drawSlime,
+  drawSpider,
+} from './spritesEnemies';
 
 export type SpriteId = HeroId | CreatureId | EnemyId;
 export type { SpritePose };
@@ -113,6 +123,34 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'ogreKing':
       drawOgre(ctx, p, true);
+      break;
+    case 'skeletonArcher':
+      drawSkeletonArcher(ctx, p);
+      break;
+    case 'slime':
+    case 'slimeling':
+      drawSlime(ctx, p);
+      break;
+    case 'spider':
+      drawSpider(ctx, p, false);
+      break;
+    case 'spiderQueen':
+      drawSpider(ctx, p, true);
+      break;
+    case 'gargoyle':
+      drawGargoyle(ctx, p);
+      break;
+    case 'headless':
+      drawHeadless(ctx, p);
+      break;
+    case 'darkBanshee':
+      drawDarkBanshee(ctx, p);
+      break;
+    case 'necromancer':
+      drawNecromancer(ctx, p);
+      break;
+    case 'lich':
+      drawLich(ctx, p);
       break;
   }
   ctx.restore();

@@ -28,8 +28,11 @@ const MELEE: Partial<Record<CreatureId, string>> = {
   alpha: '#ffd8a0',
 };
 
+/** Tiros de inimigos: flecha, raio do Lich e teia. */
+type EnemyShotKind = 'enemyArrow' | 'enemyBolt' | 'web';
+
 interface Shot {
-  source: CreatureId | 'hero';
+  source: CreatureId | 'hero' | EnemyShotKind;
   /** Cor do corte (golpes do herói). */
   color?: string;
   from: Point;
@@ -153,6 +156,39 @@ export class Effects {
         }
         break;
       }
+      case 'enemyShot': {
+        const source: EnemyShotKind = event.kind === 'arrow' ? 'enemyArrow' : event.kind === 'bolt' ? 'enemyBolt' : 'web';
+        const duration = event.kind === 'web' ? 0.3 : 0.25;
+        this.shots.push({ source, from: event.from, to: event.to, duration, remaining: duration, trailTimer: 0 });
+        break;
+      }
+      case 'enemySummoned':
+        this.ring(event.x, event.y + 10, 24, event.color, 0.5, 2.5);
+        this.burst(event.x, event.y + 8, 12, event.color, 50, 0.6, 2.2, true, -30);
+        this.burst(event.x, event.y + 10, 6, '#4a3a2a', 40, 0.5, 3, false, -20, 120);
+        break;
+      case 'enemyCharge':
+        this.burst(event.x, event.y + 8, 8, '#9ae8ff', 50, 0.4, 2, true);
+        break;
+      case 'enemyHealed':
+        this.ring(event.x, event.y, event.radius, '#7affb0', 0.6, 2);
+        this.burst(event.x, event.y - 6, 10, '#9affc8', 50, 0.7, 2, true, -40);
+        break;
+      case 'stomp':
+        this.ring(event.x, event.y + 12, event.radius, '#e8c890', 0.5, 5);
+        this.burst(event.x, event.y + 12, 18, '#8a7a5a', 90, 0.6, 3, false, -20, 160);
+        this.shake = Math.max(this.shake, 6);
+        break;
+      case 'bossShield':
+        this.ring(event.x, event.y - 8, 40, '#7af0d8', 0.5, 3);
+        this.text(event.x, event.y - 50, 'Escudo!', '#7af0d8', 11);
+        break;
+      case 'bossEnraged':
+        this.ring(event.x, event.y, 60, '#ff2a3a', 0.8, 5);
+        this.burst(event.x, event.y - 10, 30, '#ff3a4a', 120, 0.8, 3, true);
+        this.banner(`${ENEMIES[event.enemy].name} enfurecido!`, 'Segunda fase', '#ff5a5a', 2);
+        this.shake = Math.max(this.shake, 8);
+        break;
       case 'heroDied':
         this.burst(event.x, event.y - 8, 18, '#ff5a6a', 90, 0.6, 2.6, true);
         this.text(event.x, event.y - 30, 'Herói caiu!', '#ff7a84', 12);
@@ -195,7 +231,8 @@ export class Effects {
           gravity: 0,
           glow: true,
         });
-        this.text(event.x, event.y - 18, `+${event.gold}`, GOLD, 10);
+        this.text(event.x, event.y - 18, `+${event.gold}`, GOLD, event.elite ? 13 : 10);
+        if (event.elite) this.ring(event.x, event.y, 26, GOLD, 0.5, 3);
         break;
       case 'pulse': {
         const look = PULSE_LOOK[event.hero];
@@ -255,7 +292,12 @@ export class Effects {
         this.banner(`${ENEMIES[event.enemy].name} chegou!`, 'Chefe', '#ff5a5a', 2.6);
         break;
       case 'waveStarted':
-        this.banner(`Onda ${event.wave}`, event.wave === WAVES.total ? 'Onda final' : `de ${WAVES.total}`, '#e2c8ff', 1.8);
+        this.banner(
+          `Onda ${event.wave}`,
+          event.wave === WAVES.total ? 'Onda final' : event.wave > WAVES.total ? 'Sem Fim' : `de ${WAVES.total}`,
+          '#e2c8ff',
+          1.8,
+        );
         break;
       case 'creaturePlaced': {
         const color = CREATURES[event.creature].color;
@@ -526,6 +568,15 @@ export class Effects {
       case 'sorceress':
         this.burst(x, y, 7, '#7ad85a', 60, 0.45, 2.2, true);
         break;
+      case 'enemyArrow':
+        this.burst(x, y, 4, '#ff8a6a', 50, 0.25, 1.6, true);
+        break;
+      case 'enemyBolt':
+        this.burst(x, y, 10, '#7af0d8', 70, 0.4, 2.2, true);
+        break;
+      case 'web':
+        this.burst(x, y, 6, '#ece4ff', 30, 0.4, 1.4, false);
+        break;
       case 'cauldron':
       case 'banshee':
         break;
@@ -647,6 +698,47 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       break;
     }
     case 'banshee':
+      break;
+    case 'enemyArrow':
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.strokeStyle = '#e8dcc0';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(-8, 0);
+      ctx.lineTo(4, 0);
+      ctx.stroke();
+      ctx.fillStyle = '#ff6a3a';
+      ctx.beginPath();
+      ctx.moveTo(6, 0);
+      ctx.lineTo(2.5, -2);
+      ctx.lineTo(2.5, 2);
+      ctx.fill();
+      break;
+    case 'enemyBolt': {
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, 9);
+      glow.addColorStop(0, '#ffffff');
+      glow.addColorStop(0.35, '#7af0d8');
+      glow.addColorStop(1, '#3ac0b000');
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, 9, 0, TAU);
+      ctx.fill();
+      break;
+    }
+    case 'web':
+      // fio de teia esticando até a criatura
+      ctx.strokeStyle = '#ece4ffcc';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(shot.from.x, shot.from.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.fillStyle = '#ece4ff';
+      ctx.beginPath();
+      ctx.arc(x, y, 2.4, 0, TAU);
+      ctx.fill();
       break;
     case 'duelist':
     case 'guard':

@@ -1,6 +1,9 @@
 import { ARENA, HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureDamage, creatureRange } from './creatureStats';
+import { WAVES } from '../data/waves';
+import { enemyArmor, shieldFactor } from './enemies';
 import { grantXp, healHero } from './hero';
+import { spawnEnemyAt } from './spawning';
 import { random } from './random';
 import { distance, type Creature, type Enemy, type Point, type RunState } from './state';
 
@@ -16,7 +19,7 @@ export interface HitOptions {
 /** Armadura efetiva contra um golpe (habilidades e bônus de raça que perfuram). */
 function effectiveArmor(state: RunState, enemy: Enemy, source: Creature | undefined, options: HitOptions): number {
   if (options.ignoreArmor) return 0;
-  let armor = enemy.def.armor;
+  let armor = enemyArmor(enemy);
   if (source) {
     if (creatureAbility(source).kind === 'pierceArmor') return 0;
     const { race, bonus } = state.modifiers.raceBonus;
@@ -35,8 +38,8 @@ export function damageEnemy(
 ): void {
   if (enemy.dead) return;
   const ability = source ? creatureAbility(source) : null;
-  if (ability?.kind === 'pierceArmor' && enemy.def.armor > 0) amount *= 1 + ability.bonusVsArmored;
-  const reduced = amount - effectiveArmor(state, enemy, source, options);
+  if (ability?.kind === 'pierceArmor' && enemyArmor(enemy) > 0) amount *= 1 + ability.bonusVsArmored;
+  const reduced = (amount - effectiveArmor(state, enemy, source, options)) * shieldFactor(enemy);
   const dealt = options.overTime ? Math.max(0, reduced) : Math.max(1, reduced);
   enemy.hp -= dealt;
   if (!options.overTime) state.events.push({ type: 'enemyDamaged', x: enemy.x, y: enemy.y, amount: dealt, crit: options.crit });
@@ -47,16 +50,22 @@ export function damageEnemy(
   if (enemy.hp <= 0 && !enemy.dead) {
     enemy.dead = true;
     state.kills++;
-    state.gold += Math.round(enemy.def.gold * (1 + state.talents.killGold));
-    grantXp(state, enemy.def.xp);
+    const reward = enemy.elite ? WAVES.elites.reward : 1;
+    const gold = Math.round(enemy.def.gold * reward * (1 + state.talents.killGold));
+    state.gold += gold;
+    grantXp(state, enemy.def.xp * reward);
     state.events.push({
       type: 'enemyKilled',
       enemy: enemy.def.id,
       x: enemy.x,
       y: enemy.y,
-      gold: enemy.def.gold,
+      gold,
       color: enemy.def.color,
+      elite: enemy.elite,
     });
+    for (const trait of enemy.def.traits) {
+      if (trait.kind === 'split') for (let k = 0; k < trait.count; k++) spawnEnemyAt(state, trait.into, enemy, 8);
+    }
     if (source && ability) {
       if (ability.kind === 'lifesteal') healNexus(state, ability.healPerKill);
       const { race, bonus } = state.modifiers.raceBonus;
@@ -267,8 +276,14 @@ export function updateCreatures(state: RunState, dt: number): void {
   applyAuras(state);
   const { race, bonus } = modifiers.raceBonus;
   for (const creature of state.creatures) {
-    creature.attackTimer -= dt;
     creature.frenzyTimer -= dt;
+    creature.webTimer = Math.max(0, creature.webTimer - dt);
+    if (creature.stunTimer > 0) {
+      // atordoada: não ataca nem recarrega
+      creature.stunTimer -= dt;
+      continue;
+    }
+    creature.attackTimer -= dt * (creature.webTimer > 0 ? 1 - creature.webSlow : 1);
     if (creature.attackTimer > 0) continue;
 
     const { def } = creature;

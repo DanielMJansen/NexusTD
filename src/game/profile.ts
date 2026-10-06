@@ -1,3 +1,4 @@
+import type { EnemyId } from '../data/enemies';
 import { CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
 import type { AchievementId } from '../data/achievements';
 import { HEROES, STARTER_HERO, type HeroId } from '../data/heroes';
@@ -25,6 +26,10 @@ export interface Profile {
   achievements: AchievementId[];
   /** Totais de todas as runs. */
   stats: { runs: number; wins: number; kills: number };
+  /** Inimigos já enfrentados (códex). */
+  seenEnemies: EnemyId[];
+  /** Onda mais alta alcançada (inclui o Sem Fim). */
+  bestWave: number;
 }
 
 /** Criaturas que já vêm na coleção. */
@@ -41,6 +46,8 @@ export function createProfile(): Profile {
     selectedSkins: {},
     achievements: [],
     stats: { runs: 0, wins: 0, kills: 0 },
+    seenEnemies: [],
+    bestWave: 0,
   };
 }
 

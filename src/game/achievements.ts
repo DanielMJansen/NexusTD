@@ -5,9 +5,12 @@ import type { RunResult } from './state';
 
 /** Registra o fim de uma run nas estatísticas do perfil. */
 export function recordRun(profile: Profile, result: RunResult): void {
-  profile.stats.runs++;
-  profile.stats.kills += result.kills;
+  // o Sem Fim continua uma run já contada: só soma os abates novos
+  if (!result.endless) profile.stats.runs++;
+  profile.stats.kills += result.kills - result.previousKills;
   if (result.victory) profile.stats.wins++;
+  for (const id of result.seenEnemies) if (!profile.seenEnemies.includes(id)) profile.seenEnemies.push(id);
+  profile.bestWave = Math.max(profile.bestWave, result.wave);
 }
 
 function isMet(profile: Profile, def: AchievementDef, result: RunResult | null): boolean {
