@@ -16,7 +16,19 @@ export type AchievementId =
   | 'ascension'
   | 'slayer'
   | 'collector'
-  | 'noTowers';
+  | 'noTowers'
+  | 'faeQueenVictory'
+  | 'faeQueenEndless'
+  | 'colossusVictory'
+  | 'colossusEndless'
+  | 'deathLordVictory'
+  | 'deathLordEndless'
+  | 'gorgonQueenVictory'
+  | 'gorgonQueenEndless'
+  | 'archdemonVictory'
+  | 'archdemonEndless'
+  | 'archangelVictory'
+  | 'archangelEndless';
 
 export type AchievementGoal =
   /** Vencer uma run (com um herói específico, se informado). */
@@ -33,7 +45,9 @@ export type AchievementGoal =
   | { kind: 'totalRuns'; count: number }
   | { kind: 'totalWins'; count: number }
   /** Vencer sem invocar nenhuma criatura. */
-  | { kind: 'winNoCreatures' };
+  | { kind: 'winNoCreatures' }
+  /** Alcançar esta onda no Sem Fim (com um herói específico, se informado). */
+  | { kind: 'endlessWave'; wave: number; hero?: HeroId };
 
 export interface AchievementDef {
   id: AchievementId;
@@ -106,6 +120,78 @@ export const ACHIEVEMENTS: Record<AchievementId, AchievementDef> = {
     name: 'Colecionador',
     description: 'Tenha todas as criaturas na coleção.',
     goal: { kind: 'fullCollection' },
+  },
+  faeQueenVictory: {
+    id: 'faeQueenVictory',
+    name: 'Primavera Eterna',
+    description: 'Vença uma run com a Rainha Fada.',
+    goal: { kind: 'win', hero: 'faeQueen' },
+  },
+  faeQueenEndless: {
+    id: 'faeQueenEndless',
+    name: 'Conto Sem Fim',
+    description: 'Alcance a onda 30 do Sem Fim com a Rainha Fada.',
+    goal: { kind: 'endlessWave', wave: 30, hero: 'faeQueen' },
+  },
+  colossusVictory: {
+    id: 'colossusVictory',
+    name: 'Inabalável',
+    description: 'Vença uma run com o Colosso.',
+    goal: { kind: 'win', hero: 'colossus' },
+  },
+  colossusEndless: {
+    id: 'colossusEndless',
+    name: 'Montanha Viva',
+    description: 'Alcance a onda 30 do Sem Fim com o Colosso.',
+    goal: { kind: 'endlessWave', wave: 30, hero: 'colossus' },
+  },
+  deathLordVictory: {
+    id: 'deathLordVictory',
+    name: 'Exército de Ossos',
+    description: 'Vença uma run com o Senhor dos Mortos.',
+    goal: { kind: 'win', hero: 'deathLord' },
+  },
+  deathLordEndless: {
+    id: 'deathLordEndless',
+    name: 'Morte Sem Fim',
+    description: 'Alcance a onda 30 do Sem Fim com o Senhor dos Mortos.',
+    goal: { kind: 'endlessWave', wave: 30, hero: 'deathLord' },
+  },
+  gorgonQueenVictory: {
+    id: 'gorgonQueenVictory',
+    name: 'Olhar de Pedra',
+    description: 'Vença uma run com a Rainha Górgona.',
+    goal: { kind: 'win', hero: 'gorgonQueen' },
+  },
+  gorgonQueenEndless: {
+    id: 'gorgonQueenEndless',
+    name: 'Jardim de Estátuas',
+    description: 'Alcance a onda 30 do Sem Fim com a Rainha Górgona.',
+    goal: { kind: 'endlessWave', wave: 30, hero: 'gorgonQueen' },
+  },
+  archdemonVictory: {
+    id: 'archdemonVictory',
+    name: 'Pacto Selado',
+    description: 'Vença uma run com o Arquidemônio.',
+    goal: { kind: 'win', hero: 'archdemon' },
+  },
+  archdemonEndless: {
+    id: 'archdemonEndless',
+    name: 'Inferno Sem Fim',
+    description: 'Alcance a onda 30 do Sem Fim com o Arquidemônio.',
+    goal: { kind: 'endlessWave', wave: 30, hero: 'archdemon' },
+  },
+  archangelVictory: {
+    id: 'archangelVictory',
+    name: 'Juízo Final',
+    description: 'Vença uma run com o Arcanjo.',
+    goal: { kind: 'win', hero: 'archangel' },
+  },
+  archangelEndless: {
+    id: 'archangelEndless',
+    name: 'Luz Eterna',
+    description: 'Alcance a onda 30 do Sem Fim com o Arcanjo.',
+    goal: { kind: 'endlessWave', wave: 30, hero: 'archangel' },
   },
 };
 

@@ -5,7 +5,7 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 ## Entrada, menu e configurações
 - [ ] Tela "Clique para começar" (ou Enter/Espaço) leva ao menu e a música do menu começa.
 - [ ] Jogador novo: aparece "Escolha seu primeiro companheiro" (só criaturas místicas); a escolhida entra na coleção e na equipe; não aparece de novo.
-- [ ] Menu: Essência, herói + equipe em miniatura, botões Jogar / Herói / Equipe / Coleção / Talentos / Conquistas / Códex / Configurações.
+- [ ] Menu: Essência, herói + equipe em miniatura (com 8 criaturas, tudo numa linha dentro do quadro), botões Jogar / Herói / Equipe / Coleção / Talentos / Conquistas / Códex / Configurações.
 - [ ] Essência sempre com ✦ lilás e ouro sempre com ◉ dourado, em todas as telas.
 - [ ] ⚙ (topo, menu ou pausa): sliders de música e efeitos mudam o volume ao vivo; "Silenciar tudo" e o botão 🔊 ficam sincronizados; tudo persiste ao recarregar.
 - [ ] Exportar save baixa `nexus-save-AAAA-MM-DD.json`; importar pede confirmação, substitui tudo e recarrega; arquivo inválido mostra erro e não quebra nada.
@@ -15,7 +15,7 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Nexus+: Raio Desperto / Campo Gélido / Escudo Ancestral fazem a run começar com a habilidade no nível 1; Engenharia Arcana baixa os preços no quadro do Nexus.
 - [ ] Coleção: ficha de cada criatura (descrição, lore, atributos, habilidade, forma evoluída com retrato); bloqueadas em silhueta com preço; comprar adiciona à equipe se houver vaga.
 - [ ] Equipe: 6 vagas; clicar adiciona/remove; "Jogar" desabilita com equipe vazia; ordem da equipe = atalhos 1–6.
-- [ ] Heróis: comprar e escolher; descrição de ataque, Pulso e bônus de raça; skins liberadas por conquista são selecionáveis e aparecem na run.
+- [ ] Heróis: todos com 3 skins (heróis novos: vencer com ele e chegar à onda 30 do Sem Fim com ele); comprar e escolher; descrição de ataque, Pulso e bônus de raça; skins liberadas por conquista são selecionáveis e aparecem na run.
 - [ ] Conquistas: lista com progresso (abates, runs, vitórias, coleção) e a skin que cada uma libera.
 
 ## Tutorial e run salva

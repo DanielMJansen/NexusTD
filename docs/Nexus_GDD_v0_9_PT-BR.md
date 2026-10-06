@@ -212,6 +212,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | F10: raça Górgona (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Demônio (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Anjo (3 classes com vertentes + herói) |
+| 07/10/2026 | Heróis do F10 com 3 skins cada: vencer com o herói libera a 2ª; alcançar a onda 30 do Sem Fim com ele libera a 3ª (12 conquistas novas) |
 | 07/10/2026 | Pulsos refeitos com personalidade (12 tipos); ataque do Nobre Vampiro cura o herói; ajuste de raças (Golem, Demônio, Necromante +; Fantasma, Bruxa, Fada −) |
 | 07/10/2026 | Pulsos: dano cresce +10% por nível do herói; a Revoada do Vampiro cura o herói em vez do Nexus |
 | 07/10/2026 | Recalibragem completa: talentos bem mais fracos (Nexus+ e Legião mais caros), inimigos mais fortes e numerosos, Sem Fim com escalada exponencial, XP do herói mais lenta, raças aproximadas; valores exatos em `docs/valores.md` (gerado) |

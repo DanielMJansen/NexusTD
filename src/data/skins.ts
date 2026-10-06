@@ -17,11 +17,23 @@ export interface SkinDef {
 
 export const SKINS: SkinDef[] = [
   { id: 'archangel-default', hero: 'archangel', name: 'Aurora', palette: {}, unlockedBy: null },
+  { id: 'archangel-silver', hero: 'archangel', name: 'Serafim Prateado', palette: { wing: '#ffffff', armor: '#d8dce8', armorDark: '#6a7090', glow: '#bfe8ff' }, unlockedBy: 'archangelVictory' },
+  { id: 'archangel-fallen', hero: 'archangel', name: 'Anjo Caído', palette: { wing: '#3a3048', armor: '#5a4a6a', armorDark: '#1a1020', glow: '#ff5a6a' }, unlockedBy: 'archangelEndless' },
   { id: 'archdemon-default', hero: 'archdemon', name: 'Abismo', palette: {}, unlockedBy: null },
+  { id: 'archdemon-frost', hero: 'archdemon', name: 'Demônio de Gelo', palette: { skin: '#5a8ad8', skinDark: '#1a2a6a', cape: '#0a1430', fire: '#9fdcff' }, unlockedBy: 'archdemonVictory' },
+  { id: 'archdemon-shadow', hero: 'archdemon', name: 'Príncipe das Sombras', palette: { skin: '#3a2a4a', skinDark: '#0e0814', cape: '#000000', fire: '#c86aff' }, unlockedBy: 'archdemonEndless' },
   { id: 'gorgonQueen-default', hero: 'gorgonQueen', name: 'Esmeralda', palette: {}, unlockedBy: null },
+  { id: 'gorgonQueen-sand', hero: 'gorgonQueen', name: 'Rainha das Areias', palette: { scales: '#c8a050', scalesDark: '#6a4a14', armor: '#ffe9a8' }, unlockedBy: 'gorgonQueenVictory' },
+  { id: 'gorgonQueen-abyss', hero: 'gorgonQueen', name: 'Górgona Abissal', palette: { scales: '#3a3a8a', scalesDark: '#10102a', armor: '#c86aff' }, unlockedBy: 'gorgonQueenEndless' },
   { id: 'deathLord-default', hero: 'deathLord', name: 'Túmulo', palette: {}, unlockedBy: null },
+  { id: 'deathLord-lich', hero: 'deathLord', name: 'Lich Real', palette: { robe: '#2a1a4a', robeDark: '#0a0418', fire: '#b86aff' }, unlockedBy: 'deathLordVictory' },
+  { id: 'deathLord-crimson', hero: 'deathLord', name: 'Ceifador Carmesim', palette: { robe: '#4a0a14', robeDark: '#14020a', fire: '#ff3a4a' }, unlockedBy: 'deathLordEndless' },
   { id: 'colossus-default', hero: 'colossus', name: 'Pedra Antiga', palette: {}, unlockedBy: null },
+  { id: 'colossus-frost', hero: 'colossus', name: 'Gigante de Gelo', palette: { stone: '#c8d8e8', stoneDark: '#6a7a90', moss: '#ffffff', rune: '#5ab0ff' }, unlockedBy: 'colossusVictory' },
+  { id: 'colossus-lava', hero: 'colossus', name: 'Titã de Lava', palette: { stone: '#4a2a2a', stoneDark: '#1a0a0a', moss: '#ff6a1a', rune: '#ffb040' }, unlockedBy: 'colossusEndless' },
   { id: 'faeQueen-default', hero: 'faeQueen', name: 'Primavera', palette: {}, unlockedBy: null },
+  { id: 'faeQueen-winter', hero: 'faeQueen', name: 'Rainha do Inverno', palette: { dress: '#8ad0ff', dressDark: '#2a5a9a', wing: '#e0f4ff', hair: '#ffffff' }, unlockedBy: 'faeQueenVictory' },
+  { id: 'faeQueen-night', hero: 'faeQueen', name: 'Rainha da Noite', palette: { dress: '#3a1a5a', dressDark: '#0e0420', wing: '#8a5aff', hair: '#1a1030' }, unlockedBy: 'faeQueenEndless' },
   { id: 'knight-sentinel', hero: 'knight', name: 'Sentinela', palette: {}, unlockedBy: null },
   {
     id: 'knight-templar',

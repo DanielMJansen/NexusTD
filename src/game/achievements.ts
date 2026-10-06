@@ -32,6 +32,8 @@ function isMet(profile: Profile, def: AchievementDef, result: RunResult | null):
       return profile.stats.wins >= goal.count;
     case 'winNoCreatures':
       return !!result?.victory && result.creaturesPlaced === 0;
+    case 'endlessWave':
+      return !!result?.endless && result.wave >= goal.wave && (!goal.hero || result.hero === goal.hero);
   }
 }
 

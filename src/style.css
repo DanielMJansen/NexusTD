@@ -840,13 +840,22 @@ button:disabled {
 
 .hub-team {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 4px;
-  min-height: 52px;
+  gap: 2px;
+  min-height: 44px;
+  max-width: 100%;
   margin-bottom: 10px;
 }
 
 .team-mini {
+  width: 40px;
+  height: 40px;
+  flex: none;
+}
+
+/* o herói da run um pouco maior, à frente da equipe */
+.team-mini:first-child {
   width: 52px;
   height: 52px;
 }
