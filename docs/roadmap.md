@@ -94,13 +94,15 @@ Dividida em três entregas, cada uma jogável ao fim:
 
 > **Biomas revistos em 07/10/2026:** o jogo estava escuro/gótico demais; as próximas fases vão do escuro para a luz — **Neve → Deserto → Céu**. As mecânicas destravadas continuam as mesmas.
 
-### F13.9. Motor de mapas `[ ]` — aprovado em 07/10/2026: **entra inteiro antes da Tundra** (inclui escolta e dois Nexus); Cemitério e Pântano são revistos com ele depois
+### F13.9. Motor de mapas `[x]` — feito em 07/10/2026 (M1–M6); Cemitério e Pântano são revistos com ele depois
 Hoje o mapa é uma imagem fixa de 640×360, desenhada uma vez; inimigos nascem nas bordas e andam em linha reta até o Nexus; toda fase usa a mesma fórmula de quantidade e 20 ondas com 3 chefes. Para fases realmente diferentes, o motor precisa de:
 1. **Mundo maior que a tela + câmera**: mapas de tamanhos e formatos variados (ex.: 2–3 telas de largura), câmera que segue o herói (com arrastar/rolar e minimapa). Mapas pequenos continuam possíveis.
 2. **Trilhas e entradas**: cada mapa define de onde os inimigos vêm (bordas em 360°, 2–3 passagens, rios, portais) e por onde andam (trilhas com curvas, gargalos, pontes). Criaturas perto de gargalos passam a valer mais.
 3. **Roteiro de ondas por dados**: cada onda tem tipo e conteúdo próprios — normal, **horda** (muitos fracos), **elite** (poucos fortes), **evento** (avalanche, tempestade), **chefe**, **trégua** (loja/descanso). Número de ondas e de chefes livre por fase.
 4. **Objetos interativos do mapa**: coisas que o herói ativa ao ficar perto (fogueiras, alavancas, pontes), terreno que muda durante a fase (gelo que racha, areia que cobre trilhas).
 5. **Objetivos variados**: além de "defenda o Nexus", ex.: escoltar uma caravana, defender dois pontos, sobreviver a um tempo, destruir ninhos.
+
+Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria por run (tamanho do mundo, posição do Nexus) · **M2** câmera que segue o herói, rolagem pela borda, tecla C e minimapa · **M3** entradas com trilhas (terrestres seguem, voadores vão direto; invocados entram na trilha mais próxima) · **M4** roteiro de ondas (`script`: tipos normal/horda/elite/evento/chefe/trégua, grupos com entrada e elite, ritmo próprio; trégua sem inimigos e loja Rara+; total de ondas por fase) · **M5** objetos interativos (fogueira que o herói acende parado perto) e clima periódico com aviso (nevasca: alcance −30% longe das fogueiras; onda pode forçar o clima) · **M6** pontos extras a defender (vitais encerram a run) e escolta (Nexus, criaturas e herói avançam de parada). "Sobreviver a um tempo" e "destruir ninhos" ficam para quando uma fase precisar.
 
 ### F14. Fase 3 — Tundra Gelada + Sinergias `[ ]` — aprovada (07/10), com **18 ondas**; Sinergias por raça ainda em PROPOSTA
 **Mapa: o Lago Congelado** — 2 telas de largura, com câmera.

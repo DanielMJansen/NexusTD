@@ -6,6 +6,7 @@ import { damageNexus, nexusSlowFactor } from './nexus';
 import { spawnEnemyAt } from './spawning';
 import { inMud } from './terrain';
 import { enemyGoal, joinNearestPath } from './paths';
+import { damageGuard, defendTarget } from './objectives';
 import { distance, type Enemy, type RunState } from './state';
 
 // Inimigos: habilidades (tiro, teia, invocação, investida, cura, pisão, escudo, fúria) e movimento.
@@ -210,7 +211,6 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
 
 /** Inimigos usam habilidades e andam até o Nexus; ao encostar, causam dano e somem (sem recompensa). */
 export function updateEnemies(state: RunState, dt: number): void {
-  const center = state.nexus;
   // índice fixo: invocações entram no fim da lista e só agem no próximo quadro
   const count = state.enemies.length;
   for (let n = 0; n < count; n++) {
@@ -246,8 +246,10 @@ export function updateEnemies(state: RunState, dt: number): void {
     const enrage = enemy.enraged ? findTrait(enemy, 'enrage') : undefined;
     const speedFactor =
       (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace * nexusSlowFactor(state, enemy) * (1 - enemy.weakenSlow);
-    const dx = center.x - enemy.x;
-    const dy = center.y - enemy.y;
+    // alvo a defender mais próximo (Nexus ou ponto extra)
+    const target = defendTarget(state, enemy);
+    const dx = target.at.x - enemy.x;
+    const dy = target.at.y - enemy.y;
     const length = Math.hypot(dx, dy);
     if (enemy.fearTimer > 0) {
       // depois de fugir, volta para a trilha mais próxima
@@ -270,8 +272,9 @@ export function updateEnemies(state: RunState, dt: number): void {
       if (enemy.nexusTimer <= 0) {
         enemy.nexusTimer = enemy.def.isBoss ? NEXUS.bossAttackInterval : NEXUS.enemyAttackInterval;
         if (enemy.hexTimer <= 0) {
-          damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
-          markAttack(enemy, state.time, state.nexus);
+          if (target.kind === 'guard') damageGuard(state, target.index, enemy.nexusDamage * (1 - enemy.weakenDamage));
+          else damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
+          markAttack(enemy, state.time, target.at);
           const drain = findTrait(enemy, 'drain');
           if (drain) enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * drain.amount);
         }

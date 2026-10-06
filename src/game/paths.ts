@@ -1,3 +1,4 @@
+import { enemyDefendPoint } from './objectives';
 import { STAGES } from '../data/stages';
 import { distance, type Enemy, type Point, type RunState } from './state';
 
@@ -12,13 +13,13 @@ export const entrances = (state: RunState) => STAGES[state.stage].entrances ?? [
  * Avança o ponto quando ele é alcançado.
  */
 export function enemyGoal(state: RunState, enemy: Enemy): Point {
-  if (enemy.path === undefined || enemy.def.flying) return state.nexus;
+  if (enemy.path === undefined || enemy.def.flying) return enemyDefendPoint(state, enemy);
   const path = entrances(state)[enemy.path]?.path;
-  if (!path) return state.nexus;
+  if (!path) return enemyDefendPoint(state, enemy);
   let i = enemy.waypoint ?? 1;
   while (i < path.length && distance(enemy, path[i]!) < REACHED) i++;
   enemy.waypoint = i;
-  return i < path.length ? path[i]! : state.nexus;
+  return i < path.length ? path[i]! : enemyDefendPoint(state, enemy);
 }
 
 /** Coloca na trilha mais próxima de um ponto (invocados, divisões, quem foi empurrado para longe). */

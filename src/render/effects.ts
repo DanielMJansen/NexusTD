@@ -198,6 +198,19 @@ export class Effects {
         this.burst(event.x, event.y + 8, 12, event.color, 50, 0.6, 2.2, true, -30);
         this.burst(event.x, event.y + 10, 6, '#4a3a2a', 40, 0.5, 3, false, -20, 120);
         break;
+      case 'guardHit':
+        this.text(event.x, event.y - 50, `-${event.damage}`, '#ffb84a', 11);
+        break;
+      case 'guardDestroyed':
+        this.ring(event.x, event.y, 70, '#ff5a5a', 0.8, 5);
+        this.burst(event.x, event.y - 16, 30, '#ffd25a', 130, 0.8, 3, true);
+        this.banner(`${event.name} caiu!`, '', '#ff5a5a', 2.2);
+        this.shake = Math.max(this.shake, 10);
+        break;
+      case 'caravanMoved':
+        this.banner('A caravana avançou', 'Nova parada · reposicione a defesa se precisar', '#ffd25a', 2.2);
+        this.ring(event.to.x, event.to.y, 60, '#ffd25a', 0.7, 3);
+        break;
       case 'weatherWarning':
         this.banner('Nevasca chegando', `em ${event.seconds} s · fique perto das fogueiras`, '#bfe4ff', 2.2);
         break;

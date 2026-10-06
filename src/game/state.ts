@@ -285,6 +285,10 @@ export interface RunState {
   nexus: { hp: number; maxHp: number; x: number; y: number };
   /** Tamanho do mundo (pode ser maior que a tela). */
   map: { width: number; height: number };
+  /** Pontos extras a defender (estado da run). */
+  guards: { name: string; x: number; y: number; hp: number; maxHp: number; vital: boolean; lastHitAt: number }[];
+  /** Escolta: parada atual do Nexus. */
+  escortStop: number;
   /** Objetos interativos do mapa (estado da run). */
   interactables: { kind: 'brazier'; x: number; y: number; radius: number; lit: boolean; progress: number }[];
   /** Clima: ativo agora, segundos até mudar, se já avisou e se a onda forçou. */
@@ -401,6 +405,8 @@ export function createRun(setup: RunSetup): RunState {
     time: 0,
     nexus: { hp: maxHp, maxHp, x: geometry.nexus.x, y: geometry.nexus.y },
     map: { width: geometry.width, height: geometry.height },
+    guards: (STAGES[setup.stage ?? FIRST_STAGE].guards ?? []).map((g) => ({ ...g, maxHp: g.hp, lastHitAt: -Infinity })),
+    escortStop: 0,
     interactables: (STAGES[setup.stage ?? FIRST_STAGE].interactables ?? []).map((o) => ({ ...o, lit: true, progress: 0 })),
     weather: { active: false, timer: STAGES[setup.stage ?? FIRST_STAGE].weather?.every ?? 0, warned: false, forced: false },
     gold: ECONOMY.startGold + t.startGold,

@@ -1,3 +1,4 @@
+import { vitalGuardLost } from './objectives';
 import { updateMapEvents } from './mapEvents';
 import { SANCTUARY } from '../data/sanctuary';
 import { stageWaveCount, STAGES } from '../data/stages';
@@ -66,7 +67,7 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   updateLoot(state, dt);
   state.enemies = state.enemies.filter((e) => !e.dead);
 
-  if (state.nexus.hp <= 0) endRun(state, false);
+  if (state.nexus.hp <= 0 || vitalGuardLost(state)) endRun(state, false);
   else if (!state.spawnQueue.length && !state.enemies.length) {
     if (state.wave >= stageWaveCount(state.stage) && !state.endless) endRun(state, true);
     else offerChoices(state);

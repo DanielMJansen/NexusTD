@@ -72,6 +72,8 @@ function deserialize(raw: Record<string, unknown>): RunState {
     waveKills: typeof raw.waveKills === 'number' ? raw.waveKills : 0,
     spawnIntervalOverride: typeof raw.spawnIntervalOverride === 'number' ? raw.spawnIntervalOverride : null,
     interactables: (raw.interactables as RunState['interactables'] | undefined) ?? [],
+    guards: ((raw.guards as RunState['guards'] | undefined) ?? []).map((g) => ({ ...g, lastHitAt: -Infinity })),
+    escortStop: typeof raw.escortStop === 'number' ? raw.escortStop : 0,
     weather: (raw.weather as RunState['weather'] | undefined) ?? { active: false, timer: 0, warned: false, forced: false },
     // saves antigos: Nexus no centro da tela
     nexus: { x: DEFAULT_MAP.nexus.x, y: DEFAULT_MAP.nexus.y, ...(raw.nexus as object) },

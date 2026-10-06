@@ -1,3 +1,4 @@
+import { advanceEscort } from './objectives';
 import { startWeather } from './mapEvents';
 import { entrances, joinNearestPath } from './paths';
 
@@ -87,6 +88,7 @@ export function buildWaveQueue(stage: StageId, wave: number): SpawnItem[] {
 
 export function startWave(state: RunState): void {
   state.wave++;
+  advanceEscort(state);
   state.waveKills = 0;
   for (const creature of state.creatures) creature.killStacks = 0;
   state.spawnQueue = buildWaveQueue(state.stage, state.wave);

@@ -17,6 +17,8 @@ import { drawShadow, drawSprite } from './sprites';
 import { drawLayered, type LayerLook } from './spriteKit';
 
 const TAU = Math.PI * 2;
+/** Pontos extras a defender: Nexus em cores douradas. */
+const GUARD_LOOK = { model: 'crystal' as const, palette: { dark: '#a06a10', mid: '#e8b030', light: '#fff0b0', glow: '#ffd25a', accent: '#fff4c8' } };
 /** Duração (s) da animação de golpe e do clarão de dano. */
 const ATTACK_ANIMATION = 0.25;
 const HIT_FLASH = 0.08;
@@ -72,6 +74,9 @@ export function drawFrame(
       },
     },
   ];
+  for (const g of state.guards) {
+    layers.push({ y: g.y + 10, draw: () => drawNexus(ctx, g.hp, g.maxHp, time, state.time - g.lastHitAt < 0.15 ? 1 : 0, GUARD_LOOK, g) });
+  }
   for (const o of state.interactables) layers.push({ y: o.y, draw: () => drawInteractable(ctx, o, time, state.weather.active) });
   for (const enemy of state.enemies) layers.push({ y: enemy.y, draw: () => drawEnemy(ctx, state, enemy, time) });
   for (const creature of state.creatures) {

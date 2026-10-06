@@ -95,6 +95,7 @@ export function drawMinimap(canvas: HTMLCanvasElement, state: RunState, camera: 
   for (const e of state.enemies) if (!e.dead) dot(e, e.def.isBoss ? '#ff4a5a' : '#ff8a6a', e.def.isBoss ? 3 : 1.6);
   for (const c of state.creatures) dot(c, '#7af0b0', 2);
   dot(state.nexus, '#c8a8ff', 4);
+  for (const g of state.guards) if (g.hp > 0) dot(g, '#ffd25a', 3.4);
   dot(state.hero, '#ffd25a', 2.6);
   ctx.strokeStyle = '#ffffffcc';
   ctx.lineWidth = 1;

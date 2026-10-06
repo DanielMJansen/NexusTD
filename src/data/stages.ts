@@ -55,6 +55,21 @@ export interface WeatherRule {
   rangeMultiplier: number;
 }
 
+/** Ponto extra a defender (ex.: segundo Nexus). Vital: se cair, a run acaba. */
+export interface GuardPoint {
+  name: string;
+  x: number;
+  y: number;
+  hp: number;
+  vital: boolean;
+}
+
+/** Escolta: o Nexus (com criaturas e herói) muda de parada a cada `wavesPerStop` ondas. */
+export interface EscortRule {
+  stops: { x: number; y: number }[];
+  wavesPerStop: number;
+}
+
 /** Tipo de onda do roteiro (muda a faixa e o que acontece). */
 export type WaveKind = 'normal' | 'horde' | 'elite' | 'event' | 'boss' | 'truce';
 
@@ -117,6 +132,10 @@ export interface StageDef {
   interactables?: Interactable[];
   /** Clima periódico. */
   weather?: WeatherRule;
+  /** Pontos extras a defender. */
+  guards?: GuardPoint[];
+  /** Escolta (Nexus que avança por paradas). */
+  escort?: EscortRule;
   /** Fase que precisa ser vencida para liberar esta (null = aberta desde o início). */
   requires: StageId | null;
 }

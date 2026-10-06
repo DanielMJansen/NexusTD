@@ -429,6 +429,9 @@ export class App {
           this.showPendingChoices();
         }
         break;
+      case 'caravanMoved':
+        this.camera.snap(this.run);
+        break;
       case 'waveStarted':
         // depois de uma onda de chefe, volta a trilha normal
         this.music.play('run');
