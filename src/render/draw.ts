@@ -39,7 +39,7 @@ export function drawFrame(
   interaction: InteractionView,
   time: number,
 ): void {
-  drawBackground(ctx, time, STAGES[state.stage].biome);
+  drawBackground(ctx, time, STAGES[state.stage]);
 
   const shake = effects.shakeOffset();
   ctx.save();
@@ -83,7 +83,14 @@ const attackStrength = (state: RunState, lastAttackAt: number) =>
 
 function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy, time: number): void {
   const scale = enemy.def.scale * (enemy.elite ? WAVES.elites.scale : 1);
+  if (enemy.submerged) {
+    drawSubmerged(ctx, enemy.x, enemy.y + 6 * scale, scale, time + enemy.animationOffset);
+    return;
+  }
   const flying = enemy.def.flying && !enemy.stone;
+  // salto: sobe em arco (a sombra fica no chão)
+  const leap = enemy.def.traits.find((t) => t.kind === 'leap');
+  const lift = (enemy.leapTime ?? 0) > 0 && leap?.kind === 'leap' ? Math.sin(Math.PI * (1 - enemy.leapTime! / leap.duration)) * 16 * scale : 0;
   drawShadow(ctx, enemy.x, enemy.y + 14 * scale, (flying ? 6 : 9) * scale);
   if (enemy.held) {
     // segurado por um Guarda
@@ -134,7 +141,7 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
   // ataque: tranco curto na direção do golpe e pose de ataque do sprite
   const lunge = Math.max(0, 1 - (state.time - enemy.lastAttackAt) / 0.3);
   const ex = enemy.x + Math.cos(enemy.attackAngle) * lunge * 5;
-  const ey = enemy.y + Math.sin(enemy.attackAngle) * lunge * 5;
+  const ey = enemy.y + Math.sin(enemy.attackAngle) * lunge * 5 - lift;
   drawLayered(ctx, ex, ey - 6 * scale, 40 * scale, look, (c) => {
     if (enemy.hexTimer > 0) drawFrog(c, enemy.x, enemy.y, scale, time + enemy.animationOffset);
     else {
@@ -143,6 +150,8 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
         time: time + enemy.animationOffset,
         facing: lunge > 0 ? (Math.cos(enemy.attackAngle) >= 0 ? 1 : -1) : enemy.x < ARENA.center.x ? 1 : -1,
         moving: !enemy.stone,
+        // Hidra: nível = cabeças vivas
+        level: enemy.heads ?? 1,
       });
     }
   });
@@ -220,9 +229,55 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     ctx.roundRect(enemy.x - width / 2, top, width * Math.max(0, enemy.hp / enemy.maxHp), 3, 1.5);
     ctx.fill();
   }
+  if (enemy.heads !== undefined) {
+    // Hidra: cabeças vivas (barra = cabeça atual)
+    ctx.font = '700 9px Cinzel, serif';
+    ctx.textAlign = 'center';
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#07040d';
+    const label = `${enemy.heads} cabeça${enemy.heads > 1 ? 's' : ''}${enemy.cutHeads ? ` · +${enemy.cutHeads * 2} em ${Math.ceil(enemy.regrowTimer ?? 0)} s` : ''}`;
+    ctx.strokeText(label, enemy.x, enemy.y - 32 * scale);
+    ctx.fillStyle = enemy.cutHeads ? '#ffb84a' : '#bada9a';
+    ctx.fillText(label, enemy.x, enemy.y - 32 * scale);
+  }
+}
+
+/** Inimigo submerso na lama: só bolhas e o par de olhos. */
+function drawSubmerged(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number): void {
+  ctx.strokeStyle = '#a89060aa';
+  ctx.lineWidth = 1;
+  for (let k = 0; k < 2; k++) {
+    const t = (time * 0.8 + k * 0.5) % 1;
+    ctx.globalAlpha = 1 - t;
+    ctx.beginPath();
+    ctx.ellipse(x, y, (6 + t * 10) * scale, (2 + t * 3) * scale, 0, 0, TAU);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#ffd84a';
+  for (const dx of [-2.5, 2.5]) {
+    ctx.beginPath();
+    ctx.arc(x + dx * scale, y - 1, 1.1 * scale, 0, TAU);
+    ctx.fill();
+  }
 }
 
 function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: Creature, time: number): void {
+  if ((creature.swallowTimer ?? 0) > 0) {
+    // engolida pelo Rei Sapo: só o contorno tracejado de onde ela estava
+    ctx.strokeStyle = '#bada9a99';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.ellipse(creature.x, creature.y + 12, 12, 4.5, 0, 0, TAU);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = '700 9px Cinzel, serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#bada9a';
+    ctx.fillText(`engolida · ${Math.ceil(creature.swallowTimer!)} s`, creature.x, creature.y + 2);
+    return;
+  }
   const dragon = creature.def.id === 'fireDragon' || creature.def.id === 'iceDragon' || creature.def.id === 'storm';
   const flying = dragon || creature.def.flying || creature.def.id === 'haunt' || creature.def.id === 'banshee';
   const hover = dragon ? -5 + Math.sin(time * 3 + creature.x) * 2 : 0;
@@ -267,7 +322,10 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
   const form = ascendedForm(creature);
   if (form) drawBranchEmblem(ctx, creature.x + 13, creature.y + 12, form.icon, form.color);
   if (state.haste.remaining > 0) drawSparkles(ctx, creature.x, creature.y - 10, time + creature.x);
-  if (creature.webTimer > 0) drawWeb(ctx, creature.x, creature.y - 4, Math.min(1, creature.webTimer * 2));
+  if (creature.webTimer > 0) {
+    if (creature.webLook === 'curse') drawCurse(ctx, creature.x, creature.y - 4, Math.min(1, creature.webTimer * 2), time);
+    else drawWeb(ctx, creature.x, creature.y - 4, Math.min(1, creature.webTimer * 2));
+  }
   if (creature.stunTimer > 0) drawStunStars(ctx, creature.x, creature.y - 26, time);
   if (creature.level > 1) drawLevelStars(ctx, creature.x, creature.y + 20, creature.level);
   if (canEvolve(state, creature)) drawEvolveHint(ctx, creature.x, creature.y - 30 * levelInfo(creature).scale, time);
@@ -726,4 +784,26 @@ function withAlpha(hex: string, alpha: number): string {
   const full = digits.length === 3 ? [...digits].map((d) => d + d).join('') : digits;
   const value = parseInt(full, 16);
   return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+}
+
+/** Praga da Bruxa do Brejo: espirais verdes e uma caveirinha sobre a criatura. */
+function drawCurse(ctx: CanvasRenderingContext2D, x: number, y: number, alpha: number, time: number): void {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = '#9aff5a';
+  ctx.lineWidth = 1;
+  for (let k = 0; k < 3; k++) {
+    const a = time * 3 + (k * TAU) / 3;
+    ctx.beginPath();
+    ctx.arc(x + Math.cos(a) * 9, y + Math.sin(a) * 4, 2, 0, TAU);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#caff9a';
+  ctx.beginPath();
+  ctx.arc(x, y - 16, 3, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#1a2a10';
+  ctx.fillRect(x - 1.8, y - 17, 1.2, 1.2);
+  ctx.fillRect(x + 0.6, y - 17, 1.2, 1.2);
+  ctx.restore();
 }

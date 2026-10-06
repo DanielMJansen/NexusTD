@@ -89,7 +89,10 @@ out();
 
 out('## Ondas');
 const s = WAVES.scaling;
-out(`- ${WAVES.total} ondas; quantidade = ${WAVES.enemyCount.base} + ${n(WAVES.enemyCount.perWave)} × onda; chefes (Fase 1): ${STAGES.graveyard.bosses.map((b) => `onda ${b.wave} ${ENEMIES[b.enemy].name}`).join(', ')}.`);
+out(`- ${WAVES.total} ondas; quantidade = ${WAVES.enemyCount.base} + ${n(WAVES.enemyCount.perWave)} × onda; chefes por fase abaixo.`);
+for (const s of Object.values(STAGES)) {
+  out(`- **Fase ${s.number} · ${s.name}**: vida dos inimigos ×${n(s.power.hp)}, dano ×${n(s.power.damage)}, Essência ×${n(s.essenceMultiplier)}; chefes: ${s.bosses.map((b) => `onda ${b.wave} ${ENEMIES[b.enemy].name}`).join(', ')}; inimigos: ${s.composition.map((c) => `${ENEMIES[c.enemy].name} (onda ${c.fromWave}+)`).join(', ')}${s.terrain ? `; lama: ${s.terrain.pools.length} poças, criaturas −${Math.round(s.terrain.creatureAttackSlow * 100)}% vel. de ataque, herói −${Math.round(s.terrain.heroSlow * 100)}% velocidade` : ''}.`);
+}
 out(`- Força (o = onda − 1): vida × (1 + ${n(s.hp.linear)}·o + ${n(s.hp.quadratic)}·o²); velocidade +${pct(s.speedPerWave)} por onda (máx. +${pct(s.maxSpeedBonus)}); dano +${pct(s.damagePerWave)} por onda.`);
 const e = WAVES.elites;
 out(`- Elites a partir da onda ${e.fromWave}: chance ${pct(e.chance)} (+${pct(e.chancePerWave)}/onda, máx. ${pct(e.maxChance)}); vida ×${n(e.hp)}, dano ×${n(e.damage)}, recompensa ×${n(e.reward)}.`);

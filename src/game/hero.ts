@@ -46,8 +46,10 @@ export function updateHeroVitals(state: RunState, dt: number): void {
   healHero(state, state.heroStats.regen * dt);
   let incoming = 0;
   for (const enemy of state.enemies) {
-    if (enemy.dead || enemy.allyTimer > 0 || enemy.hexTimer > 0 || distance(enemy, hero) > enemy.def.radius + HERO_CONTACT_RANGE) continue;
+    if (enemy.dead || enemy.allyTimer > 0 || enemy.hexTimer > 0 || enemy.submerged || distance(enemy, hero) > enemy.def.radius + HERO_CONTACT_RANGE) continue;
     incoming += enemy.heroDps * dt;
+    const drain = enemy.def.traits.find((t) => t.kind === 'drain');
+    if (drain?.kind === 'drain') enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * drain.amount * dt);
     if (state.time - enemy.lastAttackAt > 0.8) markAttack(enemy, state.time, hero);
     if (state.heroStats.thorns > 0) {
       damageEnemy(state, enemy, state.heroStats.thorns * dt, undefined, { ignoreArmor: true, overTime: true });

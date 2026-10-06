@@ -36,7 +36,7 @@ const MELEE: Partial<Record<CreatureId, string>> = {
 };
 
 /** Tiros de inimigos: flecha, raio do Lich e teia. */
-type EnemyShotKind = 'enemyArrow' | 'enemyBolt' | 'web';
+type EnemyShotKind = 'enemyArrow' | 'enemyBolt' | 'web' | 'curse' | 'acid';
 
 interface Shot {
   source: CreatureId | 'hero' | EnemyShotKind;
@@ -187,7 +187,7 @@ export class Effects {
         break;
       }
       case 'enemyShot': {
-        const source: EnemyShotKind = event.kind === 'arrow' ? 'enemyArrow' : event.kind === 'bolt' ? 'enemyBolt' : 'web';
+        const source: EnemyShotKind = event.kind === 'arrow' ? 'enemyArrow' : event.kind === 'bolt' ? 'enemyBolt' : event.kind;
         const duration = event.kind === 'web' ? 0.3 : 0.25;
         this.shots.push({ source, from: event.from, to: event.to, duration, remaining: duration, trailTimer: 0 });
         break;
@@ -196,6 +196,31 @@ export class Effects {
         this.ring(event.x, event.y + 10, 24, event.color, 0.5, 2.5);
         this.burst(event.x, event.y + 8, 12, event.color, 50, 0.6, 2.2, true, -30);
         this.burst(event.x, event.y + 10, 6, '#4a3a2a', 40, 0.5, 3, false, -20, 120);
+        break;
+      case 'enemyLeap':
+        this.burst(event.x, event.y + 10, 8, '#6a5a3a', 50, 0.4, 2.4, false, -10, 100);
+        break;
+      case 'creatureSwallowed':
+        this.ring(event.x, event.y + 6, 22, '#9aba4a', 0.5, 3);
+        this.burst(event.x, event.y, 14, '#bada9a', 70, 0.5, 2.2, true);
+        this.text(event.x, event.y - 22, 'Engolida!', '#bada9a', 10);
+        break;
+      case 'creatureReleased':
+        this.burst(event.x, event.y, 16, '#9aba4a', 80, 0.5, 2.4, false, -20, 120);
+        break;
+      case 'enemyBurrow':
+        this.ring(event.x, event.y + 8, event.surfacing ? 40 : 26, '#a89060', 0.6, 3);
+        this.burst(event.x, event.y + 8, event.surfacing ? 22 : 12, '#5a4a2a', 90, 0.6, 3, false, -30, 160);
+        if (event.surfacing) this.shake = Math.max(this.shake, 5);
+        break;
+      case 'headCut':
+        this.burst(event.x, event.y - 20, 22, '#4a9a6a', 110, 0.6, 3, false, -40, 200);
+        this.text(event.x, event.y - 46, event.heads > 1 ? `Cabeça cortada! (${event.heads})` : 'Última cabeça!', '#ffb84a', 11);
+        this.shake = Math.max(this.shake, 4);
+        break;
+      case 'headsRegrown':
+        this.ring(event.x, event.y - 10, 50, '#9aff5a', 0.7, 4);
+        this.text(event.x, event.y - 46, `Cabeças renasceram! (${event.heads})`, '#9aff5a', 11);
         break;
       case 'enemyCharge':
         this.burst(event.x, event.y + 8, 8, '#9ae8ff', 50, 0.4, 2, true);
@@ -991,6 +1016,31 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       ctx.fill();
       break;
     }
+    case 'curse':
+      // praga: bola verde que espirala até a criatura
+      ctx.fillStyle = '#9aff5a';
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.arc(x + Math.sin(progress * 14) * 3, y + Math.cos(progress * 14) * 3, 3, 0, TAU);
+      ctx.fill();
+      ctx.fillStyle = '#e8ffd0';
+      ctx.beginPath();
+      ctx.arc(x, y, 1.3, 0, TAU);
+      ctx.fill();
+      break;
+    case 'acid':
+      // cuspe de ácido da Hidra
+      ctx.fillStyle = '#b8ff4a';
+      ctx.beginPath();
+      ctx.ellipse(x, y, 3.6, 2.6, angle, 0, TAU);
+      ctx.fill();
+      ctx.fillStyle = '#6aba2a';
+      for (let k = 1; k <= 3; k++) {
+        ctx.beginPath();
+        ctx.arc(x - Math.cos(angle) * k * 4, y - Math.sin(angle) * k * 4, 2 - k * 0.4, 0, TAU);
+        ctx.fill();
+      }
+      break;
     case 'web':
       // fio de teia esticando até a criatura
       ctx.strokeStyle = '#ece4ffcc';

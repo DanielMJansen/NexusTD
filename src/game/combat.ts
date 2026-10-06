@@ -1,9 +1,12 @@
 import { ARENA, HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureCooldown, creatureDamage, creatureRange, killHaste } from './creatureStats';
 import { applyHitEffects, isHostile, onEnemyKilled, sourceDamageMultiplier, vulnerability } from './hitEffects';
+import { terrainAttackFactor, terrainHeroFactor } from './terrain';
+
+const isLure = (enemy: Enemy) => enemy.def.traits.some((t) => t.kind === 'lure');
 import { heroTransform } from './pulses';
 import { WAVES } from '../data/waves';
-import { enemyArmor, shieldFactor } from './enemies';
+import { cutHead, enemyArmor, releaseSwallowed, shieldFactor } from './enemies';
 import { grantXp, healHero, heroRange } from './hero';
 import { dropLoot } from './loot';
 import { spawnEnemyAt } from './spawning';
@@ -56,8 +59,9 @@ export function damageEnemy(
   const execute = state.modifiers.executeBelow;
   if (execute > 0 && enemy.hp > 0 && !enemy.def.isBoss && enemy.hp <= enemy.maxHp * execute) enemy.hp = 0;
   if (!options.overTime) enemy.lastHitAt = state.time;
-  if (enemy.hp <= 0 && !enemy.dead) {
+  if (enemy.hp <= 0 && !enemy.dead && !cutHead(state, enemy)) {
     enemy.dead = true;
+    if (enemy.def.traits.some((t) => t.kind === 'swallow')) releaseSwallowed(state, enemy);
     state.kills++;
     state.waveKills++;
     const reward = enemy.elite ? WAVES.elites.reward : 1;
@@ -132,7 +136,7 @@ function distanceToSegment(p: Point, a: Point, b: Point): number {
 export function updateHero(state: RunState, dt: number, direction: Point): void {
   const { hero } = state;
   if (hero.dead) return;
-  const step = hero.def.speed * (1 + state.talents.heroSpeed + state.heroStats.speed) * dt;
+  const step = hero.def.speed * (1 + state.talents.heroSpeed + state.heroStats.speed) * terrainHeroFactor(state, hero) * dt;
   const startX = hero.x;
   const startY = hero.y;
   if (direction.x || direction.y) {
@@ -282,9 +286,11 @@ function pickTargets(state: RunState, creature: Creature, range: number, count: 
   return state.enemies
     .filter((enemy) => isHostile(enemy) && distance(enemy, creature) <= range)
     .sort((a, b) =>
-      strongest
+      // Fogo-fátuo (isca) sempre primeiro
+      Number(isLure(b)) - Number(isLure(a)) ||
+      (strongest
         ? Number(b.def.isBoss) - Number(a.def.isBoss) || Number(b.elite) - Number(a.elite) || b.hp - a.hp
-        : distance(a, ARENA.center) - distance(b, ARENA.center),
+        : distance(a, ARENA.center) - distance(b, ARENA.center)),
     )
     .slice(0, count);
 }
@@ -300,12 +306,18 @@ export function updateCreatures(state: RunState, dt: number): void {
   for (const creature of state.creatures) {
     creature.frenzyTimer -= dt;
     creature.webTimer = Math.max(0, creature.webTimer - dt);
+    if ((creature.swallowTimer ?? 0) > 0) {
+      // engolida pelo Rei Sapo: fora de combate
+      creature.swallowTimer! -= dt;
+      if (creature.swallowTimer! <= 0) state.events.push({ type: 'creatureReleased', x: creature.x, y: creature.y });
+      continue;
+    }
     if (creature.stunTimer > 0) {
       // atordoada: não ataca nem recarrega
       creature.stunTimer -= dt;
       continue;
     }
-    creature.attackTimer -= dt * (creature.webTimer > 0 ? 1 - creature.webSlow : 1);
+    creature.attackTimer -= dt * (creature.webTimer > 0 ? 1 - creature.webSlow : 1) * terrainAttackFactor(state, creature);
     if (creature.attackTimer > 0) continue;
 
     const { def } = creature;

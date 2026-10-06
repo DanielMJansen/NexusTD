@@ -161,6 +161,7 @@ export function enemyTraitText(t: EnemyTrait): string {
     case 'stone':
       return `Pedra: voa ${formatNumber(t.fly)} s e pousa ${formatNumber(t.rest)} s com +${t.armor} de armadura.`;
     case 'web':
+      if (t.look === 'curse') return `Praga: a cada ${formatNumber(t.cooldown)} s, amaldiçoa ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}): atacam ${Math.round(t.slow * 100)}% mais devagar por ${formatNumber(t.duration)} s.`;
       return `Teia: a cada ${formatNumber(t.cooldown)} s, prende ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}): atacam ${Math.round(t.slow * 100)}% mais devagar por ${formatNumber(t.duration)} s.`;
     case 'summon':
       return `Invocação: a cada ${formatNumber(t.cooldown)} s, ergue ${t.count} ${ENEMIES[t.enemy].name}s.`;
@@ -174,6 +175,20 @@ export function enemyTraitText(t: EnemyTrait): string {
       return `Escudo: a cada ${formatNumber(t.cooldown)} s, reduz o dano recebido em ${Math.round(t.reduction * 100)}% por ${formatNumber(t.duration)} s.`;
     case 'enrage':
       return `Fúria: abaixo de ${Math.round(t.below * 100)}% da vida, fica ${Math.round((t.speedMultiplier - 1) * 100)}% mais rápido e usa habilidades mais vezes.`;
+    case 'leap':
+      return `Salto: a cada ${formatNumber(t.cooldown)} s, pula ${t.distance} para a frente, por cima de bloqueios.`;
+    case 'drain':
+      return `Suga: cada golpe no Nexus cura ${Math.round(t.amount * 100)}% da vida; encostada no herói, cura ${Math.round(t.amount * 100)}% por segundo.`;
+    case 'submerge':
+      return 'Submerso: dentro da lama fica intocável (não é alvo nem leva dano).';
+    case 'lure':
+      return 'Isca: as criaturas que o alcançam atiram nele primeiro.';
+    case 'swallow':
+      return `Engolir: a cada ${formatNumber(t.cooldown)} s, engole a criatura mais próxima (alcance ${t.range}), que fica fora de combate por ${formatNumber(t.duration)} s ou até ele levar ${Math.round(t.breakDamage * 100)}% da vida em dano.`;
+    case 'burrow':
+      return `Mergulho: a cada ${formatNumber(t.cooldown)} s, some na lama por ${formatNumber(t.hide)} s e reaparece perto do Nexus em investida.`;
+    case 'heads':
+      return `Cabeças: nasce com ${t.start}; cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro após ${formatNumber(t.regrow)} s (até ${t.max}), a não ser que a Hidra morra antes.`;
   }
 }
 

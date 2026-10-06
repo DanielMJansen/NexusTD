@@ -13,7 +13,15 @@ export type EnemyId =
   | 'boneWarrior'
   | 'ogreKing'
   | 'spiderQueen'
-  | 'lich';
+  | 'lich'
+  | 'toad'
+  | 'leech'
+  | 'bogHag'
+  | 'crocodile'
+  | 'wisp'
+  | 'toadKing'
+  | 'elderCroc'
+  | 'hydra';
 
 /** Habilidades e passivas dos inimigos (cada uma tem seu próprio tempo de recarga). */
 export type EnemyTrait =
@@ -23,8 +31,22 @@ export type EnemyTrait =
   | { kind: 'split'; into: EnemyId; count: number }
   /** Alterna entre voar e pousar como pedra (parado, com armadura extra). */
   | { kind: 'stone'; fly: number; rest: number; armor: number }
-  /** Lança teia nas criaturas mais próximas: atacam mais devagar. */
-  | { kind: 'web'; range: number; cooldown: number; duration: number; slow: number; targets: number }
+  /** Lança teia (ou praga, com look 'curse') nas criaturas mais próximas: atacam mais devagar. */
+  | { kind: 'web'; range: number; cooldown: number; duration: number; slow: number; targets: number; look?: 'web' | 'curse' }
+  /** Salto: pula `distance` em direção ao Nexus em `duration` s, passando por cima de bloqueios. */
+  | { kind: 'leap'; cooldown: number; distance: number; duration: number }
+  /** Suga: cada golpe no Nexus cura `amount` da vida máxima; encostado no herói, `amount` por segundo. */
+  | { kind: 'drain'; amount: number }
+  /** Submerso: dentro da lama fica intocável (não é alvo nem leva dano). */
+  | { kind: 'submerge' }
+  /** Isca: as criaturas que o alcançam atiram nele primeiro. */
+  | { kind: 'lure' }
+  /** Engole a criatura mais próxima: fora de combate por `duration` s ou até levar `breakDamage` da vida máxima. */
+  | { kind: 'swallow'; range: number; cooldown: number; duration: number; breakDamage: number }
+  /** Mergulha (intocável por `hide` s) e reaparece a `landAt` do Nexus, já em investida. */
+  | { kind: 'burrow'; cooldown: number; hide: number; landAt: number }
+  /** Cabeças: cada uma é uma barra de vida; cabeças cortadas renascem em dobro após `regrow` s (até `max`). */
+  | { kind: 'heads'; start: number; max: number; regrow: number }
   /** Ergue outros inimigos ao redor de si. */
   | { kind: 'summon'; enemy: EnemyId; count: number; cooldown: number }
   /** Investida: corre muito por um instante. */
@@ -333,6 +355,152 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
       { kind: 'summon', enemy: 'skeletonArcher', count: 2, cooldown: 8 },
       { kind: 'shield', cooldown: 12, duration: 3, reduction: 0.8 },
       { kind: 'enrage', below: 0.5, speedMultiplier: 1.4, cooldownMultiplier: 0.6 },
+    ],
+  },
+  // ---------- Pântano (Fase 2) ----------
+  toad: {
+    ...base,
+    id: 'toad',
+    name: 'Sapo-Boi',
+    description: 'Pula para a frente de tempos em tempos, por cima de quem tenta segurá-lo.',
+    hp: 26,
+    speed: 24,
+    radius: 8,
+    color: '#7a9a4a',
+    nexusDamage: 6,
+    heroDps: 8,
+    gold: 3,
+    xp: 3,
+    pack: { chance: 0.25, angleOffsets: [0.1] },
+    traits: [{ kind: 'leap', cooldown: 4, distance: 45, duration: 0.45 }],
+  },
+  leech: {
+    ...base,
+    id: 'leech',
+    name: 'Sanguessuga',
+    description: 'Fraca e rápida, vem em bando e se cura a cada golpe.',
+    hp: 9,
+    speed: 52,
+    radius: 5,
+    scale: 0.75,
+    color: '#a03a5a',
+    nexusDamage: 3,
+    heroDps: 6,
+    gold: 1,
+    xp: 1,
+    pack: { chance: 0.6, angleOffsets: [0.1, -0.1, 0.2] },
+    traits: [{ kind: 'drain', amount: 0.3 }],
+  },
+  bogHag: {
+    ...base,
+    id: 'bogHag',
+    name: 'Bruxa do Brejo',
+    description: 'Amaldiçoa a criatura mais próxima, que passa a atacar bem mais devagar.',
+    hp: 30,
+    speed: 22,
+    radius: 8,
+    color: '#8aba5a',
+    nexusDamage: 6,
+    heroDps: 5,
+    gold: 5,
+    xp: 4,
+    traits: [{ kind: 'web', look: 'curse', range: 110, cooldown: 5, duration: 4, slow: 0.4, targets: 1 }],
+  },
+  crocodile: {
+    ...base,
+    id: 'crocodile',
+    name: 'Crocodilo',
+    description: 'Blindado. Dentro da lama fica submerso e intocável.',
+    hp: 110,
+    speed: 17,
+    radius: 12,
+    scale: 1.25,
+    color: '#5a7a3a',
+    nexusDamage: 14,
+    heroDps: 14,
+    gold: 8,
+    xp: 7,
+    armor: 4,
+    traits: [{ kind: 'submerge' }],
+  },
+  wisp: {
+    ...base,
+    id: 'wisp',
+    name: 'Fogo-fátuo',
+    description: 'Luz enganosa que flutua: as criaturas atiram nela primeiro.',
+    hp: 22,
+    speed: 34,
+    radius: 6,
+    color: '#7affe0',
+    nexusDamage: 4,
+    heroDps: 3,
+    gold: 4,
+    xp: 3,
+    flying: true,
+    zigzag: { lateralSpeed: 24, frequency: 2 },
+    traits: [{ kind: 'lure' }],
+  },
+  toadKing: {
+    ...base,
+    id: 'toadKing',
+    name: 'Rei Sapo',
+    description: 'Chefe. Pula e engole uma criatura, que só volta quando ele leva dano suficiente.',
+    hp: 440,
+    speed: 13,
+    radius: 18,
+    scale: 2.2,
+    color: '#9aba4a',
+    nexusDamage: 35,
+    heroDps: 35,
+    gold: 35,
+    xp: 45,
+    armor: 3,
+    isBoss: true,
+    traits: [
+      { kind: 'leap', cooldown: 7, distance: 40, duration: 0.6 },
+      { kind: 'swallow', range: 75, cooldown: 12, duration: 5, breakDamage: 0.12 },
+    ],
+  },
+  elderCroc: {
+    ...base,
+    id: 'elderCroc',
+    name: 'Crocodilo Ancião',
+    description: 'Chefe. Mergulha, some e reaparece perto do Nexus em investida.',
+    hp: 680,
+    speed: 14,
+    radius: 18,
+    scale: 2,
+    color: '#4a6a3a',
+    nexusDamage: 45,
+    heroDps: 35,
+    gold: 50,
+    xp: 65,
+    armor: 5,
+    isBoss: true,
+    traits: [
+      { kind: 'burrow', cooldown: 14, hide: 1.4, landAt: 130 },
+      { kind: 'charge', cooldown: 9, duration: 0.8, speedMultiplier: 2.5 },
+    ],
+  },
+  hydra: {
+    ...base,
+    id: 'hydra',
+    name: 'Hidra',
+    description: 'Chefe final. Cada cabeça é uma barra de vida; cabeças cortadas renascem em dobro se ela não morrer a tempo.',
+    hp: 300,
+    speed: 11,
+    radius: 20,
+    scale: 2.2,
+    color: '#4a9a6a',
+    nexusDamage: 70,
+    heroDps: 40,
+    gold: 90,
+    xp: 110,
+    armor: 4,
+    isBoss: true,
+    traits: [
+      { kind: 'heads', start: 3, max: 5, regrow: 10 },
+      { kind: 'ranged', range: 120, damage: 6, cooldown: 1.8 },
     ],
   },
 };

@@ -46,6 +46,7 @@ import {
   drawSpider,
 } from './spritesEnemies';
 import { drawBatSwarm, drawCleric, drawHerbalist, drawPossessor } from './spritesClasses';
+import { drawBogHag, drawCrocodile, drawHydra, drawLeech, drawToad, drawWisp } from './spritesSwamp';
 import { drawArchangel, drawCherub, drawGuardianAngel, drawValkyrie } from './spritesAngel';
 import { drawArchdemon, drawImp, drawInfernal, drawSuccubus } from './spritesDemon';
 import { drawBasilisk, drawGorgonQueen, drawMedusa, drawSerpentArcher } from './spritesGorgon';
@@ -254,6 +255,30 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'lich':
       drawLich(ctx, p);
+      break;
+    case 'toad':
+      drawToad(ctx, p);
+      break;
+    case 'toadKing':
+      drawToad(ctx, p, true);
+      break;
+    case 'leech':
+      drawLeech(ctx, p);
+      break;
+    case 'bogHag':
+      drawBogHag(ctx, p);
+      break;
+    case 'crocodile':
+      drawCrocodile(ctx, p);
+      break;
+    case 'elderCroc':
+      drawCrocodile(ctx, p, true);
+      break;
+    case 'wisp':
+      drawWisp(ctx, p);
+      break;
+    case 'hydra':
+      drawHydra(ctx, p);
       break;
   }
   ctx.restore();

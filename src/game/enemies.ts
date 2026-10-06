@@ -4,11 +4,12 @@ import { damageHero } from './hero';
 import { updateAlly, updateStatusTimers } from './hitEffects';
 import { damageNexus, nexusSlowFactor } from './nexus';
 import { spawnEnemyAt } from './spawning';
+import { inMud } from './terrain';
 import { distance, type Enemy, type RunState } from './state';
 
 // Inimigos: habilidades (tiro, teia, invocação, investida, cura, pisão, escudo, fúria) e movimento.
 
-const findTrait = <K extends EnemyTrait['kind']>(enemy: Enemy, kind: K) =>
+export const findTrait = <K extends EnemyTrait['kind']>(enemy: Enemy, kind: K) =>
   enemy.def.traits.find((t): t is Extract<EnemyTrait, { kind: K }> => t.kind === kind);
 
 /** Registra um ataque (só para a animação): quando e em que direção. */
@@ -56,9 +57,12 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         const inRange = !hero.dead && onScreen(enemy) && distance(enemy, hero) <= trait.range;
         if (inRange) pace = Math.min(pace, AIMING_SPEED);
         if (inRange && ready) {
-          damageHero(state, trait.damage * enemy.damageScale);
+          // a Hidra cospe por cabeça
+          const heads = enemy.heads ?? 1;
+          damageHero(state, trait.damage * enemy.damageScale * heads);
           markAttack(enemy, state.time, hero);
-          state.events.push({ type: 'enemyShot', kind: enemy.def.isBoss ? 'bolt' : 'arrow', from: { x: enemy.x, y: enemy.y - 8 }, to: { x: hero.x, y: hero.y - 6 } });
+          const kind = findTrait(enemy, 'heads') ? 'acid' : enemy.def.isBoss ? 'bolt' : 'arrow';
+          state.events.push({ type: 'enemyShot', kind, from: { x: enemy.x, y: enemy.y - 8 }, to: { x: hero.x, y: hero.y - 6 } });
           enemy.timers[i] = trait.cooldown;
         }
         break;
@@ -75,6 +79,64 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
           }
         }
         break;
+      case 'leap': {
+        // pula para a frente (por cima de bloqueios), se ainda estiver longe do Nexus
+        if (!ready || !onScreen(enemy) || (enemy.leapTime ?? 0) > 0) break;
+        if (distance(enemy, ARENA.center) < NEXUS.contactRadius + trait.distance * 0.6) break;
+        enemy.leapTime = trait.duration;
+        enemy.timers[i] = trait.cooldown;
+        state.events.push({ type: 'enemyLeap', x: enemy.x, y: enemy.y });
+        break;
+      }
+      case 'swallow': {
+        // cospe a criatura se levou dano suficiente desde que engoliu
+        const inside = state.creatures.filter((c) => (c.swallowTimer ?? 0) > 0);
+        if (inside.length && enemy.hp < (enemy.swallowHp ?? enemy.hp) - enemy.maxHp * trait.breakDamage) releaseSwallowed(state, enemy);
+        if (!ready || !onScreen(enemy) || inside.length) break;
+        const prey = state.creatures
+          .filter((c) => !(c.swallowTimer! > 0) && distance(c, enemy) <= trait.range)
+          .sort((a, b) => distance(a, enemy) - distance(b, enemy))[0];
+        if (!prey) break;
+        prey.swallowTimer = trait.duration;
+        enemy.swallowHp = enemy.hp;
+        markAttack(enemy, state.time, prey);
+        state.events.push({ type: 'creatureSwallowed', x: prey.x, y: prey.y });
+        enemy.timers[i] = trait.cooldown;
+        break;
+      }
+      case 'burrow': {
+        if ((enemy.burrowTime ?? 0) > 0) {
+          pace = 0;
+          enemy.burrowTime! -= dt;
+          if (enemy.burrowTime! <= 0) {
+            // reaparece perto do Nexus, na mesma direção, já em investida
+            const angle = Math.atan2(enemy.y - ARENA.center.y, enemy.x - ARENA.center.x);
+            enemy.x = ARENA.center.x + Math.cos(angle) * trait.landAt;
+            enemy.y = ARENA.center.y + Math.sin(angle) * trait.landAt;
+            const charge = findTrait(enemy, 'charge');
+            if (charge) enemy.charging = charge.duration;
+            state.events.push({ type: 'enemyBurrow', x: enemy.x, y: enemy.y, surfacing: true });
+          }
+          break;
+        }
+        if (!ready || !onScreen(enemy) || distance(enemy, ARENA.center) < trait.landAt + 30) break;
+        enemy.burrowTime = trait.hide;
+        enemy.timers[i] = trait.cooldown;
+        state.events.push({ type: 'enemyBurrow', x: enemy.x, y: enemy.y, surfacing: false });
+        break;
+      }
+      case 'heads':
+        // cabeças cortadas renascem em dobro se a Hidra não morrer a tempo
+        if ((enemy.cutHeads ?? 0) > 0) {
+          enemy.regrowTimer = (enemy.regrowTimer ?? trait.regrow) - dt;
+          if (enemy.regrowTimer <= 0) {
+            enemy.heads = Math.min(trait.max, (enemy.heads ?? 1) + enemy.cutHeads! * 2);
+            enemy.cutHeads = 0;
+            enemy.regrowTimer = undefined;
+            state.events.push({ type: 'headsRegrown', x: enemy.x, y: enemy.y, heads: enemy.heads });
+          }
+        }
+        break;
       case 'web': {
         if (!ready || !onScreen(enemy)) break;
         const caught = state.creatures
@@ -85,8 +147,9 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         for (const c of caught) {
           c.webTimer = trait.duration;
           c.webSlow = trait.slow;
+          c.webLook = trait.look ?? 'web';
           markAttack(enemy, state.time, c);
-          state.events.push({ type: 'enemyShot', kind: 'web', from: { x: enemy.x, y: enemy.y - 4 }, to: { x: c.x, y: c.y - 6 } });
+          state.events.push({ type: 'enemyShot', kind: trait.look ?? 'web', from: { x: enemy.x, y: enemy.y - 4 }, to: { x: c.x, y: c.y - 6 } });
         }
         enemy.timers[i] = trait.cooldown;
         break;
@@ -134,6 +197,9 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         break;
       case 'split':
       case 'enrage':
+      case 'drain':
+      case 'submerge':
+      case 'lure':
         break;
     }
   });
@@ -155,6 +221,22 @@ export function updateEnemies(state: RunState, dt: number): void {
     }
     // sapo: sem habilidades e bem devagar
     const pace = enemy.hexTimer > 0 ? 0.4 : useTraits(state, enemy, dt);
+    // Pântano: intocável na lama (Crocodilo) ou mergulhado (Crocodilo Ancião)
+    enemy.submerged = (enemy.burrowTime ?? 0) > 0 || (!!findTrait(enemy, 'submerge') && inMud(state, enemy));
+    // salto: avança por cima de bloqueios, sem parar por atordoamento
+    if ((enemy.leapTime ?? 0) > 0) {
+      const leap = findTrait(enemy, 'leap');
+      enemy.leapTime! -= dt;
+      const dxl = center.x - enemy.x;
+      const dyl = center.y - enemy.y;
+      const len = Math.hypot(dxl, dyl) || 1;
+      const step = Math.min(len - NEXUS.contactRadius * 0.9, ((leap?.distance ?? 0) / (leap?.duration ?? 1)) * dt);
+      if (step > 0) {
+        enemy.x += (dxl / len) * step;
+        enemy.y += (dyl / len) * step;
+      }
+      continue;
+    }
     enemy.slowTimer -= dt;
     const charge = enemy.charging > 0 ? findTrait(enemy, 'charge') : undefined;
     const enrage = enemy.enraged ? findTrait(enemy, 'enrage') : undefined;
@@ -184,6 +266,8 @@ export function updateEnemies(state: RunState, dt: number): void {
         if (enemy.hexTimer <= 0) {
           damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
           markAttack(enemy, state.time, ARENA.center);
+          const drain = findTrait(enemy, 'drain');
+          if (drain) enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * drain.amount);
         }
       }
       continue;
@@ -196,4 +280,29 @@ export function updateEnemies(state: RunState, dt: number): void {
     enemy.x += ((dx / length) * speed - (dy / length) * lateral) * dt;
     enemy.y += ((dy / length) * speed + (dx / length) * lateral) * dt;
   }
+}
+
+/** Rei Sapo cospe as criaturas engolidas (levou dano suficiente ou morreu). */
+export function releaseSwallowed(state: RunState, enemy: Enemy): void {
+  for (const c of state.creatures) {
+    if ((c.swallowTimer ?? 0) <= 0) continue;
+    c.swallowTimer = 0;
+    state.events.push({ type: 'creatureReleased', x: c.x, y: c.y });
+  }
+  enemy.swallowHp = undefined;
+}
+
+/**
+ * Hidra: ao zerar a vida, corta uma cabeça e segue com a próxima (vida cheia).
+ * Retorna true se ainda sobrou cabeça (não morre).
+ */
+export function cutHead(state: RunState, enemy: Enemy): boolean {
+  const heads = findTrait(enemy, 'heads');
+  if (!heads || (enemy.heads ?? 1) <= 1) return false;
+  enemy.heads = (enemy.heads ?? 1) - 1;
+  enemy.cutHeads = (enemy.cutHeads ?? 0) + 1;
+  if (enemy.regrowTimer === undefined) enemy.regrowTimer = heads.regrow;
+  enemy.hp = enemy.maxHp;
+  state.events.push({ type: 'headCut', x: enemy.x, y: enemy.y, heads: enemy.heads });
+  return true;
 }

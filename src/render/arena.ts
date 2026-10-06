@@ -1,4 +1,5 @@
-import type { Biome } from '../data/stages';
+import type { StageDef } from '../data/stages';
+import { drawSwampLife, paintSwampStatic } from './arenaSwamp';
 import { ARENA } from '../data/config';
 
 const TAU = Math.PI * 2;
@@ -70,25 +71,29 @@ const fog = Array.from({ length: 7 }, () => ({
 }));
 
 let cache: HTMLCanvasElement | null = null;
+let cacheBiome = '';
 
 /** Chão, props estáticos e névoa do bioma. A parte estática é desenhada uma vez em cache. */
-export function drawBackground(ctx: CanvasRenderingContext2D, time: number, _biome: Biome = 'graveyard'): void {
+export function drawBackground(ctx: CanvasRenderingContext2D, time: number, stage: StageDef): void {
   const target = ctx.canvas;
-  if (!cache || cache.width !== target.width || cache.height !== target.height) {
+  if (!cache || cache.width !== target.width || cache.height !== target.height || cacheBiome !== stage.biome) {
+    cacheBiome = stage.biome;
     cache = document.createElement('canvas');
     cache.width = target.width;
     cache.height = target.height;
     const c = cache.getContext('2d')!;
     c.setTransform(target.width / W, 0, 0, target.height / H, 0, 0);
-    paintStatic(c);
+    if (stage.biome === 'swamp') paintSwampStatic(c, stage.terrain);
+    else paintStatic(c);
   }
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.drawImage(cache, 0, 0);
   ctx.restore();
 
+  if (stage.biome === 'swamp') drawSwampLife(ctx, time, stage.terrain);
   drawRuneCircle(ctx, time);
-  for (const candle of candles) drawCandle(ctx, candle.x, candle.y, time + candle.phase);
+  if (stage.biome === 'graveyard') for (const candle of candles) drawCandle(ctx, candle.x, candle.y, time + candle.phase);
 }
 
 /** Névoa e vinheta por cima de tudo. */

@@ -50,6 +50,18 @@ export interface Enemy extends Point {
   poisonDps: number;
   /** Com medo: anda para longe do Nexus enquanto o tempo durar. */
   fearTimer: number;
+  /** Pântano: intocável (na lama ou mergulhado). */
+  submerged?: boolean;
+  /** Salto em andamento (segundos restantes). */
+  leapTime?: number;
+  /** Mergulho do Crocodilo Ancião (segundos restantes até reaparecer). */
+  burrowTime?: number;
+  /** Hidra: cabeças vivas, cortadas à espera de renascer e o tempo até renascerem. */
+  heads?: number;
+  cutHeads?: number;
+  regrowTimer?: number;
+  /** Rei Sapo: vida no momento em que engoliu (cuspir ao levar dano suficiente). */
+  swallowHp?: number;
   /** Até quando o grito (empurrão/medo) não afeta este inimigo de novo (tempo de jogo). */
   screechImmuneUntil?: number;
   /** Atordoado/congelado: não anda enquanto o tempo durar. */
@@ -122,6 +134,10 @@ export interface Creature extends Point {
   /** Presa na teia: ataca mais devagar. */
   webTimer: number;
   webSlow: number;
+  /** Visual da lentidão: teia (Aranha) ou praga (Bruxa do Brejo). */
+  webLook?: 'web' | 'curse';
+  /** Engolida pelo Rei Sapo: fora de combate (segundos restantes). */
+  swallowTimer?: number;
 }
 
 export interface Hero extends Point {

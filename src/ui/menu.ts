@@ -30,7 +30,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
   const stage = STAGES[runSetup(profile).stage ?? FIRST_STAGE];
   const finalBoss = stage.bosses.at(-1);
   const goal = finalBoss
-    ? `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${WAVES.total} ondas e derrote o <b>${ENEMIES[finalBoss.enemy].name}</b>.`
+    ? `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${WAVES.total} ondas e vença o chefe final, <b>${ENEMIES[finalBoss.enemy].name}</b>.`
     : `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${WAVES.total} ondas.`;
   const hero = `<canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas>`;
   const team = hero + profile.team.map((id) => `<canvas class="team-mini" data-sprite="${id}"></canvas>`).join('');

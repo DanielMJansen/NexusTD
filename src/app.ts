@@ -1,3 +1,4 @@
+import { STAGE_IDS, STAGES } from './data/stages';
 import type { CreatureId } from './data/creatures';
 import { SoundPlayer } from './audio/audio';
 import { Music } from './audio/music';
@@ -412,11 +413,15 @@ export class App {
         recordRun(this.profile, event.result);
         const unlocked = checkAchievements(this.profile, event.result);
         saveProfile(this.profile);
+        // primeira vitória numa fase libera a seguinte
+        const next = STAGE_IDS.map((id) => STAGES[id]).find((s) => s.requires === event.result.stage);
+        const firstWin = event.result.victory && !event.result.endless && this.profile.stageRecords[event.result.stage]?.wins === 1;
         showRunEnd(
           event.result,
           unlocked,
           () => this.openMenu(),
           event.result.victory ? () => this.enterEndless() : undefined,
+          firstWin ? next : undefined,
         );
         break;
       default:

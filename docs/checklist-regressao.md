@@ -47,6 +47,9 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Desempenho: ondas cheias (60+ inimigos, elites, lentos, petrificados) sem queda forte; brilho de elite/frenesi/forma evoluída e clarão de acerto continuam visíveis e sem cortes (inclusive chefes).
 - [ ] HUD: chip ☗ mostra inimigos restantes/total da onda ("—" entre ondas); passar o mouse no chip do herói mostra a ficha (dano, ataques/s, alcance, vida, velocidade, Pulso); a pausa mostra a mesma ficha.
 - [ ] Menu/telas fora da run: topo com Essência, melhor onda, coleção, heróis e vitórias; sem HUD da run, painel de criaturas, pausa ou velocidade.
+- [ ] Fase 2 · Pântano: bloqueada até vencer a Fase 1 (a vitória mostra "Fase 2 · Pântano liberada!"); cenário com 4 poças de lama, juncos e vagalumes; criatura na lama ataca mais devagar e o herói anda mais devagar nela.
+- [ ] Pântano: Sapo-Boi e Rei Sapo saltam em arco; Sanguessuga se cura ao golpear; Bruxa do Brejo lança praga verde (espirais e caveirinha na criatura); Crocodilo na lama vira só olhos e bolhas e não leva dano; criaturas atiram primeiro no Fogo-fátuo.
+- [ ] Chefes do Pântano: Rei Sapo engole uma criatura ("engolida · Ns", contorno tracejado) e a cospe ao levar dano; Crocodilo Ancião mergulha e reaparece em investida; Hidra mostra "N cabeças", corta cabeça ("Cabeça cortada!") e renasce em dobro após 10 s.
 - [ ] Fases: menu mostra "Fase 1 · Cemitério" e o objetivo da fase; tela de Fases lista recorde, vitórias e chefes; perfil antigo com vitórias aparece como Fase 1 vencida; título "NEXUS TD".
 - [ ] Heróis: "Desbloquear" pede confirmação com a Essência que sobra; escolher/skin/compra não voltam a tela ao topo.
 - [ ] Banshee: o mesmo inimigo não é empurrado/assustado em sequência (texto da habilidade cita o tempo).

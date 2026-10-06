@@ -1,3 +1,4 @@
+import type { StageDef } from '../data/stages';
 import { ACHIEVEMENTS, type AchievementId } from '../data/achievements';
 import { HEROES } from '../data/heroes';
 import { SKINS } from '../data/skins';
@@ -11,6 +12,8 @@ export function showRunEnd(
   newAchievements: AchievementId[],
   onContinue: () => void,
   onEndless?: () => void,
+  /** Fase liberada por esta vitória (primeira vez). */
+  stageUnlocked?: StageDef,
 ): void {
   const unlocked = newAchievements
     .map((id) => {
@@ -33,6 +36,7 @@ export function showRunEnd(
         <div>${result.kills}<small>abates</small></div>
         <div>${essence(`+${result.essence}`)}<small>Essência</small></div>
       </div>
+      ${stageUnlocked ? `<p class="stage-unlocked">🔓 <b>Fase ${stageUnlocked.number} · ${stageUnlocked.name}</b> liberada! Escolha em <b>Fase</b>, no menu.</p>` : ''}
       ${unlocked ? `<ul class="achievement-list">${unlocked}</ul>` : ''}
       ${onEndless ? '<p class="hint">No <b>Sem Fim</b>, as ondas continuam cada vez mais fortes, com um chefe a cada 5 ondas. A Essência das próximas ondas vem quando o Nexus cair.</p>' : ''}
       <div class="button-row">

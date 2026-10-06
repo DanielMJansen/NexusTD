@@ -9,7 +9,8 @@ import { distance, type Creature, type Enemy, type RunState } from './state';
 // Efeitos de golpe das criaturas (veneno, atordoar, marca, corrosão, possessão...) e aliados temporários.
 
 /** Inimigo que ainda luta contra o Nexus (vivo e não possuído/erguido como aliado). */
-export const isHostile = (enemy: Enemy): boolean => !enemy.dead && enemy.allyTimer <= 0;
+/** Inimigo que pode ser alvo e levar dano (não morto, não aliado, não submerso na lama). */
+export const isHostile = (enemy: Enemy): boolean => !enemy.dead && enemy.allyTimer <= 0 && !enemy.submerged;
 
 const findEffect = <K extends HitEffect['kind']>(creature: Creature, kind: K) =>
   creatureEffects(creature).find((e): e is Extract<HitEffect, { kind: K }> => e.kind === kind);

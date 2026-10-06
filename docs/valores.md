@@ -151,9 +151,19 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 | Rei Ogro (chefe) | 450 | 13 | 4 | 30 | 35 | 30 | 40 | Pisão: a cada 7 s, atordoa as criaturas num raio de 75 por 1,2 s. |
 | Rainha Aranha (chefe) | 600 | 15 | 3 | 35 | 30 | 45 | 60 | Teia: a cada 3,5 s, prende até 3 criaturas (alcance 120): atacam 60% mais devagar por 3 s. Invocação: a cada 7 s, ergue 2 Aranhas. |
 | Lich (chefe) | 800 | 12 | 4 | 60 | 40 | 80 | 100 | Tiro: com o herói a até 120, avança devagar e atira (14 de dano a cada 1,4 s). Invocação: a cada 8 s, ergue 2 Esqueleto Arqueiros. Escudo: a cada 12 s, reduz o dano recebido em 80% por 3 s. Fúria: abaixo de 50% da vida, fica 40% mais rápido e usa habilidades mais vezes. |
+| Sapo-Boi | 26 | 24 | 0 | 6 | 8 | 3 | 3 | Salto: a cada 4 s, pula 45 para a frente, por cima de bloqueios. |
+| Sanguessuga | 9 | 52 | 0 | 3 | 6 | 1 | 1 | Suga: cada golpe no Nexus cura 30% da vida; encostada no herói, cura 30% por segundo. |
+| Bruxa do Brejo | 30 | 22 | 0 | 6 | 5 | 5 | 4 | Praga: a cada 5 s, amaldiçoa a criatura mais próxima (alcance 110): atacam 40% mais devagar por 4 s. |
+| Crocodilo | 110 | 17 | 4 | 14 | 14 | 8 | 7 | Submerso: dentro da lama fica intocável (não é alvo nem leva dano). |
+| Fogo-fátuo | 22 | 34 | 0 | 4 | 3 | 4 | 3 | Isca: as criaturas que o alcançam atiram nele primeiro. |
+| Rei Sapo (chefe) | 440 | 13 | 3 | 35 | 35 | 35 | 45 | Salto: a cada 7 s, pula 40 para a frente, por cima de bloqueios. Engolir: a cada 12 s, engole a criatura mais próxima (alcance 75), que fica fora de combate por 5 s ou até ele levar 12% da vida em dano. |
+| Crocodilo Ancião (chefe) | 680 | 14 | 5 | 45 | 35 | 50 | 65 | Mergulho: a cada 14 s, some na lama por 1,4 s e reaparece perto do Nexus em investida. Investida: a cada 9 s, corre 2,5× mais rápido por 0,8 s. |
+| Hidra (chefe) | 300 | 11 | 4 | 70 | 40 | 90 | 110 | Cabeças: nasce com 3; cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro após 10 s (até 5), a não ser que a Hidra morra antes. Tiro: com o herói a até 120, avança devagar e atira (6 de dano a cada 1,8 s). |
 
 ## Ondas
-- 20 ondas; quantidade = 4 + 3 × onda; chefes (Fase 1): onda 7 Rei Ogro, onda 14 Rainha Aranha, onda 20 Lich.
+- 20 ondas; quantidade = 4 + 3 × onda; chefes por fase abaixo.
+- **Fase 1 · Cemitério**: vida dos inimigos ×1, dano ×1, Essência ×1; chefes: onda 7 Rei Ogro, onda 14 Rainha Aranha, onda 20 Lich; inimigos: Zumbi (onda 1+), Morcego (onda 2+), Esqueleto Arqueiro (onda 3+), Ogro (onda 4+), Lodo (onda 5+), Aranha (onda 6+), Gárgula (onda 8+), Cavaleiro Sem Cabeça (onda 9+), Banshee Sombria (onda 11+), Necromante (onda 12+).
+- **Fase 2 · Pântano**: vida dos inimigos ×1,15, dano ×1,1, Essência ×1,25; chefes: onda 7 Rei Sapo, onda 14 Crocodilo Ancião, onda 20 Hidra; inimigos: Sanguessuga (onda 1+), Sapo-Boi (onda 1+), Fogo-fátuo (onda 3+), Bruxa do Brejo (onda 5+), Crocodilo (onda 6+), Lodo (onda 9+); lama: 4 poças, criaturas −25% vel. de ataque, herói −40% velocidade.
 - Força (o = onda − 1): vida × (1 + 0,18·o + 0,02·o²); velocidade +2% por onda (máx. +40%); dano +6% por onda.
 - Elites a partir da onda 8: chance 5% (+1%/onda, máx. 25%); vida ×2,5, dano ×1,5, recompensa ×2.
 - Sem Fim: chefe a cada 5 ondas; por onda além da 20, vida ×1,08 e dano ×1,05 a mais (exponencial); elites até 35%.

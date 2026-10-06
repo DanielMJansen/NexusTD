@@ -3,7 +3,6 @@ import { xpToNextLevel } from '../data/heroUpgrades';
 import { heroMaxHp } from '../game/hero';
 import { CREATURE_IDS } from '../data/creatures';
 import { HERO_IDS } from '../data/heroes';
-import { isHostile } from '../game/hitEffects';
 import type { Profile } from '../game/profile';
 import { essence } from './currency';
 import { heroSheetHtml } from './describe';
@@ -31,7 +30,7 @@ export function updateHud(run: RunState): void {
   nexusBar.classList.toggle('low', ratio < 0.3);
   setText(creatures, `${run.creatures.length}/${run.creatureLimit}`);
   // restantes = vivos (sem aliados) + ainda por entrar; total = restantes + abatidos (inclui divisões e invocados)
-  const remaining = run.enemies.filter(isHostile).length + run.spawnQueue.length;
+  const remaining = run.enemies.filter((e) => !e.dead && e.allyTimer <= 0).length + run.spawnQueue.length;
   setText(enemies, run.phase === 'playing' ? `${remaining}/${remaining + run.waveKills}` : '—');
   const hero = run.hero;
   setText(heroLevel, hero.dead ? `Nv ${hero.level} · ${Math.ceil(hero.respawnTimer)}s` : `Nv ${hero.level}`);

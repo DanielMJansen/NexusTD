@@ -37,10 +37,10 @@ Sem conteúdo novo; prepara o terreno.
 - Perfil: progresso por fase (campo novo com padrão no `sanitize`, sem trocar a chave `nx4`); a run salva guarda a fase.
 - Render do cenário parametrizado por bioma; bot de calibragem recebe a fase.
 
-### F13. Fase 2 — Pântano `[ ]` — PROPOSTA detalhada (aguardando aprovação)
+### F13. Fase 2 — Pântano `[~]` — F13a e F13b aprovados; F13c (Altar) em revisão
 Dividida em três entregas, cada uma jogável ao fim:
 
-**F13a — A fase**
+**F13a — A fase** `[x]` (valores finais após calibragem: inimigos ×1,15 de vida e ×1,1 de dano; Rei Sapo 440 de vida, Crocodilo Ancião 680, Hidra 300 por cabeça com renascimento em 10 s — ver GDD seção 9)
 - Liberada ao vencer a Fase 1. Força base: inimigos com +35% de vida e +20% de dano em relação à Fase 1 (calibrar com o bot).
 - Cenário: água escura, juncos, vitórias-régias, troncos podres, névoa verde e vagalumes.
 - **Regra de mapa — lama:**
@@ -65,12 +65,12 @@ Dividida em três entregas, cada uma jogável ao fim:
   - **Onda 20 — Hidra:** nasce com 3 cabeças, e cada cabeça é uma barra de vida. Uma cabeça cortada renasce em 2 cabeças após 8 s, a não ser que todas morram nesse intervalo, até no máximo 5 cabeças. Cada cabeça cospe ácido (área).
 - Recompensa: Essência um pouco maior por onda (+25%).
 
-**F13b — Fragmentos de raça e Santuário**
+**F13b — Fragmentos de raça e Santuário** `[ ]`
 - **Origem:** só caem em fases a partir da 2. No fim da run, cada raça que você usou rende Fragmentos daquela raça, proporcionais às ondas vencidas e às criaturas dela invocadas. Chefes rendem um bônus.
 - **Santuário** (menu): nível permanente por criatura, de 1 a 5. Cada nível dá +4% de dano e +2% de velocidade de ataque. Custo em Fragmentos da raça: 10 / 20 / 35 / 55 / 80.
 - **Balanceamento:** fica de fora a "economia de poder" que a Essência já cobre; o teto total é +20% de dano e +10% de velocidade por criatura.
 
-**F13c — Altar de Variantes**
+**F13c — Altar de Variantes** `[ ]` — **em revisão** (07/10): o preço parece baixo e a garantia generosa; garantia só a cada X sorteios. Repensar antes de implementar.
 - **Liberação:** ao vencer a Fase 2.
 - **Custo:** cada invocação gasta Essência (sorteio por 150 ✦; 10 sorteios por 1.350 ✦).
 - **Prêmio:** uma **variante cosmética** de criatura que você já possui:

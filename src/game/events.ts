@@ -14,7 +14,13 @@ export type GameEvent =
   | { type: 'heroAttack'; hero: HeroId; from: Point; to: Point; cone: number | null; range: number }
   | { type: 'enemyKilled'; enemy: EnemyId; x: number; y: number; gold: number; color: string; elite: boolean }
   /** Tiro de inimigo: flecha/raio no herói ou teia numa criatura. */
-  | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web'; from: Point; to: Point }
+  | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web' | 'curse' | 'acid'; from: Point; to: Point }
+  | { type: 'enemyLeap'; x: number; y: number }
+  | { type: 'creatureSwallowed'; x: number; y: number }
+  | { type: 'creatureReleased'; x: number; y: number }
+  | { type: 'enemyBurrow'; x: number; y: number; surfacing: boolean }
+  | { type: 'headCut'; x: number; y: number; heads: number }
+  | { type: 'headsRegrown'; x: number; y: number; heads: number }
   | { type: 'enemySummoned'; x: number; y: number; color: string }
   | { type: 'enemyCharge'; x: number; y: number }
   | { type: 'enemyHealed'; x: number; y: number; radius: number }

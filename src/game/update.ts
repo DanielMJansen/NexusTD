@@ -1,3 +1,4 @@
+import { STAGES } from '../data/stages';
 import { ECONOMY, REWARDS } from '../data/config';
 import { WAVES } from '../data/waves';
 import { offerChoices } from './choices';
@@ -87,7 +88,7 @@ function endRun(state: RunState, victory: boolean): void {
     waves * (REWARDS.essencePerWave + t.essencePerWave) +
     Math.floor(kills / REWARDS.killsPerEssence) +
     (victory ? REWARDS.victoryBonus + t.victoryEssence : 0);
-  const essence = Math.floor(base * (1 + t.essenceGain));
+  const essence = Math.floor(base * (1 + t.essenceGain) * STAGES[state.stage].essenceMultiplier);
   state.result = {
     stage: state.stage,
     victory,

@@ -118,6 +118,7 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
     animationOffset: random() * 6,
     lastHitAt: -Infinity,
     held: false,
+    heads: def.traits.find((t) => t.kind === 'heads')?.start,
     poisonTimer: 0,
     poisonDps: 0,
     fearTimer: 0,

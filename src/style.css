@@ -2386,3 +2386,13 @@ body:not([data-mode='run']) #side-panel {
   max-width: 260px;
   margin: 0 auto;
 }
+
+.stage-unlocked {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border: 1px solid #7aba5a88;
+  border-radius: 8px;
+  background: #7aba5a1a;
+  color: var(--fg);
+  text-align: center;
+}
