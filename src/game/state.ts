@@ -49,6 +49,8 @@ export interface Enemy extends Point {
   poisonDps: number;
   /** Com medo: anda para longe do Nexus enquanto o tempo durar. */
   fearTimer: number;
+  /** Até quando o grito (empurrão/medo) não afeta este inimigo de novo (tempo de jogo). */
+  screechImmuneUntil?: number;
   /** Atordoado/congelado: não anda enquanto o tempo durar. */
   stunTimer: number;
   /** Visual do atordoamento (estrelas, raízes ou pedra) e do medo (medo ou confusão). */
@@ -242,6 +244,8 @@ export interface RunState {
   nexus: { hp: number; maxHp: number };
   gold: number;
   kills: number;
+  /** Inimigos abatidos na onda atual (contador "restantes/total" do HUD). */
+  waveKills: number;
   hero: Hero;
   enemies: Enemy[];
   creatures: Creature[];
@@ -337,6 +341,7 @@ export function createRun(setup: RunSetup): RunState {
     nexus: { hp: maxHp, maxHp },
     gold: ECONOMY.startGold + t.startGold,
     kills: 0,
+    waveKills: 0,
     hero: {
       ...heroStart,
       def: heroDef,

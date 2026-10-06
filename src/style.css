@@ -2296,3 +2296,93 @@ button.danger {
     transform: none;
   }
 }
+
+/* fora da run: só o progresso permanente no topo; HUD, painel e controles da run ficam escondidos */
+#menu-hud {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+body[data-mode='run'] #menu-hud,
+body:not([data-mode='run']) #hud,
+body:not([data-mode='run']) #pause-button,
+body:not([data-mode='run']) #speed-button {
+  display: none;
+}
+
+body:not([data-mode='run']) #side-panel {
+  visibility: hidden;
+}
+
+#menu-hud {
+  flex: 1;
+}
+
+/* ficha do herói: no chip do HUD (hover) e na pausa */
+.hero-chip {
+  position: relative;
+  cursor: help;
+}
+
+#hero-sheet {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 40;
+  min-width: 220px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #140d22f2;
+  box-shadow: 0 8px 24px #000a;
+}
+
+.hero-chip:hover #hero-sheet {
+  display: block;
+}
+
+#hero-sheet h4 {
+  margin: 0 0 6px;
+  font: 700 14px var(--font-label);
+  color: var(--fg);
+}
+
+.hero-sheet-list {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 14px;
+  margin: 0;
+  font: 400 14px var(--font-body);
+}
+
+.hero-sheet-list dt {
+  color: var(--muted);
+}
+
+.hero-sheet-list dd {
+  margin: 0;
+  text-align: right;
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.hero-sheet-pause {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.hero-sheet-pause h3 {
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.hero-sheet-pause .hero-sheet-list {
+  max-width: 260px;
+  margin: 0 auto;
+}

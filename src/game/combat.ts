@@ -59,6 +59,7 @@ export function damageEnemy(
   if (enemy.hp <= 0 && !enemy.dead) {
     enemy.dead = true;
     state.kills++;
+    state.waveKills++;
     const reward = enemy.elite ? WAVES.elites.reward : 1;
     const gold = Math.round(enemy.def.gold * reward * (1 + state.talents.killGold));
     state.gold += gold;
@@ -408,6 +409,10 @@ export function updateCreatures(state: RunState, dt: number): void {
         for (const e of state.enemies) {
           if (!isHostile(e) || e.def.isBoss || distance(e, creature) > range) continue;
           if (angleDiff(Math.atan2(e.y - creature.y, e.x - creature.x), angle) > ability.halfAngle) continue;
+          if (ability.immunity) {
+            if (state.time < (e.screechImmuneUntil ?? 0)) continue;
+            e.screechImmuneUntil = state.time + ability.immunity;
+          }
           const away = Math.atan2(e.y - ARENA.center.y, e.x - ARENA.center.x);
           e.x += Math.cos(away) * ability.push;
           e.y += Math.sin(away) * ability.push;

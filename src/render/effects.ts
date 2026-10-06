@@ -155,7 +155,7 @@ export class Effects {
     switch (event.type) {
       case 'shot': {
         const melee = MELEE[event.source];
-        const duration = melee ? 0.16 : event.source === 'cauldron' ? 0.4 : 0.22;
+        const duration = melee ? 0.16 : event.source === 'cauldron' ? 0.4 : event.source === 'batSwarm' ? 0.32 : 0.22;
         this.shots.push({ ...event, duration, remaining: duration, trailTimer: 0, color: melee });
         break;
       }
@@ -767,6 +767,36 @@ function shotPosition(shot: Shot): Point {
   };
 }
 
+/** Morcego pequeno em voo (asas batendo), legível sobre o chão escuro. */
+function drawFlyingBat(ctx: CanvasRenderingContext2D, bx: number, by: number, phase: number): void {
+  ctx.save();
+  ctx.translate(bx, by);
+  ctx.scale(1.6, 1.6);
+  const x = 0;
+  const y = 0;
+  const flap = Math.sin(phase) * 3;
+  ctx.fillStyle = '#6a2a7a';
+  ctx.strokeStyle = '#ffb8d8';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.quadraticCurveTo(x - 4, y - 3 - flap, x - 7, y - 1 - flap);
+  ctx.quadraticCurveTo(x - 4, y + 0.5, x - 1.5, y + 1.5);
+  ctx.lineTo(x + 1.5, y + 1.5);
+  ctx.quadraticCurveTo(x + 4, y + 0.5, x + 7, y - 1 - flap);
+  ctx.quadraticCurveTo(x + 4, y - 3 - flap, x, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x, y + 0.5, 1.8, 2.2, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#ff3a4a';
+  ctx.fillRect(x - 1, y, 0.8, 0.8);
+  ctx.fillRect(x + 0.3, y, 0.8, 0.8);
+  ctx.restore();
+}
+
 function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
   const progress = 1 - shot.remaining / shot.duration;
   const { x, y } = shotPosition(shot);
@@ -890,17 +920,32 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       ctx.fill();
       break;
     }
-    case 'batSwarm':
-      // três morcegos minúsculos voando até o alvo
-      ctx.fillStyle = '#5a2a6a';
-      for (let i = 0; i < 3; i++) {
-        const ox = Math.sin(progress * 12 + i * 2) * 4;
-        const oy = Math.cos(progress * 10 + i * 2) * 3;
+    case 'batSwarm': {
+      // revoada: cinco morcegos batendo asas até o alvo e uma mordida vermelha na chegada
+      for (let i = 0; i < 5; i++) {
+        const ox = Math.sin(progress * 12 + i * 1.3) * (11 - progress * 5);
+        const oy = Math.cos(progress * 10 + i * 1.7) * (7 - progress * 3);
+        drawFlyingBat(ctx, x + ox, y + oy - i * 0.6, progress * 40 + i * 1.9);
+      }
+      if (progress > 0.7) {
+        const bite = (progress - 0.7) / 0.3;
+        ctx.globalAlpha = 1 - bite;
+        ctx.strokeStyle = '#ff3a5a';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.ellipse(x + ox, y + oy, 2.6, 1.2, 0, 0, TAU);
-        ctx.fill();
+        ctx.arc(shot.to.x, shot.to.y, 6 + bite * 12, 0, TAU);
+        ctx.stroke();
+        // marcas de presas
+        ctx.fillStyle = '#ffd0da';
+        for (let k = 0; k < 4; k++) {
+          const t = (k * TAU) / 4 + 0.4;
+          ctx.beginPath();
+          ctx.arc(shot.to.x + Math.cos(t) * (5 + bite * 6), shot.to.y + Math.sin(t) * (5 + bite * 6), 1.3, 0, TAU);
+          ctx.fill();
+        }
       }
       break;
+    }
     case 'storm': {
       // raio em zigue-zague da origem até o alvo
       ctx.strokeStyle = '#fff6a0';

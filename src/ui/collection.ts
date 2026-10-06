@@ -1,6 +1,6 @@
 import { CREATURES, CREATURE_IDS, type CreatureDef, type CreatureId } from '../data/creatures';
 import { ownsCreature, type Profile } from '../game/profile';
-import { essence } from './currency';
+import { confirmPurchaseHtml, essence } from './currency';
 import { abilityText, ascendedFormsHtml, creatureStats } from './describe';
 import { showOverlay } from './overlay';
 
@@ -53,16 +53,6 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
   </div>`;
 }
 
-/** Confirmação no próprio card: preço e quanto de Essência sobra. */
-function confirmHtml(profile: Profile, def: CreatureDef): string {
-  const cost = def.unlock.kind === 'essence' ? def.unlock.cost : 0;
-  return `<div class="cc-confirm">
-    <span>Desbloquear por ${essence(cost)}? Sobram ${essence(profile.essence - cost)}</span>
-    <button data-action="cancel" data-value="${def.id}">Cancelar</button>
-    <button class="play-button" data-action="buy" data-value="${def.id}">Confirmar</button>
-  </div>`;
-}
-
 /**
  * Coleção: ficha de cada criatura, agrupada por raça; desbloqueio com Essência (pede confirmação).
  * justUnlocked: criatura recém-liberada; a tela é redesenhada na mesma posição, com ela em destaque.
@@ -91,7 +81,10 @@ export function showCollection(profile: Profile, handlers: CollectionHandlers, j
     {
       ask: (id) => {
         const target = footer(id);
-        if (target) target.innerHTML = confirmHtml(profile, CREATURES[id as CreatureId]);
+        {
+          const def = CREATURES[id as CreatureId];
+          if (target) target.innerHTML = confirmPurchaseHtml(id, def.unlock.kind === 'essence' ? def.unlock.cost : 0, profile.essence);
+        }
       },
       cancel: (id) => {
         const target = footer(id);

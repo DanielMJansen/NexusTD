@@ -64,6 +64,7 @@ export function buildWaveQueue(wave: number): EnemyId[] {
 
 export function startWave(state: RunState): void {
   state.wave++;
+  state.waveKills = 0;
   for (const creature of state.creatures) creature.killStacks = 0;
   state.spawnQueue = buildWaveQueue(state.wave);
   state.spawnTimer = 0;

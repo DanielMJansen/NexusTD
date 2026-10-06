@@ -42,8 +42,8 @@ import { showCollection } from './ui/collection';
 import { showEntry } from './ui/entry';
 import { showHeroLevelUp } from './ui/heroLevelUp';
 import { chooseHeroUpgrade } from './game/hero';
-import { showHeroes } from './ui/heroesScreen';
-import { updateHud } from './ui/hud';
+import { showHeroes, type HeroScreenOptions } from './ui/heroesScreen';
+import { updateHud, updateMenuHud } from './ui/hud';
 import { showMenu } from './ui/menu';
 import { animateOverlay, hideOverlay } from './ui/overlay';
 import { showPause } from './ui/pause';
@@ -361,7 +361,10 @@ export class App {
       this.keyboard.isDown('shift') ||
       (this.interaction.pointerInArena && Math.hypot(this.interaction.pointer.x - hero.x, this.interaction.pointer.y - hero.y) < 18);
     drawFrame(this.ctx, this.run, this.effects, view, time);
-    updateHud(this.run);
+    // HUD e painel da run só aparecem na run; fora dela, o topo mostra o perfil
+    if (document.body.dataset.mode !== this.mode) document.body.dataset.mode = this.mode;
+    if (this.mode === 'run') updateHud(this.run);
+    else updateMenuHud(this.profile);
     this.panel.update(this.run, this.interaction, time);
     this.nexusPanel.update(this.run, this.mode === 'run' && this.interaction.nexusOpen);
     this.creaturePopup.update(this.run, this.isPlaying() && !this.tutorial.freezes);
@@ -510,25 +513,27 @@ export class App {
     });
   }
 
-  private openHeroes(): void {
+  /** Redesenhos (compra, escolha, skin) mantêm a posição da tela; a compra destaca o herói liberado. */
+  private openHeroes(options: HeroScreenOptions = {}): void {
+    const again = (extra: HeroScreenOptions = {}) => this.openHeroes({ keepScroll: true, ...extra });
     showHeroes(this.profile, {
-      onBuy: (id) => this.afterPurchase(buyHero(this.profile, id), () => this.openHeroes()),
+      onBuy: (id) => this.afterPurchase(buyHero(this.profile, id), () => again({ justUnlocked: id })),
       onSelect: (id) => {
         if (!selectHero(this.profile, id)) return;
         saveProfile(this.profile);
         this.sound.play('place');
         this.run = createRun(runSetup(this.profile));
-        this.openHeroes();
+        again();
       },
       onSkin: (skinId) => {
         if (!selectSkin(this.profile, skinId)) return;
         saveProfile(this.profile);
         this.sound.play('place');
         this.run = createRun(runSetup(this.profile));
-        this.openHeroes();
+        again();
       },
       onBack: () => this.openMenu(),
-    });
+    }, options);
   }
 
   /** justUnlocked: depois de comprar, redesenha no mesmo lugar com a criatura liberada em destaque. */
@@ -630,6 +635,6 @@ export class App {
         clearRun();
         this.openMenu();
       },
-    });
+    }, this.run);
   }
 }

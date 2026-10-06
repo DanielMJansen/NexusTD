@@ -15,6 +15,13 @@
     <div id="app">
       <header id="top-bar">
         <div id="brand"></div>
+        <div id="menu-hud">
+          <div class="chip" title="Essência (moeda permanente)"><span id="menu-essence"></span></div>
+          <div class="chip" title="Melhor onda alcançada"><span class="chip-icon">☠</span><span id="menu-best"></span></div>
+          <div class="chip" title="Criaturas na coleção"><span class="chip-icon">✦</span><span id="menu-collection"></span></div>
+          <div class="chip" title="Heróis desbloqueados"><span class="chip-icon">✪</span><span id="menu-heroes"></span></div>
+          <div class="chip" title="Runs vencidas / jogadas"><span class="chip-icon">♛</span><span id="menu-wins"></span></div>
+        </div>
         <div id="hud">
           <div class="chip" title="Onda"><span class="chip-icon">☠</span><span id="hud-wave"></span></div>
           <div class="chip gold" title="Ouro"><span class="chip-icon">◉</span><span id="hud-gold"></span></div>
@@ -22,11 +29,13 @@
             <span class="chip-icon">◆</span>
             <div class="bar"><div id="hud-nexus-bar"></div><span id="hud-nexus"></span></div>
           </div>
-          <div class="chip hero-chip" title="Herói: nível, vida e experiência">
+          <div class="chip hero-chip">
             <span class="chip-icon">✪</span><span id="hud-hero-level"></span>
             <div class="hero-bars"><div class="bar-hp"><div id="hud-hero-hp"></div></div><div class="bar-xp"><div id="hud-hero-xp"></div></div></div>
+            <div id="hero-sheet"></div>
           </div>
           <div class="chip" title="Criaturas em campo"><span class="chip-icon">✦</span><span id="hud-creatures"></span></div>
+          <div class="chip" title="Inimigos restantes na onda / total da onda"><span class="chip-icon">☗</span><span id="hud-enemies"></span></div>
         </div>
         <div class="top-buttons">
           <button id="pause-button" class="icon-button" type="button" title="Pausar (P / Esc)">❚❚</button>

@@ -1,3 +1,6 @@
+import { heroMaxHp, heroRange } from '../game/hero';
+import { pulsePower } from '../game/pulses';
+import type { RunState } from '../game/state';
 import { ECONOMY } from '../data/config';
 import type { AscendedForm, CreatureAbility, CreatureDef, HitEffect } from '../data/creatures';
 import { ENEMIES, type EnemyTrait } from '../data/enemies';
@@ -85,10 +88,14 @@ function baseAbilityText(a: CreatureAbility): string {
       return a.bonusVsArmored > 0
         ? `Ignora armadura e causa +${Math.round(a.bonusVsArmored * 100)}% de dano em inimigos com armadura.`
         : 'Ignora toda a armadura do alvo.';
-    case 'screech':
+    case 'screech': {
+      const again = a.immunity ? ` O mesmo inimigo só sofre o efeito de novo após ${formatNumber(a.immunity)} s.` : '';
       return a.fear
-        ? `Grito em leque: atinge todos à frente e os faz fugir do Nexus por ${formatNumber(a.fear)} s (chefes resistem).`
-        : `Grito em leque: atinge todos à frente e os empurra ${a.push} para longe do Nexus (chefes resistem).`;
+        ? `Grito em leque: atinge todos à frente e os faz fugir do Nexus por ${formatNumber(a.fear)} s (chefes resistem).${again}`
+        : a.push > 0
+          ? `Grito em leque: atinge todos à frente e os empurra ${a.push} para longe do Nexus (chefes resistem).${again}`
+          : 'Golpe em leque: atinge todos à frente.';
+    }
     case 'poison':
       return `Veneno: ${formatNumber(a.dps)} de dano por segundo durante ${formatNumber(a.duration)} s (ignora armadura).`;
     case 'pool':
@@ -402,4 +409,35 @@ export function heroStatText(stat: HeroStat, value: number): string {
 /** Totais atuais das melhorias do herói (só as que ele já tem). */
 export function heroStatRows(stats: Record<HeroStat, number>): string[] {
   return (Object.keys(stats) as HeroStat[]).filter((k) => stats[k] > 0).map((k) => heroStatText(k, stats[k]));
+}
+
+/** Ficha do herói na run: valores atuais com nível, melhorias, talentos e bônus da run. */
+export function heroSheetRows(run: RunState): [string, string][] {
+  const def = run.hero.def;
+  const s = run.heroStats;
+  const t = run.talents;
+  const damage = def.attack.damage * run.modifiers.damage * (1 + t.heroDamage + s.damage);
+  const perSecond = (run.modifiers.attackSpeed + s.attackSpeed) / def.attack.cooldown;
+  const rows: [string, string][] = [
+    ['Nível', `${run.hero.level}`],
+    ['Vida', `${Math.ceil(run.hero.hp)}/${Math.round(heroMaxHp(run))}`],
+    ['Dano', formatNumber(Math.round(damage * 10) / 10)],
+    ['Ataques/s', formatNumber(Math.round(perSecond * 100) / 100)],
+    ['Alcance', `${Math.round(heroRange(run))}`],
+    ['Velocidade', `${Math.round(def.speed * (1 + t.heroSpeed + s.speed))}`],
+  ];
+  if (run.modifiers.critChance > 0) rows.push(['Crítico', `${Math.round(run.modifiers.critChance * 100)}%`]);
+  if (s.regen > 0) rows.push(['Regeneração', `${formatNumber(Math.round(s.regen * 10) / 10)}/s`]);
+  if (s.lifesteal > 0) rows.push(['Roubo de vida', `${Math.round(s.lifesteal * 100)}%`]);
+  if (s.armor > 0) rows.push(['Couraça', `−${Math.round(Math.min(0.6, s.armor) * 100)}% de dano`]);
+  if (s.thorns > 0) rows.push(['Espinhos', `${formatNumber(s.thorns)}/s`]);
+  if (def.pulse.damage > 0) rows.push(['Dano do Pulso', `${Math.round(def.pulse.damage * pulsePower(run))}`]);
+  rows.push(['Recarga do Pulso', `${formatNumber(Math.round(run.pulse.cooldown * 10) / 10)} s`]);
+  return rows;
+}
+
+export function heroSheetHtml(run: RunState): string {
+  return `<dl class="hero-sheet-list">${heroSheetRows(run)
+    .map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`)
+    .join('')}</dl>`;
 }

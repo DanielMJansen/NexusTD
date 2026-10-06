@@ -68,6 +68,7 @@ function deserialize(raw: Record<string, unknown>): RunState {
   const state = {
     ...raw,
     events: [],
+    waveKills: typeof raw.waveKills === 'number' ? raw.waveKills : 0,
     result: null,
     hero: {
       ...hero,

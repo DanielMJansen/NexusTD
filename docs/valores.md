@@ -34,7 +34,7 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 | Lobisomem | Alfa | 30 | 10 | 65 | 0,6 s | Aura: criaturas num raio de 80 atacam 20% mais rápido. | 70 ✦ |
 | Lobisomem | Uivador | 30 | 4 | 70 | 3 s | Golpe em área: atinge todos num raio de 70 ao redor dela. 60% de chance de assustar: o inimigo foge do Nexus por 1,5 s (chefes resistem). | 70 ✦ |
 | Fantasma | Assombração | 25 | 6 | 100 | 0,7 s | Ignora toda a armadura do alvo. | 60 ✦ |
-| Fantasma | Banshee | 30 | 4 | 80 | 1,2 s | Grito em leque: atinge todos à frente e os empurra 16 para longe do Nexus (chefes resistem). | 70 ✦ |
+| Fantasma | Banshee | 30 | 4 | 80 | 1,2 s | Grito em leque: atinge todos à frente e os empurra 16 para longe do Nexus (chefes resistem). O mesmo inimigo só sofre o efeito de novo após 2 s. | 70 ✦ |
 | Fantasma | Possessor | 35 | 4 | 90 | 6 s | Possui o alvo por 3 s: ele luta contra os outros inimigos (chefes resistem). | 90 ✦ |
 | Bruxa | Feiticeira | 25 | 5 | 110 | 0,8 s | Veneno: 7 de dano por segundo durante 3 s (ignora armadura). | 60 ✦ |
 | Bruxa | Caldeirão | 35 | 5 | 100 | 1,8 s | Poça: 11 de dano por segundo num raio de 30 durante 3 s. | 80 ✦ |
@@ -74,7 +74,7 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 | Alfa | **Líder da Matilha**: Aura: criaturas num raio de 100 atacam 40% mais rápido. | **Fera Devastadora**: Área: atinge inimigos num raio de 38 ao redor do alvo com 75% do dano. (damage ×1,3) |
 | Uivador | **Uivo Lunar**: Golpe em área: atinge todos num raio de 90 ao redor dela. 85% de chance de assustar: o inimigo foge do Nexus por 2,2 s (chefes resistem). (range ×1,2) | **Grito de Guerra**: Bênção: criaturas num raio de 90 ganham +35% de velocidade de ataque. (cooldown ×0,4, damage ×2) |
 | Assombração | **Espírito Vingativo**: Ignora armadura e causa +50% de dano em inimigos com armadura. | **Aparição Gélida**: Lentidão: o alvo fica 45% mais lento por 2 s. (damage ×1,6) |
-| Banshee | **Banshee Ancestral**: Grito em leque: atinge todos à frente e os empurra 34 para longe do Nexus (chefes resistem). | **Arauto do Pavor**: Grito em leque: atinge todos à frente e os faz fugir do Nexus por 1,4 s (chefes resistem). (damage ×1,3) |
+| Banshee | **Banshee Ancestral**: Grito em leque: atinge todos à frente e os empurra 34 para longe do Nexus (chefes resistem). O mesmo inimigo só sofre o efeito de novo após 2,5 s. | **Arauto do Pavor**: Grito em leque: atinge todos à frente e os faz fugir do Nexus por 1,4 s (chefes resistem). O mesmo inimigo só sofre o efeito de novo após 3,5 s. (damage ×1,3) |
 | Possessor | **Marionetista**: Multi-tiro: ataca 2 inimigos de uma vez. Possui o alvo por 4,5 s: ele luta contra os outros inimigos (chefes resistem). | **Devorador**: Possui o alvo por 4 s: ele luta contra os outros inimigos e explode no fim (raio 50) (chefes resistem). |
 | Feiticeira | **Arquibruxa**: Veneno: 16 de dano por segundo durante 4 s (ignora armadura). | **Feiticeira do Caos**: Garras em cadeia: o golpe salta para até 3 inimigos próximos (85% do dano a cada salto). (damage ×2,4, cooldown ×0,85) |
 | Caldeirão | **Caldeirão Infernal**: Poça: 24 de dano por segundo num raio de 40 durante 4 s. | **Caldeirão Alquímico**: Poça dourada: 16 de dano por segundo num raio de 32 durante 3 s; cada inimigo que morre nela rende +3 de ouro. |
@@ -88,7 +88,7 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 | Esqueleto | **Cavaleiro da Morte**: Ignora toda a armadura do alvo. (damage ×1,5) | **Legião de Ossos**: 35% de chance de erguer um esqueleto aliado por 6 s ao abater. |
 | Ceifador | **Ceifador Sombrio**: Executa inimigos comuns abaixo de 25% de vida. | **Colhedor de Almas**: Executa inimigos comuns abaixo de 15% de vida. Cada execução rende +3 de ouro. (damage ×1,3) |
 | Drenador | **Sanguessuga**: Enfraquece por 3,5 s: 40% mais lento e −50% de dano ao Nexus. | **Corruptor**: Enfraquece por 3 s: 25% mais lento e −30% de dano ao Nexus. Corrói 3 de armadura por 3 s. (damage ×1,3) |
-| Domadora | **Víbora**: Dano contínuo: 11/s por 3,5 s (ignora armadura). | **Naja**: Grito em leque: atinge todos à frente e os empurra 0 para longe do Nexus (chefes resistem). Dano contínuo: 6/s por 3 s (ignora armadura). |
+| Domadora | **Víbora**: Dano contínuo: 11/s por 3,5 s (ignora armadura). | **Naja**: Golpe em leque: atinge todos à frente. Dano contínuo: 6/s por 3 s (ignora armadura). |
 | Medusa | **Olhar Pétreo**: 35% de chance de petrificar por 2,4 s (chefes resistem). | **Górgona Ancestral**: 25% de chance de petrificar por 2 s (chefes resistem). O alvo recebe +50% de dano por 2 s. |
 | Basilisco | **Basilisco Rei**: Área: atinge inimigos num raio de 35 ao redor do alvo com 60% do dano. Corrói 4 de armadura por 3,5 s. | **Cuspidor**: Poça: 12 de dano por segundo num raio de 28 durante 3 s. Corrói 3 de armadura por 3 s. |
 | Diabrete | **Diabrete Flamejante**: Dano contínuo: 5/s por 2 s (ignora armadura). | **Diabrete Ladino**: 12% de chance de roubar 1 de ouro a cada golpe. |

@@ -2,7 +2,7 @@ import { HERO_IDS, HEROES, type HeroId } from '../data/heroes';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { skinsOf } from '../data/skins';
 import { heroSkin, isSkinUnlocked, ownsHero, type Profile } from '../game/profile';
-import { essence } from './currency';
+import { confirmPurchaseHtml, essence } from './currency';
 import { attackText, pulseText, raceBonusText } from './describe';
 import { showOverlay } from './overlay';
 
@@ -28,20 +28,29 @@ function skinRow(profile: Profile, hero: HeroId, owned: boolean): string {
     .join('');
 }
 
+/** Rodapé do card: escolhido, escolher ou o botão de desbloquear (que pede confirmação). */
+function footerHtml(profile: Profile, id: HeroId): string {
+  if (profile.selectedHero === id) return '<span class="cc-tag">✓ Herói escolhido</span>';
+  if (ownsHero(profile, id)) return `<button data-action="select" data-value="${id}">Escolher</button>`;
+  const cost = HEROES[id].cost ?? 0;
+  return `<button data-action="ask" data-value="${id}"${profile.essence >= cost ? '' : ' disabled'}>Desbloquear ${essence(cost)}</button>`;
+}
+
+export interface HeroScreenOptions {
+  /** Herói recém-desbloqueado (em destaque). */
+  justUnlocked?: HeroId;
+  /** Redesenho da mesma tela (compra, escolha, skin): não volta ao topo. */
+  keepScroll?: boolean;
+}
+
 /** Heróis jogáveis: um por raça; desbloqueio com Essência e escolha do herói da run. */
-export function showHeroes(profile: Profile, handlers: HeroHandlers): void {
+export function showHeroes(profile: Profile, handlers: HeroHandlers, options: HeroScreenOptions = {}): void {
   const cards = HERO_IDS.map((id) => {
     const def = HEROES[id];
     const owned = ownsHero(profile, id);
     const selected = profile.selectedHero === id;
-    let footer: string;
-    if (selected) footer = '<span class="cc-tag">✓ Herói escolhido</span>';
-    else if (owned) footer = `<button data-action="select" data-value="${id}">Escolher</button>`;
-    else {
-      const cost = def.cost ?? 0;
-      footer = `<button data-action="buy" data-value="${id}"${profile.essence >= cost ? '' : ' disabled'}>Desbloquear ${essence(cost)}</button>`;
-    }
-    return `<div class="creature-card hero-card${owned ? '' : ' locked'}${selected ? ' selected' : ''}" style="--card-color:${def.color}">
+    const footer = footerHtml(profile, id);
+    return `<div class="creature-card hero-card${owned ? '' : ' locked'}${selected ? ' selected' : ''}${options.justUnlocked === id ? ' just-unlocked' : ''}" data-card="${id}" style="--card-color:${def.color}">
       <div class="cc-portraits"><canvas data-sprite="${id}" data-skin="${heroSkin(profile, id).id}"${owned ? '' : ' data-silhouette'}></canvas></div>
       <div class="cc-body">
         <div class="cc-head"><b>${def.name}</b><span>${def.race}</span></div>
@@ -55,7 +64,8 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers): void {
     </div>`;
   }).join('');
 
-  showOverlay(
+  const footer = (id: string) => element.querySelector<HTMLElement>(`[data-card="${id}"] .cc-footer`);
+  const element = showOverlay(
     `<div class="panel screen">
       <div class="screen-head">
         <button data-action="back">← Voltar</button>
@@ -66,10 +76,19 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers): void {
       <div class="creature-grid">${cards}</div>
     </div>`,
     {
+      ask: (id) => {
+        const target = footer(id);
+        if (target) target.innerHTML = confirmPurchaseHtml(id, HEROES[id as HeroId].cost ?? 0, profile.essence);
+      },
+      cancel: (id) => {
+        const target = footer(id);
+        if (target) target.innerHTML = footerHtml(profile, id as HeroId);
+      },
       buy: (id) => handlers.onBuy(id as HeroId),
       select: (id) => handlers.onSelect(id as HeroId),
       skin: (id) => handlers.onSkin(id),
       back: () => handlers.onBack(),
     },
+    { keepScroll: options.keepScroll },
   );
 }

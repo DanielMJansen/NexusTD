@@ -63,7 +63,8 @@ export type CreatureAbility =
   /** Ignora a armadura; dano extra (fração) contra inimigos com armadura. */
   | { kind: 'pierceArmor'; bonusVsArmored: number }
   /** Grito em leque na direção do alvo: atinge todos e empurra para longe do Nexus. */
-  | { kind: 'screech'; halfAngle: number; push: number; fear?: number }
+  /** immunity: segundos até o mesmo inimigo poder ser empurrado/assustado de novo (o dano continua). */
+  | { kind: 'screech'; halfAngle: number; push: number; fear?: number; immunity?: number }
   /** Envenena o alvo: dano por segundo durante um tempo. */
   | { kind: 'poison'; dps: number; duration: number }
   /** Cria uma poça no chão onde o alvo está: dano por segundo em quem estiver dentro. */
@@ -461,11 +462,11 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     range: 80,
     cooldown: 1.2,
     color: '#b8c8ff',
-    ability: { kind: 'screech', halfAngle: 0.5, push: 16 },
+    ability: { kind: 'screech', halfAngle: 0.5, push: 16, immunity: 2 },
     unlock: { kind: 'essence', cost: 70 },
     ascended: [
-      { name: 'Banshee Ancestral', description: 'Grito mais largo que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.75, push: 34 }, color: '#ffd25a', icon: '♫' },
-      { name: 'Arauto do Pavor', description: 'Grito em leque que aterroriza: em vez de empurrar, faz todos fugirem do Nexus.', ability: { kind: 'screech', halfAngle: 0.6, push: 0, fear: 1.4 }, stats: { damage: 1.3 }, color: '#a87aff', icon: '☠' },
+      { name: 'Banshee Ancestral', description: 'Grito mais largo que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.75, push: 34, immunity: 2.5 }, color: '#ffd25a', icon: '♫' },
+      { name: 'Arauto do Pavor', description: 'Grito em leque que aterroriza: em vez de empurrar, faz todos fugirem do Nexus.', ability: { kind: 'screech', halfAngle: 0.6, push: 0, fear: 1.4, immunity: 3.5 }, stats: { damage: 1.3 }, color: '#a87aff', icon: '☠' },
     ],
   },
   possessor: {

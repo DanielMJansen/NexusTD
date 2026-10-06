@@ -1,3 +1,5 @@
+import type { RunState } from '../game/state';
+import { heroSheetHtml } from './describe';
 import { showOverlay } from './overlay';
 
 export interface PauseHandlers {
@@ -9,7 +11,7 @@ export interface PauseHandlers {
   onAbandon(): void;
 }
 
-export function showPause(handlers: PauseHandlers): void {
+export function showPause(handlers: PauseHandlers, run?: RunState): void {
   showOverlay(
     `<div class="panel">
       <h2>Pausado</h2>
@@ -20,6 +22,7 @@ export function showPause(handlers: PauseHandlers): void {
         <button data-action="save">💾 Salvar e sair para o menu</button>
         <button data-action="abandon">Abandonar run</button>
       </div>
+      ${run ? `<div class="hero-sheet-pause"><h3>${run.hero.def.name}</h3>${heroSheetHtml(run)}</div>` : ''}
     </div>`,
     {
       resume: () => handlers.onResume(),
