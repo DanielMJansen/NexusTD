@@ -3,7 +3,10 @@ import { Music } from './audio/music';
 import { GAME_TITLE, SIMULATION } from './data/config';
 import { WAVES } from './data/waves';
 import { checkAchievements, recordRun } from './game/achievements';
-import { chooseOption } from './game/choices';
+import { chooseChest, chooseOption } from './game/choices';
+import { buyNexusUpgrade } from './game/nexus';
+import { showChestChoices } from './ui/chestChoices';
+import { NexusPanel } from './ui/nexusPanel';
 import { firePulse } from './game/combat';
 import type { GameEvent } from './game/events';
 import {
@@ -74,6 +77,7 @@ export class App {
   private readonly keyboard: Keyboard;
   private readonly pointer: PointerControls;
   private readonly panel: SidePanel;
+  private readonly nexusPanel: NexusPanel;
   private readonly muteButton: HTMLButtonElement;
   private readonly tutorial = new Tutorial(() => this.updateSettings({ tutorialDone: true }));
   private readonly speedButton = document.querySelector<HTMLButtonElement>('#speed-button')!;
@@ -98,6 +102,12 @@ export class App {
       onCardPress: (id) => this.pointer.pressCard(id),
       onPulse: () => this.pulse(),
     });
+    this.nexusPanel = new NexusPanel(
+      () => this.toggleNexusPanel(),
+      (id) => {
+        if (this.mode === 'run') buyNexusUpgrade(this.run, id);
+      },
+    );
 
     document.querySelector('#pause-button')!.addEventListener('click', (event) => {
       (event.currentTarget as HTMLElement).blur();
@@ -197,7 +207,13 @@ export class App {
   }
 
   private isPlaying(): boolean {
-    return this.mode === 'run' && this.run.phase === 'playing' && !this.paused && !this.run.heroChoices.length;
+    return (
+      this.mode === 'run' &&
+      this.run.phase === 'playing' &&
+      !this.paused &&
+      !this.run.heroChoices.length &&
+      !this.run.chestChoices.length
+    );
   }
 
   private onKey(key: string, event: KeyboardEvent): void {
@@ -224,6 +240,8 @@ export class App {
       this.cycleSpeed();
     } else if (key === 'p') {
       this.togglePause();
+    } else if (key === 'n') {
+      this.toggleNexusPanel();
     } else if (/^[1-9]$/.test(key)) {
       const id = this.run.team[Number(key) - 1];
       if (id) this.pointer.toggleCard(id);
@@ -282,6 +300,7 @@ export class App {
     drawFrame(this.ctx, this.run, this.effects, view, time);
     updateHud(this.run);
     this.panel.update(this.run, this.interaction, time);
+    this.nexusPanel.update(this.run, this.mode === 'run' && this.interaction.nexusOpen);
     animateOverlay(time);
     requestAnimationFrame((t) => this.frame(t));
   }
@@ -293,16 +312,20 @@ export class App {
       case 'choicesOffered':
         saveRun(this.run);
         resetInteraction(this.interaction);
-        // A escolha do herói (se aberta) vem primeiro; ela mesma abre a de fim de onda depois.
-        if (this.run.heroChoices.length) this.showHeroChoices();
-        else this.showChoices();
+        this.showPendingChoices();
         break;
       case 'shopPurchase':
         this.showChoices();
         break;
       case 'heroLevelUp':
         resetInteraction(this.interaction);
-        this.showHeroChoices();
+        this.showPendingChoices();
+        break;
+      case 'lootCollected':
+        if (event.kind === 'chest' && this.run.phase === 'playing') {
+          resetInteraction(this.interaction);
+          this.showPendingChoices();
+        }
         break;
       case 'waveStarted':
         // depois de uma onda de chefe, volta a trilha normal
@@ -338,23 +361,43 @@ export class App {
     this.music.play('run');
   }
 
-  /** Escolha de melhoria do herói; depois volta para a escolha de fim de onda, se houver. */
-  private showHeroChoices(): void {
-    if (!this.run.heroChoices.length) return;
-    showHeroLevelUp(this.run, (index) => {
-      chooseHeroUpgrade(this.run, index);
-      if (this.run.heroChoices.length) this.showHeroChoices();
-      else if (this.run.phase === 'choosing') this.showChoices();
-      else hideOverlay();
-    });
+  /**
+   * Abre a próxima escolha pendente, nesta ordem: nível do herói, baú, fim de onda.
+   * Sem nenhuma pendente durante a onda, fecha o overlay e o jogo segue.
+   */
+  private showPendingChoices(): void {
+    const run = this.run;
+    if (run.heroChoices.length) {
+      showHeroLevelUp(run, (index) => {
+        chooseHeroUpgrade(run, index);
+        this.showPendingChoices();
+      });
+    } else if (run.chestChoices.length) {
+      showChestChoices(run, (index) => {
+        chooseChest(run, index);
+        this.showPendingChoices();
+      });
+    } else if (run.phase === 'choosing') {
+      this.showChoices();
+    } else {
+      hideOverlay();
+    }
+  }
+
+  private toggleNexusPanel(): void {
+    if (this.mode !== 'run' || this.run.phase === 'ended') return;
+    this.interaction.nexusOpen = !this.interaction.nexusOpen;
+    if (this.interaction.nexusOpen) {
+      this.interaction.inspected = null;
+      this.interaction.sellArmed = false;
+    }
   }
 
   private showChoices(): void {
     showWaveChoices(this.run, this.run.choiceReason, {
       onChoose: (index) => {
         chooseOption(this.run, index);
-        if (this.run.heroChoices.length) this.showHeroChoices();
-        else hideOverlay();
+        this.showPendingChoices();
       },
       onReroll: () => reroll(this.run),
       onBuyExtraSlot: () => buyExtraSlot(this.run),
@@ -470,12 +513,9 @@ export class App {
     this.mode = 'run';
     this.music.play(waveBoss(run.wave) && run.phase === 'playing' ? 'boss' : 'run');
     this.music.setIntensity(Math.min(1, (run.wave - 1) / (WAVES.total - 1)));
-    if (run.heroChoices.length) {
+    if (run.heroChoices.length || run.chestChoices.length || run.phase === 'choosing') {
       this.paused = false;
-      this.showHeroChoices();
-    } else if (run.phase === 'choosing') {
-      this.paused = false;
-      this.showChoices();
+      this.showPendingChoices();
     } else {
       this.paused = true;
       this.showPauseScreen();

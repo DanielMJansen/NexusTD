@@ -1,7 +1,7 @@
 // Evolução de criaturas em campo, paga com ouro durante a run.
 
 export interface EvolutionLevel {
-  /** Custo para chegar a este nível = custo base da criatura × costMultiplier. */
+  /** Custo para chegar a este nível = custo de invocação daquela cópia × costMultiplier. */
   costMultiplier: number;
   /** Multiplicadores sobre os atributos base da criatura. */
   damage: number;

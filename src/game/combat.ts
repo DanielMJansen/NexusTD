@@ -3,6 +3,7 @@ import { creatureAbility, creatureDamage, creatureRange } from './creatureStats'
 import { WAVES } from '../data/waves';
 import { enemyArmor, shieldFactor } from './enemies';
 import { grantXp, healHero } from './hero';
+import { dropLoot } from './loot';
 import { spawnEnemyAt } from './spawning';
 import { random } from './random';
 import { distance, type Creature, type Enemy, type Point, type RunState } from './state';
@@ -63,6 +64,7 @@ export function damageEnemy(
       color: enemy.def.color,
       elite: enemy.elite,
     });
+    dropLoot(state, enemy);
     for (const trait of enemy.def.traits) {
       if (trait.kind === 'split') for (let k = 0; k < trait.count; k++) spawnEnemyAt(state, trait.into, enemy, 8);
     }

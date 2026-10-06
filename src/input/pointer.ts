@@ -7,6 +7,7 @@ import type { Interaction } from './interaction';
 
 /** Raio do clique para selecionar uma criatura em campo. */
 const CREATURE_CLICK_RADIUS = 18;
+const NEXUS_CLICK_RADIUS = 20;
 
 export interface PointerContext {
   canvas: HTMLCanvasElement;
@@ -118,6 +119,12 @@ export function attachPointer({ canvas, interaction, getRun, isActive }: Pointer
     if (clicked) {
       interaction.inspected = clicked;
       interaction.sellArmed = false;
+      interaction.nexusOpen = false;
+      return;
+    }
+    // clique no Nexus: abre/fecha o quadro de melhorias dele
+    if (distance(ARENA.center, point) < NEXUS_CLICK_RADIUS) {
+      interaction.nexusOpen = !interaction.nexusOpen;
       return;
     }
 

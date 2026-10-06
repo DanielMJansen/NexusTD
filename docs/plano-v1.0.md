@@ -87,13 +87,14 @@ Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de le
 - **Conquista "Sem Torres"**: vencer só com o herói. Cria um modo de desafio natural junto com o F4.
 - **Feito:** os 7 inimigos, os 3 chefes, elites, escalonamento, códex e Sem Fim. O chefe do meio (onda 14) virou a **Rainha Aranha** (`PROPOSTA`, o plano não o definia). O Esqueleto Arqueiro anda devagar enquanto mira em vez de parar, para não travar a onda. Elites ainda não soltam baú (vem com o loot do F6). Calibragem: ~40% de vitórias para o bot, com 1.500–3.000 de ouro sobrando, que é o espaço para o F6.
 
-### F6. Ouro com destino `[ ]` — D4, D7
+### F6. Ouro com destino `[x]` — D4, D7
 - **Evolução progressiva:** a evolução custa em proporção ao que aquela cópia custou para invocar (2ª cópia mais cara → evoluções dela também).
 - **Nexus upável com ouro na run:**
   - níveis de vida e armadura;
   - 3 habilidades: **Raio do Nexus** (ataque automático), **Escudo** (absorve dano por alguns segundos, com recarga) e **Campo de Lentidão** em volta.
 - **Consumíveis** na loja entre ondas (preço sobe com a onda): bomba, poção de cura do Nexus, totem de lentidão e pergaminho de reroll grátis.
 - **Loot:** moedas e baús caindo no chão, coletados pelo herói.
+- **Feito:** evolução por cópia, Nexus com 5 melhorias (quadro no painel lateral; clique no Nexus ou tecla N), moedas e baús (baú = 1 entre 3 melhorias Raras ou melhores), melhoria do herói Ímã. **Consumíveis ficaram de fora** (decisão D4/D7). O loot não é recolhido sozinho no fim da onda (recompensa mover o herói). Recalibrado: vida dos inimigos 0,15·o + 0,013·o²; bot ~69% de vitórias.
 
 ### F7. Meta-progressão 2.0 `[ ]` — D8
 - Árvore de talentos em **cadeia vertical**, com cor por ramo, ícones e linhas de verdade entre pai e filho.

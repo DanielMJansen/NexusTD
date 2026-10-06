@@ -3,6 +3,7 @@ import { HEROES, type HeroDef, type HeroId, type RaceBonus } from '../data/heroe
 import type { CreatureDef, CreatureId } from '../data/creatures';
 import type { EnemyDef, EnemyId } from '../data/enemies';
 import type { OfferedUpgrade } from '../data/upgrades';
+import { noNexusLevels, type NexusUpgradeId } from '../data/nexusUpgrades';
 import type { HeroStat, HeroUpgradeDef } from '../data/heroUpgrades';
 import type { SkinPalette } from '../data/skins';
 import type { TalentBonuses } from './talents';
@@ -59,6 +60,8 @@ export interface Creature extends Point {
   frenzyTimer: number;
   /** Ouro pago (invocação + evoluções), base do valor de venda. */
   paid: number;
+  /** Custo de invocação desta cópia (base do custo de evoluir). */
+  summonCost: number;
   /** Nível de evolução, de 1 até MAX_CREATURE_LEVEL. */
   level: number;
   /** Bônus de velocidade de ataque recebido de auras neste quadro. */
@@ -100,6 +103,15 @@ export interface Pool extends Point {
   duration: number;
   dps: number;
   color: string;
+}
+
+/** Moeda extra ou baú no chão (o herói coleta passando por cima). */
+export interface LootItem extends Point {
+  kind: 'coin' | 'chest';
+  /** Ouro da moeda. */
+  value: number;
+  /** Segundos até sumir. */
+  remaining: number;
 }
 
 /** Multiplicadores vindos das melhorias (permanentes e da run). */
@@ -200,6 +212,16 @@ export interface RunState {
   creaturesPlaced: number;
   /** Inimigos que já apareceram nesta run (códex). */
   seenEnemies: EnemyId[];
+  /** Nível comprado de cada melhoria do Nexus (0 = não comprada). */
+  nexusLevels: Record<NexusUpgradeId, number>;
+  /** Escudo do Nexus: segundos ativo e recarga restante. */
+  nexusShield: { active: number; cooldown: number };
+  nexusBoltTimer: number;
+  loot: LootItem[];
+  /** Baú aberto: escolha de melhoria de tier alto (a simulação pausa enquanto houver). */
+  chestChoices: Choice[];
+  /** Baús coletados ainda sem escolha. */
+  pendingChests: number;
   /** Modo Sem Fim (depois da vitória): ondas continuam até o Nexus cair. */
   endless: boolean;
   /** Abates ao entrar no Sem Fim (a Essência conta só o que vier depois). */
@@ -221,6 +243,7 @@ export const noHeroStats = (): Record<HeroStat, number> => ({
   lifesteal: 0,
   thorns: 0,
   armor: 0,
+  pickup: 0,
 });
 
 export function createRun(setup: RunSetup): RunState {
@@ -257,6 +280,12 @@ export function createRun(setup: RunSetup): RunState {
     heroUpgradePicks: {},
     creaturesPlaced: 0,
     seenEnemies: [],
+    nexusLevels: noNexusLevels(),
+    nexusShield: { active: 0, cooldown: 0 },
+    nexusBoltTimer: 0,
+    loot: [],
+    chestChoices: [],
+    pendingChests: 0,
     endless: false,
     endlessKills: 0,
     enemies: [],

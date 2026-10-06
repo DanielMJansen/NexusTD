@@ -1,6 +1,7 @@
 import type { CreatureId } from '../data/creatures';
 import type { EnemyId } from '../data/enemies';
 import type { HeroId } from '../data/heroes';
+import type { NexusUpgradeId } from '../data/nexusUpgrades';
 import type { Point, RunResult } from './state';
 
 /**
@@ -41,4 +42,9 @@ export type GameEvent =
   | { type: 'runEnded'; result: RunResult }
   | { type: 'heroLevelUp'; level: number }
   | { type: 'heroDied'; x: number; y: number; respawn: number }
-  | { type: 'heroRespawned'; x: number; y: number };
+  | { type: 'heroRespawned'; x: number; y: number }
+  | { type: 'nexusUpgraded'; upgrade: NexusUpgradeId; level: number }
+  | { type: 'nexusBolt'; to: Point }
+  | { type: 'nexusShieldUp'; duration: number }
+  | { type: 'nexusShieldBlocked' }
+  | { type: 'lootCollected'; kind: 'coin' | 'chest'; x: number; y: number; value: number };

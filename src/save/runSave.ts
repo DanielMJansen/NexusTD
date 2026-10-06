@@ -6,11 +6,11 @@ import { ENEMIES, type EnemyId } from '../data/enemies';
 import { HEROES, type HeroId } from '../data/heroes';
 import { HERO_UPGRADES } from '../data/heroUpgrades';
 import { findFamily, type Tier } from '../data/upgrades';
-import type { RunState } from '../game/state';
+import type { Choice, RunState } from '../game/state';
 
 export const RUN_KEY = 'nexus-run-v1';
-/** v4: inimigos com habilidades e força da onda (runs salvas em versões anteriores são descartadas). */
-const RUN_VERSION = 4;
+/** v5: Nexus upável, loot e evolução por cópia (runs salvas em versões anteriores são descartadas). */
+const RUN_VERSION = 5;
 
 interface SavedRun {
   version: number;
@@ -37,17 +37,33 @@ function serialize(state: RunState): Record<string, unknown> {
     enemies: state.enemies.filter((e) => !e.dead).map((e) => ({ ...e, def: e.def.id })),
     creatures: state.creatures.map((c) => ({ ...c, def: c.def.id })),
     unlocked: [...state.unlocked],
-    choices: state.choices.map((c) => ({ kind: c.kind, family: c.upgrade.family.id, tier: c.upgrade.tier, race: c.upgrade.race })),
+    choices: state.choices.map(saveChoice),
+    chestChoices: state.chestChoices.map(saveChoice),
     heroChoices: state.heroChoices.map((u) => u.id),
   };
 }
 
+const need = <T>(value: T | undefined, what: string): T => {
+  if (value === undefined) throw new Error(`Run salva inválida (${what}).`);
+  return value;
+};
+
+interface SavedChoice {
+  kind: 'upgrade';
+  family: string;
+  tier: Tier;
+  race?: string;
+}
+
+const saveChoice = (c: Choice): SavedChoice => ({ kind: c.kind, family: c.upgrade.family.id, tier: c.upgrade.tier, race: c.upgrade.race });
+
+function loadChoice(c: SavedChoice): Choice {
+  const family = need(findFamily(c.family), 'melhoria');
+  return { kind: c.kind, upgrade: { family, tier: c.tier, value: need(family.values[c.tier], 'tier'), race: c.race } };
+}
+
 /** Reconstrói o estado; lança erro se algo referenciar dados que não existem mais. */
 function deserialize(raw: Record<string, unknown>): RunState {
-  const need = <T>(value: T | undefined, what: string): T => {
-    if (value === undefined) throw new Error(`Run salva inválida (${what}).`);
-    return value;
-  };
   const hero = raw.hero as Record<string, unknown>;
   const state = {
     ...raw,
@@ -76,10 +92,8 @@ function deserialize(raw: Record<string, unknown>): RunState {
         'melhoria do herói',
       ),
     ),
-    choices: (raw.choices as { kind: 'upgrade'; family: string; tier: Tier; race?: string }[]).map((c) => {
-      const family = need(findFamily(c.family), 'melhoria');
-      return { kind: c.kind, upgrade: { family, tier: c.tier, value: need(family.values[c.tier], 'tier'), race: c.race } };
-    }),
+    choices: (raw.choices as SavedChoice[]).map(loadChoice),
+    chestChoices: ((raw.chestChoices as SavedChoice[] | undefined) ?? []).map(loadChoice),
   };
   return state as unknown as RunState;
 }

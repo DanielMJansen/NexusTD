@@ -8,6 +8,7 @@ import { heroMaxHp } from '../game/hero';
 import type { Creature, Enemy, Point, Pool, RunState } from '../game/state';
 import { drawAtmosphere, drawBackground, drawNexus } from './arena';
 import type { Effects } from './effects';
+import { drawLoot, drawNexusGround, drawNexusOverlay } from './nexusLoot';
 import { drawShadow, drawSprite } from './sprites';
 
 const TAU = Math.PI * 2;
@@ -21,6 +22,8 @@ export interface InteractionView {
   inspected: Creature | null;
   /** Venda armada: o botão vira "Confirmar". */
   sellArmed?: boolean;
+  /** Quadro de melhorias do Nexus aberto (destaca o Nexus). */
+  nexusOpen?: boolean;
   /** Mostrar o alcance do herói com destaque (Shift ou mouse sobre ele). */
   heroRange?: boolean;
   /** Carta escolhida com o mouse sobre a arena: prévia, alcance e se pode posicionar ali. */
@@ -50,14 +53,19 @@ export function drawFrame(
   ctx.save();
   ctx.translate(shake.x, shake.y);
 
+  drawNexusGround(ctx, state, !!interaction.nexusOpen, time);
   for (const pool of state.pools) drawPool(ctx, pool, time);
+  for (const item of state.loot) drawLoot(ctx, item, time);
   for (const creature of state.creatures) drawAuraRing(ctx, creature, time);
 
   // Tudo que tem "pé no chão" é desenhado de cima para baixo, para sobrepor corretamente.
   const layers: { y: number; draw: () => void }[] = [
     {
       y: ARENA.center.y + 10,
-      draw: () => drawNexus(ctx, state.nexus.hp, state.nexus.maxHp, time, effects.nexusHurt),
+      draw: () => {
+        drawNexus(ctx, state.nexus.hp, state.nexus.maxHp, time, effects.nexusHurt);
+        drawNexusOverlay(ctx, state, time);
+      },
     },
   ];
   for (const enemy of state.enemies) layers.push({ y: enemy.y, draw: () => drawEnemy(ctx, state, enemy, time) });

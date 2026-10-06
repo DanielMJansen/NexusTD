@@ -1695,3 +1695,123 @@ button.danger {
   font: italic 13px var(--font-body);
   color: var(--muted);
 }
+
+/* melhorias do Nexus */
+#nexus-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font: 700 13px var(--font-label);
+  border-color: #6a4c9c;
+}
+
+#nexus-button.affordable {
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 10px #f0c35a33;
+}
+
+#nexus-button.open {
+  border-color: var(--accent);
+  background: #2a1a48;
+}
+
+#nexus-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: #120c20;
+}
+
+#nexus-panel[hidden] {
+  display: none;
+}
+
+#nexus-panel h4 {
+  margin: 0 0 2px;
+  font: 700 15px var(--font-label);
+  color: #c8a8ff;
+}
+
+#nexus-panel h4 small {
+  color: var(--muted);
+  font: 600 12px var(--font-body);
+}
+
+.nexus-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nexus-icon {
+  width: 22px;
+  text-align: center;
+  font-size: 16px;
+  color: #a898c4;
+}
+
+.nexus-row.owned .nexus-icon {
+  color: #e2c8ff;
+  text-shadow: 0 0 6px #b36bff;
+}
+
+.nexus-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.nexus-text b {
+  font: 700 12px var(--font-label);
+}
+
+.nexus-text small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pips {
+  margin-left: 3px;
+}
+
+.pip {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 2px;
+  border-radius: 50%;
+  background: #3b2a5c;
+  vertical-align: middle;
+}
+
+.pip.on {
+  background: var(--gold);
+}
+
+.nexus-row button {
+  padding: 3px 8px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.nexus-row button:not(:disabled) {
+  border-color: #3a8a5a;
+  background: #183a28;
+}
+
+.nexus-max {
+  font: 700 11px var(--font-label);
+  color: var(--gold);
+}
+
+/* com o quadro do Nexus ou de uma criatura aberto, a ajuda de controles some para caber tudo */
+#side-panel:has(#nexus-panel:not([hidden])) .controls,
+#side-panel:has(#selection-info:not([hidden])) .controls {
+  display: none;
+}

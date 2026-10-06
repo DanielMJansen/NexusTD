@@ -32,6 +32,7 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
     hitCount: 0,
     frenzyTimer: 0,
     paid: cost,
+    summonCost: cost,
     level: 1,
     auraBonus: 0,
     facing: at.x > ARENA.center.x ? -1 : 1,
@@ -45,10 +46,13 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
   return true;
 }
 
-/** Custo para evoluir ao próximo nível; null se já está no máximo. */
+/**
+ * Custo para evoluir ao próximo nível; null se já está no máximo.
+ * Proporcional ao que esta cópia custou para invocar (cópias mais caras evoluem mais caro).
+ */
 export function evolveCost(creature: Creature, discount = 0): number | null {
   const next = EVOLUTION_LEVELS[creature.level];
-  return next ? Math.round(creature.def.baseCost * next.costMultiplier * (1 - discount)) : null;
+  return next ? Math.round(creature.summonCost * next.costMultiplier * (1 - discount)) : null;
 }
 
 export function canEvolve(state: RunState, creature: Creature): boolean {

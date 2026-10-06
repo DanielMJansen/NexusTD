@@ -1,6 +1,7 @@
 import { ARENA, NEXUS } from '../data/config';
 import type { EnemyTrait } from '../data/enemies';
 import { damageHero } from './hero';
+import { damageNexus, nexusSlowFactor } from './nexus';
 import { spawnEnemyAt } from './spawning';
 import { distance, type Enemy, type RunState } from './state';
 
@@ -140,7 +141,7 @@ export function updateEnemies(state: RunState, dt: number): void {
     const charge = enemy.charging > 0 ? findTrait(enemy, 'charge') : undefined;
     const enrage = enemy.enraged ? findTrait(enemy, 'enrage') : undefined;
     const speedFactor =
-      (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace;
+      (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace * nexusSlowFactor(state, enemy);
     const dx = center.x - enemy.x;
     const dy = center.y - enemy.y;
     const length = Math.hypot(dx, dy);
@@ -154,14 +155,7 @@ export function updateEnemies(state: RunState, dt: number): void {
     }
     if (enemy.held || pace === 0) continue;
     if (length < NEXUS.contactRadius) {
-      if (state.wardReady) {
-        state.wardReady = false;
-        state.events.push({ type: 'wardBlocked' });
-      } else {
-        state.nexus.hp -= enemy.nexusDamage;
-        state.lowestNexusRatio = Math.min(state.lowestNexusRatio, Math.max(0, state.nexus.hp) / state.nexus.maxHp);
-        state.events.push({ type: 'nexusHit', damage: enemy.nexusDamage });
-      }
+      damageNexus(state, enemy.nexusDamage);
       enemy.dead = true;
       continue;
     }

@@ -79,7 +79,9 @@ Cada tipo cria um problema novo, não só mais vida.
 ## 6. Economia e progressão
 **Na run** `FEITO`
 - Ouro: invoca criaturas; vem de abates e de renda passiva. Custo progressivo por cópia da mesma classe.
-- Limite de criaturas em campo. **Evolução** com ouro (níveis 1–3). **Vender** devolve 60% de tudo que foi pago.
+- Limite de criaturas em campo. **Evolução** com ouro (níveis 1–3), com custo proporcional ao que **aquela cópia** custou para invocar (a 2ª cópia, mais cara, também evolui mais caro). **Vender** devolve 60% de tudo que foi pago.
+- **Nexus upável** `FEITO`: clicar no Nexus (ou tecla N, ou o botão "Melhorar o Nexus") abre o quadro com 5 melhorias pagas em ouro, que valem só para a run: Vitalidade (vida máxima), Muralha (menos dano recebido), Raio do Nexus (ataque automático), Escudo (ao levar um golpe com o escudo pronto, fica imune por alguns segundos) e Campo de Lentidão (inimigos perto do Nexus andam devagar).
+- **Loot** `FEITO`: inimigos podem soltar **moedas** e **baús** no chão; o herói coleta passando por cima. Chefes sempre soltam baú. O baú abre uma escolha de 1 entre 3 melhorias **Raras ou melhores** (o jogo pausa). O loot some depois de 12 s de onda e continua no chão entre as ondas (não é recolhido sozinho). Melhoria do herói **Ímã** aumenta o raio de coleta.
 - Entre ondas: 1 entre 3 melhorias temporárias **com raridade** (comum 60% / incomum 30% / rara 10%) + **loja** (sortear de novo, +1 vaga).
 - **Run salva** automaticamente a cada onda vencida e ao fechar a aba; pausa com "Salvar e sair" e "Abandonar run"; menu com "Continuar run".
 
@@ -101,7 +103,7 @@ Painel lateral com retrato, custo, atalho e tooltip (descrição, atributos, hab
 **Run normal:** 20 ondas, chefes nas ondas 7, 14 e 20. **Sem Fim** `FEITO`: depois da vitória, a mesma run pode seguir; as ondas continuam escalando, com um chefe a cada 5 ondas (Rei Ogro → Rainha Aranha → Lich, em rodízio). A vitória e a Essência das 20 ondas são pagas na hora; a Essência das ondas extras vem quando o Nexus cair. O perfil guarda a onda mais alta. **Campanha** (estágios) segue fora do MVP.
 
 ## 9. Valores atuais do protótipo
-Todos `PROPOSTA` até o playtest. Balanceados por simulação (30 runs por equipe/herói; bot que gasta ouro, evolui, compra vagas, escolhe melhorias e deixa o herói parado). Com 20 ondas (F5): vampiros 18/30, bruxas 20/30, lobisomens 13/30, fantasmas 10/30, só arqueiro 9/30, humanos + dragões 0/30 (sofrem com inimigos blindados); derrotas concentradas nos chefes. O bot termina com 1.500–3.000 de ouro sem uso: o F6 (ouro com destino) deve deixar o jogador mais forte, e então recalibramos.
+Todos `PROPOSTA` até o playtest. Balanceados por simulação (30 runs por equipe/herói; bot que gasta ouro, evolui, compra vagas, escolhe melhorias e deixa o herói parado). Com o F6 o bot também compra melhorias do Nexus quando o exército está no máximo e busca loot a até 140 do herói. Resultado: bruxas 30/30, fantasmas 30/30, lobisomens 24/30, vampiros 23/30, humanos + dragões 9/30, só arqueiro 8/30 (média ~69%); gasta ~2.000–3.000 de ouro no Nexus e abre ~3–6 baús por run; sobram 200–500 de ouro.
 
 **Nexus:** 100 de vida (+10 de cura entre ondas). **Ouro inicial:** 30. **Renda passiva:** +1 a cada 2 s. **Limite de criaturas:** 5.
 **Custo:** base × 1,5^(cópias já posicionadas da classe). **Venda:** 60% de tudo que foi pago.
@@ -123,8 +125,20 @@ Todos `PROPOSTA` até o playtest. Balanceados por simulação (30 runs por equip
 
 Criaturas atacam o inimigo mais próximo do Nexus dentro do alcance.
 
-**Evolução:** nível 2 custa 1,5 × custo base (+50% dano, +10% alcance); nível 3 custa 3 × custo base (+120% dano, +20% alcance) e troca a habilidade pela da forma evoluída: Patrulheiro multi-tiro 2 · Paladino bloqueia 4 (raio 36) · Conde Vampiro frenesi a cada 4 golpes, 4 s, ×1,8 · Lorde de Sangue cura 4 · Dragão Ancião área 60 com 80% · Dragão Glacial lentidão 65% por 2,5 s · Caçador Lunar 4 saltos (raio 65, 80%) · Líder da Matilha aura raio 100, +40% · Espírito Vingativo +50% contra blindados · Banshee Ancestral ±0,75 rad, empurra 34 · Arquibruxa veneno 16/s por 4 s · Caldeirão Infernal poça raio 40, 24/s por 4 s.
+**Evolução:** nível 2 custa 1,5 × o custo de invocação daquela cópia (+50% dano, +10% alcance); nível 3 custa 3 × esse custo (+120% dano, +20% alcance) e troca a habilidade pela da forma evoluída: Patrulheiro multi-tiro 2 · Paladino bloqueia 4 (raio 36) · Conde Vampiro frenesi a cada 4 golpes, 4 s, ×1,8 · Lorde de Sangue cura 4 · Dragão Ancião área 60 com 80% · Dragão Glacial lentidão 65% por 2,5 s · Caçador Lunar 4 saltos (raio 65, 80%) · Líder da Matilha aura raio 100, +40% · Espírito Vingativo +50% contra blindados · Banshee Ancestral ±0,75 rad, empurra 34 · Arquibruxa veneno 16/s por 4 s · Caldeirão Infernal poça raio 40, 24/s por 4 s.
 **Loja entre ondas:** sortear de novo custa 10 (+10 a cada uso na run); +1 vaga custa 60, dobrando a cada compra, até +3 vagas.
+**Nexus (ouro, por nível):**
+
+| Melhoria | Custos | Efeito por nível |
+|---|---|---|
+| Vitalidade | 60 / 100 / 150 / 210 / 280 | +25 de vida máxima por nível (cura o mesmo ao comprar) |
+| Muralha | 70 / 120 / 180 / 250 / 330 | −6% / −12% / −18% / −24% / −30% de dano recebido (mínimo 1) |
+| Raio do Nexus | 120 / 220 / 350 | 10 a cada 1,3 s (alcance 105) · 16 a cada 1,1 s (120) · 24 a cada 0,9 s (135); usa o bônus de dano das melhorias |
+| Escudo | 120 / 200 / 300 | imune por 2 / 3 / 4 s; recarga 40 / 32 / 25 s |
+| Campo de Lentidão | 100 / 180 / 280 | −25% / −35% / −45% de velocidade num raio de 60 / 75 / 90 |
+
+Ordem de proteção do Nexus contra um golpe: Égide → Escudo → Muralha.
+**Loot:** moeda com 8% de chance (valor = 1,5 × ouro do inimigo, mínimo 2); baú: comum 0,2%, elite 6%, chefe 100%; some após 12 s de onda; raio de coleta 16 (Ímã: +50% por escolha, até 3).
 
 **Heróis**
 
@@ -159,9 +173,9 @@ Melhorias do herói (somam): Lâmina Afiada +15% dano · Agilidade +12% vel. de 
 | Lich (chefe final) | 800 | 12 | 4 | 60 | 40 | 80 | 100 | tiro no herói 14 a cada 1,4 s; 2 esqueletos a cada 8 s; escudo −80% de dano por 3 s a cada 12 s; abaixo de 50%: +40% vel. e recargas ×0,6 | 20 |
 
 Dano por golpe contra armadura = `max(1, dano − armadura)`; veneno e poças ignoram armadura.
-**Escalonamento** (o = onda − 1): vida × (1 + 0,12·o + 0,008·o²) (onda 20 ≈ ×6,2); velocidade +2% por onda (máx. +40%); dano ao Nexus e ao herói +5% por onda.
+**Escalonamento** (o = onda − 1): vida × (1 + 0,15·o + 0,013·o²) (onda 20 ≈ ×8,5); velocidade +2% por onda (máx. +40%); dano ao Nexus e ao herói +5% por onda.
 **Sorteio por onda:** pesos Zumbi 10 (−0,3/onda, mín. 3) · Morcego 4 · Esqueleto 3 (+0,05) · Ogro 2 (+0,04) · Lodo 3 · Aranha 3 · Gárgula 2,5 · Cavaleiro 2 (+0,05) · Banshee 1,2 · Necromante 1 (+0,03), cada um a partir da sua onda.
-**Elites:** a partir da onda 8, chance 5% (+1% por onda, máx. 20%): vida ×2,5, dano ×1,5, ouro e XP ×3, tamanho ×1,15.
+**Elites:** a partir da onda 8, chance 5% (+1% por onda, máx. 20%): vida ×2,5, dano ×1,5, ouro e XP ×2, tamanho ×1,15; 6% de chance de baú.
 **Arena:** 640 × 360 unidades (16:9), Nexus no centro.
 **Ondas (1–20):** quantidade = 4 + 2,5 × onda; intervalo de spawn = máx(0,3 s; 1,2 − 0,05 × onda) s; inimigos surgem 24 unidades além da borda da tela. **Essência** = 3 por onda + 1 a cada 5 abates + 30 ao vencer.
 **Melhorias temporárias (2.0)** `PROPOSTA`: 17 famílias com valor por tier — Comum / Incomum / Rara / Épica / Lendária. Pesos dos tiers vão de 62/27/9/2/0 (onda 1) a 28/30/22/13/7 (última onda). Os % **somam** com os talentos na mesma categoria; categorias diferentes multiplicam. Exemplos: Fúria (dano) 6/10/16/25/40% · Ritmo (vel. ataque) 5/8/13/20/32% · Olhar Aguçado (alcance) 5/8/12/18/28% · Precisão (crítico ×2) 3/5/8/12/18% · Laços de Sangue (dano de uma raça da equipe) 10/16/25/38/60% · Campeão (dano do herói) 8/12/20/30/45% · Concentração (recarga do Pulso, mín. 35%) 6/10/15/22/32% · Saque · Reforço · Raízes Vivas · Cobiça · Alquimia. Só tiers altos: Recrutamento (+vaga, Rara+), Égide Eterna (Rara), Ascensão (Épica +1 nível / Lendária +2), Coração do Nexus (Épica/Lendária), Sentença (Lendária: comuns abaixo de 10% morrem). A tela de escolha mostra "Seus bônus".
@@ -245,6 +259,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 06/10/2026 | Melhorias da run com raridade; run salva com continuar; tutorial guiado; velocidade 1x/2x/4x |
 | 06/10/2026 | Herói vivo: vida, dano de contato, renascimento em 8 s, XP por abate e melhorias só do herói a cada nível; conquista "Sem Torres" |
 | 06/10/2026 | Run de 20 ondas com chefes nas ondas 7 (Rei Ogro), 14 (Rainha Aranha) e 20 (Lich); escalonamento de vida, velocidade e dano; elites; 7 inimigos novos com habilidades; códex; modo Sem Fim; curva de XP do herói mais íngreme |
+| 06/10/2026 | Ouro com destino: evolução proporcional ao custo da cópia, Nexus upável (Vitalidade, Muralha, Raio, Escudo, Campo de Lentidão), moedas e baús no chão coletados pelo herói, melhoria Ímã; vida dos inimigos sobe mais rápido para compensar |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.

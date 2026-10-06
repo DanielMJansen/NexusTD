@@ -29,7 +29,7 @@ export function upgradeText(upgrade: OfferedUpgrade): string {
   return family.text.replace('{v}', v).replace('{race}', race ?? '');
 }
 
-function choiceCard(choice: Choice, index: number): string {
+export function choiceCard(choice: Choice, index: number): string {
   const { upgrade } = choice;
   const tier = TIERS[upgrade.tier];
   return `<button class="choice tier-${upgrade.tier}" style="--card-color:${tier.color}" data-action="choose" data-value="${index}">

@@ -84,6 +84,15 @@ interface FloatingText extends Point {
   size: number;
 }
 
+/** Raio do Nexus: zigue-zague curto do cristal até o alvo. */
+interface Bolt {
+  from: Point;
+  to: Point;
+  life: number;
+  maxLife: number;
+  seed: number;
+}
+
 interface Banner {
   text: string;
   subtitle: string;
@@ -103,6 +112,7 @@ export class Effects {
   private corpses: Corpse[] = [];
   private texts: FloatingText[] = [];
   private banners: Banner[] = [];
+  private bolts: Bolt[] = [];
   private shake = 0;
   /** 1 logo após o Nexus levar dano, caindo até 0. */
   nexusHurt = 0;
@@ -117,6 +127,7 @@ export class Effects {
     this.corpses = [];
     this.texts = [];
     this.banners = [];
+    this.bolts = [];
     this.shake = 0;
     this.nexusHurt = 0;
   }
@@ -188,6 +199,33 @@ export class Effects {
         this.burst(event.x, event.y - 10, 30, '#ff3a4a', 120, 0.8, 3, true);
         this.banner(`${ENEMIES[event.enemy].name} enfurecido!`, 'Segunda fase', '#ff5a5a', 2);
         this.shake = Math.max(this.shake, 8);
+        break;
+      case 'nexusBolt': {
+        const from = { x: ARENA.center.x, y: ARENA.center.y - 30 };
+        this.bolts.push({ from, to: event.to, life: 0.18, maxLife: 0.18, seed: Math.random() * 100 });
+        this.burst(event.to.x, event.to.y, 6, '#ffe9a8', 60, 0.3, 1.8, true);
+        break;
+      }
+      case 'nexusShieldUp':
+        this.ring(ARENA.center.x, ARENA.center.y - 8, 44, '#ffd25a', 0.6, 4);
+        this.text(ARENA.center.x, ARENA.center.y - 56, 'Escudo!', '#ffd25a', 12);
+        break;
+      case 'nexusShieldBlocked':
+        this.burst(ARENA.center.x, ARENA.center.y - 8, 8, '#ffe9a8', 70, 0.35, 2, true);
+        break;
+      case 'nexusUpgraded':
+        this.ring(ARENA.center.x, ARENA.center.y + 6, 40, '#c8a8ff', 0.6, 3);
+        this.burst(ARENA.center.x, ARENA.center.y - 12, 16, '#e2c8ff', 70, 0.7, 2.2, true, -50);
+        break;
+      case 'lootCollected':
+        if (event.kind === 'coin') {
+          this.text(event.x, event.y - 12, `+${event.value}`, GOLD, 10);
+          this.burst(event.x, event.y, 6, GOLD, 50, 0.4, 1.8, true, -40);
+        } else {
+          this.ring(event.x, event.y, 22, GOLD, 0.5, 3);
+          this.burst(event.x, event.y - 4, 18, '#ffe9a8', 80, 0.7, 2.2, true, -60);
+          this.text(event.x, event.y - 20, 'Baú!', GOLD, 12);
+        }
         break;
       case 'heroDied':
         this.burst(event.x, event.y - 8, 18, '#ff5a6a', 90, 0.6, 2.6, true);
@@ -350,6 +388,8 @@ export class Effects {
     this.rings = this.rings.filter((r) => r.life > 0);
     for (const w of this.waves) w.life -= dt;
     this.waves = this.waves.filter((w) => w.life > 0);
+    for (const b of this.bolts) b.life -= dt;
+    this.bolts = this.bolts.filter((b) => b.life > 0);
     for (const c of this.corpses) c.life -= dt;
     this.corpses = this.corpses.filter((c) => c.life > 0);
     for (const t of this.texts) {
@@ -371,6 +411,7 @@ export class Effects {
 
   /** Efeitos no mundo (projéteis, partículas, anéis, cadáveres, números). */
   drawWorld(ctx: CanvasRenderingContext2D, time: number): void {
+    for (const bolt of this.bolts) drawBolt(ctx, bolt);
     for (const c of this.corpses) {
       const fade = c.life / c.maxLife;
       const def = ENEMIES[c.enemy];
@@ -764,6 +805,30 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       ctx.stroke();
       break;
     }
+  }
+  ctx.restore();
+}
+
+function drawBolt(ctx: CanvasRenderingContext2D, bolt: Bolt): void {
+  const steps = 6;
+  ctx.save();
+  ctx.globalAlpha = bolt.life / bolt.maxLife;
+  ctx.globalCompositeOperation = 'lighter';
+  for (const [width, color] of [
+    [4, '#ffd25a66'],
+    [1.6, '#fffbe8'],
+  ] as const) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(bolt.from.x, bolt.from.y);
+    for (let i = 1; i < steps; i++) {
+      const t = i / steps;
+      const jitter = Math.sin(bolt.seed + i * 7.3) * 6;
+      ctx.lineTo(bolt.from.x + (bolt.to.x - bolt.from.x) * t + jitter, bolt.from.y + (bolt.to.y - bolt.from.y) * t + jitter * 0.6);
+    }
+    ctx.lineTo(bolt.to.x, bolt.to.y);
+    ctx.stroke();
   }
   ctx.restore();
 }

@@ -109,7 +109,7 @@ export class SidePanel {
       card.cost.classList.toggle('too-expensive', !affordable);
       drawPortrait(card.portrait, id, time + id.length);
     }
-    this.updateSelection(run, interaction.inspected);
+    this.updateSelection(run, interaction.nexusOpen ? null : interaction.inspected);
 
     const { remaining, cooldown } = run.pulse;
     const ready = remaining <= 0 && run.phase === 'playing';

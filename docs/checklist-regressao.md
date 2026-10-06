@@ -34,6 +34,9 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Herói anda com WASD/setas e clique/segurar; anel sob os pés na cor do herói (sem brilho ciano).
 - [ ] Painel mostra só a equipe; tooltip com descrição, atributos, habilidade, forma evoluída e bônus do herói (em dourado) quando a raça bate.
 - [ ] Arrastar a carta ou tecla 1–6 + clique posiciona; prévia vermelha onde não pode; botão direito/Esc cancelam.
+- [ ] Evoluir a 2ª/3ª cópia de uma criatura custa mais que a 1ª (proporcional ao custo de invocação dela).
+- [ ] Clique no Nexus, tecla N ou botão "Melhorar o Nexus": quadro com 5 melhorias, bolinhas de nível, botão verde com ouro e "Máx." no fim; a ajuda de controles some enquanto o quadro está aberto. Campo de Lentidão aparece no chão; Raio dispara faíscas douradas; Escudo mostra um losango dourado quando pronto e uma bolha quando ativo.
+- [ ] Moedas (giram) e baús (balançam) caem no chão, piscam antes de sumir e são coletados pelo herói; baú pausa e oferece 3 melhorias Raras ou melhores; loot que sobra fica no chão para a próxima onda.
 - [ ] Clicar numa criatura: nome, estrelas (N cheias no nível N), quadro de atributos no painel, "Evoluir" verde com ouro / cinza sem, "Vender" pede confirmação; nível 3 mostra nome da forma evoluída, aura e acessório.
 - [ ] Seta ⇧ verde sobre criaturas que podem evoluir. Cartas verdes/vermelhas; sem ouro ou vaga a carta treme e não é escolhida.
 - [ ] Herói: chip no HUD com nível, vida e XP; barra de vida sobre o herói quando ferido; ao cair, "Renasce em N s" no Nexus e volta com vida cheia em 8 s.

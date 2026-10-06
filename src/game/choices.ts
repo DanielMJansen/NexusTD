@@ -1,3 +1,4 @@
+import { LOOT } from '../data/nexusUpgrades';
 import { CHOICES, NEXUS } from '../data/config';
 import { CREATURES } from '../data/creatures';
 import {
@@ -45,9 +46,9 @@ function isAvailable(state: RunState, family: UpgradeFamily): boolean {
   }
 }
 
-function rollTier(state: RunState): Tier {
+function rollTier(state: RunState, minTier = 0): Tier {
   const progress = (state.wave - 1) / Math.max(1, WAVES.total - 1);
-  const weights = tierWeights(progress);
+  const weights = tierWeights(progress).map((w, i) => (i < minTier ? 0 : w));
   let roll = random() * weights.reduce((a, b) => a + b, 0);
   for (let i = 0; i < TIER_ORDER.length; i++) {
     roll -= weights[i]!;
@@ -57,10 +58,10 @@ function rollTier(state: RunState): Tier {
 }
 
 /** Monta a carta: família + tier (+ raça). Se nenhuma família tiver o tier sorteado, desce de tier. */
-function rollUpgrade(state: RunState, exclude: Set<string>): OfferedUpgrade | null {
+function rollUpgrade(state: RunState, exclude: Set<string>, minTier = 0): OfferedUpgrade | null {
   const families = UPGRADE_FAMILIES.filter((f) => !exclude.has(f.id) && isAvailable(state, f));
   if (!families.length) return null;
-  let tierIndex = TIER_ORDER.indexOf(rollTier(state));
+  let tierIndex = TIER_ORDER.indexOf(rollTier(state, minTier));
   for (; tierIndex >= 0; tierIndex--) {
     const tier = TIER_ORDER[tierIndex]!;
     const options = families.filter((f) => f.values[tier] !== undefined);
@@ -77,17 +78,37 @@ function rollUpgrade(state: RunState, exclude: Set<string>): OfferedUpgrade | nu
   return null;
 }
 
-/** Sorteia a mão de cartas (sem repetir família na mesma mão). */
-export function rollWaveChoices(state: RunState): void {
+/** Sorteia uma mão de cartas (sem repetir família na mesma mão). */
+function rollHand(state: RunState, minTier = 0): Choice[] {
   const exclude = new Set<string>();
   const hand: Choice[] = [];
   for (let i = 0; i < CHOICES.count; i++) {
-    const upgrade = rollUpgrade(state, exclude);
+    const upgrade = rollUpgrade(state, exclude, minTier);
     if (!upgrade) break;
     exclude.add(upgrade.family.id);
     hand.push({ kind: 'upgrade', upgrade });
   }
-  state.choices = hand;
+  return hand;
+}
+
+export function rollWaveChoices(state: RunState): void {
+  state.choices = rollHand(state);
+}
+
+/** Baú: 3 melhorias de tier alto (Rara ou melhor). */
+export function rollChestChoices(state: RunState): void {
+  state.chestChoices = rollHand(state, TIER_ORDER.indexOf(LOOT.chestMinTier));
+}
+
+/** Escolhe a melhoria do baú; abre o próximo baú pendente, se houver. */
+export function chooseChest(state: RunState, index: number): void {
+  const choice = state.chestChoices[index];
+  if (!choice) return;
+  applyChoice(state, choice);
+  state.pendingChests = Math.max(0, state.pendingChests - 1);
+  state.chestChoices = [];
+  if (state.pendingChests > 0) rollChestChoices(state);
+  state.events.push({ type: 'choiceMade' });
 }
 
 /** Ainda existem famílias diferentes das mostradas? (para o botão de sortear de novo) */

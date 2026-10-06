@@ -46,7 +46,7 @@ export const WAVES: WaveRules = {
   enemyCount: { base: 4, perWave: 2.5 },
   spawnInterval: { base: 1.2, perWave: -0.05, min: 0.3 },
   scaling: {
-    hp: { linear: 0.12, quadratic: 0.008 },
+    hp: { linear: 0.15, quadratic: 0.013 },
     speedPerWave: 0.02,
     maxSpeedBonus: 0.4,
     damagePerWave: 0.05,
@@ -68,7 +68,7 @@ export const WAVES: WaveRules = {
     { wave: 14, enemy: 'spiderQueen' },
     { wave: 20, enemy: 'lich' },
   ],
-  elites: { fromWave: 8, chance: 0.05, chancePerWave: 0.01, maxChance: 0.2, hp: 2.5, damage: 1.5, reward: 3, scale: 1.15 },
+  elites: { fromWave: 8, chance: 0.05, chancePerWave: 0.01, maxChance: 0.2, hp: 2.5, damage: 1.5, reward: 2, scale: 1.15 },
   endless: { bossEvery: 5, bosses: ['ogreKing', 'spiderQueen', 'lich'] },
   spawnMargin: 24,
 };

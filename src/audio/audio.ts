@@ -134,6 +134,18 @@ export class SoundPlayer {
       case 'bossEnraged':
         this.play('enrage');
         break;
+      case 'nexusBolt':
+        this.play('nexusBolt');
+        break;
+      case 'nexusShieldUp':
+        this.play('shield');
+        break;
+      case 'nexusUpgraded':
+        this.play('evolve');
+        break;
+      case 'lootCollected':
+        this.play(event.kind === 'chest' ? 'chest' : 'coin');
+        break;
       case 'enemyHealed':
         this.play('enemyHeal');
         break;

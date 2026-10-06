@@ -3,6 +3,8 @@ import { WAVES } from '../data/waves';
 import { offerChoices } from './choices';
 import { applyBlocks, updateCreatures, updateDamageOverTime, updateHero } from './combat';
 import { updateEnemies } from './enemies';
+import { updateLoot } from './loot';
+import { updateNexus } from './nexus';
 import { updateHeroVitals } from './hero';
 import { spawnEnemy, spawnInterval, startWave } from './spawning';
 import { createRun, type Point, type RunSetup, type RunState } from './state';
@@ -20,8 +22,8 @@ export function startRun(setup: RunSetup): RunState {
 
 /** Avança a simulação. Só age durante uma onda. */
 export function updateRun(state: RunState, dt: number, input: FrameInput): void {
-  // Pausa enquanto a escolha de melhoria do herói estiver aberta.
-  if (state.phase !== 'playing' || state.heroChoices.length) return;
+  // Pausa enquanto a escolha do herói ou de um baú estiver aberta.
+  if (state.phase !== 'playing' || state.heroChoices.length || state.chestChoices.length) return;
   state.time += dt;
 
   state.incomeTimer += dt;
@@ -47,8 +49,10 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   updateHero(state, dt, input.direction);
   applyBlocks(state);
   updateEnemies(state, dt);
+  updateNexus(state, dt);
   updateCreatures(state, dt);
   updateDamageOverTime(state, dt);
+  updateLoot(state, dt);
   state.enemies = state.enemies.filter((e) => !e.dead);
 
   if (state.nexus.hp <= 0) endRun(state, false);
