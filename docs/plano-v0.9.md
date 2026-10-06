@@ -161,7 +161,7 @@ Uma sub-etapa por raça, cada uma com 2 classes (dados, mecânica, sprite nívei
 - Mecânicas novas na simulação: salto entre alvos, aura de velocidade, ignorar armadura, empurrão, veneno (dano ao longo do tempo), poça no chão.
 - **Pronto quando:** cada raça aparece na Coleção, na Equipe, nos ovos e no herói correspondente; a taxa de vitória da simulação fica próxima das equipes atuais.
 
-### E11. Extras inspirados no Myth TD (escolher depois) `[ ]`
+### E11. Extras inspirados no Myth TD `[x]` — raridade nas melhorias, salvar run e tutorial feitos; velocidade entrou no F1 do plano v1.0; o resto foi para o plano v1.0
 Tutorial guiado da 1ª run · velocidade 1x/2x · salvar run em andamento e "Salvar e sair" · raridade nas recompensas entre ondas (comum/incomum/rara) · painel "Bônus ativos" · simulador oficial `npm run sim` com bot (substitui os scripts avulsos de teste).
 
 ## 5. Riscos e cuidados

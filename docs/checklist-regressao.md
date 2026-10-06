@@ -17,19 +17,28 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Heróis: comprar e escolher; descrição de ataque, Pulso e bônus de raça; skins liberadas por conquista são selecionáveis e aparecem na run.
 - [ ] Conquistas: lista com progresso (abates, runs, vitórias, coleção) e a skin que cada uma libera.
 
+## Tutorial e run salva
+- [ ] Primeira run: tutorial de 7 passos; leitura pausa; ações avançam; "Pular" funciona; "Rever tutorial" nas Configurações reativa.
+- [ ] Pausa → "Salvar e sair" → menu mostra "Continuar run (onda, herói)"; continuar volta pausado com tudo igual.
+- [ ] Recarregar a página no meio da onda e continuar: volta onde estava. Onda vencida salva sozinha. "Nova run" pede confirmação.
+- [ ] "Abandonar run" pede confirmação e apaga a run salva (sem Essência).
+
 ## Run
 - [ ] Começa direto na onda 1 (sem ovos), com faixa "Onda 1" e música da run acelerando a cada onda; música do chefe na onda 10.
 - [ ] HUD: onda, ouro, vida do Nexus, criaturas/limite. Renda +1 ouro a cada 2 s (talentos aceleram).
 - [ ] Herói anda com WASD/setas e clique/segurar; anel sob os pés na cor do herói (sem brilho ciano).
 - [ ] Painel mostra só a equipe; tooltip com descrição, atributos, habilidade, forma evoluída e bônus do herói (em dourado) quando a raça bate.
 - [ ] Arrastar a carta ou tecla 1–6 + clique posiciona; prévia vermelha onde não pode; botão direito/Esc cancelam.
-- [ ] Clicar numa criatura: nome, estrelas, "Evoluir ◉X" (ou E) e "Vender +X"; nível 3 mostra nome da forma evoluída, aura e acessório.
+- [ ] Clicar numa criatura: nome, estrelas (N cheias no nível N), quadro de atributos no painel, "Evoluir" verde com ouro / cinza sem, "Vender" pede confirmação; nível 3 mostra nome da forma evoluída, aura e acessório.
+- [ ] Seta ⇧ verde sobre criaturas que podem evoluir. Cartas verdes/vermelhas; sem ouro ou vaga a carta treme e não é escolhida.
+- [ ] Alcance do herói visível; Shift ou mouse sobre o herói destaca. Tooltip no botão do Pulso.
+- [ ] Números de dano aparecem (e somem ao desligar nas Configurações). Velocidade 1x/2x/4x (botão ou F).
 - [ ] Pulso (Espaço) com o nome do Pulso do herói: Onda de Choque, Revoada (cura), Rugido (raio maior), Uivo (inimigos com "!" fogem), Travessia (herói atravessa o campo), Maldição (veneno com bolhas verdes).
 - [ ] Habilidades: Guarda segura 2 (anel tracejado), Sanguinário cura, Caçador salta entre alvos, Alfa mostra a aura e acelera vizinhos, Assombração ignora armadura, Banshee grita em leque e empurra, Feiticeira envenena, Caldeirão cria poças.
 - [ ] Inimigos piscam ao levar dano (veneno e poças não piscam); morte com fantasma, moedas e "+ouro".
 
 ## Entre ondas e fim
-- [ ] 3 melhorias + loja (sortear 10/20/30…, +1 vaga 60/120/240).
+- [ ] 3 melhorias com raridade (cinza/verde/dourada brilhando) + loja (sortear 10/20/30…, +1 vaga 60/120/240).
 - [ ] Fim: onda, abates, Essência e conquistas novas com as skins liberadas; Continuar volta ao menu com tudo salvo.
 
 ## Save

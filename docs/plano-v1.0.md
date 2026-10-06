@@ -35,7 +35,7 @@ Propostas originais:
 
 ## 3. Etapas
 
-### F1. Correções rápidas `[ ]` (não dependem de decisão)
+### F1. Correções rápidas `[x]` (não dependem de decisão)
 - Cavaleiro: espada saindo do pescoço → espada embainhada na cintura, levantada só no golpe.
 - Estrelas de nível: contorno fino; nível N mostra N estrelas.
 - Lobisomens (Caçador, Alfa, Licantropo): ataque com a **boca abrindo e fechando** (mordida), em vez de "pescoçada".
@@ -52,7 +52,7 @@ Propostas originais:
 - **Velocidade 1x/2x/4x** (botão no topo e tecla `F`).
 - Espectro: a **Travessia vai até o cursor** do mouse (ou na direção do WASD/setas se estiverem pressionadas).
 
-### F2. Tutorial guiado `[ ]` (pendente da E11)
+### F2. Tutorial guiado `[x]` (pendente da E11)
 Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de leitura pausam o jogo; passos de ação avançam quando o jogador faz a ação. Os passos são: Nexus → mover o herói → ouro → invocar → Pulso → evoluir/vender → melhorias entre ondas. "Rever tutorial" nas Configurações.
 
 ### F3. Melhorias da run 2.0 `[ ]` — D5, D6

@@ -70,7 +70,8 @@ Cada tipo cria um problema novo, não só mais vida.
 **Na run** `FEITO`
 - Ouro: invoca criaturas; vem de abates e de renda passiva. Custo progressivo por cópia da mesma classe.
 - Limite de criaturas em campo. **Evolução** com ouro (níveis 1–3). **Vender** devolve 60% de tudo que foi pago.
-- Entre ondas: 1 entre 3 melhorias temporárias + **loja** (sortear de novo, +1 vaga).
+- Entre ondas: 1 entre 3 melhorias temporárias **com raridade** (comum 60% / incomum 30% / rara 10%) + **loja** (sortear de novo, +1 vaga).
+- **Run salva** automaticamente a cada onda vencida e ao fechar a aba; pausa com "Salvar e sair" e "Abandonar run"; menu com "Continuar run".
 
 **Permanente** `FEITO`
 - **Essência** ganha ao fim de toda run (mesmo perdendo).
@@ -81,8 +82,9 @@ Cada tipo cria um problema novo, não só mais vida.
 - `TBD` nível permanente de criatura (fragmentos).
 
 ## 7. Controles e interface (`FEITO`)
-Tela de entrada "Clique para começar" (libera o áudio). Menu principal: Jogar, Herói, Equipe, Coleção, Talentos, Conquistas, Configurações.
-Na run: mover o herói com WASD/setas ou clicar/segurar no chão. Invocar: arrastar a carta do painel até a arena, ou tecla 1–6 (ordem da equipe) e clicar (prévia mostra alcance; vermelha se não pode). Evoluir/vender: clicar na criatura e nos botões (ou tecla E). Pulso: Espaço ou botão (mostra o nome do Pulso do herói). Cancelar: botão direito ou Esc. Pausa: P, Esc ou botão. ⚙ abre as Configurações (volumes, silenciar, exportar/importar).
+Tela de entrada "Clique para começar" (libera o áudio). Menu principal: Continuar run (se houver), Jogar, Herói, Equipe, Coleção, Talentos, Conquistas, Configurações. **Tutorial guiado** na primeira run (7 passos; pular a qualquer momento; rever nas Configurações).
+Na run: mover o herói com WASD/setas ou clicar/segurar no chão. Invocar: arrastar a carta do painel até a arena, ou tecla 1–6 (ordem da equipe) e clicar (prévia mostra alcance; vermelha se não pode). Evoluir/vender: clicar na criatura e nos botões (ou tecla E). Pulso: Espaço ou botão (mostra o nome do Pulso do herói). Cancelar: botão direito ou Esc. Pausa: P, Esc ou botão. Velocidade 1x/2x/4x: botão ou F. Alcance do herói sempre visível (destacado com Shift ou mouse sobre ele). ⚙ abre as Configurações (volumes, silenciar, números de dano, rever tutorial, exportar/importar, apagar progresso).
+Cartas verdes quando dá para invocar e vermelhas sem ouro ou sem vaga (não deixa escolher). Criatura selecionada: quadro de atributos (dano, ataques/s, alcance, investido, venda, próxima evolução), botão Evoluir verde quando há ouro, seta ⇧ sobre criaturas que podem evoluir e venda com confirmação.
 Painel lateral com retrato, custo, atalho e tooltip (descrição, atributos, habilidade, forma evoluída e bônus do herói). Coleção com ficha de cada criatura (descrição, lore, atributos, forma evoluída).
 
 ## 8. Modos
@@ -137,7 +139,10 @@ Criaturas atacam o inimigo mais próximo do Nexus dentro do alcance.
 Dano por golpe contra armadura = `max(1, dano − armadura)`; veneno e poças ignoram armadura. Vida de todo inimigo × (1 + 0,12 × onda).
 **Arena:** 640 × 360 unidades (16:9), Nexus no centro.
 **Ondas (1–10):** quantidade = 4 + 3 × onda; intervalo de spawn = máx(0,35 s; 1,2 − 0,07 × onda) s; inimigos surgem 24 unidades além da borda da tela.
-**Melhorias temporárias:** +30% dano · +20% alcance · +25% vel. de ataque · +40 ouro · +30 vida do Nexus · Pulso 30% mais rápido.
+**Melhorias temporárias** (cada carta sorteia a raridade e depois a melhoria; os % da run multiplicam entre si — revisão no plano v1.0, F3):
+Comuns — Afiar Armas +20% dano · Olhar Aguçado +15% alcance · Ritmo de Batalha +18% vel. de ataque · Saque +40 ouro · Reforço +30 vida máx. · Concentração Pulso −20% recarga.
+Incomuns — Fúria +35% dano · Frenesi Coletivo +30% vel. de ataque · Alquimia Rápida −25% no custo de evoluir (até 2×) · Recrutamento +1 vaga (até 2×) · Raízes Vivas Nexus +0,5 vida/s · Cobiça +50% ouro por abate (até 2×).
+Raras — Ascensão (criaturas em campo sobem 1 nível) · Coração do Nexus (+50 vida máx. e cura total) · Maestria (+25% dano e +25% vel. de ataque) · Égide Eterna (1º golpe de cada onda anulado) · Tesouro do Dragão (+150 ouro).
 **Essência por run:** (3 × onda alcançada + 1 por 5 abates + 30 se vencer) com os bônus de talento.
 
 **Árvore de talentos** (custos em Essência por nível)
@@ -214,12 +219,12 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 05/10/2026 | Árvore de talentos em 5 ramos substitui as melhorias permanentes |
 | 05/10/2026 | Música procedural gótica (menu, run, chefe); volumes de música e efeitos independentes; exportar/importar save |
 | 05/10/2026 | Lobisomem, Fantasma e Bruxa implementados (2 classes + herói cada) |
+| 06/10/2026 | Melhorias da run com raridade; run salva com continuar; tutorial guiado; velocidade 1x/2x/4x |
+| 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
 
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.
 
 ## 13. Próximos passos
-1. Playtest com outras pessoas pelo GitHub Pages (ritmo, custos de talentos/criaturas/heróis, evolução, loja).
-2. Extras inspirados no Myth TD (plano E11): tutorial guiado, velocidade 2x, salvar run em andamento, raridade nas melhorias, painel de bônus ativos, simulador oficial `npm run sim`.
-3. Mais inimigos (ranged, invocador, anti-criatura) e segundo estágio.
-4. Novas raças (Fada, Golem, Necromante, Medusa).
-5. Só depois decidir engine final e arte.
+1. Seguir o `docs/plano-v1.0.md`: melhorias 2.0 (F3), herói vivo com XP (F4), dificuldade e inimigos novos com 20 ondas e Sem Fim (F5), ouro com destino (F6), talentos 2.0 (F7), novas raças e classes (F8).
+2. Playtest com outras pessoas pelo GitHub Pages.
+3. Só depois decidir engine final e arte.
