@@ -1,0 +1,206 @@
+// Raça Górgona: Arqueira Serpente, Medusa, Basilisco e a heroína Rainha Górgona.
+import {
+  circle,
+  ellipse,
+  eye,
+  formA,
+  formB,
+  glowingEye,
+  GOLD,
+  line,
+  poly,
+  radial,
+  shape,
+  skin,
+  vertical,
+  type Ctx,
+  type Pose,
+} from './spriteKit';
+
+/** Cauda de serpente no lugar das pernas (corpo de naga). */
+function nagaTail(ctx: Ctx, t: number, color: string, dark: string): void {
+  const wave = Math.sin(t * 3) * 2;
+  shape(ctx, vertical(ctx, 0, 14, color, dark), () => {
+    ctx.moveTo(-5, 0);
+    ctx.quadraticCurveTo(-9, 10, -2, 13);
+    ctx.quadraticCurveTo(8, 15 + wave, 14, 10 + wave);
+    ctx.quadraticCurveTo(9, 11, 2, 9);
+    ctx.quadraticCurveTo(4, 4, 5, 0);
+    ctx.closePath();
+  });
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = 0.6;
+  ctx.beginPath();
+  for (const x of [-2, 2, 6]) {
+    ctx.moveTo(x, 10);
+    ctx.lineTo(x + 2, 12);
+  }
+  ctx.stroke();
+}
+
+/** Cabelo de serpentes que se mexem. */
+function snakeHair(ctx: Ctx, hy: number, t: number, color: string, count = 5): void {
+  for (let i = 0; i < count; i++) {
+    const a = -2.6 + (i / (count - 1)) * 2.2;
+    const x0 = 1 + Math.cos(a) * 5;
+    const y0 = hy + Math.sin(a) * 5;
+    const wig = Math.sin(t * 5 + i) * 2;
+    line(ctx, color, 1.4, () => {
+      ctx.moveTo(x0, y0);
+      ctx.quadraticCurveTo(x0 + Math.cos(a) * 5 + wig, y0 + Math.sin(a) * 5, x0 + Math.cos(a) * 8, y0 + Math.sin(a) * 8 + wig);
+    });
+    ctx.fillStyle = '#ff3a3a';
+    ctx.beginPath();
+    circle(ctx, x0 + Math.cos(a) * 8, y0 + Math.sin(a) * 8 + wig, 0.5);
+    ctx.fill();
+  }
+}
+
+/** Arqueira Serpente: naga verde com arco. A: Víbora (escamas roxas, veneno forte); B: Naja (capuz de naja). */
+export function drawSerpentArcher(ctx: Ctx, p: Pose): void {
+  const viper = formA(p);
+  const cobra = formB(p);
+  const scale = viper ? '#8a4ad8' : cobra ? '#c8a03a' : '#4ab86a';
+  const dark = viper ? '#3a1a6a' : cobra ? '#5a4010' : '#1e5a2e';
+  nagaTail(ctx, p.time, scale, dark);
+  shape(ctx, vertical(ctx, -10, 2, scale, dark), () => ctx.roundRect(-4.5, -10, 9, 12, 3));
+  const hy = -15;
+  if (cobra) {
+    shape(ctx, vertical(ctx, hy - 8, hy + 8, '#e8c060', '#7a5a1a'), () => ellipse(ctx, 0.5, hy + 1, 9, 9), 0.9);
+  }
+  snakeHair(ctx, hy, p.time, scale, 4);
+  shape(ctx, radial(ctx, 1, hy, 6, '#d8f0c8', '#8ab878'), () => circle(ctx, 1, hy, 6));
+  glowingEye(ctx, 0.5, hy, 1.2, viper ? '#d86aff' : '#ffd23a');
+  glowingEye(ctx, 4, hy, 1.2, viper ? '#d86aff' : '#ffd23a');
+  // arco
+  const pull = p.attack > 0.5 ? 0 : 1 - p.attack * 2;
+  line(ctx, viper ? '#5a2a8a' : '#6a4a2a', 2, () => ctx.arc(5, -4, 10, -1.2, 1.2));
+  ctx.strokeStyle = '#e8f0d0';
+  ctx.lineWidth = 0.7;
+  ctx.beginPath();
+  ctx.moveTo(5 + 10 * Math.cos(-1.2), -4 + 10 * Math.sin(-1.2));
+  ctx.lineTo(5 - pull * 4, -4);
+  ctx.lineTo(5 + 10 * Math.cos(1.2), -4 + 10 * Math.sin(1.2));
+  ctx.stroke();
+  if (pull > 0.2) {
+    line(ctx, viper ? '#b86aff' : '#7ad85a', 1, () => {
+      ctx.moveTo(5 - pull * 4, -4);
+      ctx.lineTo(16 - pull * 4, -4);
+    });
+  }
+}
+
+/** Medusa: serpentes no cabelo e olhar que brilha. A: Olhar Pétreo (olhos dourados intensos); B: Górgona Ancestral (coroa antiga, olhos vermelhos). */
+export function drawMedusa(ctx: Ctx, p: Pose): void {
+  const stone = formA(p);
+  const ancient = formB(p);
+  nagaTail(ctx, p.time, '#6a9a5a', '#2a4a24');
+  shape(ctx, vertical(ctx, -10, 2, '#e8e0c8', '#a8a08a'), () => poly(ctx, [-5, -10, 5, -10, 6, 2, -6, 2]));
+  shape(ctx, GOLD, () => ctx.rect(-5.5, -3, 11, 1.4), 0.5);
+  const hy = -15;
+  snakeHair(ctx, hy, p.time, ancient ? '#4a7a3a' : '#5ab85a', 7);
+  shape(ctx, radial(ctx, 1, hy, 6.4, '#e0f0d8', '#98b890'), () => circle(ctx, 1, hy, 6.3));
+  const gaze = 1 + p.attack * 0.8;
+  const eyes = ancient ? '#ff3a3a' : stone ? '#ffd25a' : '#c8ff6a';
+  ctx.save();
+  ctx.shadowColor = eyes;
+  ctx.shadowBlur = 6 + p.attack * 10;
+  glowingEye(ctx, 0, hy, 1.4 * gaze, eyes);
+  glowingEye(ctx, 4, hy, 1.4 * gaze, eyes);
+  ctx.restore();
+  if (p.attack > 0.2) {
+    // raio do olhar
+    ctx.strokeStyle = eyes + '88';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(5, hy);
+    ctx.lineTo(18, hy + 3);
+    ctx.stroke();
+  }
+  if (ancient) {
+    shape(ctx, vertical(ctx, hy - 12, hy - 5, '#e8d090', '#8a6a2a'), () =>
+      poly(ctx, [-4.5, hy - 5, -5, hy - 10, -2, hy - 7, 1, hy - 12, 4, hy - 7, 7, hy - 10, 6.5, hy - 5]),
+    );
+  }
+  if (stone) {
+    // pedrinhas girando (estátuas em miniatura)
+    for (let i = 0; i < 2; i++) {
+      const a = p.time * 1.5 + i * Math.PI;
+      shape(ctx, '#9a9a9a', () => ctx.roundRect(Math.cos(a) * 13 - 1.5, -4 + Math.sin(a) * 4, 3, 4, 0.8), 0.5);
+    }
+  }
+}
+
+/** Basilisco: lagarto-serpente de crista. A: Basilisco Rei (crista coroada); B: Cuspidor (baba ácida verde). */
+export function drawBasilisk(ctx: Ctx, p: Pose): void {
+  const king = formA(p);
+  const spitter = formB(p);
+  const body = king ? '#4a7a3a' : spitter ? '#5a8a2a' : '#5a6a3a';
+  const dark = king ? '#1e3a14' : spitter ? '#2a4a10' : '#2a321a';
+  const stride = p.moving ? Math.sin(p.time * 8) : 0;
+  // cauda e corpo baixo
+  shape(ctx, dark, () => {
+    ctx.moveTo(-6, 4);
+    ctx.quadraticCurveTo(-16, 6, -19, 0);
+    ctx.quadraticCurveTo(-14, 4, -6, 9);
+    ctx.closePath();
+  });
+  for (const [x, ph] of [[-6, 0], [4, Math.PI]] as const) {
+    shape(ctx, dark, () => ctx.roundRect(x + Math.sin(p.time * 8 + ph) * stride, 8, 3.5, 6, 1.2), 0.8);
+  }
+  shape(ctx, radial(ctx, 0, 3, 11, body, dark), () => ellipse(ctx, 0, 3, 11, 7));
+  shape(ctx, '#c8d0a0', () => ellipse(ctx, 2, 6, 6, 3), 0.6);
+  // crista nas costas
+  for (let i = 0; i < 4; i++) {
+    shape(ctx, king ? GOLD : '#c84a3a', () => poly(ctx, [-8 + i * 4, -3, -6 + i * 4, -8 - (i % 2) * 2, -4 + i * 4, -3]), 0.6);
+  }
+  // cabeça e boca (abre no ataque)
+  const open = p.attack * 3;
+  shape(ctx, radial(ctx, 11, -3, 6, body, dark), () => ellipse(ctx, 11, -3, 6, 4.5));
+  shape(ctx, dark, () => ellipse(ctx, 13, 1 + open * 0.5, 5, 1.6 + open * 0.4), 0.8);
+  eye(ctx, 11, -5, 1.6, '#ffd23a', 0.4);
+  if (king) {
+    shape(ctx, vertical(ctx, -12, -6, '#ffe07a', '#c8901a'), () => poly(ctx, [7, -7, 7.5, -12, 9.5, -9, 11, -13, 12.5, -9, 14.5, -12, 14.5, -7]), 0.6);
+  }
+  if (spitter) {
+    ctx.fillStyle = '#9aff3a';
+    for (let i = 0; i < 2; i++) {
+      const ph = (p.time * 1.4 + i / 2) % 1;
+      ctx.beginPath();
+      ellipse(ctx, 15 + i, 2 + ph * 8, 0.9, 1.4);
+      ctx.fill();
+    }
+  }
+}
+
+/** Heroína Rainha Górgona: naga dourada com coroa e cabelo de serpentes. */
+export function drawGorgonQueen(ctx: Ctx, p: Pose): void {
+  const scales = skin(p, 'scales', '#3a9a6a');
+  const scalesDark = skin(p, 'scalesDark', '#14402a');
+  const armor = skin(p, 'armor', GOLD);
+  nagaTail(ctx, p.time, scales, scalesDark);
+  shape(ctx, vertical(ctx, -11, 2, scales, scalesDark), () => ctx.roundRect(-5, -11, 10, 13, 3));
+  shape(ctx, armor, () => poly(ctx, [-5, -10, 5, -10, 3, -5, -3, -5]), 0.7);
+  // lança-serpente
+  ctx.save();
+  ctx.translate(8, 0);
+  ctx.rotate(-0.2 - p.attack * 0.7);
+  line(ctx, armor, 1.4, () => {
+    ctx.moveTo(0, 12);
+    ctx.lineTo(0, -16);
+  });
+  shape(ctx, scales, () => poly(ctx, [-2, -16, 0, -22, 2, -16]), 0.6);
+  ctx.restore();
+  const hy = -16;
+  snakeHair(ctx, hy, p.time, scales, 7);
+  shape(ctx, radial(ctx, 1, hy, 6.5, '#e0f0d8', '#98b890'), () => circle(ctx, 1, hy, 6.5));
+  ctx.save();
+  ctx.shadowColor = armor;
+  ctx.shadowBlur = 6 + p.attack * 10;
+  glowingEye(ctx, 0, hy, 1.4, armor);
+  glowingEye(ctx, 4, hy, 1.4, armor);
+  ctx.restore();
+  shape(ctx, vertical(ctx, hy - 13, hy - 6, '#fff0a0', '#c8901a'), () =>
+    poly(ctx, [-4.5, hy - 6, -5, hy - 11, -2, hy - 8, 1, hy - 13, 4, hy - 8, 7, hy - 11, 6.5, hy - 6]),
+  );
+}

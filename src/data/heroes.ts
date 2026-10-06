@@ -1,7 +1,7 @@
 // Heróis jogáveis: um por raça. O Cavaleiro (Humano) é o inicial; os outros custam Essência.
 // Valores PROPOSTA: calibrar em playtest.
 
-export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus' | 'deathLord';
+export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus' | 'deathLord' | 'gorgonQueen';
 
 export type HeroAttack = {
   damage: number;
@@ -203,6 +203,27 @@ export const HEROES: Record<HeroId, HeroDef> = {
     raceBonus: { kind: 'attackSpeed', value: 0.12 },
     color: '#7affb0',
     maxHp: 110,
+    cost: 260,
+  },
+  gorgonQueen: {
+    id: 'gorgonQueen',
+    name: 'Rainha Górgona',
+    race: 'Górgona',
+    description: 'Ataca de média distância com a lança-serpente. O Olhar Fatal petrifica tudo num leque à frente.',
+    speed: 115,
+    attack: { damage: 9, range: 85, cooldown: 0.55, pattern: { kind: 'single' }, healPerHit: 0 },
+    pulse: {
+      name: 'Olhar Fatal',
+      damage: 20,
+      radius: 0,
+      cooldown: 13,
+      healPerEnemy: 0,
+      shape: { kind: 'cone', length: 140, halfAngle: 0.5 },
+      stun: { duration: 2.2, look: 'stone' },
+    },
+    raceBonus: { kind: 'poisonDuration', value: 1 },
+    color: '#3a9a6a',
+    maxHp: 100,
     cost: 260,
   },
 };

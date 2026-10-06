@@ -25,7 +25,10 @@ export type CreatureId =
   | 'magmaGolem'
   | 'skeletonWarrior'
   | 'reaper'
-  | 'drainer';
+  | 'drainer'
+  | 'serpentArcher'
+  | 'medusa'
+  | 'basilisk';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -729,6 +732,69 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ascended: [
       { name: 'Sanguessuga', description: 'Enfraquecimento mais forte e longo.', ability: { kind: 'none' }, effects: [{ kind: 'weaken', slow: 0.4, damage: 0.5, duration: 3.5 }], color: '#ff3a5a', icon: '♦' },
       { name: 'Corruptor', description: 'Também corrói a armadura.', ability: { kind: 'none' }, effects: [{ kind: 'weaken', slow: 0.25, damage: 0.3, duration: 3 }, { kind: 'corrode', armor: 3, duration: 3 }], stats: { damage: 1.3 }, color: '#9aff3a', icon: '☣' },
+    ],
+  },
+  serpentArcher: {
+    id: 'serpentArcher',
+    name: 'Arqueira',
+    race: 'Górgona',
+    role: 'Veneno à distância',
+    description: 'Flechas envenenadas: o veneno ignora armadura e continua ferindo.',
+    lore: 'Molha cada flecha na própria saliva. Não erra; só espera.',
+    icon: '🐍',
+    baseCost: 25,
+    damage: 6,
+    range: 115,
+    cooldown: 0.8,
+    color: '#5ac87a',
+    ability: { kind: 'none' },
+    effects: [{ kind: 'poison', dps: 6, duration: 3 }],
+    unlock: { kind: 'essence', cost: 80 },
+    ascended: [
+      { name: 'Víbora', description: 'Veneno muito mais forte.', ability: { kind: 'none' }, effects: [{ kind: 'poison', dps: 11, duration: 3.5 }], color: '#b86aff', icon: '☣' },
+      { name: 'Naja', description: 'Cospe veneno em leque.', ability: { kind: 'screech', halfAngle: 0.5, push: 0 }, effects: [{ kind: 'poison', dps: 6, duration: 3 }], color: '#f0c35a', icon: '♒' },
+    ],
+  },
+  medusa: {
+    id: 'medusa',
+    name: 'Medusa',
+    race: 'Górgona',
+    role: 'Controle (petrificar)',
+    description: 'O olhar dela pode transformar o alvo em pedra por alguns segundos. Chefes resistem.',
+    lore: 'Nunca olhou ninguém nos olhos duas vezes.',
+    icon: '👁',
+    baseCost: 35,
+    damage: 7,
+    range: 100,
+    cooldown: 1.1,
+    color: '#c8ff6a',
+    ability: { kind: 'none' },
+    effects: [{ kind: 'stun', chance: 0.2, duration: 1.8, look: 'stone' }],
+    unlock: { kind: 'essence', cost: 100 },
+    ascended: [
+      { name: 'Olhar Pétreo', description: 'Petrifica mais vezes e por mais tempo.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 2.4, look: 'stone' }], color: '#ffd25a', icon: '◉' },
+      { name: 'Górgona Ancestral', description: 'O alvo também fica vulnerável: +50% de dano recebido por 2 s.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.25, duration: 2, look: 'stone' }, { kind: 'vulnerable', amount: 0.5, duration: 2 }], color: '#ff3a3a', icon: '♛' },
+    ],
+  },
+  basilisk: {
+    id: 'basilisk',
+    name: 'Basilisco',
+    race: 'Górgona',
+    role: 'Anti-armadura (corrosão)',
+    description: 'Cospe ácido que corrói a armadura do alvo: todo o exército passa a feri-lo mais.',
+    lore: 'O hálito dele derrete ferro. O beijo, felizmente, ninguém provou.',
+    icon: '🦎',
+    baseCost: 25,
+    damage: 7,
+    range: 90,
+    cooldown: 0.9,
+    color: '#9aff3a',
+    ability: { kind: 'none' },
+    effects: [{ kind: 'corrode', armor: 3, duration: 3 }],
+    unlock: { kind: 'essence', cost: 80 },
+    ascended: [
+      { name: 'Basilisco Rei', description: 'Corrói em área e mais forte.', ability: { kind: 'splash', radius: 35, damageRatio: 0.6 }, effects: [{ kind: 'corrode', armor: 4, duration: 3.5 }], color: '#ffd25a', icon: '♛' },
+      { name: 'Cuspidor', description: 'O ácido vira poça no chão.', ability: { kind: 'pool', radius: 28, duration: 3, dps: 12 }, effects: [{ kind: 'corrode', armor: 3, duration: 3 }], color: '#9aff3a', icon: '♨' },
     ],
   },
 };
