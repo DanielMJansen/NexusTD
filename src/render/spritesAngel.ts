@@ -208,7 +208,7 @@ export function drawArchangel(ctx: Ctx, p: Pose): void {
   // espada de luz
   ctx.save();
   ctx.translate(7, -3);
-  ctx.rotate(-1 + p.attack * 1.8);
+  ctx.rotate(0.5 + p.attack * 1.2);
   line(ctx, armorDark, 1.6, () => {
     ctx.moveTo(0, 3);
     ctx.lineTo(0, -1);

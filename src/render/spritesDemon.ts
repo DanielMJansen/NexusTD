@@ -75,7 +75,7 @@ export function drawImp(ctx: Ctx, p: Pose): void {
   // tridente
   ctx.save();
   ctx.translate(6, 0);
-  ctx.rotate(-0.4 + p.attack * 0.9);
+  ctx.rotate(0.35 + p.attack * 0.7);
   line(ctx, '#3a2a2a', 1.2, () => {
     ctx.moveTo(0, 8);
     ctx.lineTo(0, -10);
@@ -232,7 +232,7 @@ export function drawArchdemon(ctx: Ctx, p: Pose): void {
   // espada flamejante
   ctx.save();
   ctx.translate(7, -3);
-  ctx.rotate(-1 + p.attack * 1.8);
+  ctx.rotate(0.5 + p.attack * 1.2);
   line(ctx, '#2a1a1a', 1.6, () => {
     ctx.moveTo(0, 3);
     ctx.lineTo(0, -1);

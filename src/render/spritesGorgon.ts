@@ -202,7 +202,7 @@ export function drawGorgonQueen(ctx: Ctx, p: Pose): void {
   // lança-serpente
   ctx.save();
   ctx.translate(8, 0);
-  ctx.rotate(-0.2 - p.attack * 0.7);
+  ctx.rotate(0.35 + p.attack * 0.6);
   line(ctx, armor, 1.4, () => {
     ctx.moveTo(0, 12);
     ctx.lineTo(0, -16);

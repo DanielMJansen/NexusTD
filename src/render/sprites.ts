@@ -548,7 +548,7 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
     // martelo de guerra erguido: desce no ataque
     ctx.save();
     ctx.translate(-4, 2);
-    ctx.rotate(-0.4 + p.attack * 1.3);
+    ctx.rotate(0.3 + p.attack * 1.1);
     line(ctx, '#e8e0d0', 2, () => {
       ctx.moveTo(0, 6);
       ctx.lineTo(0, -18);

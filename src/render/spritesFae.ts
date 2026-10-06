@@ -90,7 +90,7 @@ export function drawEnchantress(ctx: Ctx, p: Pose): void {
     shape(ctx, vertical(ctx, -9, 0, '#f0f4ff', '#8a96b8'), () => ctx.roundRect(-4, -9, 8, 8, 2), 0.8);
     ctx.save();
     ctx.translate(7, -2);
-    ctx.rotate(-0.9 + p.attack * 0.8);
+    ctx.rotate(0.9 + p.attack * 0.5);
     line(ctx, GOLD, 1.4, () => {
       ctx.moveTo(0, 6);
       ctx.lineTo(0, -16);
@@ -103,7 +103,7 @@ export function drawEnchantress(ctx: Ctx, p: Pose): void {
   // varinha com flor que brilha ao lançar
   ctx.save();
   ctx.translate(7, -3);
-  ctx.rotate(-0.5 - p.attack * 0.6);
+  ctx.rotate(0.45 + p.attack * 0.6);
   line(ctx, '#6ad87a', 1.2, () => {
     ctx.moveTo(0, 5);
     ctx.lineTo(0, -9);
@@ -259,7 +259,7 @@ export function drawFaeQueen(ctx: Ctx, p: Pose): void {
   // cetro de cristal
   ctx.save();
   ctx.translate(8, 0);
-  ctx.rotate(-0.2 - p.attack * 0.6);
+  ctx.rotate(0.2 + p.attack * 0.6);
   line(ctx, GOLD, 1.4, () => {
     ctx.moveTo(0, 12);
     ctx.lineTo(0, -14);

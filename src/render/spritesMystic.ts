@@ -473,7 +473,7 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
   // varinha com orbe verde
   ctx.save();
   ctx.translate(6, -2);
-  ctx.rotate(-0.6 - cast * 0.8);
+  ctx.rotate(0.45 + cast * 0.6);
   line(ctx, '#6a4a2a', 1.6, () => {
     ctx.moveTo(0, 0);
     ctx.lineTo(0, -12);
@@ -643,7 +643,7 @@ export function drawWitch(ctx: Ctx, p: Pose): void {
   // cajado com orbe
   ctx.save();
   ctx.translate(10, 2 + bob);
-  ctx.rotate(-0.25 - p.attack * 0.5);
+  ctx.rotate(0.2 + p.attack * 0.6);
   line(ctx, '#5a3a1a', 1.8, () => {
     ctx.moveTo(0, 12);
     ctx.lineTo(0, -16);

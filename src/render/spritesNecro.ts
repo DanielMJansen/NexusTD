@@ -64,7 +64,7 @@ export function drawSkeletonWarrior(ctx: Ctx, p: Pose, ally = false): void {
   // espada (golpe de cima para baixo)
   ctx.save();
   ctx.translate(5, -4);
-  ctx.rotate(-1.2 + p.attack * 2);
+  ctx.rotate(0.5 + p.attack * 1.2);
   line(ctx, knight ? '#9affd0' : '#d0d8e4', 1.6, () => {
     ctx.moveTo(0, 0);
     ctx.lineTo(0, -15);
@@ -106,7 +106,7 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
   // foice (corta de cima no ataque)
   ctx.save();
   ctx.translate(6, -2);
-  ctx.rotate(-0.4 + p.attack * 1.3);
+  ctx.rotate(0.1 + p.attack * 1);
   line(ctx, '#3a2a1a', 1.6, () => {
     ctx.moveTo(0, 12);
     ctx.lineTo(0, -16);
@@ -118,8 +118,8 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
   }
   shape(ctx, vertical(ctx, -18, -8, '#e8ecf4', '#8a92a8'), () => {
     ctx.moveTo(0, -16);
-    ctx.quadraticCurveTo(-12 * big, -20 * big, -16 * big, -9 * big);
-    ctx.quadraticCurveTo(-9 * big, -14 * big, 0, -12);
+    ctx.quadraticCurveTo(12 * big, -20 * big, 16 * big, -9 * big);
+    ctx.quadraticCurveTo(9 * big, -14 * big, 0, -12);
     ctx.closePath();
   });
   ctx.restore();
@@ -230,7 +230,7 @@ export function drawDeathLord(ctx: Ctx, p: Pose): void {
   // foice longa
   ctx.save();
   ctx.translate(8, 0);
-  ctx.rotate(-0.25 + p.attack * 1.2);
+  ctx.rotate(0.15 + p.attack * 0.9);
   line(ctx, '#2a1e14', 1.8, () => {
     ctx.moveTo(0, 13);
     ctx.lineTo(0, -19);
@@ -239,8 +239,8 @@ export function drawDeathLord(ctx: Ctx, p: Pose): void {
   ctx.shadowBlur = 8;
   shape(ctx, vertical(ctx, -22, -10, '#e8fff4', '#6aa890'), () => {
     ctx.moveTo(0, -19);
-    ctx.quadraticCurveTo(-13, -24, -17, -11);
-    ctx.quadraticCurveTo(-9, -17, 0, -15);
+    ctx.quadraticCurveTo(13, -24, 17, -11);
+    ctx.quadraticCurveTo(9, -17, 0, -15);
     ctx.closePath();
   });
   ctx.restore();

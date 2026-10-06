@@ -36,7 +36,7 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
   // cajado (ou maça flamejante)
   ctx.save();
   ctx.translate(8, 2);
-  ctx.rotate(-0.15 - p.attack * 0.6);
+  ctx.rotate(0.2 + p.attack * 0.6);
   line(ctx, inq ? '#2a1a14' : '#c8a060', 1.8, () => {
     ctx.moveTo(0, 12);
     ctx.lineTo(0, -16);
@@ -220,7 +220,7 @@ export function drawHerbalist(ctx: Ctx, p: Pose): void {
   // cajado de galho com broto
   ctx.save();
   ctx.translate(7, 0);
-  ctx.rotate(-0.2 - p.attack * 0.6);
+  ctx.rotate(0.25 + p.attack * 0.6);
   line(ctx, '#6a4a2a', 1.8, () => {
     ctx.moveTo(0, 12);
     ctx.quadraticCurveTo(2, -4, -1, -15);
