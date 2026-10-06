@@ -37,12 +37,13 @@ export function isOverlayVisible(): boolean {
   return overlay.classList.contains('visible');
 }
 
-/** Redesenha os retratos (`data-sprite`, e opcionais `data-level`, `data-skin`, `data-silhouette`). */
+/** Redesenha os retratos (`data-sprite`, e opcionais `data-level`, `data-branch`, `data-skin`, `data-silhouette`). */
 export function animateOverlay(time: number): void {
   portraits.forEach((canvas, i) =>
     drawPortrait(canvas, canvas.dataset.sprite as SpriteId, time + i * 0.7, {
       silhouette: canvas.dataset.silhouette !== undefined,
       level: Number(canvas.dataset.level ?? 1),
+      branch: Number(canvas.dataset.branch ?? 0),
       palette: findSkin(canvas.dataset.skin ?? '')?.palette,
     }),
   );

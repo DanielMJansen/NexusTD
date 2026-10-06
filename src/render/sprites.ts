@@ -3,6 +3,8 @@ import type { EnemyId } from '../data/enemies';
 import type { HeroId } from '../data/heroes';
 import {
   ascended,
+  formA,
+  formB,
   blush,
   circle,
   ellipse,
@@ -107,10 +109,10 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       drawBloodMage(ctx, p);
       break;
     case 'fireDragon':
-      drawDragon(ctx, p, FIRE_DRAGON);
+      drawDragon(ctx, p, formB(p) ? INFERNAL_WYRM : FIRE_DRAGON);
       break;
     case 'iceDragon':
-      drawDragon(ctx, p, ICE_DRAGON);
+      drawDragon(ctx, p, formB(p) ? FROZEN_DRAGON : ICE_DRAGON);
       break;
     case 'zombie':
       drawZombie(ctx, p);
@@ -336,6 +338,8 @@ function drawDraconian(ctx: Ctx, p: Required<SpritePose>): void {
 
 function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
   const breathe = Math.sin(p.time * 2.2) * 0.6;
+  // Atirador de Elite: capuz carmesim, arco longo escuro, pena e lente
+  const elite = formB(p);
   const pull = p.attack > 0.5 ? 0 : 1 - p.attack * 2; // após o tiro, a corda volta a ser puxada
 
   // aljava nas costas
@@ -347,14 +351,23 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
   ctx.restore();
 
   // manto
-  shape(ctx, vertical(ctx, -10, 14, '#3f9a5c', '#1d5530'), () =>
+  shape(ctx, vertical(ctx, -10, 14, elite ? '#a8323c' : '#3f9a5c', elite ? '#4a1018' : '#1d5530'), () =>
     poly(ctx, [-1, -9 + breathe, 8, 7, 9, 14, -9, 14, -8, 7]),
   );
   shape(ctx, '#2b2018', () => ctx.rect(-6, 3, 12, 2.2), 0.8);
 
   // capuz e rosto
   const hy = -14 + breathe;
-  shape(ctx, vertical(ctx, hy - 10, hy + 8, '#4fb06c', '#2a7040'), () => {
+  if (elite) {
+    // pena vermelha presa no capuz
+    shape(ctx, vertical(ctx, hy - 20, hy - 6, '#ff6a5a', '#a01a2a'), () => {
+      ctx.moveTo(-7, hy - 8);
+      ctx.quadraticCurveTo(-16, hy - 16, -13, hy - 22);
+      ctx.quadraticCurveTo(-8, hy - 15, -4, hy - 9);
+      ctx.closePath();
+    }, 0.9);
+  }
+  shape(ctx, vertical(ctx, hy - 10, hy + 8, elite ? '#c0444e' : '#4fb06c', elite ? '#6a1a22' : '#2a7040'), () => {
     ctx.moveTo(-8, hy + 6);
     ctx.quadraticCurveTo(-11, hy - 6, -4, hy - 9);
     ctx.lineTo(-11, hy - 14);
@@ -364,26 +377,45 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
   });
   shape(ctx, '#1a2a1e', () => ellipse(ctx, 2.5, hy + 0.5, 5.6, 5.4), 0);
   shape(ctx, radial(ctx, 3, hy + 1, 5, '#ffe2c8', '#e2b08a'), () => ellipse(ctx, 3, hy + 1.2, 4.6, 4.5), 0);
-  if (ascended(p)) shape(ctx, GOLD, () => ctx.roundRect(-6, hy - 5.5, 13, 2.2, 1), 0.8);
-  eye(ctx, 1.6, hy + 0.6, 1.6, '#3a7a3a', 0.4);
-  eye(ctx, 5, hy + 0.6, 1.6, '#3a7a3a', 0.4);
+  if (formA(p)) shape(ctx, GOLD, () => ctx.roundRect(-6, hy - 5.5, 13, 2.2, 1), 0.8);
+  eye(ctx, 1.6, hy + 0.6, 1.6, elite ? '#8a2a2a' : '#3a7a3a', 0.4);
+  eye(ctx, 5, hy + 0.6, 1.6, elite ? '#8a2a2a' : '#3a7a3a', 0.4);
+  if (elite) {
+    // lente de mira sobre o olho da frente
+    ctx.strokeStyle = '#5a3a1a';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(7.2, hy + 0.2);
+    ctx.lineTo(9, hy - 2);
+    ctx.stroke();
+    shape(ctx, '#bfe8ff66', () => circle(ctx, 5, hy + 0.6, 2.5), 0);
+    ctx.strokeStyle = GOLD;
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    circle(ctx, 5, hy + 0.6, 2.5);
+    ctx.stroke();
+  }
   blush(ctx, 0.5, hy + 3.4);
 
   // arco
   const bx = 5;
-  const by = -2;
-  const r = 12;
+  const by = elite ? -3 : -2;
+  const r = elite ? 15 : 12;
   const top = { x: bx + r * Math.cos(-1.2), y: by + r * Math.sin(-1.2) };
   const bottom = { x: bx + r * Math.cos(1.2), y: by + r * Math.sin(1.2) };
   const nock = { x: top.x - 3 - pull * 6, y: by };
-  ctx.strokeStyle = '#efe6d0';
+  ctx.strokeStyle = elite ? '#ff6a6a' : '#efe6d0';
   ctx.lineWidth = 0.8;
   ctx.beginPath();
   ctx.moveTo(top.x, top.y);
   ctx.lineTo(nock.x, nock.y);
   ctx.lineTo(bottom.x, bottom.y);
   ctx.stroke();
-  line(ctx, ascended(p) ? GOLD : '#a8703c', 2.4, () => ctx.arc(bx, by, r, -1.2, 1.2));
+  line(ctx, elite ? '#3a2218' : formA(p) ? GOLD : '#a8703c', elite ? 2.8 : 2.4, () => ctx.arc(bx, by, r, -1.2, 1.2));
+  if (elite) {
+    shape(ctx, '#c0444e', () => circle(ctx, top.x, top.y, 1.3), 0.6);
+    shape(ctx, '#c0444e', () => circle(ctx, bottom.x, bottom.y, 1.3), 0.6);
+  }
   if (pull > 0.2) {
     line(ctx, '#d8c8a8', 1.2, () => {
       ctx.moveTo(nock.x, nock.y);
@@ -399,25 +431,45 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
 function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
   const thrust = p.attack * 6;
   const sway = Math.sin(p.time * 2) * 0.5;
-  const trim = ascended(p) ? GOLD : '#8a96b0';
+  // Martelo Sagrado: armadura branca e azul, martelo brilhante e auréola azul
+  const holy = formB(p);
+  const trim = holy ? '#9fdcff' : ascended(p) ? GOLD : '#8a96b0';
 
   // pernas e corpo com armadura
   shape(ctx, '#4a5068', () => ctx.roundRect(-5, 7, 4.5, 7, 1.5));
   shape(ctx, '#4a5068', () => ctx.roundRect(0.5, 7, 4.5, 7, 1.5));
   shape(ctx, vertical(ctx, -9, 9, '#d8e0ee', '#8a96b0'), () => ctx.roundRect(-7, -9 + sway, 14, 17, [5, 5, 3, 3]));
-  shape(ctx, vertical(ctx, -6, 9, '#4a6ad0', '#2a3a8a'), () => poly(ctx, [-4, -6 + sway, 4, -6 + sway, 5, 9, -5, 9]), 1);
+  shape(ctx, vertical(ctx, -6, 9, holy ? '#ffffff' : '#4a6ad0', holy ? '#b8c8e8' : '#2a3a8a'), () => poly(ctx, [-4, -6 + sway, 4, -6 + sway, 5, 9, -5, 9]), 1);
+  if (holy) shape(ctx, '#5aa8ff', () => circle(ctx, 0, 0 + sway, 2.2), 0.6);
   shape(ctx, trim, () => ctx.rect(-7, 2, 14, 2.4), 0.8);
 
-  // lança: horizontal à frente, estoca no ataque
-  line(ctx, '#7a4a2a', 1.8, () => {
-    ctx.moveTo(-6 + thrust, -1);
-    ctx.lineTo(20 + thrust, -1);
-  });
-  shape(ctx, '#e8f0ff', () => poly(ctx, [20 + thrust, -3.2, 26 + thrust, -1, 20 + thrust, 1.2]), 1);
+  if (holy) {
+    // martelo de guerra erguido: desce no ataque
+    ctx.save();
+    ctx.translate(-4, 2);
+    ctx.rotate(-0.4 + p.attack * 1.3);
+    line(ctx, '#e8e0d0', 2, () => {
+      ctx.moveTo(0, 6);
+      ctx.lineTo(0, -18);
+    });
+    ctx.shadowColor = '#9fdcff';
+    ctx.shadowBlur = 8;
+    shape(ctx, vertical(ctx, -25, -16, '#ffffff', '#8ab8e8'), () => ctx.roundRect(-6, -25, 12, 8, 2));
+    ctx.shadowBlur = 0;
+    shape(ctx, '#5aa8ff', () => ctx.rect(-1, -24, 2, 6), 0);
+    ctx.restore();
+  } else {
+    // lança: horizontal à frente, estoca no ataque
+    line(ctx, '#7a4a2a', 1.8, () => {
+      ctx.moveTo(-6 + thrust, -1);
+      ctx.lineTo(20 + thrust, -1);
+    });
+    shape(ctx, '#e8f0ff', () => poly(ctx, [20 + thrust, -3.2, 26 + thrust, -1, 20 + thrust, 1.2]), 1);
+  }
 
   // elmo com viseira e pluma
   const hy = -16 + sway;
-  shape(ctx, ascended(p) ? GOLD : '#e0243a', () => {
+  shape(ctx, holy ? '#5aa8ff' : ascended(p) ? GOLD : '#e0243a', () => {
     ctx.moveTo(-2, hy - 8);
     ctx.quadraticCurveTo(-10, hy - 16, -12, hy - 6);
     ctx.quadraticCurveTo(-7, hy - 10, -3, hy - 6);
@@ -432,7 +484,7 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
   // escudo grande na frente
   ctx.save();
   ctx.translate(6, 2);
-  shape(ctx, vertical(ctx, -10, 12, ascended(p) ? '#fff0b0' : '#c8d2e6', ascended(p) ? '#c8901a' : '#6a7896'), () => {
+  shape(ctx, vertical(ctx, -10, 12, holy ? '#ffffff' : ascended(p) ? '#fff0b0' : '#c8d2e6', holy ? '#7aa8e0' : ascended(p) ? '#c8901a' : '#6a7896'), () => {
     ctx.moveTo(-6, -9);
     ctx.lineTo(6, -9);
     ctx.lineTo(6, 3);
@@ -440,15 +492,21 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.quadraticCurveTo(-6, 10, -6, 3);
     ctx.closePath();
   });
-  shape(ctx, ascended(p) ? '#e0243a' : '#3a5ab0', () => poly(ctx, [-1.2, -6, 1.2, -6, 1.2, -1, 4, -1, 4, 1.4, 1.2, 1.4, 1.2, 8, -1.2, 8, -1.2, 1.4, -4, 1.4, -4, -1, -1.2, -1]), 0.6);
+  shape(ctx, holy ? '#5aa8ff' : ascended(p) ? '#e0243a' : '#3a5ab0', () => poly(ctx, [-1.2, -6, 1.2, -6, 1.2, -1, 4, -1, 4, 1.4, 1.2, 1.4, 1.2, 8, -1.2, 8, -1.2, 1.4, -4, 1.4, -4, -1, -1.2, -1]), 0.6);
   ctx.restore();
 
   if (ascended(p)) {
-    ctx.strokeStyle = '#ffe48a';
+    ctx.save();
+    ctx.strokeStyle = holy ? '#9fdcff' : '#ffe48a';
+    if (holy) {
+      ctx.shadowColor = '#9fdcff';
+      ctx.shadowBlur = 6;
+    }
     ctx.lineWidth = 1.2;
     ctx.beginPath();
     ctx.ellipse(0, hy - 12, 6, 2, 0, 0, TAU);
     ctx.stroke();
+    ctx.restore();
   }
 }
 
@@ -457,9 +515,12 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
 function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
   const float = Math.sin(p.time * 2.5) * 1.2;
   const cast = p.attack;
+  // Mago de Sangue: manto roxo, coroa de runas e orbes roxos
+  const mage = formB(p);
+  const orb = mage ? '#c03ae0' : '#ff2040';
 
   // manto longo
-  shape(ctx, vertical(ctx, -10, 14, '#8a1a30', '#3a0a18'), () => {
+  shape(ctx, vertical(ctx, -10, 14, mage ? '#6a2090' : '#8a1a30', mage ? '#240a3a' : '#3a0a18'), () => {
     ctx.moveTo(-5, -9);
     ctx.lineTo(5, -9);
     ctx.quadraticCurveTo(10, 4, 11, 14);
@@ -472,35 +533,48 @@ function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
 
   // capuz e rosto
   const hy = -15;
-  shape(ctx, vertical(ctx, hy - 11, hy + 8, '#a02040', '#5a0c20'), () => {
+  shape(ctx, vertical(ctx, hy - 11, hy + 8, mage ? '#8a3ab8' : '#a02040', mage ? '#3a0c5a' : '#5a0c20'), () => {
     ctx.moveTo(-8.5, hy + 7);
     ctx.quadraticCurveTo(-11, hy - 8, 0, hy - 10.5);
     ctx.quadraticCurveTo(11, hy - 8, 8.5, hy + 7);
     ctx.closePath();
   });
-  if (ascended(p)) {
+  if (formA(p)) {
     shape(ctx, '#1a0a14', () => poly(ctx, [-6, hy - 6, -10, hy - 16, -3, hy - 9]), 1);
     shape(ctx, '#1a0a14', () => poly(ctx, [6, hy - 6, 10, hy - 16, 3, hy - 9]), 1);
   }
+  if (mage) {
+    // coroa de runas flutuando acima do capuz
+    ctx.save();
+    ctx.shadowColor = orb;
+    ctx.shadowBlur = 6;
+    for (let i = 0; i < 5; i++) {
+      const a = -Math.PI / 2 + (i - 2) * 0.45;
+      const rx = Math.cos(a) * 9;
+      const ry = hy - 6 + Math.sin(a) * 6 + Math.sin(p.time * 3 + i) * 0.6;
+      shape(ctx, '#f0c8ff', () => poly(ctx, [rx, ry - 2, rx + 1.4, ry, rx, ry + 2, rx - 1.4, ry]), 0);
+    }
+    ctx.restore();
+  }
   shape(ctx, '#1a0812', () => ellipse(ctx, 1.5, hy + 0.5, 6, 6), 0);
   shape(ctx, radial(ctx, 2, hy + 1, 5, '#fbf6ff', '#cdbfe0'), () => ellipse(ctx, 2, hy + 1.2, 4.8, 5), 0);
-  glowingEye(ctx, 0.6, hy + 0.4, 1.3, '#ff2040');
-  glowingEye(ctx, 4.2, hy + 0.4, 1.3, '#ff2040');
+  glowingEye(ctx, 0.6, hy + 0.4, 1.3, orb);
+  glowingEye(ctx, 4.2, hy + 0.4, 1.3, orb);
   shape(ctx, '#ffffff', () => poly(ctx, [1.4, hy + 3.6, 2.2, hy + 3.6, 1.8, hy + 5]), 0.4);
   shape(ctx, '#ffffff', () => poly(ctx, [3.2, hy + 3.6, 4, hy + 3.6, 3.6, hy + 5]), 0.4);
 
   // mão e orbe de sangue (cresce ao lançar)
   shape(ctx, '#e8dff0', () => circle(ctx, 9, 0 + float, 2), 0.8);
   ctx.save();
-  ctx.shadowColor = '#ff2040';
+  ctx.shadowColor = orb;
   ctx.shadowBlur = 10;
-  shape(ctx, radial(ctx, 12, -5 + float, 4, '#ff8090', '#a00c24'), () => circle(ctx, 12, -5 + float, 3 + cast * 1.5), 0.8);
+  shape(ctx, radial(ctx, 12, -5 + float, 4, mage ? '#f0a8ff' : '#ff8090', mage ? '#6a0c8a' : '#a00c24'), () => circle(ctx, 12, -5 + float, 3 + cast * 1.5), 0.8);
   ctx.restore();
 
   if (ascended(p)) {
     for (let i = 0; i < 3; i++) {
-      const a = p.time * 2 + (i * TAU) / 3;
-      ctx.fillStyle = '#e0243a';
+      const a = p.time * (mage ? 3 : 2) + (i * TAU) / 3;
+      ctx.fillStyle = mage ? '#d070ff' : '#e0243a';
       ctx.beginPath();
       circle(ctx, Math.cos(a) * 13, -6 + Math.sin(a) * 5, 1.6);
       ctx.fill();
@@ -514,9 +588,18 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
   const lunge = p.attack * 4;
   const flutter = Math.sin(p.time * 4) * 1.5;
   ctx.translate(lunge, 0);
+  // Lâmina Carmesim: capa toda vermelha, cabelo branco e duas lâminas
+  const blade = formB(p);
 
+  if (blade) {
+    // segunda lâmina, atrás do corpo
+    line(ctx, '#ff5a6a', 1.4, () => {
+      ctx.moveTo(-4, 1);
+      ctx.lineTo(-17 - p.attack * 4, -6);
+    });
+  }
   // capa com forro vermelho e gola alta
-  shape(ctx, vertical(ctx, -10, 14, '#2c1745', '#120822'), () =>
+  shape(ctx, vertical(ctx, -10, 14, blade ? '#a0101e' : '#2c1745', blade ? '#40060c' : '#120822'), () =>
     poly(ctx, [-5, -9, -16, 13 + flutter, -7, 10, 0, 14, 7, 10, 15, 13 - flutter, 5, -9]),
   );
   shape(ctx, vertical(ctx, -8, 12, '#d0243a', '#6e0c1c'), () =>
@@ -536,16 +619,22 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
 
   // rapieira
   const thrust = p.attack * 7;
-  line(ctx, '#dfe6f4', 1.4, () => {
+  if (blade) {
+    ctx.save();
+    ctx.shadowColor = '#ff2a40';
+    ctx.shadowBlur = 6;
+  }
+  line(ctx, blade ? '#ff8a96' : '#dfe6f4', 1.4, () => {
     ctx.moveTo(6, 0);
     ctx.lineTo(19 + thrust, -5 - thrust * 0.2);
   });
+  if (blade) ctx.restore();
   shape(ctx, '#f0c35a', () => circle(ctx, 6.5, 0, 2.2), 1);
 
   // cabeça pálida, cabelo com bico, olhos vermelhos, presas
   const hy = -16;
   shape(ctx, radial(ctx, 0, hy, 8, '#fbf6ff', '#cdbfe0'), () => circle(ctx, 0, hy, 8));
-  shape(ctx, vertical(ctx, hy - 9, hy, '#2e2240', '#120a1c'), () => {
+  shape(ctx, vertical(ctx, hy - 9, hy, blade ? '#ffffff' : '#2e2240', blade ? '#b8b8d0' : '#120a1c'), () => {
     ctx.moveTo(-8.2, hy + 1);
     ctx.quadraticCurveTo(-9, hy - 9, 0, hy - 9.4);
     ctx.quadraticCurveTo(9, hy - 9, 8.2, hy);
@@ -569,7 +658,7 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
   ctx.stroke();
   shape(ctx, '#ffffff', () => poly(ctx, [2.6, hy + 4.4, 3.6, hy + 4.6, 3.1, hy + 6.2]), 0.5);
   shape(ctx, '#ffffff', () => poly(ctx, [4.6, hy + 4.4, 5.6, hy + 4.2, 5.2, hy + 5.9]), 0.5);
-  if (ascended(p)) {
+  if (formA(p)) {
     shape(ctx, GOLD, () => poly(ctx, [-4.5, hy - 8, -5, hy - 13, -2, hy - 10.5, 0.5, hy - 14, 3, hy - 10.5, 6, hy - 13, 5.5, hy - 8]), 0.9);
     shape(ctx, '#e0243a', () => circle(ctx, 0.5, hy - 10, 1), 0.5);
     shape(ctx, GOLD, () => circle(ctx, 0, -3, 2), 0.8);
@@ -588,6 +677,10 @@ interface DragonPalette {
   iris: string;
   breath: string;
   crest: boolean;
+  /** Rachaduras de lava brilhando no corpo (Wyrm Infernal). */
+  lava?: boolean;
+  /** Espinhos de gelo nas costas (Dragão Congelante). */
+  spikes?: boolean;
 }
 
 const FIRE_DRAGON: DragonPalette = {
@@ -612,6 +705,34 @@ const ICE_DRAGON: DragonPalette = {
   iris: '#2a8ad8',
   breath: '#bff0ff',
   crest: true,
+};
+
+/** Wyrm Infernal (Fogo B): escamas negras com lava. */
+const INFERNAL_WYRM: DragonPalette = {
+  body: '#4a3a40',
+  bodyDark: '#1a0c10',
+  belly: '#ff8a3a',
+  wing: '#2a1418',
+  membrane: '#a0281a',
+  horn: '#ff6a2a',
+  iris: '#ff4a1a',
+  breath: '#ff6a1a',
+  crest: false,
+  lava: true,
+};
+
+/** Dragão Congelante (Gelo B): branco-cristal com espinhos de gelo. */
+const FROZEN_DRAGON: DragonPalette = {
+  body: '#eaf8ff',
+  bodyDark: '#7aaed8',
+  belly: '#ffffff',
+  wing: '#8ac0e8',
+  membrane: '#dff4ff',
+  horn: '#bff0ff',
+  iris: '#3ab8ff',
+  breath: '#e8fbff',
+  crest: false,
+  spikes: true,
 };
 
 function dragonWing(ctx: Ctx, c: DragonPalette, flap: number, front: boolean): void {
@@ -660,6 +781,22 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     ctx.quadraticCurveTo(2.5, y + 1.2, 6.5, y);
     ctx.stroke();
   }
+  if (c.lava) {
+    // rachaduras de lava pulsando
+    ctx.save();
+    ctx.shadowColor = '#ff6a1a';
+    ctx.shadowBlur = 6;
+    ctx.strokeStyle = `rgba(255, ${140 + Math.round(Math.sin(p.time * 4) * 40)}, 40, 0.95)`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-6, -3);
+    ctx.lineTo(-3, 0);
+    ctx.lineTo(-5, 4);
+    ctx.moveTo(-2, 7);
+    ctx.lineTo(0, 10);
+    ctx.stroke();
+    ctx.restore();
+  }
   if (ascended(p)) {
     ctx.save();
     ctx.shadowColor = c.breath;
@@ -680,9 +817,20 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
       shape(ctx, '#ffffff', () => poly(ctx, [x, y, x - 5, y - 2, x - 1, y - 4]), 1);
     }
   }
+  if (c.spikes) {
+    // espinhos de cristal de gelo ao longo das costas
+    for (const [x, y, s] of [
+      [-3, -7, 1.2],
+      [-7, -2, 1],
+      [-9, 4, 0.8],
+      [-1, -12, 0.9],
+    ] as const) {
+      shape(ctx, vertical(ctx, y - 8 * s, y, '#ffffff', '#8ad8ff'), () => poly(ctx, [x - 1.6 * s, y, x - 3 * s, y - 8 * s, x + 1.6 * s, y - 1]), 0.9);
+    }
+  }
   const horn = ascended(p) ? 1.5 : 1;
-  shape(ctx, ascended(p) ? GOLD : c.horn, () => poly(ctx, [-1, hy - 6, -1 - 7 * horn, hy - 6 - 7 * horn, 2, hy - 8]), 1);
-  shape(ctx, ascended(p) ? GOLD : c.horn, () => poly(ctx, [3, hy - 7, 3 - 4 * horn, hy - 7 - 8 * horn, 6, hy - 8]), 1);
+  shape(ctx, formA(p) ? GOLD : c.horn, () => poly(ctx, [-1, hy - 6, -1 - 7 * horn, hy - 6 - 7 * horn, 2, hy - 8]), 1);
+  shape(ctx, formA(p) ? GOLD : c.horn, () => poly(ctx, [3, hy - 7, 3 - 4 * horn, hy - 7 - 8 * horn, 6, hy - 8]), 1);
   shape(ctx, radial(ctx, 4, hy, 9, c.body, c.bodyDark), () => circle(ctx, 4, hy, 8.5));
   const jaw = p.attack * 3;
   shape(ctx, radial(ctx, 11, hy + 2, 6, c.body, c.bodyDark), () => ellipse(ctx, 11, hy + 2.5, 6, 4.2));

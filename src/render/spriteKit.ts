@@ -121,6 +121,10 @@ export function blush(ctx: Ctx, x: number, y: number): void {
 
 /** Forma evoluída (nível máximo). */
 export const ascended = (p: Required<SpritePose>) => p.level >= 3;
+/** Forma evoluída na vertente B (visual próprio). */
+export const formB = (p: Required<SpritePose>) => p.level >= 3 && p.branch === 1;
+/** Forma evoluída na vertente A. */
+export const formA = (p: Required<SpritePose>) => p.level >= 3 && p.branch !== 1;
 export const GOLD = '#f0c35a';
 
 /** Cor da skin com fallback para a cor padrão do desenho. */

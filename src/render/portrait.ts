@@ -5,6 +5,8 @@ import { fitSmallCanvas } from './viewport';
 export interface PortraitOptions {
   silhouette?: boolean;
   level?: number;
+  /** Vertente da forma evoluída (0 ou 1). */
+  branch?: number;
   palette?: SkinPalette;
 }
 
@@ -24,6 +26,7 @@ export function drawPortrait(canvas: HTMLCanvasElement, id: SpriteId, time: numb
   drawSprite(ctx, id, size / 2 - scale, canvas.clientHeight / 2 + 6 * scale, scale, {
     time,
     level: options.level ?? 1,
+    branch: options.branch ?? 0,
     palette: options.palette ?? {},
   });
   ctx.restore();

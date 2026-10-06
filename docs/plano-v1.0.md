@@ -104,7 +104,7 @@ Caixa fixa no canto do palco, com "Pular tutorial" sempre visível. Passos de le
 
 ### F8. Vertentes de evolução `[x]` (pedido de 06/10/2026)
 Como no Kingdom Rush / Bloons TD 6: níveis 1 e 2 lineares; no **nível 3 o jogador escolhe uma de duas formas evoluídas**, cada uma com nome, habilidade e visual próprios. Feito antes das raças novas para que elas já nasçam com vertentes.
-- **Feito:** 24 formas (tabela no GDD, seção 9), botões das duas vertentes sobre a criatura no nível 2, painel lateral explica as duas, aura e emblema na cor da vertente. Habilidades novas: crítico, atordoar, pavor (inclusive em leque) e poça dourada. A arte das formas B ainda reaproveita os acessórios da forma A (diferem pela aura e emblema); um passe de arte próprio fica para depois.
+- **Feito:** 24 formas (tabela no GDD, seção 9), botões das duas vertentes sobre a criatura no nível 2, painel lateral explica as duas, aura e emblema na cor da vertente. Habilidades novas: crítico, atordoar, pavor (inclusive em leque) e poça dourada. Cada vertente tem visual próprio (paleta e acessórios): ex. Atirador de Elite com capuz carmesim e lente, Martelo Sagrado branco e azul com martelo, Wyrm Infernal negro com lava, Dragão Congelante branco com espinhos de gelo, Arauto do Pavor violeta com chifres, Caldeirão Alquímico dourado com moedas.
 
 ### F9. Terceira classe das raças atuais `[ ]`
 | Raça | Classe nova | Ideia |

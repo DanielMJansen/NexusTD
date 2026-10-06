@@ -1,6 +1,8 @@
 // Sprites das raças Lobisomem, Fantasma e Bruxa (criaturas e heróis).
 import {
   ascended,
+  formA,
+  formB,
   circle,
   ellipse,
   eye,
@@ -51,8 +53,10 @@ function wolfHead(ctx: Ctx, hy: number, fur: string, furDark: string, eyeColor: 
 export function drawHunter(ctx: Ctx, p: Pose): void {
   const crouch = Math.sin(p.time * 3) * 0.6;
   const swipe = p.attack;
-  const fur = '#8a6a4a';
-  const furDark = '#5a4030';
+  // Caçador Feral: pelo ruivo, cicatrizes e olhos vermelhos
+  const feral = formB(p);
+  const fur = feral ? '#b8582a' : '#8a6a4a';
+  const furDark = feral ? '#6a2a14' : '#5a4030';
 
   // cauda e pernas
   shape(ctx, furDark, () => {
@@ -80,8 +84,20 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
   });
   for (const dy of [-1.5, 0.5, 2.5]) shape(ctx, '#f4ecd8', () => poly(ctx, [10, dy, 14, dy + 0.6, 10, dy + 1.2]), 0.5);
   ctx.restore();
-  wolfHead(ctx, -15 + crouch, fur, furDark, ascended(p) ? '#9fdcff' : '#ffd23a', 0, swipe);
-  if (ascended(p)) {
+  wolfHead(ctx, -15 + crouch, fur, furDark, feral ? '#ff2a2a' : ascended(p) ? '#9fdcff' : '#ffd23a', 0, swipe);
+  if (feral) {
+    // cicatrizes de garra no peito e pelos eriçados nas costas
+    ctx.strokeStyle = '#3a0a0a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (const dx of [0, 2, 4]) {
+      ctx.moveTo(-2 + dx, -6 + crouch);
+      ctx.lineTo(1 + dx, 0 + crouch);
+    }
+    ctx.stroke();
+    for (let i = 0; i < 4; i++) shape(ctx, furDark, () => poly(ctx, [-8 + i * 2.5, -8 + crouch, -6.5 + i * 2.5, -14 + crouch - (i % 2) * 2, -5 + i * 2.5, -8 + crouch]), 0.8);
+  }
+  if (formA(p)) {
     // marca da lua na testa
     ctx.save();
     ctx.shadowColor = '#9fdcff';
@@ -98,8 +114,10 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
 export function drawAlpha(ctx: Ctx, p: Pose): void {
   const howl = Math.max(0, Math.sin(p.time * 0.8) - 0.85) * 6;
   const bite = p.attack;
-  const fur = '#5a4a3a';
-  const furDark = '#2e241c';
+  // Fera Devastadora: pelo quase negro, juba cinza-escura e coleira de espinhos
+  const beast = formB(p);
+  const fur = beast ? '#3a3238' : '#5a4a3a';
+  const furDark = beast ? '#141014' : '#2e241c';
 
   shape(ctx, furDark, () => {
     ctx.moveTo(-7, 4);
@@ -111,7 +129,7 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
   shape(ctx, furDark, () => ctx.roundRect(2, 6, 5, 8, 2));
   // corpo largo e juba
   shape(ctx, radial(ctx, 0, 0, 13, fur, furDark), () => ellipse(ctx, 0, 0, 10, 11));
-  shape(ctx, '#9a8a7a', () => {
+  shape(ctx, beast ? '#5a5260' : '#9a8a7a', () => {
     for (let i = 0; i < 7; i++) {
       const a = -2.6 + i * 0.45;
       const x = Math.cos(a) * 9;
@@ -125,11 +143,16 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
     ctx.closePath();
   });
   // cicatriz e colar de ossos (forma evoluída)
-  if (ascended(p)) {
+  if (formA(p)) {
     for (let i = 0; i < 5; i++) shape(ctx, '#f4ecd8', () => poly(ctx, [-6 + i * 3, -1, -4.6 + i * 3, -1, -5.3 + i * 3, 3]), 0.6);
   }
-  wolfHead(ctx, -16, fur, furDark, '#ff9a3a', howl, bite);
-  if (ascended(p)) {
+  if (beast) {
+    // coleira de couro com espinhos de ferro
+    shape(ctx, '#4a2a1a', () => ctx.roundRect(-8, -3, 16, 3, 1.2), 0.8);
+    for (let i = 0; i < 5; i++) shape(ctx, '#c8ccd8', () => poly(ctx, [-6.5 + i * 3.2, -3, -5 + i * 3.2, -7, -3.5 + i * 3.2, -3]), 0.6);
+  }
+  wolfHead(ctx, -16, fur, furDark, beast ? '#ff3a1a' : '#ff9a3a', howl, bite);
+  if (formA(p)) {
     ctx.strokeStyle = '#d0302a';
     ctx.lineWidth = 1.2;
     ctx.beginPath();
@@ -195,9 +218,23 @@ export function drawHaunt(ctx: Ctx, p: Pose): void {
   const float = Math.sin(p.time * 2.5) * 2 - 4;
   ctx.translate(0, float);
   ctx.globalAlpha *= 0.92;
-  ghostBody(ctx, p.time, -24, '#e8fffa', '#8ce8d840');
+  // Aparição Gélida: lençol azul-gelo, estilhaços de gelo girando
+  const frost = formB(p);
+  ghostBody(ctx, p.time, -24, frost ? '#e0f0ff' : '#e8fffa', frost ? '#5a9aff60' : '#8ce8d840');
+  if (frost) {
+    ctx.save();
+    ctx.shadowColor = '#9fdcff';
+    ctx.shadowBlur = 6;
+    for (let i = 0; i < 4; i++) {
+      const a = p.time * 1.8 + (i * TAU) / 4;
+      const sx = Math.cos(a) * 13;
+      const sy = -10 + Math.sin(a) * 6;
+      shape(ctx, '#e8fbff', () => poly(ctx, [sx, sy - 3, sx + 1.4, sy, sx, sy + 3, sx - 1.4, sy]), 0.5);
+    }
+    ctx.restore();
+  }
   // braços fantasmagóricos
-  shape(ctx, '#d0f8f0', () => {
+  shape(ctx, frost ? '#c8e0ff' : '#d0f8f0', () => {
     ctx.moveTo(6, -6);
     ctx.quadraticCurveTo(14 + p.attack * 4, -8, 16 + p.attack * 5, -2);
     ctx.quadraticCurveTo(12, -2, 7, -1);
@@ -207,12 +244,18 @@ export function drawHaunt(ctx: Ctx, p: Pose): void {
   shape(ctx, '#0e2a26', () => ellipse(ctx, 0, -14, 2.2, 3), 0);
   shape(ctx, '#0e2a26', () => ellipse(ctx, 5.5, -14, 2.2, 3), 0);
   shape(ctx, '#0e2a26', () => ellipse(ctx, 3, -7, 2, 2.6 + p.attack * 1.5), 0);
-  ctx.fillStyle = '#8ce8d8';
+  ctx.fillStyle = frost ? '#bfe8ff' : '#8ce8d8';
   ctx.beginPath();
   circle(ctx, 0.6, -14.6, 0.8);
   circle(ctx, 6.1, -14.6, 0.8);
   ctx.fill();
-  if (ascended(p)) {
+  if (frost) {
+    // coroa de gelo
+    for (const [x, h] of [[-3, 5], [1, 7], [5, 5]] as const) {
+      shape(ctx, vertical(ctx, -22 - h, -21, '#ffffff', '#8ad0ff'), () => poly(ctx, [x - 1.5, -21, x, -21 - h, x + 1.5, -21]), 0.7);
+    }
+  }
+  if (formA(p)) {
     // chamas espectrais na cabeça
     ctx.save();
     ctx.shadowColor = '#5ae8c8';
@@ -229,8 +272,10 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
   const float = Math.sin(p.time * 2) * 2 - 4;
   const scream = p.attack;
   ctx.translate(0, float);
+  const dread = formB(p);
+  const eyes = dread ? '#ff2a4a' : '#6a9aff';
   // cabelo longo esvoaçando para trás
-  shape(ctx, vertical(ctx, -24, 10, '#f0f4ff', '#9ab0e080'), () => {
+  shape(ctx, vertical(ctx, -24, 10, dread ? '#3a2050' : '#f0f4ff', dread ? '#1a0a2a80' : '#9ab0e080'), () => {
     ctx.moveTo(-2, -24);
     ctx.quadraticCurveTo(-14, -22, -18, -6 + Math.sin(p.time * 4) * 2);
     ctx.quadraticCurveTo(-12, -8, -16, 6 + Math.sin(p.time * 4 + 1) * 2);
@@ -239,8 +284,8 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
   });
   // vestido de névoa
   const g = ctx.createLinearGradient(0, -10, 0, 14);
-  g.addColorStop(0, '#c8d8ff');
-  g.addColorStop(1, '#8aa0e000');
+  g.addColorStop(0, dread ? '#5a2a8a' : '#c8d8ff');
+  g.addColorStop(1, dread ? '#2a0a4a00' : '#8aa0e000');
   shape(ctx, g, () => {
     ctx.moveTo(-6, -9);
     ctx.lineTo(6, -9);
@@ -251,22 +296,36 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
     ctx.closePath();
   });
   // braços abertos
-  line(ctx, '#d8e4ff', 2.2, () => {
+  line(ctx, dread ? '#8a6ab0' : '#d8e4ff', 2.2, () => {
     ctx.moveTo(4, -6);
     ctx.lineTo(13 + scream * 3, -11 - scream * 2);
   });
   // rosto e boca do grito
-  shape(ctx, radial(ctx, 1, -15, 7, '#ffffff', '#b8c8f0'), () => ellipse(ctx, 1, -15, 6.5, 7.5));
-  shape(ctx, '#f0f4ff', () => {
+  shape(ctx, radial(ctx, 1, -15, 7, dread ? '#e8dcf0' : '#ffffff', dread ? '#9a88b8' : '#b8c8f0'), () => ellipse(ctx, 1, -15, 6.5, 7.5));
+  shape(ctx, dread ? '#3a2050' : '#f0f4ff', () => {
     ctx.moveTo(-6, -15);
     ctx.quadraticCurveTo(-6, -24, 2, -23);
     ctx.quadraticCurveTo(8, -23, 7, -17);
     ctx.quadraticCurveTo(2, -21, -6, -15);
   }, 0.8);
-  glowingEye(ctx, 0, -15.5, 1.2, '#6a9aff');
-  glowingEye(ctx, 4, -15.5, 1.2, '#6a9aff');
+  glowingEye(ctx, 0, -15.5, 1.2, eyes);
+  glowingEye(ctx, 4, -15.5, 1.2, eyes);
+  if (dread) {
+    // chifres retorcidos e correntes de sombra
+    shape(ctx, '#1a0a2a', () => poly(ctx, [-3, -21, -8, -29, -5, -22]), 0.8);
+    shape(ctx, '#1a0a2a', () => poly(ctx, [5, -21.5, 9, -30, 7, -21]), 0.8);
+    ctx.fillStyle = '#c86aff';
+    for (let i = 0; i < 3; i++) {
+      const ph = (p.time * 0.8 + i / 3) % 1;
+      ctx.globalAlpha = 1 - ph;
+      ctx.beginPath();
+      circle(ctx, -6 + i * 6, 12 - ph * 14, 1.2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
   shape(ctx, '#1a1438', () => ellipse(ctx, 2.5, -10.5, 1.8, 1.4 + scream * 2.5), 0);
-  if (ascended(p)) {
+  if (formA(p)) {
     shape(ctx, '#e0e8f8', () => poly(ctx, [-4, -21.5, -3, -26, -0.5, -23, 1.5, -27.5, 3.5, -23, 6, -26, 6.5, -21.5]), 0.8);
     shape(ctx, '#6a9aff', () => circle(ctx, 1.5, -23.8, 1), 0.5);
   }
@@ -342,8 +401,11 @@ function witchHat(ctx: Ctx, hy: number, color: string, band: string, droop: numb
 export function drawSorceress(ctx: Ctx, p: Pose): void {
   const sway = Math.sin(p.time * 2.4) * 1.2;
   const cast = p.attack;
+  // Feiticeira do Caos: vestido verde-escuro, orbe e runas roxas
+  const chaos = formB(p);
+  const magic = chaos ? '#c86aff' : '#7ad85a';
   // vestido roxo
-  shape(ctx, vertical(ctx, -9, 14, '#6a3aa0', '#2e1450'), () =>
+  shape(ctx, vertical(ctx, -9, 14, chaos ? '#1e5a3a' : '#6a3aa0', chaos ? '#0a2416' : '#2e1450'), () =>
     poly(ctx, [-5, -9, 5, -9, 10, 14, 4, 12, 0, 14, -4, 12, -10, 14]),
   );
   shape(ctx, '#2a1a10', () => ctx.rect(-5.5, -1, 11, 2), 0.6);
@@ -355,9 +417,9 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
     ctx.moveTo(0, 0);
     ctx.lineTo(0, -12);
   });
-  ctx.shadowColor = '#7ad85a';
+  ctx.shadowColor = magic;
   ctx.shadowBlur = 8 + cast * 10;
-  shape(ctx, '#a8f080', () => circle(ctx, 0, -13, 2 + cast * 1.2), 0.6);
+  shape(ctx, chaos ? '#e0b0ff' : '#a8f080', () => circle(ctx, 0, -13, 2 + cast * 1.2), 0.6);
   ctx.restore();
   // rosto e cabelo
   const hy = -15;
@@ -375,8 +437,33 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
   ctx.beginPath();
   ctx.arc(3, hy + 3.4, 1.8, 0.2, Math.PI - 0.2);
   ctx.stroke();
-  witchHat(ctx, hy, '#3a1a60', '#7ad85a', sway * 0.5);
-  if (ascended(p)) {
+  witchHat(ctx, hy, chaos ? '#0e2a1a' : '#3a1a60', magic, sway * 0.5);
+  if (chaos) {
+    // runas do caos girando ao redor
+    ctx.save();
+    ctx.shadowColor = magic;
+    ctx.shadowBlur = 6;
+    ctx.strokeStyle = '#e8c8ff';
+    ctx.lineWidth = 0.9;
+    for (let i = 0; i < 3; i++) {
+      const a = p.time * 1.5 + (i * TAU) / 3;
+      const rx = Math.cos(a) * 14;
+      const ry = -6 + Math.sin(a) * 5;
+      // runa: triângulo com um olho no meio
+      ctx.beginPath();
+      ctx.moveTo(rx, ry - 2.6);
+      ctx.lineTo(rx + 2.3, ry + 1.6);
+      ctx.lineTo(rx - 2.3, ry + 1.6);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.fillStyle = '#e8c8ff';
+      ctx.beginPath();
+      circle(ctx, rx, ry + 0.2, 0.7);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+  if (formA(p)) {
     // estrelas no chapéu e livro flutuante
     ctx.fillStyle = GOLD;
     for (const [x, y] of [[-2, hy - 13], [2, hy - 17]] as const) {
@@ -392,7 +479,9 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
 
 export function drawCauldron(ctx: Ctx, p: Pose): void {
   const stir = Math.sin(p.time * 2.5);
-  if (ascended(p)) {
+  // Caldeirão Alquímico: bronze dourado, ouro líquido e moedas subindo
+  const alchemy = formB(p);
+  if (formA(p)) {
     // chamas roxas por baixo
     ctx.save();
     ctx.shadowColor = '#b36bff';
@@ -406,16 +495,28 @@ export function drawCauldron(ctx: Ctx, p: Pose): void {
   // pernas
   for (const x of [-8, 0, 8]) shape(ctx, '#1a1622', () => poly(ctx, [x - 1.5, 8, x + 1.5, 8, x + 1, 14, x - 1, 14]), 0.8);
   // caldeirão de ferro
-  shape(ctx, radial(ctx, -2, 0, 14, '#4a4458', '#141018'), () => {
+  shape(ctx, radial(ctx, -2, 0, 14, alchemy ? '#e0b050' : '#4a4458', alchemy ? '#6a4810' : '#141018'), () => {
     ctx.moveTo(-12, -6);
     ctx.quadraticCurveTo(-14, 10, 0, 10);
     ctx.quadraticCurveTo(14, 10, 12, -6);
     ctx.closePath();
   });
-  shape(ctx, '#2a2632', () => ellipse(ctx, 0, -6, 13, 3.5), 1.2);
+  shape(ctx, alchemy ? '#8a6418' : '#2a2632', () => ellipse(ctx, 0, -6, 13, 3.5), 1.2);
+  if (alchemy) {
+    // runa alquímica gravada na frente
+    ctx.strokeStyle = '#fff0b0';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    circle(ctx, 0, 2, 3);
+    ctx.moveTo(0, -1);
+    ctx.lineTo(0, 5);
+    ctx.moveTo(-3, 2);
+    ctx.lineTo(3, 2);
+    ctx.stroke();
+  }
   // poção borbulhando
-  shape(ctx, radial(ctx, 0, -6, 11, '#c8ffd8', '#3ab878'), () => ellipse(ctx, 0, -6, 11, 2.6), 0);
-  ctx.fillStyle = '#d8ffe8';
+  shape(ctx, radial(ctx, 0, -6, 11, alchemy ? '#fff4c0' : '#c8ffd8', alchemy ? '#e0a020' : '#3ab878'), () => ellipse(ctx, 0, -6, 11, 2.6), 0);
+  ctx.fillStyle = alchemy ? '#ffe070' : '#d8ffe8';
   for (let i = 0; i < 4; i++) {
     const phase = (p.time * 1.6 + i * 0.25) % 1;
     ctx.globalAlpha = 1 - phase;
@@ -424,9 +525,18 @@ export function drawCauldron(ctx: Ctx, p: Pose): void {
     ctx.fill();
   }
   ctx.globalAlpha = 1;
+  if (alchemy) {
+    // moedas saltando da poção
+    for (let i = 0; i < 2; i++) {
+      const ph = (p.time * 0.9 + i * 0.5) % 1;
+      const cx = -4 + i * 8;
+      const cy = -8 - Math.sin(ph * Math.PI) * 9;
+      shape(ctx, GOLD, () => ellipse(ctx, cx, cy, 2 * Math.abs(Math.cos(p.time * 6 + i)) + 0.4, 2), 0.6);
+    }
+  }
   // olhos dentro da poção (personalidade)
-  glowingEye(ctx, -3, -6.2, 1.1, '#f0ff60');
-  glowingEye(ctx, 2.5, -6.2, 1.1, '#f0ff60');
+  glowingEye(ctx, -3, -6.2, 1.1, alchemy ? '#ffffff' : '#f0ff60');
+  glowingEye(ctx, 2.5, -6.2, 1.1, alchemy ? '#ffffff' : '#f0ff60');
   // concha mexendo
   ctx.save();
   ctx.translate(5 + stir * 2, -7);

@@ -61,10 +61,11 @@ function formStatsText(form: AscendedForm): string {
 }
 
 /** As duas vertentes do nível 3, em HTML (fichas, tooltips, escolha). */
-export function ascendedFormsHtml(def: CreatureDef, className = 'cc-ability evolved'): string {
+/** `portraits`: mostra o desenho de cada vertente (só em telas do overlay, onde os retratos animam). */
+export function ascendedFormsHtml(def: CreatureDef, className = 'cc-ability evolved', portraits = false): string {
   return def.ascended
     .map(
-      (form, i) => `<p class="${className}"><span class="branch-tag" style="--branch-color:${form.color}">${form.icon} ${i === 0 ? 'A' : 'B'}</span> Nível 3 — <b>${form.name}</b>: ${abilityText(form.ability)}${formStatsText(form)}</p>`,
+      (form, i) => `<p class="${className}">${portraits ? `<canvas class="branch-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}" style="--branch-color:${form.color}"></canvas>` : ''}<span class="branch-tag" style="--branch-color:${form.color}">${form.icon} ${i === 0 ? 'A' : 'B'}</span> Nível 3 — <b>${form.name}</b>: ${abilityText(form.ability)}${formStatsText(form)}</p>`,
     )
     .join('');
 }
