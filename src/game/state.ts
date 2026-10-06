@@ -1,7 +1,7 @@
 import type { NexusLook } from '../data/nexusSkins';
 import type { VariantTier } from '../data/altar';
-import { FIRST_STAGE, type StageId } from '../data/stages';
-import { ARENA, ECONOMY, HERO_PLACEMENT, NEXUS } from '../data/config';
+import { DEFAULT_MAP, FIRST_STAGE, STAGES, type StageId } from '../data/stages';
+import { ECONOMY, HERO_PLACEMENT, NEXUS } from '../data/config';
 import { HEROES, type HeroDef, type HeroId, type RaceBonus } from '../data/heroes';
 import type { CreatureDef, CreatureId } from '../data/creatures';
 import type { EnemyDef, EnemyId } from '../data/enemies';
@@ -275,7 +275,10 @@ export interface RunState {
   wave: number;
   /** Tempo de jogo em segundos (para durante a pausa). */
   time: number;
-  nexus: { hp: number; maxHp: number };
+  /** Nexus: vida e posição no mundo. */
+  nexus: { hp: number; maxHp: number; x: number; y: number };
+  /** Tamanho do mundo (pode ser maior que a tela). */
+  map: { width: number; height: number };
   gold: number;
   /** Fase da run (inimigos, chefes e cenário). */
   stage: StageId;
@@ -377,12 +380,14 @@ export function createRun(setup: RunSetup): RunState {
   const t = setup.talents;
   const maxHp = NEXUS.baseHp + t.nexusMaxHp;
   const heroDef = HEROES[setup.hero];
-  const heroStart = { x: ARENA.center.x, y: ARENA.center.y + HERO_PLACEMENT.startOffsetY };
+  const geometry = STAGES[setup.stage ?? FIRST_STAGE].map ?? DEFAULT_MAP;
+  const heroStart = { x: geometry.nexus.x, y: geometry.nexus.y + HERO_PLACEMENT.startOffsetY };
   return {
     phase: 'playing',
     wave: 0,
     time: 0,
-    nexus: { hp: maxHp, maxHp },
+    nexus: { hp: maxHp, maxHp, x: geometry.nexus.x, y: geometry.nexus.y },
+    map: { width: geometry.width, height: geometry.height },
     gold: ECONOMY.startGold + t.startGold,
     stage: setup.stage ?? FIRST_STAGE,
     sanctuary: { ...(setup.sanctuary ?? {}) },

@@ -1,4 +1,4 @@
-import { ARENA } from '../data/config';
+
 import type { HitEffect } from '../data/creatures';
 import { damageEnemy } from './combat';
 import { creatureEffects } from './creatureStats';
@@ -207,6 +207,6 @@ export function updateAlly(state: RunState, ally: Enemy, dt: number): void {
     // dano de contato contra o inimigo (mínimo razoável para inimigos fracos)
     damageEnemy(state, target, Math.max(8, ally.heroDps) * dt, undefined, { ignoreArmor: true, overTime: true });
   }
-  ally.x = Math.min(ARENA.width + 20, Math.max(-20, ally.x));
-  ally.y = Math.min(ARENA.height + 20, Math.max(-20, ally.y));
+  ally.x = Math.min(state.map.width + 20, Math.max(-20, ally.x));
+  ally.y = Math.min(state.map.height + 20, Math.max(-20, ally.y));
 }

@@ -18,6 +18,15 @@ export interface MudTerrain {
 
 export type Terrain = MudTerrain;
 
+/** Geometria do mapa: tamanho do mundo e posição do Nexus (padrão: a tela, Nexus no centro). */
+export interface StageMap {
+  width: number;
+  height: number;
+  nexus: { x: number; y: number };
+}
+
+export const DEFAULT_MAP: StageMap = { width: 640, height: 360, nexus: { x: 320, y: 180 } };
+
 /** Fase: bioma, inimigos e chefes próprios; as regras de onda (quantidade, escala, elites) são globais. */
 export interface StageDef {
   id: StageId;
@@ -40,6 +49,8 @@ export interface StageDef {
   endlessBosses: EnemyId[];
   /** Regra de mapa (opcional). */
   terrain?: Terrain;
+  /** Geometria (padrão: DEFAULT_MAP). */
+  map?: StageMap;
   /** Fase que precisa ser vencida para liberar esta (null = aberta desde o início). */
   requires: StageId | null;
 }

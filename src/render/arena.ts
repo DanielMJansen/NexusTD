@@ -321,10 +321,11 @@ export function drawNexus(
   time: number,
   hurt: number,
   look: NexusAppearance = DEFAULT_NEXUS,
+  at: { x: number; y: number } = center,
 ): void {
   const ratio = Math.max(0, hp / maxHp);
   const lowHp = ratio < 0.3;
-  const { x, y } = center;
+  const { x, y } = at;
   const float = Math.sin(time * 2) * 3;
   const top = drawNexusModel(ctx, x, y, time, look, hurt, lowHp, float);
   // barra de vida

@@ -1,5 +1,5 @@
 // Desenho das melhorias do Nexus (campo, escudo, raio) e do loot no chão.
-import { ARENA } from '../data/config';
+
 import { nexusLevel } from '../game/nexus';
 import type { LootItem, RunState } from '../game/state';
 
@@ -7,7 +7,7 @@ const TAU = Math.PI * 2;
 
 /** Por baixo de tudo: o Campo de Lentidão no chão e o anel de seleção do Nexus. */
 export function drawNexusGround(ctx: CanvasRenderingContext2D, state: RunState, selected: boolean, time: number): void {
-  const { x, y } = ARENA.center;
+  const { x, y } = state.nexus;
   const field = nexusLevel(state, 'slowField');
   if (field) {
     const g = ctx.createRadialGradient(x, y, field.radius * 0.4, x, y, field.radius);
@@ -47,7 +47,7 @@ export function drawNexusGround(ctx: CanvasRenderingContext2D, state: RunState, 
 
 /** Por cima do Nexus: bolha do escudo ativo e o selo dourado de escudo pronto. */
 export function drawNexusOverlay(ctx: CanvasRenderingContext2D, state: RunState, time: number): void {
-  const { x, y } = ARENA.center;
+  const { x, y } = state.nexus;
   const shield = state.nexusShield;
   if (shield.active > 0) {
     ctx.save();

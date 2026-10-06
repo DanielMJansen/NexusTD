@@ -1,6 +1,6 @@
 import { resolveNexus } from './nexusLook';
 import { VARIANTS } from '../data/altar';
-import { ARENA } from '../data/config';
+
 import { STAGES } from '../data/stages';
 import { WAVES } from '../data/waves';
 import { CREATURES, type CreatureId } from '../data/creatures';
@@ -41,6 +41,7 @@ export function drawFrame(
   interaction: InteractionView,
   time: number,
 ): void {
+  effects.nexusAt = state.nexus;
   drawBackground(ctx, time, STAGES[state.stage]);
 
   const shake = effects.shakeOffset();
@@ -56,9 +57,9 @@ export function drawFrame(
   // Tudo que tem "pé no chão" é desenhado de cima para baixo, para sobrepor corretamente.
   const layers: { y: number; draw: () => void }[] = [
     {
-      y: ARENA.center.y + 10,
+      y: state.nexus.y + 10,
       draw: () => {
-        drawNexus(ctx, state.nexus.hp, state.nexus.maxHp, time, effects.nexusHurt, resolveNexus(state.nexusLook, state.stage));
+        drawNexus(ctx, state.nexus.hp, state.nexus.maxHp, time, effects.nexusHurt, resolveNexus(state.nexusLook, state.stage), state.nexus);
         drawNexusOverlay(ctx, state, time);
       },
     },
@@ -107,7 +108,7 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
 
   if (enemy.charging > 0) {
     // rastro da investida
-    const angle = Math.atan2(ARENA.center.y - enemy.y, ARENA.center.x - enemy.x);
+    const angle = Math.atan2(state.nexus.y - enemy.y, state.nexus.x - enemy.x);
     ctx.strokeStyle = '#9ae8ff88';
     ctx.lineWidth = 1.4;
     ctx.beginPath();
@@ -150,7 +151,7 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
       drawSprite(c, enemy.def.id, ex, ey, scale, {
         attack: lunge,
         time: time + enemy.animationOffset,
-        facing: lunge > 0 ? (Math.cos(enemy.attackAngle) >= 0 ? 1 : -1) : enemy.x < ARENA.center.x ? 1 : -1,
+        facing: lunge > 0 ? (Math.cos(enemy.attackAngle) >= 0 ? 1 : -1) : enemy.x < state.nexus.x ? 1 : -1,
         moving: !enemy.stone,
         // Hidra: nível = cabeças vivas
         level: enemy.heads ?? 1,
@@ -564,8 +565,8 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
   const { hero } = state;
   if (hero.dead) {
     // marcador no Nexus com a contagem para renascer
-    const x = ARENA.center.x;
-    const y = ARENA.center.y + 42;
+    const x = state.nexus.x;
+    const y = state.nexus.y + 42;
     ctx.save();
     ctx.globalAlpha = 0.55 + Math.sin(time * 4) * 0.15;
     drawSprite(ctx, hero.def.id, x, y - 4, 0.8, { palette: hero.palette, time });
@@ -780,7 +781,7 @@ function drawPlacementPreview(
   ctx.globalAlpha = placement.valid ? 0.75 : 0.4;
   drawSprite(ctx, def.id, placement.at.x, placement.at.y, 1, {
     time,
-    facing: placement.at.x > ARENA.center.x ? -1 : 1,
+    facing: placement.at.x > state.nexus.x ? -1 : 1,
   });
   ctx.restore();
 }

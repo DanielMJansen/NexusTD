@@ -1,4 +1,4 @@
-import { ARENA, HERO_PLACEMENT } from '../data/config';
+import { HERO_PLACEMENT } from '../data/config';
 import type { PulseEffect } from '../data/heroes';
 import { PULSE_DAMAGE_PER_LEVEL } from '../data/heroUpgrades';
 import { damageEnemy, poisonEnemy } from './combat';
@@ -26,9 +26,9 @@ function distanceToSegment(p: Point, a: Point, b: Point): number {
   return Math.hypot(p.x - (a.x + dx * t), p.y - (a.y + dy * t));
 }
 
-const clampToArena = (p: Point): Point => {
+const clampToArena = (state: RunState, p: Point): Point => {
   const m = HERO_PLACEMENT.edgeMargin;
-  return { x: Math.min(ARENA.width - m, Math.max(m, p.x)), y: Math.min(ARENA.height - m, Math.max(m, p.y)) };
+  return { x: Math.min(state.map.width - m, Math.max(m, p.x)), y: Math.min(state.map.height - m, Math.max(m, p.y)) };
 };
 
 /** Direção da mira: o ponto mirado, senão o inimigo mais próximo, senão para onde o herói olha. */
@@ -40,9 +40,9 @@ function aimAngle(state: RunState, aim?: Point): number {
 
 /** Ponto mirado (ou à frente do herói, na direção da mira). */
 function aimPoint(state: RunState, aim?: Point, fallbackDistance = 90): Point {
-  if (aim) return clampToArena(aim);
+  if (aim) return clampToArena(state, aim);
   const angle = aimAngle(state);
-  return clampToArena({ x: state.hero.x + Math.cos(angle) * fallbackDistance, y: state.hero.y + Math.sin(angle) * fallbackDistance });
+  return clampToArena(state, { x: state.hero.x + Math.cos(angle) * fallbackDistance, y: state.hero.y + Math.sin(angle) * fallbackDistance });
 }
 
 /** Golpe do Pulso num inimigo: dano (com a força do Pulso), medo e atordoamento comuns a vários Pulsos. */
@@ -99,10 +99,10 @@ export function firePulse(state: RunState, aim?: Point): boolean {
     case 'charge': {
       // atropela e arremessa para longe do Nexus (chefes resistem ao arremesso)
       const angle = aimAngle(state, aim);
-      const end = clampToArena({ x: hero.x + Math.cos(angle) * effect.length * reach, y: hero.y + Math.sin(angle) * effect.length * reach });
+      const end = clampToArena(state, { x: hero.x + Math.cos(angle) * effect.length * reach, y: hero.y + Math.sin(angle) * effect.length * reach });
       hit = hitWhere(state, (e) => distanceToSegment(e, start, end) <= effect.width / 2 + e.def.radius * 0.5, damage, (e) => {
         if (e.def.isBoss) return;
-        const away = Math.atan2(e.y - ARENA.center.y, e.x - ARENA.center.x);
+        const away = Math.atan2(e.y - state.nexus.y, e.x - state.nexus.x);
         e.x += Math.cos(away) * effect.knockback;
         e.y += Math.sin(away) * effect.knockback;
       });
@@ -114,7 +114,7 @@ export function firePulse(state: RunState, aim?: Point): boolean {
     }
     case 'glide': {
       const angle = aimAngle(state, aim);
-      const end = clampToArena({ x: hero.x + Math.cos(angle) * effect.length * reach, y: hero.y + Math.sin(angle) * effect.length * reach });
+      const end = clampToArena(state, { x: hero.x + Math.cos(angle) * effect.length * reach, y: hero.y + Math.sin(angle) * effect.length * reach });
       state.pulseFx.glide = { from: start, to: end, elapsed: 0, duration: effect.duration, width: effect.width, id: ++state.pulseFx.count };
       break;
     }
@@ -161,7 +161,7 @@ export function firePulse(state: RunState, aim?: Point): boolean {
       // fenda em linha: atordoa e fere; fica no chão deixando lento
       const angle = aimAngle(state, aim);
       const length = effect.length * reach;
-      const end = clampToArena({ x: hero.x + Math.cos(angle) * length, y: hero.y + Math.sin(angle) * length });
+      const end = clampToArena(state, { x: hero.x + Math.cos(angle) * length, y: hero.y + Math.sin(angle) * length });
       hit = hitWhere(state, (e) => distanceToSegment(e, start, end) <= effect.width / 2 + e.def.radius * 0.5, damage);
       const steps = Math.max(1, Math.round(distance(start, end) / 18));
       for (let i = 0; i <= steps; i++) {
@@ -196,8 +196,8 @@ export function firePulse(state: RunState, aim?: Point): boolean {
         const a = random() * Math.PI * 2;
         const r = random() * effect.spread * size;
         state.pulseFx.strikes.push({
-          x: Math.min(ARENA.width, Math.max(0, center.x + Math.cos(a) * r)),
-          y: Math.min(ARENA.height, Math.max(0, center.y + Math.sin(a) * r)),
+          x: Math.min(state.map.width, Math.max(0, center.x + Math.cos(a) * r)),
+          y: Math.min(state.map.height, Math.max(0, center.y + Math.sin(a) * r)),
           delay: 0.45 + i * effect.interval,
           total: 0.45 + i * effect.interval,
           kind: 'meteor',

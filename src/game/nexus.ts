@@ -1,4 +1,4 @@
-import { ARENA } from '../data/config';
+
 import { findNexusUpgrade, NEXUS_UPGRADES, type NexusLevel, type NexusUpgradeId } from '../data/nexusUpgrades';
 import { damageEnemy } from './combat';
 import { distance, type Enemy, type RunState } from './state';
@@ -71,7 +71,7 @@ export function damageNexus(state: RunState, amount: number): void {
 /** Fator de velocidade do Campo de Lentidão para um inimigo (1 = fora do campo). */
 export function nexusSlowFactor(state: RunState, enemy: Enemy): number {
   const field = nexusLevel(state, 'slowField');
-  if (!field || distance(enemy, ARENA.center) > field.radius) return 1;
+  if (!field || distance(enemy, state.nexus) > field.radius) return 1;
   return 1 - field.slow;
 }
 
@@ -89,7 +89,7 @@ export function updateNexus(state: RunState, dt: number): void {
   let best = bolt.range;
   for (const enemy of state.enemies) {
     if (enemy.dead || enemy.allyTimer > 0) continue;
-    const d = distance(enemy, ARENA.center);
+    const d = distance(enemy, state.nexus);
     if (d < best) {
       best = d;
       target = enemy;

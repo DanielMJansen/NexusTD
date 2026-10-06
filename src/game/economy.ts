@@ -1,5 +1,5 @@
 import { random } from './random';
-import { ARENA, ECONOMY, NEXUS } from '../data/config';
+import { ECONOMY, NEXUS } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { EVOLUTION_LEVELS } from '../data/evolution';
 import { creatureName, isAscended } from './creatureStats';
@@ -17,7 +17,7 @@ export function canPlaceCreature(state: RunState, id: CreatureId, at: Point): bo
     state.unlocked.has(id) &&
     state.creatures.length < state.creatureLimit &&
     state.gold >= creatureCost(state, id) &&
-    distance(at, ARENA.center) > NEXUS.placementClearance
+    distance(at, state.nexus) > NEXUS.placementClearance
   );
 }
 
@@ -42,7 +42,7 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
     blessCrit: 0,
     protected: false,
     killStacks: 0,
-    facing: at.x > ARENA.center.x ? -1 : 1,
+    facing: at.x > state.nexus.x ? -1 : 1,
     lastAttackAt: -Infinity,
     stunTimer: 0,
     sanctuary: state.sanctuary[id] ?? 0,

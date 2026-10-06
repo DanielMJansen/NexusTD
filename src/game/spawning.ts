@@ -1,4 +1,4 @@
-import { ARENA } from '../data/config';
+
 import { ENEMIES, type EnemyId } from '../data/enemies';
 import { STAGES, type StageDef, type StageId } from '../data/stages';
 import { WAVES } from '../data/waves';
@@ -76,15 +76,16 @@ export function startWave(state: RunState): void {
 }
 
 /** Ponto logo fora da borda da tela, na direção do ângulo a partir do Nexus. */
-function spawnPoint(angle: number): Point {
+function spawnPoint(state: RunState, angle: number): Point {
   const dx = Math.cos(angle);
   const dy = Math.sin(angle);
+  const { x: nx, y: ny } = state.nexus;
   const toEdge = Math.min(
-    dx ? ARENA.center.x / Math.abs(dx) : Infinity,
-    dy ? ARENA.center.y / Math.abs(dy) : Infinity,
+    dx > 0 ? (state.map.width - nx) / dx : dx < 0 ? nx / -dx : Infinity,
+    dy > 0 ? (state.map.height - ny) / dy : dy < 0 ? ny / -dy : Infinity,
   );
   const distance = toEdge + WAVES.spawnMargin;
-  return { x: ARENA.center.x + dx * distance, y: ARENA.center.y + dy * distance };
+  return { x: nx + dx * distance, y: ny + dy * distance };
 }
 
 function eliteChance(wave: number): number {
@@ -162,7 +163,7 @@ export function spawnEnemy(state: RunState, id: EnemyId, angle?: number): void {
   const a = angle ?? random() * Math.PI * 2;
   const elite = !def.isBoss && random() < eliteChance(state.wave);
   if (def.isBoss) state.events.push({ type: 'bossSpawned', enemy: id });
-  state.enemies.push(createEnemy(state, id, spawnPoint(a), elite));
+  state.enemies.push(createEnemy(state, id, spawnPoint(state, a), elite));
   if (isLeader && def.pack && random() < def.pack.chance) {
     for (const offset of def.pack.angleOffsets) spawnEnemy(state, id, a + offset);
   }

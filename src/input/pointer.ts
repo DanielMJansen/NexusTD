@@ -103,7 +103,7 @@ export function attachPointer({ canvas, interaction, getRun, isActive }: Pointer
       return;
     }
     // clique no Nexus: abre/fecha o quadro de melhorias dele
-    if (distance(ARENA.center, point) < NEXUS_CLICK_RADIUS) {
+    if (distance(run.nexus, point) < NEXUS_CLICK_RADIUS) {
       interaction.nexusOpen = !interaction.nexusOpen;
       return;
     }

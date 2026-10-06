@@ -1,4 +1,4 @@
-import { ARENA, NEXUS } from '../data/config';
+import { NEXUS } from '../data/config';
 import type { EnemyTrait } from '../data/enemies';
 import { damageHero } from './hero';
 import { updateAlly, updateStatusTimers } from './hitEffects';
@@ -30,7 +30,8 @@ export function shieldFactor(enemy: Enemy): number {
   return 1 - (findTrait(enemy, 'shield')?.reduction ?? 0);
 }
 
-const onScreen = (e: Enemy) => e.x > 0 && e.x < ARENA.width && e.y > 0 && e.y < ARENA.height;
+/** Já entrou no mapa (fora dele, inimigos não usam habilidades). */
+const onScreen = (state: RunState, e: Enemy) => e.x > 0 && e.x < state.map.width && e.y > 0 && e.y < state.map.height;
 
 /** Atiradores andam devagar enquanto têm o herói na mira. */
 const AIMING_SPEED = 0.35;
@@ -54,7 +55,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
     switch (trait.kind) {
       case 'ranged': {
         // só mira de dentro da tela; mirando, anda devagar (nunca fica parado para sempre)
-        const inRange = !hero.dead && onScreen(enemy) && distance(enemy, hero) <= trait.range;
+        const inRange = !hero.dead && onScreen(state, enemy) && distance(enemy, hero) <= trait.range;
         if (inRange) pace = Math.min(pace, AIMING_SPEED);
         if (inRange && ready) {
           // a Hidra cospe por cabeça
@@ -73,7 +74,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
           enemy.stone = !enemy.stone;
           enemy.timers[i] = enemy.stone ? trait.rest : trait.fly;
           // pousar só dentro da tela (fora dela continua voando)
-          if (enemy.stone && !onScreen(enemy)) {
+          if (enemy.stone && !onScreen(state, enemy)) {
             enemy.stone = false;
             enemy.timers[i] = 0.3;
           }
@@ -81,8 +82,8 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         break;
       case 'leap': {
         // pula para a frente (por cima de bloqueios), se ainda estiver longe do Nexus
-        if (!ready || !onScreen(enemy) || (enemy.leapTime ?? 0) > 0) break;
-        if (distance(enemy, ARENA.center) < NEXUS.contactRadius + trait.distance * 0.6) break;
+        if (!ready || !onScreen(state, enemy) || (enemy.leapTime ?? 0) > 0) break;
+        if (distance(enemy, state.nexus) < NEXUS.contactRadius + trait.distance * 0.6) break;
         enemy.leapTime = trait.duration;
         enemy.timers[i] = trait.cooldown;
         state.events.push({ type: 'enemyLeap', x: enemy.x, y: enemy.y });
@@ -92,7 +93,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         // cospe a criatura se levou dano suficiente desde que engoliu
         const inside = state.creatures.filter((c) => (c.swallowTimer ?? 0) > 0);
         if (inside.length && enemy.hp < (enemy.swallowHp ?? enemy.hp) - enemy.maxHp * trait.breakDamage) releaseSwallowed(state, enemy);
-        if (!ready || !onScreen(enemy) || inside.length) break;
+        if (!ready || !onScreen(state, enemy) || inside.length) break;
         const prey = state.creatures
           .filter((c) => !(c.swallowTimer! > 0) && distance(c, enemy) <= trait.range)
           .sort((a, b) => distance(a, enemy) - distance(b, enemy))[0];
@@ -110,16 +111,16 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
           enemy.burrowTime! -= dt;
           if (enemy.burrowTime! <= 0) {
             // reaparece perto do Nexus, na mesma direção, já em investida
-            const angle = Math.atan2(enemy.y - ARENA.center.y, enemy.x - ARENA.center.x);
-            enemy.x = ARENA.center.x + Math.cos(angle) * trait.landAt;
-            enemy.y = ARENA.center.y + Math.sin(angle) * trait.landAt;
+            const angle = Math.atan2(enemy.y - state.nexus.y, enemy.x - state.nexus.x);
+            enemy.x = state.nexus.x + Math.cos(angle) * trait.landAt;
+            enemy.y = state.nexus.y + Math.sin(angle) * trait.landAt;
             const charge = findTrait(enemy, 'charge');
             if (charge) enemy.charging = charge.duration;
             state.events.push({ type: 'enemyBurrow', x: enemy.x, y: enemy.y, surfacing: true });
           }
           break;
         }
-        if (!ready || !onScreen(enemy) || distance(enemy, ARENA.center) < trait.landAt + 30) break;
+        if (!ready || !onScreen(state, enemy) || distance(enemy, state.nexus) < trait.landAt + 30) break;
         enemy.burrowTime = trait.hide;
         enemy.timers[i] = trait.cooldown;
         state.events.push({ type: 'enemyBurrow', x: enemy.x, y: enemy.y, surfacing: false });
@@ -138,7 +139,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         }
         break;
       case 'web': {
-        if (!ready || !onScreen(enemy)) break;
+        if (!ready || !onScreen(state, enemy)) break;
         const caught = state.creatures
           .filter((c) => distance(c, enemy) <= trait.range)
           .sort((a, b) => a.webTimer - b.webTimer || distance(a, enemy) - distance(b, enemy))
@@ -155,20 +156,20 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         break;
       }
       case 'summon':
-        if (!ready || !onScreen(enemy)) break;
+        if (!ready || !onScreen(state, enemy)) break;
         for (let k = 0; k < trait.count; k++) spawnEnemyAt(state, trait.enemy, enemy, 16);
         enemy.lastAttackAt = state.time;
         state.events.push({ type: 'enemySummoned', x: enemy.x, y: enemy.y, color: enemy.def.color });
         enemy.timers[i] = trait.cooldown;
         break;
       case 'charge':
-        if (!ready || !onScreen(enemy)) break;
+        if (!ready || !onScreen(state, enemy)) break;
         enemy.charging = trait.duration;
         enemy.timers[i] = trait.cooldown;
         state.events.push({ type: 'enemyCharge', x: enemy.x, y: enemy.y });
         break;
       case 'heal': {
-        if (!ready || !onScreen(enemy)) break;
+        if (!ready || !onScreen(state, enemy)) break;
         const hurt = state.enemies.filter(
           (e) => e !== enemy && !e.dead && !e.def.isBoss && e.hp < e.maxHp && distance(e, enemy) <= trait.radius,
         );
@@ -190,7 +191,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         break;
       }
       case 'shield':
-        if (!ready || !onScreen(enemy)) break;
+        if (!ready || !onScreen(state, enemy)) break;
         enemy.shield = trait.duration;
         enemy.timers[i] = trait.cooldown;
         state.events.push({ type: 'bossShield', x: enemy.x, y: enemy.y });
@@ -208,7 +209,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
 
 /** Inimigos usam habilidades e andam até o Nexus; ao encostar, causam dano e somem (sem recompensa). */
 export function updateEnemies(state: RunState, dt: number): void {
-  const center = ARENA.center;
+  const center = state.nexus;
   // índice fixo: invocações entram no fim da lista e só agem no próximo quadro
   const count = state.enemies.length;
   for (let n = 0; n < count; n++) {
@@ -249,8 +250,8 @@ export function updateEnemies(state: RunState, dt: number): void {
       // com medo: foge do Nexus (sem sair muito da arena)
       enemy.fearTimer -= dt;
       const flee = enemy.speed * speedFactor * 0.8 * dt;
-      enemy.x = Math.min(ARENA.width + 20, Math.max(-20, enemy.x - (dx / length) * flee));
-      enemy.y = Math.min(ARENA.height + 20, Math.max(-20, enemy.y - (dy / length) * flee));
+      enemy.x = Math.min(state.map.width + 20, Math.max(-20, enemy.x - (dx / length) * flee));
+      enemy.y = Math.min(state.map.height + 20, Math.max(-20, enemy.y - (dy / length) * flee));
       continue;
     }
     if (enemy.stunTimer > 0) {
@@ -265,7 +266,7 @@ export function updateEnemies(state: RunState, dt: number): void {
         enemy.nexusTimer = enemy.def.isBoss ? NEXUS.bossAttackInterval : NEXUS.enemyAttackInterval;
         if (enemy.hexTimer <= 0) {
           damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
-          markAttack(enemy, state.time, ARENA.center);
+          markAttack(enemy, state.time, state.nexus);
           const drain = findTrait(enemy, 'drain');
           if (drain) enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * drain.amount);
         }

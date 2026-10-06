@@ -125,6 +125,8 @@ export class Effects {
   private shots: Shot[] = [];
   private particles: Particle[] = [];
   private rings: Ring[] = [];
+  /** Posição do Nexus na run atual (efeitos do Nexus saem daqui). */
+  nexusAt: { x: number; y: number } = { ...ARENA.center };
   private waves: Wave[] = [];
   private corpses: Corpse[] = [];
   private texts: FloatingText[] = [];
@@ -245,21 +247,21 @@ export class Effects {
         this.shake = Math.max(this.shake, 8);
         break;
       case 'nexusBolt': {
-        const from = { x: ARENA.center.x, y: ARENA.center.y - 30 };
+        const from = { x: this.nexusAt.x, y: this.nexusAt.y - 30 };
         this.bolts.push({ from, to: event.to, life: 0.18, maxLife: 0.18, seed: Math.random() * 100 });
         this.burst(event.to.x, event.to.y, 6, '#ffe9a8', 60, 0.3, 1.8, true);
         break;
       }
       case 'nexusShieldUp':
-        this.ring(ARENA.center.x, ARENA.center.y - 8, 44, '#ffd25a', 0.6, 4);
-        this.text(ARENA.center.x, ARENA.center.y - 56, 'Escudo!', '#ffd25a', 12);
+        this.ring(this.nexusAt.x, this.nexusAt.y - 8, 44, '#ffd25a', 0.6, 4);
+        this.text(this.nexusAt.x, this.nexusAt.y - 56, 'Escudo!', '#ffd25a', 12);
         break;
       case 'nexusShieldBlocked':
-        this.burst(ARENA.center.x, ARENA.center.y - 8, 8, '#ffe9a8', 70, 0.35, 2, true);
+        this.burst(this.nexusAt.x, this.nexusAt.y - 8, 8, '#ffe9a8', 70, 0.35, 2, true);
         break;
       case 'nexusUpgraded':
-        this.ring(ARENA.center.x, ARENA.center.y + 6, 40, '#c8a8ff', 0.6, 3);
-        this.burst(ARENA.center.x, ARENA.center.y - 12, 16, '#e2c8ff', 70, 0.7, 2.2, true, -50);
+        this.ring(this.nexusAt.x, this.nexusAt.y + 6, 40, '#c8a8ff', 0.6, 3);
+        this.burst(this.nexusAt.x, this.nexusAt.y - 12, 16, '#e2c8ff', 70, 0.7, 2.2, true, -50);
         break;
       case 'lootCollected':
         if (event.kind === 'coin') {
@@ -468,16 +470,16 @@ export class Effects {
       case 'nexusHit':
         this.nexusHurt = 1;
         this.shake = Math.max(this.shake, Math.min(7, 2 + event.damage * 0.2));
-        this.text(ARENA.center.x, ARENA.center.y - 52, `-${event.damage}`, '#ff5a6a', 13);
-        this.burst(ARENA.center.x, ARENA.center.y - 16, 10, '#ff6a7a', 90, 0.5, 2.4, true);
+        this.text(this.nexusAt.x, this.nexusAt.y - 52, `-${event.damage}`, '#ff5a6a', 13);
+        this.burst(this.nexusAt.x, this.nexusAt.y - 16, 10, '#ff6a7a', 90, 0.5, 2.4, true);
         break;
       case 'wardBlocked':
-        this.ring(ARENA.center.x, ARENA.center.y - 10, 40, '#ffd25a', 0.5, 4);
-        this.text(ARENA.center.x, ARENA.center.y - 52, 'Égide!', '#ffd25a', 12);
+        this.ring(this.nexusAt.x, this.nexusAt.y - 10, 40, '#ffd25a', 0.5, 4);
+        this.text(this.nexusAt.x, this.nexusAt.y - 52, 'Égide!', '#ffd25a', 12);
         break;
       case 'nexusHealed':
-        this.text(ARENA.center.x + 14, ARENA.center.y - 46, `+${event.amount}`, '#5af0a0', 11);
-        this.burst(ARENA.center.x, ARENA.center.y - 16, 6, '#5af0a0', 40, 0.6, 2, true, -40);
+        this.text(this.nexusAt.x + 14, this.nexusAt.y - 46, `+${event.amount}`, '#5af0a0', 11);
+        this.burst(this.nexusAt.x, this.nexusAt.y - 16, 6, '#5af0a0', 40, 0.6, 2, true, -40);
         break;
       case 'bossSpawned':
         this.shake = Math.max(this.shake, 9);

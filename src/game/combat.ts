@@ -1,4 +1,4 @@
-import { ARENA, HERO_PLACEMENT } from '../data/config';
+import { HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureCooldown, creatureDamage, creatureRange, killHaste } from './creatureStats';
 import { applyHitEffects, isHostile, onEnemyKilled, sourceDamageMultiplier, vulnerability } from './hitEffects';
 import { terrainAttackFactor, terrainHeroFactor } from './terrain';
@@ -154,8 +154,8 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
     }
   }
   const margin = HERO_PLACEMENT.edgeMargin;
-  hero.x = Math.min(ARENA.width - margin, Math.max(margin, hero.x));
-  hero.y = Math.min(ARENA.height - margin, Math.max(margin, hero.y));
+  hero.x = Math.min(state.map.width - margin, Math.max(margin, hero.x));
+  hero.y = Math.min(state.map.height - margin, Math.max(margin, hero.y));
   const movedX = hero.x - startX;
   hero.moving = Math.hypot(movedX, hero.y - startY) > 0.01;
   if (Math.abs(movedX) > 0.01) hero.facing = movedX > 0 ? 1 : -1;
@@ -290,7 +290,7 @@ function pickTargets(state: RunState, creature: Creature, range: number, count: 
       Number(isLure(b)) - Number(isLure(a)) ||
       (strongest
         ? Number(b.def.isBoss) - Number(a.def.isBoss) || Number(b.elite) - Number(a.elite) || b.hp - a.hp
-        : distance(a, ARENA.center) - distance(b, ARENA.center)),
+        : distance(a, state.nexus) - distance(b, state.nexus)),
     )
     .slice(0, count);
 }
@@ -425,7 +425,7 @@ export function updateCreatures(state: RunState, dt: number): void {
             if (state.time < (e.screechImmuneUntil ?? 0)) continue;
             e.screechImmuneUntil = state.time + ability.immunity;
           }
-          const away = Math.atan2(e.y - ARENA.center.y, e.x - ARENA.center.x);
+          const away = Math.atan2(e.y - state.nexus.y, e.x - state.nexus.x);
           e.x += Math.cos(away) * ability.push;
           e.y += Math.sin(away) * ability.push;
           if (ability.fear) e.fearTimer = Math.max(e.fearTimer, ability.fear);

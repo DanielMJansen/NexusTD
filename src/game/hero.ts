@@ -1,4 +1,4 @@
-import { ARENA, HERO_PLACEMENT } from '../data/config';
+import { HERO_PLACEMENT } from '../data/config';
 import {
   HERO_CONTACT_RANGE,
   HERO_RESPAWN_TIME,
@@ -35,8 +35,8 @@ export function updateHeroVitals(state: RunState, dt: number): void {
     if (hero.respawnTimer <= 0) {
       hero.dead = false;
       hero.hp = heroMaxHp(state);
-      hero.x = ARENA.center.x;
-      hero.y = ARENA.center.y + HERO_PLACEMENT.startOffsetY;
+      hero.x = state.nexus.x;
+      hero.y = state.nexus.y + HERO_PLACEMENT.startOffsetY;
       hero.target = { x: hero.x, y: hero.y };
       state.events.push({ type: 'heroRespawned', x: hero.x, y: hero.y });
     }

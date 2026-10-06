@@ -1,4 +1,4 @@
-import { FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
+import { DEFAULT_MAP, FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
 // Run em andamento salva no navegador: automaticamente a cada onda vencida, ao fechar a aba
 // e no "Salvar e sair" da pausa. As referências a dados (criaturas, inimigos, herói, melhorias)
 // viram ids no arquivo e são reconstruídas ao carregar.
@@ -70,6 +70,9 @@ function deserialize(raw: Record<string, unknown>): RunState {
     ...raw,
     events: [],
     waveKills: typeof raw.waveKills === 'number' ? raw.waveKills : 0,
+    // saves antigos: Nexus no centro da tela
+    nexus: { x: DEFAULT_MAP.nexus.x, y: DEFAULT_MAP.nexus.y, ...(raw.nexus as object) },
+    map: (raw.map as RunState['map'] | undefined) ?? { width: DEFAULT_MAP.width, height: DEFAULT_MAP.height },
     sanctuary: (raw.sanctuary as RunState['sanctuary'] | undefined) ?? {},
     racePlacements: (raw.racePlacements as Record<string, number> | undefined) ?? {},
     variants: (raw.variants as RunState['variants'] | undefined) ?? {},
