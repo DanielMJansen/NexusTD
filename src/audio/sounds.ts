@@ -33,7 +33,7 @@ export const SOUNDS: Record<SoundId, SoundDef> = {
   imp: { from: 900, to: 500, duration: 0.05, wave: 'square', volume: 0.5 },
   succubus: { from: 600, to: 1000, duration: 0.15, wave: 'sine', volume: 0.6 },
   infernal: { from: 140, to: 50, duration: 0.3, wave: 'square', volume: 0.8 },
-  serpentArcher: { from: 700, to: 400, duration: 0.06, wave: 'triangle', volume: 0.7 },
+  serpentArcher: { from: 1800, to: 900, duration: 0.09, wave: 'sawtooth', volume: 0.4 },
   medusa: { from: 900, to: 300, duration: 0.25, wave: 'sine', volume: 0.6 },
   basilisk: { from: 250, to: 150, duration: 0.12, wave: 'sawtooth', volume: 0.6 },
   skeletonWarrior: { from: 500, to: 260, duration: 0.06, wave: 'square', volume: 0.6 },

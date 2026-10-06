@@ -157,6 +157,14 @@ export class App {
     addEventListener('pagehide', () => {
       if (this.mode === 'run' && this.run.phase !== 'ended') saveRun(this.run);
     });
+    // Trocou de aba, minimizou ou clicou fora da janela no meio de uma onda: pausa sozinho.
+    const pauseIfAway = () => {
+      if (this.isPlaying()) this.togglePause();
+    };
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) pauseIfAway();
+    });
+    addEventListener('blur', pauseIfAway);
   }
 
   start(): void {

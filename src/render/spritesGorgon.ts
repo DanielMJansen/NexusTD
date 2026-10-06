@@ -56,37 +56,55 @@ function snakeHair(ctx: Ctx, hy: number, t: number, color: string, count = 5): v
   }
 }
 
-/** Arqueira Serpente: naga verde com arco. A: Víbora (escamas roxas, veneno forte); B: Naja (capuz de naja). */
+/** Domadora de Serpentes: naga com flauta e uma cobra que dá o bote. A: Víbora (roxa, veneno forte); B: Naja (capuz de naja, cospe em leque). */
 export function drawSerpentArcher(ctx: Ctx, p: Pose): void {
   const viper = formA(p);
   const cobra = formB(p);
   const scale = viper ? '#8a4ad8' : cobra ? '#c8a03a' : '#4ab86a';
   const dark = viper ? '#3a1a6a' : cobra ? '#5a4010' : '#1e5a2e';
-  nagaTail(ctx, p.time, scale, dark);
-  shape(ctx, vertical(ctx, -10, 2, scale, dark), () => ctx.roundRect(-4.5, -10, 9, 12, 3));
+  nagaTail(ctx, p.time, '#5a8a5a', '#24402a');
+  shape(ctx, vertical(ctx, -10, 2, '#e8dcc0', '#a89878'), () => poly(ctx, [-5, -10, 5, -10, 6, 2, -6, 2]));
+  shape(ctx, scale, () => ctx.rect(-5.5, -4, 11, 1.6), 0.5);
   const hy = -15;
-  if (cobra) {
-    shape(ctx, vertical(ctx, hy - 8, hy + 8, '#e8c060', '#7a5a1a'), () => ellipse(ctx, 0.5, hy + 1, 9, 9), 0.9);
-  }
-  snakeHair(ctx, hy, p.time, scale, 4);
+  snakeHair(ctx, hy, p.time, '#5ab85a', 4);
   shape(ctx, radial(ctx, 1, hy, 6, '#d8f0c8', '#8ab878'), () => circle(ctx, 1, hy, 6));
-  glowingEye(ctx, 0.5, hy, 1.2, viper ? '#d86aff' : '#ffd23a');
-  glowingEye(ctx, 4, hy, 1.2, viper ? '#d86aff' : '#ffd23a');
-  // arco
-  const pull = p.attack > 0.5 ? 0 : 1 - p.attack * 2;
-  line(ctx, viper ? '#5a2a8a' : '#6a4a2a', 2, () => ctx.arc(5, -4, 10, -1.2, 1.2));
-  ctx.strokeStyle = '#e8f0d0';
-  ctx.lineWidth = 0.7;
+  glowingEye(ctx, 0.5, hy, 1.1, '#ffd23a');
+  glowingEye(ctx, 4, hy, 1.1, '#ffd23a');
+  // flauta
+  line(ctx, '#8a5a2e', 1.4, () => {
+    ctx.moveTo(4, hy + 3);
+    ctx.lineTo(11, hy + 6);
+  });
+  // a serpente companheira: enrolada à frente, ergue-se e dá o bote no ataque
+  const strike = p.attack;
+  const sway = Math.sin(p.time * 3) * 1.5;
+  const headX = 12 + strike * 8;
+  const headY = -6 - (1 - strike) * 4 + sway * (1 - strike);
+  shape(ctx, dark, () => ellipse(ctx, 10, 10, 6, 2.5), 0.8);
+  line(ctx, scale, 2.6, () => {
+    ctx.moveTo(8, 9);
+    ctx.quadraticCurveTo(14, 4, 11, -1);
+    ctx.quadraticCurveTo(9 + strike * 4, -5, headX, headY);
+  });
+  if (cobra) {
+    // capuz de naja
+    shape(ctx, vertical(ctx, headY - 5, headY + 4, '#e8c060', '#7a5a1a'), () => ellipse(ctx, headX - 1, headY, 3.6, 4.6), 0.7);
+  }
+  shape(ctx, scale, () => ellipse(ctx, headX + 1.5, headY, 3, 2.1), 0.8);
+  ctx.fillStyle = viper ? '#ff6aff' : '#ffd23a';
   ctx.beginPath();
-  ctx.moveTo(5 + 10 * Math.cos(-1.2), -4 + 10 * Math.sin(-1.2));
-  ctx.lineTo(5 - pull * 4, -4);
-  ctx.lineTo(5 + 10 * Math.cos(1.2), -4 + 10 * Math.sin(1.2));
-  ctx.stroke();
-  if (pull > 0.2) {
-    line(ctx, viper ? '#b86aff' : '#7ad85a', 1, () => {
-      ctx.moveTo(5 - pull * 4, -4);
-      ctx.lineTo(16 - pull * 4, -4);
-    });
+  circle(ctx, headX + 2, headY - 0.8, 0.6);
+  ctx.fill();
+  if (strike > 0.2) {
+    // língua bífida no bote
+    ctx.strokeStyle = '#e0243a';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(headX + 4.4, headY + 0.4);
+    ctx.lineTo(headX + 6.5, headY - 0.6);
+    ctx.moveTo(headX + 4.4, headY + 0.4);
+    ctx.lineTo(headX + 6.5, headY + 1.4);
+    ctx.stroke();
   }
 }
 

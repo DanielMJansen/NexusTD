@@ -38,6 +38,7 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Evoluir a 2ª/3ª cópia de uma criatura custa mais que a 1ª (proporcional ao custo de invocação dela).
 - [ ] Clique no Nexus, tecla N ou botão "Melhorar o Nexus": quadro com 5 melhorias, bolinhas de nível, botão verde com ouro e "Máx." no fim; a ajuda de controles some enquanto o quadro está aberto. Campo de Lentidão aparece no chão; Raio dispara faíscas douradas; Escudo mostra um losango dourado quando pronto e uma bolha quando ativo.
 - [ ] Moedas (giram) e baús (balançam) caem no chão, piscam antes de sumir e são coletados pelo herói; baú pausa e oferece 3 melhorias Raras ou melhores; loot que sobra fica no chão para a próxima onda.
+- [ ] Trocar de aba, minimizar ou clicar fora da janela no meio de uma onda abre a pausa.
 - [ ] Velocidade: botão/F cicla 1x → 2x → 4x → 0x; tecla 0 congela/descongela; em 0x aparece "Tempo parado", dá para invocar/evoluir e a pausa não abre.
 - [ ] Inimigos que chegam ao Nexus ficam colados nele dando trancos (golpes a cada ~2 s) até morrer; todos os inimigos têm pose de ataque (Nexus, herói, tiro, teia, invocação).
 - [ ] Nível do herói pode oferecer Pulso Ampliado (Pulso maior/mais longo/mais numeroso) e Eco do Pulso ("Eco!" e recarga quase imediata); entre ondas pode aparecer Sabedoria (+XP).

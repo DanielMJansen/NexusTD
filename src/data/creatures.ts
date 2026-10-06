@@ -741,12 +741,13 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ],
   },
   serpentArcher: {
+    // id antigo mantido para não quebrar saves (a classe era a Arqueira da Górgona)
     id: 'serpentArcher',
-    name: 'Arqueira',
+    name: 'Domadora',
     race: 'Górgona',
     role: 'Veneno à distância',
-    description: 'Flechas envenenadas: o veneno ignora armadura e continua ferindo.',
-    lore: 'Molha cada flecha na própria saliva. Não erra; só espera.',
+    description: 'Domadora de serpentes: atiça a cobra, que dá o bote de longe e deixa o alvo envenenado (o veneno ignora armadura).',
+    lore: 'Toca a flauta e a serpente obedece. Ninguém sabe qual das duas está no comando.',
     icon: '🐍',
     baseCost: 25,
     damage: 6,
@@ -757,8 +758,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'poison', dps: 6, duration: 3 }],
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Víbora', description: 'Veneno muito mais forte.', ability: { kind: 'none' }, effects: [{ kind: 'poison', dps: 11, duration: 3.5 }], color: '#b86aff', icon: '☣' },
-      { name: 'Naja', description: 'Cospe veneno em leque.', ability: { kind: 'screech', halfAngle: 0.5, push: 0 }, effects: [{ kind: 'poison', dps: 6, duration: 3 }], color: '#f0c35a', icon: '♒' },
+      { name: 'Víbora', description: 'A víbora tem veneno muito mais forte.', ability: { kind: 'none' }, effects: [{ kind: 'poison', dps: 11, duration: 3.5 }], color: '#b86aff', icon: '☣' },
+      { name: 'Naja', description: 'A naja cospe veneno em leque.', ability: { kind: 'screech', halfAngle: 0.5, push: 0 }, effects: [{ kind: 'poison', dps: 6, duration: 3 }], color: '#f0c35a', icon: '♒' },
     ],
   },
   medusa: {

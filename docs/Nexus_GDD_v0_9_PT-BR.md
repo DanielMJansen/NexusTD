@@ -75,7 +75,7 @@ Gacha com dinheiro real: ver seção 10.
 | Necromante | Esqueleto | Corpo a corpo barato | Dano 7 a cada 0,7 s, alcance 45; 15 ouro, 70 ✦ | Cavaleiro da Morte (+50% dano, ignora armadura) · Legião de Ossos (35% de erguer esqueleto aliado por 6 s ao abater) |
 | Necromante | Ceifador | Executor | Executa inimigos comuns abaixo de 15% de vida; 30 ouro, 90 ✦ | Ceifador Sombrio (abaixo de 25%) · Colhedor de Almas (+3 ouro por execução, +30% dano) |
 | Necromante | Drenador | Controle (enfraquecer) | Enfraquece por 3 s: 25% mais lento e −30% de dano ao Nexus; 25 ouro, 80 ✦ | Sanguessuga (40% lento, −50% dano, 3,5 s) · Corruptor (também corrói 3 de armadura) |
-| Górgona | Arqueira | Veneno à distância | Veneno 6/s por 3 s (ignora armadura), alcance 115; 25 ouro, 80 ✦ | Víbora (veneno 11/s por 3,5 s) · Naja (cuspe em leque ±0,5 rad) |
+| Górgona | Domadora | Veneno à distância | Veneno 6/s por 3 s (ignora armadura), alcance 115; 25 ouro, 80 ✦ | Víbora (veneno 11/s por 3,5 s) · Naja (cuspe em leque ±0,5 rad) |
 | Górgona | Medusa | Controle (petrificar) | 20% de petrificar por 1,8 s; 35 ouro, 100 ✦ | Olhar Pétreo (35% por 2,4 s) · Górgona Ancestral (25% por 2 s + alvo vulnerável: +50% de dano por 2 s) |
 | Górgona | Basilisco | Anti-armadura (corrosão) | Corrói 3 de armadura por 3 s; 25 ouro, 80 ✦ | Basilisco Rei (área raio 35, corrói 4) · Cuspidor (poça ácida raio 28, 12/s por 3 s) |
 | Demônio | Diabrete | DPS barato e rápido | Dano 5 a cada 0,5 s, alcance 95 (voa); 15 ouro, 80 ✦ | Diabrete Flamejante (queimadura 5/s por 2 s) · Diabrete Ladino (12% de roubar 1 ouro por golpe) |
@@ -213,6 +213,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | F10: raça Górgona (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Demônio (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Anjo (3 classes com vertentes + herói) |
+| 07/10/2026 | Arqueira da Górgona vira Domadora de Serpentes (evita dois arqueiros; mesma função e vertentes); jogo pausa sozinho ao perder o foco no meio de uma onda |
 | 07/10/2026 | Inimigos param no Nexus e golpeiam até morrer; velocidade 0x (tempo parado sem pausa, tecla 0); melhorias de Pulso no nível do herói (Pulso Ampliado, Eco do Pulso); melhoria da run Sabedoria (+XP); animação de ataque para todos os inimigos; recalibrado |
 | 07/10/2026 | Heróis do F10 com 3 skins cada: vencer com o herói libera a 2ª; alcançar a onda 30 do Sem Fim com ele libera a 3ª (12 conquistas novas) |
 | 07/10/2026 | Pulsos refeitos com personalidade (12 tipos); ataque do Nobre Vampiro cura o herói; ajuste de raças (Golem, Demônio, Necromante +; Fantasma, Bruxa, Fada −) |

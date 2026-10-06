@@ -48,7 +48,7 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 | Necromante | Esqueleto | 15 | 11 | 55 | 0,6 s | Alvo único, alcance alto. | 70 ✦ |
 | Necromante | Ceifador | 30 | 13 | 70 | 0,8 s | Executa inimigos comuns abaixo de 25% de vida. | 90 ✦ |
 | Necromante | Drenador | 25 | 8 | 100 | 1 s | Enfraquece por 3,5 s: 30% mais lento e −50% de dano ao Nexus. | 80 ✦ |
-| Górgona | Arqueira | 25 | 6 | 115 | 0,8 s | Dano contínuo: 6/s por 3 s (ignora armadura). | 80 ✦ |
+| Górgona | Domadora | 25 | 6 | 115 | 0,8 s | Dano contínuo: 6/s por 3 s (ignora armadura). | 80 ✦ |
 | Górgona | Medusa | 35 | 7 | 100 | 1,1 s | 20% de chance de petrificar por 1,8 s (chefes resistem). | 100 ✦ |
 | Górgona | Basilisco | 25 | 7 | 90 | 0,9 s | Corrói 3 de armadura por 3 s. | 80 ✦ |
 | Demônio | Diabrete | 15 | 6 | 95 | 0,5 s | Alvo único, alcance alto. | 80 ✦ |
@@ -88,7 +88,7 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 | Esqueleto | **Cavaleiro da Morte**: Ignora toda a armadura do alvo. (damage ×1,5) | **Legião de Ossos**: 35% de chance de erguer um esqueleto aliado por 6 s ao abater. |
 | Ceifador | **Ceifador Sombrio**: Executa inimigos comuns abaixo de 25% de vida. | **Colhedor de Almas**: Executa inimigos comuns abaixo de 15% de vida. Cada execução rende +3 de ouro. (damage ×1,3) |
 | Drenador | **Sanguessuga**: Enfraquece por 3,5 s: 40% mais lento e −50% de dano ao Nexus. | **Corruptor**: Enfraquece por 3 s: 25% mais lento e −30% de dano ao Nexus. Corrói 3 de armadura por 3 s. (damage ×1,3) |
-| Arqueira | **Víbora**: Dano contínuo: 11/s por 3,5 s (ignora armadura). | **Naja**: Grito em leque: atinge todos à frente e os empurra 0 para longe do Nexus (chefes resistem). Dano contínuo: 6/s por 3 s (ignora armadura). |
+| Domadora | **Víbora**: Dano contínuo: 11/s por 3,5 s (ignora armadura). | **Naja**: Grito em leque: atinge todos à frente e os empurra 0 para longe do Nexus (chefes resistem). Dano contínuo: 6/s por 3 s (ignora armadura). |
 | Medusa | **Olhar Pétreo**: 35% de chance de petrificar por 2,4 s (chefes resistem). | **Górgona Ancestral**: 25% de chance de petrificar por 2 s (chefes resistem). O alvo recebe +50% de dano por 2 s. |
 | Basilisco | **Basilisco Rei**: Área: atinge inimigos num raio de 35 ao redor do alvo com 60% do dano. Corrói 4 de armadura por 3,5 s. | **Cuspidor**: Poça: 12 de dano por segundo num raio de 28 durante 3 s. Corrói 3 de armadura por 3 s. |
 | Diabrete | **Diabrete Flamejante**: Dano contínuo: 5/s por 2 s (ignora armadura). | **Diabrete Ladino**: 12% de chance de roubar 1 de ouro a cada golpe. |
