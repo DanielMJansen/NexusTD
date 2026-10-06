@@ -1,5 +1,5 @@
 import { SHOP } from '../data/config';
-import type { RunUpgradeEffect } from '../data/upgrades';
+import { RARITIES, type RunUpgradeEffect } from '../data/upgrades';
 import { canBuyExtraSlot, canReroll, extraSlotCost, rerollCost } from '../game/shop';
 import type { Choice, RunState } from '../game/state';
 import { showOverlay } from './overlay';
@@ -12,22 +12,30 @@ export interface ChoiceHandlers {
   onBuyExtraSlot(): void;
 }
 
-/** Ícone e cor de cada tipo de melhoria. */
-const UPGRADE_LOOK: Record<RunUpgradeEffect['kind'], { icon: string; color: string }> = {
-  damageMultiplier: { icon: '⚔', color: '#ff7a5a' },
-  rangeMultiplier: { icon: '◎', color: '#7fd8ff' },
-  attackSpeedMultiplier: { icon: '➶', color: '#ffd25a' },
-  gold: { icon: '◉', color: '#ffd25a' },
-  nexusMaxHp: { icon: '◆', color: '#4fd88a' },
-  pulseCooldownMultiplier: { icon: '✺', color: '#c08cff' },
+/** Ícone de cada tipo de efeito (o do primeiro efeito da melhoria). */
+const ICONS: Record<RunUpgradeEffect['kind'], string> = {
+  damageMultiplier: '⚔',
+  rangeMultiplier: '◎',
+  attackSpeedMultiplier: '➶',
+  gold: '◉',
+  nexusMaxHp: '◆',
+  pulseCooldownMultiplier: '✺',
+  evolveDiscount: '⚗',
+  creatureSlot: '✚',
+  nexusRegen: '❦',
+  killGold: '☠',
+  ascendAll: '★',
+  ward: '⛨',
 };
 
 function choiceCard(choice: Choice, index: number): string {
-  const look = UPGRADE_LOOK[choice.upgrade.effect.kind];
-  return `<button class="choice" style="--card-color:${look.color}" data-action="choose" data-value="${index}">
-    <span class="upgrade-icon">${look.icon}</span>
-    <span class="choice-kind">Melhoria</span>
-    <span class="choice-name">${choice.upgrade.text}</span>
+  const { upgrade } = choice;
+  const rarity = RARITIES[upgrade.rarity];
+  return `<button class="choice rarity-${upgrade.rarity}" style="--card-color:${rarity.color}" data-action="choose" data-value="${index}">
+    <span class="upgrade-icon">${ICONS[upgrade.effects[0]!.kind]}</span>
+    <span class="choice-kind">${rarity.name}</span>
+    <span class="choice-name">${upgrade.name}</span>
+    <span class="choice-detail">${upgrade.text}</span>
   </button>`;
 }
 

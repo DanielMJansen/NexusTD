@@ -1306,3 +1306,24 @@ button:disabled {
 .achievement-list li + li {
   margin-top: 6px;
 }
+
+/* raridade das melhorias */
+.choice.rarity-uncommon {
+  box-shadow: 0 0 12px #5ae08a33;
+}
+
+.choice.rarity-rare {
+  border-width: 2px;
+  box-shadow:
+    0 0 18px #ffd25a55,
+    inset 0 0 20px #ffd25a22;
+  animation: rare-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes rare-glow {
+  50% {
+    box-shadow:
+      0 0 28px #ffd25a88,
+      inset 0 0 24px #ffd25a33;
+  }
+}

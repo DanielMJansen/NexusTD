@@ -142,6 +142,8 @@ export interface RunState {
   /** Compras na loja nesta run (encarecem a próxima). */
   rerolls: number;
   extraSlots: number;
+  /** Quantas vezes cada melhoria foi escolhida nesta run. */
+  upgradePicks: Record<string, number>;
   result: RunResult | null;
   /** Fila de eventos do quadro; quem consome esvazia. */
   events: GameEvent[];
@@ -188,6 +190,7 @@ export function createRun(setup: RunSetup): RunState {
     creatureLimit: ECONOMY.creatureLimit + t.creatureSlots,
     rerolls: 0,
     extraSlots: 0,
+    upgradePicks: {},
     result: null,
     events: [],
   };

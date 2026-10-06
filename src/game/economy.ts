@@ -57,6 +57,12 @@ export function evolveCreature(state: RunState, creature: Creature): boolean {
   if (cost === null || !canEvolve(state, creature)) return false;
   state.gold -= cost;
   creature.paid += cost;
+  return promoteCreature(state, creature);
+}
+
+/** Sobe a criatura 1 nível sem cobrar (evolução paga ou melhoria Ascensão). */
+export function promoteCreature(state: RunState, creature: Creature): boolean {
+  if (creature.level >= EVOLUTION_LEVELS.length) return false;
   creature.level++;
   creature.hitCount = 0;
   state.ascendedPeak = Math.max(state.ascendedPeak, state.creatures.filter(isAscended).length);
