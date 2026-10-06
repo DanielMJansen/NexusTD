@@ -22,6 +22,9 @@ import {
   selectHero,
   selectSkin,
   selectStage,
+  selectLoadout,
+  buyLoadoutSlot,
+  renameLoadout,
   upgradeSanctuary,
   toggleTeamMember,
   unlockCreature,
@@ -72,6 +75,8 @@ export class App {
   private settings: Settings = loadSettings();
   private run: RunState;
   private mode: Mode = 'entry';
+  /** Para onde a tela de heróis volta (menu ou equipes). */
+  private heroesReturn: (() => void) | null = null;
   /** Para onde voltar ao fechar as configurações (null = fechadas). */
   private settingsReturn: (() => void) | null = null;
   private paused = false;
@@ -506,12 +511,21 @@ export class App {
       onPlay: () => this.startRun(),
       onContinue: () => this.continueRun(),
       onTeam: () => this.openTeam(),
-      onHeroes: () => this.openHeroes(),
+      onHeroes: () => {
+        this.heroesReturn = null;
+        this.openHeroes();
+      },
       onCollection: () => this.openCollection(),
       onTalents: () => this.openTalents(),
       onAchievements: () => showAchievements(this.profile, () => this.openMenu()),
       onCodex: () => showCodex(this.profile, () => this.openMenu()),
       onStages: () => this.openStages(),
+      onSelectLoadout: (index) => {
+        if (index === this.profile.activeLoadout || !selectLoadout(this.profile, index)) return;
+        saveProfile(this.profile);
+        this.sound.play('place');
+        this.openMenu();
+      },
       onSanctuary: () => this.openSanctuary(),
       onAltar: () => this.openAltar(),
       onSettings: () => this.openSettings(),
@@ -591,7 +605,12 @@ export class App {
         this.run = createRun(runSetup(this.profile));
         again();
       },
-      onBack: () => this.openMenu(),
+      onBack: () => {
+        const back = this.heroesReturn;
+        this.heroesReturn = null;
+        if (back) back();
+        else this.openMenu();
+      },
     }, options);
   }
 
@@ -619,13 +638,28 @@ export class App {
   }
 
   private openTeam(): void {
+    const changed = (sound: 'place' | 'coin' = 'place') => {
+      saveProfile(this.profile);
+      this.sound.play(sound);
+      this.run = createRun(runSetup(this.profile));
+      this.openTeam();
+    };
     showTeam(this.profile, {
       onToggle: (id) => {
-        if (!toggleTeamMember(this.profile, id)) return;
-        saveProfile(this.profile);
-        this.sound.play('place');
-        this.run = createRun(runSetup(this.profile));
-        this.openTeam();
+        if (toggleTeamMember(this.profile, id)) changed();
+      },
+      onSelectLoadout: (index) => {
+        if (index !== this.profile.activeLoadout && selectLoadout(this.profile, index)) changed();
+      },
+      onBuyLoadout: () => {
+        if (buyLoadoutSlot(this.profile)) changed('coin');
+      },
+      onRename: (index, name) => {
+        if (renameLoadout(this.profile, index, name)) changed();
+      },
+      onHero: () => {
+        this.heroesReturn = () => this.openTeam();
+        this.openHeroes();
       },
       onBack: () => this.openMenu(),
     });

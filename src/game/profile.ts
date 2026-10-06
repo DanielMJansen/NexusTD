@@ -1,3 +1,4 @@
+import { LOADOUTS } from '../data/config';
 import type { VariantTier } from '../data/altar';
 import { FIRST_STAGE, STAGE_IDS, STAGES, type StageId } from '../data/stages';
 import { sanctuaryCost } from '../data/sanctuary';
@@ -24,6 +25,9 @@ export interface Profile {
   team: CreatureId[];
   ownedHeroes: HeroId[];
   selectedHero: HeroId;
+  /** Equipes salvas (herói + criaturas); a ativa espelha `team` e `selectedHero`. */
+  loadouts: Loadout[];
+  activeLoadout: number;
   /** Skin escolhida de cada herói (id da skin). */
   selectedSkins: Partial<Record<HeroId, string>>;
   achievements: AchievementId[];
@@ -51,13 +55,15 @@ export interface Profile {
 export const STARTER_CREATURES = CREATURE_IDS.filter((id) => CREATURES[id].unlock.kind === 'start');
 
 export function createProfile(): Profile {
-  return {
+  const profile: Profile = {
     essence: 0,
     talents: {},
     ownedCreatures: [...STARTER_CREATURES],
     team: [...STARTER_CREATURES],
     ownedHeroes: [STARTER_HERO],
     selectedHero: STARTER_HERO,
+    loadouts: [],
+    activeLoadout: 0,
     selectedSkins: {},
     achievements: [],
     stats: { runs: 0, wins: 0, kills: 0 },
@@ -71,6 +77,8 @@ export function createProfile(): Profile {
     altarPity: { epic: 0, legendary: 0 },
     stageRecords: {},
   };
+  profile.loadouts = Array.from({ length: LOADOUTS.free }, (_, i) => ({ name: loadoutName(i), hero: profile.selectedHero, team: [...profile.team] }));
+  return profile;
 }
 
 // ---------- talentos ----------
@@ -113,6 +121,7 @@ export function unlockCreature(profile: Profile, id: CreatureId): boolean {
   profile.essence -= unlock.cost;
   profile.ownedCreatures.push(id);
   if (profile.team.length < TEAM_SIZE) profile.team.push(id);
+  syncLoadout(profile);
   return true;
 }
 
@@ -121,6 +130,8 @@ export function grantStarterCreature(profile: Profile, id: CreatureId): boolean 
   if (ownsCreature(profile, id)) return false;
   profile.ownedCreatures.push(id);
   if (profile.team.length < TEAM_SIZE) profile.team.push(id);
+  // presente inicial entra em todas as equipes salvas
+  for (const loadout of profile.loadouts) if (!loadout.team.includes(id) && loadout.team.length < TEAM_SIZE) loadout.team.push(id);
   return true;
 }
 
@@ -128,10 +139,61 @@ export function grantStarterCreature(profile: Profile, id: CreatureId): boolean 
 export function toggleTeamMember(profile: Profile, id: CreatureId): boolean {
   if (profile.team.includes(id)) {
     profile.team = profile.team.filter((c) => c !== id);
+    syncLoadout(profile);
     return true;
   }
   if (!ownsCreature(profile, id) || profile.team.length >= TEAM_SIZE) return false;
   profile.team.push(id);
+  syncLoadout(profile);
+  return true;
+}
+
+// ---------- equipes salvas ----------
+
+export interface Loadout {
+  name: string;
+  hero: HeroId;
+  team: CreatureId[];
+}
+
+export const loadoutName = (index: number): string => `Equipe ${index + 1}`;
+
+/** Grava a equipe e o herói atuais na equipe salva ativa. */
+export function syncLoadout(profile: Profile): void {
+  const loadout = profile.loadouts[profile.activeLoadout];
+  if (!loadout) return;
+  loadout.hero = profile.selectedHero;
+  loadout.team = [...profile.team];
+}
+
+/** Troca para outra equipe salva (só criaturas e herói que o jogador possui). */
+export function selectLoadout(profile: Profile, index: number): boolean {
+  const loadout = profile.loadouts[index];
+  if (!loadout) return false;
+  profile.activeLoadout = index;
+  profile.team = loadout.team.filter((id) => ownsCreature(profile, id)).slice(0, TEAM_SIZE);
+  profile.selectedHero = ownsHero(profile, loadout.hero) ? loadout.hero : STARTER_HERO;
+  syncLoadout(profile);
+  return true;
+}
+
+export const loadoutSlotCost = (profile: Profile): number | null => (profile.loadouts.length >= LOADOUTS.max ? null : LOADOUTS.slotCost);
+
+/** Compra uma vaga de equipe (começa como cópia da atual) e passa a usá-la. */
+export function buyLoadoutSlot(profile: Profile): boolean {
+  const cost = loadoutSlotCost(profile);
+  if (cost === null || profile.essence < cost) return false;
+  profile.essence -= cost;
+  profile.loadouts.push({ name: loadoutName(profile.loadouts.length), hero: profile.selectedHero, team: [...profile.team] });
+  profile.activeLoadout = profile.loadouts.length - 1;
+  return true;
+}
+
+export function renameLoadout(profile: Profile, index: number, name: string): boolean {
+  const loadout = profile.loadouts[index];
+  const clean = name.replace(/[<>&"]/g, '').trim().slice(0, LOADOUTS.nameLength);
+  if (!loadout) return false;
+  loadout.name = clean || loadoutName(index);
   return true;
 }
 
@@ -145,12 +207,14 @@ export function buyHero(profile: Profile, id: HeroId): boolean {
   profile.essence -= cost;
   profile.ownedHeroes.push(id);
   profile.selectedHero = id;
+  syncLoadout(profile);
   return true;
 }
 
 export function selectHero(profile: Profile, id: HeroId): boolean {
   if (!ownsHero(profile, id)) return false;
   profile.selectedHero = id;
+  syncLoadout(profile);
   return true;
 }
 

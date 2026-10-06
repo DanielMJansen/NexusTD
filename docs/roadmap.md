@@ -76,7 +76,23 @@ Dividida em três entregas, cada uma jogável ao fim:
 - Garantia: Épica (ou melhor) a cada 20 sorteios sem Épica; Lendária a cada 60 sem Lendária (contadores na tela).
 - Variante = visual de uma criatura da coleção (Rara: cores; Épica: cores + brilho; Lendária: dourada + brilho + faíscas). Repetida (todas já têm) vira Fragmentos (15/30/60). Escolhida na Coleção; só visual.
 
-### F14. Fase 3 — Floresta Sombria + Sinergias `[ ]` — PROPOSTA
+### F13.5. Equipes salvas e skins do Nexus `[ ]` (pedido de 07/10/2026; antes do F14)
+
+**F13.5a — Equipes salvas** `[x]`
+- Cada equipe salva guarda **herói + 8 criaturas** e tem um nome (ex.: "Vampiros", "Fantasmas do Pântano"); a skin do herói continua global.
+- **3 slots grátis**; slots 4 e 5 compráveis com Essência (300 ✦ cada, com confirmação).
+- Troca com um clique na tela de Equipe e no menu (mostra a equipe ativa). Editar herói/criaturas altera a equipe ativa.
+
+**F13.5b — Skins do Nexus** `[ ]` — estrutura decidida; **catálogo em PROPOSTA**
+- Duas partes combináveis: **modelo** (forma do Nexus) e **cor** (paleta aplicada a qualquer modelo). Só visual.
+- Padrão **"do mapa"**: cada fase mostra seu Nexus temático; o jogador pode fixar outro modelo/cor (tela do Nexus no menu).
+- Obtenção por **todas as fontes**:
+  - **Vencer a fase** libera o modelo dela: Cristal Rúnico (Cemitério, já liberado), Lótus Ancestral (Pântano); depois Árvore-Mãe (Floresta), Coração de Lava (Forja), Olho Celeste (Cidadela).
+  - **Essência** (preço fixo, 400 ✦ cada): cores Rubi, Esmeralda e Safira.
+  - **Conquistas**: Prata Lunar (Intocável), Sangue (Exterminador), Ouro Real (Campeão), Obsidiana (Colecionador).
+  - **Altar**: cores exclusivas Vazio (Épica) e Aurora (Lendária, animada). Quando sai Épica/Lendária, 20% de chance de vir a cor do Nexus dessa raridade (se ainda não tiver).
+
+ — Floresta Sombria + Sinergias `[ ]` — PROPOSTA
 - Regra de mapa: **árvores** ocupam espaço (não dá para invocar ali) e bloqueiam parte dos tiros.
 - Destrava **Sinergias de raça**: 2 ou 3 criaturas da mesma raça em campo dão um bônus de raça (estilo TFT), o que muda a montagem de equipe.
 

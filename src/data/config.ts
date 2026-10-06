@@ -51,6 +51,14 @@ export const SHOP = {
 };
 
 /** Essência = 3 × onda + 1 a cada 5 abates + 30 se vencer. */
+/** Equipes salvas: grátis, máximo e preço de cada vaga extra (Essência). */
+export const LOADOUTS = {
+  free: 3,
+  max: 5,
+  slotCost: 300,
+  nameLength: 24,
+};
+
 export const REWARDS = {
   essencePerWave: 3,
   killsPerEssence: 5,

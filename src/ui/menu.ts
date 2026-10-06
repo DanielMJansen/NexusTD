@@ -22,6 +22,7 @@ export interface MenuHandlers {
   onAchievements(): void;
   onCodex(): void;
   onStages(): void;
+  onSelectLoadout(index: number): void;
   onSanctuary(): void;
   onAltar(): void;
   onSettings(): void;
@@ -45,12 +46,13 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       <div class="essence">${essence(profile.essence)} de Essência</div>
       <p>${goal}</p>
       <div class="hub-team">${team}</div>
+      ${profile.loadouts.length > 1 ? `<div class="hub-loadouts">${profile.loadouts.map((l, i) => `<button class="${i === profile.activeLoadout ? 'active' : ''}" data-action="loadout" data-value="${i}" title="${HEROES[l.hero].name} + ${l.team.length} criatura(s)">${l.name}</button>`).join('')}</div>` : ''}
       <div class="hub-buttons">
         ${saved ? `<button class="play-button" data-action="continue">▶ Continuar run <small>onda ${saved.wave} · ${HEROES[saved.hero].name}</small></button>` : ''}
         <button class="${saved ? '' : 'play-button'}" data-action="play"${profile.team.length ? '' : ' disabled'}>${saved ? 'Nova run' : '▶ Jogar'}</button>
         <button data-action="stages">Fase <small>${stage.number} · ${stage.name}</small></button>
         <button data-action="heroes">Herói <small>${HEROES[profile.selectedHero].name}</small></button>
-        <button data-action="team">Equipe <small>${profile.team.length} de ${TEAM_SIZE}</small></button>
+        <button data-action="team">Equipes <small>${profile.loadouts[profile.activeLoadout]?.name ?? ''} · ${profile.team.length} de ${TEAM_SIZE}</small></button>
         <button data-action="collection">Coleção <small>${profile.ownedCreatures.length} de ${CREATURE_IDS.length}</small></button>
         <button data-action="talents">Talentos</button>
         ${isAltarUnlocked(profile) ? '<button data-action="altar">Altar de Variantes</button>' : ''}
@@ -64,6 +66,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       play: () => handlers.onPlay(),
       continue: () => handlers.onContinue(),
       team: () => handlers.onTeam(),
+      loadout: (i) => handlers.onSelectLoadout(Number(i)),
       stages: () => handlers.onStages(),
       sanctuary: () => handlers.onSanctuary(),
       altar: () => handlers.onAltar(),

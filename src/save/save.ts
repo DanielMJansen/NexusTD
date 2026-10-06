@@ -1,3 +1,4 @@
+import { LOADOUTS } from '../data/config';
 import { VARIANT_TIERS, type VariantTier } from '../data/altar';
 import { SANCTUARY } from '../data/sanctuary';
 import { FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
@@ -7,7 +8,7 @@ import { ENEMY_IDS } from '../data/enemies';
 import { HERO_IDS, STARTER_HERO, type HeroId } from '../data/heroes';
 import { findSkin } from '../data/skins';
 import { TALENT_IDS, talentMaxLevel, type TalentId } from '../data/talents';
-import { createProfile, STARTER_CREATURES, TEAM_SIZE, type Profile } from '../game/profile';
+import { createProfile, STARTER_CREATURES, TEAM_SIZE, type Profile, loadoutName, selectLoadout, syncLoadout } from '../game/profile';
 
 const SAVE_KEY = 'nx4';
 /** Versão do formato do perfil (vai junto nos arquivos exportados). */
@@ -154,6 +155,21 @@ function sanitize(data: unknown): Profile {
   }
   const pity = (raw.altarPity ?? {}) as Record<string, unknown>;
   profile.altarPity = { epic: Math.floor(toNumber(pity.epic)), legendary: Math.floor(toNumber(pity.legendary)) };
+  // equipes salvas (campo novo: 3 cópias da equipe atual)
+  const rawLoadouts = Array.isArray(raw.loadouts) ? (raw.loadouts as Record<string, unknown>[]) : [];
+  profile.loadouts = rawLoadouts.slice(0, LOADOUTS.max).map((l, i) => {
+    const team = [...new Set(validCreatures(l?.team))].filter((id) => profile.ownedCreatures.includes(id)).slice(0, TEAM_SIZE);
+    const hero = profile.ownedHeroes.includes(l?.hero as HeroId) ? (l.hero as HeroId) : profile.selectedHero;
+    const name = typeof l?.name === 'string' && l.name.trim() ? l.name.replace(/[<>&"]/g, '').slice(0, LOADOUTS.nameLength) : loadoutName(i);
+    return { name, hero, team };
+  });
+  while (profile.loadouts.length < LOADOUTS.free) {
+    profile.loadouts.push({ name: loadoutName(profile.loadouts.length), hero: profile.selectedHero, team: [...profile.team] });
+  }
+  const active = Math.floor(toNumber(raw.activeLoadout));
+  profile.activeLoadout = Math.min(Math.max(0, active), profile.loadouts.length - 1);
+  if (rawLoadouts.length) selectLoadout(profile, profile.activeLoadout);
+  else syncLoadout(profile);
   const stage = raw.selectedStage as StageId;
   profile.selectedStage = STAGE_IDS.includes(stage) ? stage : FIRST_STAGE;
   const skins = (raw.selectedSkins ?? {}) as Record<string, unknown>;

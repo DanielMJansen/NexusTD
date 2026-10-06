@@ -2613,3 +2613,99 @@ body:not([data-mode='run']) #side-panel {
 #menu-hud .chip[hidden] {
   display: none;
 }
+
+/* equipes salvas */
+.loadout-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 12px;
+}
+
+.loadout-tab {
+  display: grid;
+  grid-template-columns: 34px auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  align-items: center;
+  padding: 6px 12px 6px 6px;
+  text-align: left;
+  border-color: color-mix(in srgb, var(--card-color) 40%, transparent);
+}
+
+.loadout-tab canvas {
+  grid-row: span 2;
+  width: 34px;
+  height: 34px;
+}
+
+.loadout-tab span {
+  font: 700 14px var(--font-label);
+}
+
+.loadout-tab small {
+  font: 400 12px var(--font-body);
+  color: var(--muted);
+}
+
+.loadout-tab.active {
+  background: color-mix(in srgb, var(--card-color) 22%, #140d22);
+  border-color: var(--card-color);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--card-color) 45%, transparent);
+}
+
+.loadout-buy {
+  display: flex;
+  align-items: center;
+}
+
+.loadout-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font: 400 15px var(--font-body);
+  color: var(--muted);
+}
+
+.loadout-name {
+  margin-left: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0d0818;
+  color: var(--fg);
+  font: 600 15px var(--font-body);
+}
+
+.loadout-hero b {
+  color: var(--card-color);
+}
+
+.loadout-hero button {
+  margin-left: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.hub-loadouts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: -4px 0 12px;
+}
+
+.hub-loadouts button {
+  padding: 3px 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.hub-loadouts button.active {
+  color: var(--fg);
+  border-color: var(--accent);
+  background: #9a7aff22;
+}
