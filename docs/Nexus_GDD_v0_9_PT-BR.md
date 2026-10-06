@@ -214,6 +214,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | F10: raça Demônio (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Anjo (3 classes com vertentes + herói) |
 | 07/10/2026 | Bônus de alcance (Olhar Aguçado e talento Olhos Atentos) passam a valer também para o herói, somando com a melhoria Alcance do herói |
+| 07/10/2026 | Melhorias do herói mostram o total acumulado (carta "Agora → depois", "Seu herói agora", "Seus bônus" entre ondas); tooltip do Pulso mostra dano, área e recarga atuais da run |
 | 07/10/2026 | Arqueira da Górgona vira Domadora de Serpentes (evita dois arqueiros; mesma função e vertentes); jogo pausa sozinho ao perder o foco no meio de uma onda |
 | 07/10/2026 | Inimigos param no Nexus e golpeiam até morrer; velocidade 0x (tempo parado sem pausa, tecla 0); melhorias de Pulso no nível do herói (Pulso Ampliado, Eco do Pulso); melhoria da run Sabedoria (+XP); animação de ataque para todos os inimigos; recalibrado |
 | 07/10/2026 | Heróis do F10 com 3 skins cada: vencer com o herói libera a 2ª; alcançar a onda 30 do Sem Fim com ele libera a 3ª (12 conquistas novas) |

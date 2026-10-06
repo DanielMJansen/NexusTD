@@ -2,7 +2,7 @@ import { SHOP } from '../data/config';
 import { TIERS, type OfferedUpgrade } from '../data/upgrades';
 import { canBuyExtraSlot, canReroll, extraSlotCost, rerollCost } from '../game/shop';
 import type { Choice, RunState } from '../game/state';
-import { formatNumber } from './describe';
+import { formatNumber, heroStatRows } from './describe';
 import { showOverlay } from './overlay';
 
 export type ChoiceReason = 'start' | 'waveCleared';
@@ -59,6 +59,8 @@ export function bonusRows(run: RunState): [string, string][] {
   if (t.evolveDiscount > 0) rows.push(['Custo de evoluir', `−${pct(t.evolveDiscount)}`]);
   if (m.executeBelow > 0) rows.push(['Sentença', `< ${pct(m.executeBelow)} de vida`]);
   if (t.nexusWard > 0) rows.push(['Égide', 'ativa']);
+  // melhorias do herói (níveis)
+  for (const text of heroStatRows(run.heroStats)) rows.push(['Herói', text]);
   return rows;
 }
 

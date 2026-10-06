@@ -1,5 +1,6 @@
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { creatureCost } from '../game/economy';
+import { pulsePower } from '../game/pulses';
 import type { Creature, RunState } from '../game/state';
 import type { Interaction } from '../input/interaction';
 import { MAX_CREATURE_LEVEL } from '../data/evolution';
@@ -118,6 +119,9 @@ export class SidePanel {
     this.pulseFill.style.transform = `scaleX(${1 - remaining / cooldown})`;
     this.pulseButton.classList.toggle('ready', ready);
     const status = remaining > 0 ? `recarregando ${Math.ceil(remaining)} s` : 'pronto';
+    // tooltip do Pulso com os valores atuais (nível do herói, melhorias e talentos)
+    const live = { power: pulsePower(run), size: 1 + run.heroStats.pulseSize, radius: run.pulse.radius, cooldown: run.pulse.cooldown };
+    setHtml(this.pulseTooltip, `<h4>Pulso do ${run.hero.def.name} <kbd>Espaço</kbd></h4><p class="special">${pulseText(run.hero.def, live)}</p>`);
     const name = run.hero.def.pulse.name;
     if (this.pulseName.textContent !== name) this.pulseName.textContent = name;
     if (this.pulseStatus.textContent !== status) this.pulseStatus.textContent = status;

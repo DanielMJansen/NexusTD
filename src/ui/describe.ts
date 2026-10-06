@@ -2,6 +2,7 @@ import { ECONOMY } from '../data/config';
 import type { AscendedForm, CreatureAbility, CreatureDef, HitEffect } from '../data/creatures';
 import { ENEMIES, type EnemyTrait } from '../data/enemies';
 import type { HeroDef, RaceBonus } from '../data/heroes';
+import type { HeroStat } from '../data/heroUpgrades';
 import type { TalentEffectKind } from '../data/talents';
 
 export const formatNumber = (n: number): string => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
@@ -272,9 +273,41 @@ export function attackText(def: HeroDef): string {
 }
 
 /** Pulso do herói, em texto (com o nome em negrito). */
-export function pulseText(def: HeroDef): string {
-  const p = def.pulse;
-  const e = p.effect;
+/** Valores do Pulso na run atual (nível do herói, melhorias e talentos). Sem eles, mostra os valores base. */
+export interface PulseLive {
+  /** Multiplicador de dano (talentos, melhorias e nível do herói). */
+  power: number;
+  /** Pulso Ampliado: multiplicador de área, alcance, duração e quantidade. */
+  size: number;
+  radius: number;
+  cooldown: number;
+}
+
+export function pulseText(def: HeroDef, live?: PulseLive): string {
+  const base = def.pulse;
+  const size = live?.size ?? 1;
+  const grow = (n: number) => Math.round(n * size * 10) / 10;
+  const more = (n: number) => Math.round(n * size);
+  // mesmos campos do Pulso, já com os valores da run (quando houver)
+  const p = { ...base, damage: Math.round(base.damage * (live?.power ?? 1)), radius: Math.round(live?.radius ?? base.radius), cooldown: Math.round((live?.cooldown ?? base.cooldown) * 10) / 10 };
+  const raw = base.effect;
+  const e = (
+    raw.kind === 'charge' || raw.kind === 'glide' || raw.kind === 'cone' || raw.kind === 'fissure'
+      ? { ...raw, length: Math.round(raw.length * size) }
+      : raw.kind === 'swarm'
+        ? { ...raw, count: more(raw.count), range: Math.round(raw.range * size) }
+        : raw.kind === 'flame'
+          ? { ...raw, duration: grow(raw.duration), length: Math.round(raw.length * size) }
+          : raw.kind === 'transform' || raw.kind === 'hex' || raw.kind === 'haste'
+            ? { ...raw, duration: grow(raw.duration) }
+            : raw.kind === 'raise'
+              ? { ...raw, count: more(raw.count), fallback: more(raw.fallback) }
+              : raw.kind === 'meteors'
+                ? { ...raw, count: more(raw.count), radius: Math.round(raw.radius * size) }
+                : raw.kind === 'judgment'
+                  ? { ...raw, radius: Math.round(raw.radius * size) }
+                  : raw
+  ) as typeof raw;
   const d = formatNumber(p.damage);
   const pctOf = (v: number) => `${Math.round(v * 100)}%`;
   let what: string;
@@ -324,7 +357,49 @@ export function pulseText(def: HeroDef): string {
     p.fear ? `Inimigos atingidos fogem do Nexus por ${formatNumber(p.fear)} s.` : '',
     p.healPerEnemy > 0 ? `Cura ${p.healPerEnemy} de vida do herói por inimigo atingido.` : '',
     p.selfDamage ? `Custa ${pctOf(p.selfDamage)} da vida do herói.` : '',
-    p.damage > 0 ? 'O dano cresce +10% por nível do herói.' : '',
+    p.damage > 0 && !live ? 'O dano cresce +10% por nível do herói.' : '',
+    live && base.damage > 0 && p.damage !== base.damage ? `(dano base ${base.damage}; nível e melhorias ×${formatNumber(Math.round((live.power) * 100) / 100)})` : '',
   ].filter(Boolean);
   return `<b>${p.name}</b> (recarga ${p.cooldown} s): ${what}${extras.length ? ' ' + extras.join(' ') : ''}`;
+}
+
+const pctText = (v: number) => `${Math.round(v * 100)}%`;
+
+/** Total de um atributo de melhoria do herói, em texto curto (ex.: "+36% de alcance"). */
+export function heroStatText(stat: HeroStat, value: number): string {
+  switch (stat) {
+    case 'damage':
+      return `+${pctText(value)} de dano`;
+    case 'attackSpeed':
+      return `+${pctText(value)} de vel. de ataque`;
+    case 'range':
+      return `+${pctText(value)} de alcance`;
+    case 'maxHp':
+      return `+${formatNumber(value)} de vida máxima`;
+    case 'regen':
+      return `+${formatNumber(Math.round(value * 10) / 10)} de vida/s`;
+    case 'speed':
+      return `+${pctText(value)} de velocidade`;
+    case 'pulseCooldown':
+      return `−${pctText(value)} na recarga do Pulso`;
+    case 'pulseDamage':
+      return `+${pctText(value)} de dano do Pulso`;
+    case 'lifesteal':
+      return `${pctText(value)} do dano vira vida`;
+    case 'thorns':
+      return `${formatNumber(value)} de dano/s em quem encosta`;
+    case 'armor':
+      return `−${pctText(Math.min(0.6, value))} de dano recebido`;
+    case 'pickup':
+      return `+${pctText(value)} de raio de coleta`;
+    case 'pulseSize':
+      return `Pulso +${pctText(value)} maior`;
+    case 'pulseEcho':
+      return `${pctText(value)} de chance de eco do Pulso`;
+  }
+}
+
+/** Totais atuais das melhorias do herói (só as que ele já tem). */
+export function heroStatRows(stats: Record<HeroStat, number>): string[] {
+  return (Object.keys(stats) as HeroStat[]).filter((k) => stats[k] > 0).map((k) => heroStatText(k, stats[k]));
 }
