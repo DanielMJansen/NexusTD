@@ -3297,3 +3297,19 @@ body:not([data-mode='run']) .team-slots {
 .talents-screen .screen-head {
   margin-bottom: 4px;
 }
+
+/* Pulso pronto: botão pulsando */
+#pulse-button.ready {
+  animation: pulse-ready 1.2s ease-in-out infinite;
+  border-color: #c8a8ff;
+}
+
+@keyframes pulse-ready {
+  0%,
+  100% {
+    box-shadow: 0 0 10px #b36bff66;
+  }
+  50% {
+    box-shadow: 0 0 26px #d4a8ffcc, 0 0 6px #fff8 inset;
+  }
+}

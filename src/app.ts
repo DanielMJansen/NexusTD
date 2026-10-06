@@ -142,18 +142,7 @@ export class App {
         this.interaction.sellArmed = false;
         this.interaction.hoverBranch = null;
       },
-      onSell: () => {
-        const creature = this.interaction.inspected;
-        if (!this.isPlaying() || !creature) return;
-        // 1º clique arma a venda; o 2º confirma
-        if (!this.interaction.sellArmed) {
-          this.interaction.sellArmed = true;
-          return;
-        }
-        this.interaction.inspected = null;
-        this.interaction.sellArmed = false;
-        sellCreature(this.run, creature);
-      },
+      onSell: () => this.sellInspected(),
     });
     this.nexusPanel = new NexusPanel(
       () => this.toggleNexusPanel(),
@@ -217,11 +206,26 @@ export class App {
   }
 
   /** Abre as configurações por cima da tela atual; durante uma onda, pausa antes. */
+  /** Vende a criatura selecionada: o 1º clique (ou V) arma, o 2º confirma. */
+  private sellInspected(): void {
+    const creature = this.interaction.inspected;
+    if (!this.isPlaying() || !creature) return;
+    if (!this.interaction.sellArmed) {
+      this.interaction.sellArmed = true;
+      return;
+    }
+    this.interaction.inspected = null;
+    this.interaction.sellArmed = false;
+    sellCreature(this.run, creature);
+  }
+
   private openSettings(): void {
-    if (this.mode === 'entry' || this.settingsReturn) return;
+    if (this.settingsReturn) return;
     if (this.isPlaying()) this.togglePause();
     this.settingsReturn =
-      this.mode === 'menu'
+      this.mode === 'entry'
+        ? () => showEntry(() => this.leaveEntry())
+        : this.mode === 'menu'
         ? () => this.openMenu()
         : this.paused
           ? () => this.showPauseScreen()
@@ -309,6 +313,9 @@ export class App {
       if (!this.pointer.cancel()) this.togglePause();
     } else if (key === 'e') {
       this.pointer.evolveInspected();
+    } else if (key === 'v') {
+      // vender a criatura selecionada (2 toques, como no popup)
+      this.sellInspected();
     } else if (key === 'f') {
       this.cycleSpeed();
     } else if (key === '0') {

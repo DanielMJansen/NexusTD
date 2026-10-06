@@ -17,6 +17,7 @@ export type GameEvent =
   /** Tiro de inimigo: flecha/raio no herói ou teia numa criatura. */
   | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web' | 'curse' | 'acid'; from: Point; to: Point }
   | { type: 'enemyLeap'; x: number; y: number }
+  | { type: 'pulseReady'; x: number; y: number }
   | { type: 'guardHit'; x: number; y: number; damage: number }
   | { type: 'guardDestroyed'; name: string; x: number; y: number }
   | { type: 'caravanMoved'; from: Point; to: Point }

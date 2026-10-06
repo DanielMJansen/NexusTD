@@ -39,7 +39,10 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
     state.gold += ECONOMY.passiveIncome.amount;
   }
 
+  const wasCharging = state.pulse.remaining > 0;
   state.pulse.remaining = Math.max(0, state.pulse.remaining - dt);
+  // aviso: o Pulso acabou de ficar pronto
+  if (wasCharging && state.pulse.remaining === 0 && !state.hero.dead) state.events.push({ type: 'pulseReady', x: state.hero.x, y: state.hero.y });
   state.haste.remaining = Math.max(0, state.haste.remaining - dt);
   if (state.talents.nexusRegen > 0 && state.nexus.hp < state.nexus.maxHp) {
     state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + state.talents.nexusRegen * dt);

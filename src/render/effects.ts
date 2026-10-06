@@ -211,6 +211,11 @@ export class Effects {
         this.banner('A caravana avançou', 'Nova parada · reposicione a defesa se precisar', '#ffd25a', 2.2);
         this.ring(event.to.x, event.to.y, 60, '#ffd25a', 0.7, 3);
         break;
+      case 'pulseReady':
+        this.ring(event.x, event.y + 6, 34, '#e2c8ff', 0.6, 3);
+        this.burst(event.x, event.y - 10, 10, '#e2c8ff', 50, 0.6, 2, true, -40);
+        this.text(event.x, event.y - 34, 'Pulso pronto!', '#e2c8ff', 10);
+        break;
       case 'weatherWarning':
         this.banner('Nevasca chegando', `em ${event.seconds} s · fique perto das fogueiras`, '#bfe4ff', 2.2);
         break;

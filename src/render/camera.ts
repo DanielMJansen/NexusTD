@@ -24,6 +24,7 @@ export class Camera {
   private vy = 0;
   private edgeX = 0;
   private edgeY = 0;
+  private lastHero = { x: 0, y: 0 };
 
   /** O mundo é maior que a vista? (só então há rolagem e minimapa) */
   scrolls(state: RunState): boolean {
@@ -68,7 +69,15 @@ export class Camera {
     const ease = Math.min(1, dt * 8);
     this.edgeX += (wantX * EDGE_SPEED - this.edgeX) * ease;
     this.edgeY += (wantY * EDGE_SPEED - this.edgeY) * ease;
-    if (Math.abs(wantX) + Math.abs(wantY) > 0.05) this.follow = false;
+    const edging = Math.abs(wantX) + Math.abs(wantY) > 0.05;
+    if (edging) this.follow = false;
+    else {
+      // fora da borda: volta a seguir o herói quando ele se mexe ou sai da vista
+      const moved = Math.hypot(state.hero.x - this.lastHero.x, state.hero.y - this.lastHero.y) > 0.3;
+      const out = state.hero.x < this.x || state.hero.x > this.x + ARENA.width || state.hero.y < this.y || state.hero.y > this.y + ARENA.height;
+      if (moved || out) this.follow = true;
+    }
+    this.lastHero = { x: state.hero.x, y: state.hero.y };
     if (Math.abs(this.edgeX) + Math.abs(this.edgeY) > 1) {
       this.x += this.edgeX * dt;
       this.y += this.edgeY * dt;
@@ -95,13 +104,17 @@ export class Camera {
     this.clamp(state);
   }
 
+  /** Folga além das bordas do mundo (do tamanho do HUD): nada fica preso atrás da barra de baixo ou do topo. */
   private clamp(state: RunState): void {
-    const maxX = state.map.width - ARENA.width;
-    const maxY = state.map.height - ARENA.height;
-    if (this.x < 0 || this.x > maxX) this.vx = 0;
-    if (this.y < 0 || this.y > maxY) this.vy = 0;
-    this.x = Math.max(0, Math.min(maxX, this.x));
-    this.y = Math.max(0, Math.min(maxY, this.y));
+    const pad = { side: 12, top: 26, bottom: 46 };
+    const minX = -pad.side;
+    const minY = -pad.top;
+    const maxX = state.map.width - ARENA.width + pad.side;
+    const maxY = state.map.height - ARENA.height + pad.bottom;
+    if (this.x < minX || this.x > maxX) this.vx = 0;
+    if (this.y < minY || this.y > maxY) this.vy = 0;
+    this.x = Math.max(minX, Math.min(maxX, this.x));
+    this.y = Math.max(minY, Math.min(maxY, this.y));
   }
 }
 

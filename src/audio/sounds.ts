@@ -12,7 +12,7 @@ export interface SoundDef {
 
 export type SoundId = CreatureId | 'kill' | 'coin' | 'place' | 'pulse' | 'hurt' | 'boss' | 'evolve' | 'heal'
   | 'enemyArrow' | 'enemyBolt' | 'web' | 'summon' | 'stomp' | 'shield' | 'enrage' | 'enemyHeal'
-  | 'nexusBolt' | 'chest';
+  | 'nexusBolt' | 'chest' | 'pulseReady';
 
 export const SOUNDS: Record<SoundId, SoundDef> = {
   archer: { from: 600, to: 300, duration: 0.05, wave: 'triangle' },
@@ -69,4 +69,5 @@ export const SOUNDS: Record<SoundId, SoundDef> = {
   enemyHeal: { from: 500, to: 380, duration: 0.2, wave: 'sine', volume: 0.5 },
   nexusBolt: { from: 1400, to: 300, duration: 0.08, wave: 'sawtooth', volume: 0.45 },
   chest: { from: 520, to: 1560, duration: 0.35, wave: 'triangle' },
+  pulseReady: { from: 880, to: 1320, duration: 0.18, wave: 'sine', volume: 0.6 },
 };

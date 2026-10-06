@@ -610,6 +610,17 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
   }
   drawShadow(ctx, hero.x, hero.y + 14, 10);
   drawHeroRing(ctx, hero.x, hero.y + 14, time, hero.def.color);
+  if (state.pulse.remaining <= 0 && state.phase === 'playing') {
+    // Pulso pronto: aura pulsando na cor do herói
+    const beat = 0.5 + 0.5 * Math.sin(time * 5);
+    ctx.strokeStyle = hero.def.color;
+    ctx.globalAlpha = 0.35 + 0.4 * beat;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(hero.x, hero.y + 14, 15 + beat * 3, 5.5 + beat, 0, 0, TAU);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
   // alcance do ataque do herói: sempre discreto; destacado com Shift ou mouse sobre ele
   ctx.save();
   ctx.strokeStyle = withAlpha(hero.def.color, highlightRange ? 0.6 : 0.18);

@@ -153,6 +153,9 @@ export class SoundPlayer {
       case 'nexusBolt':
         this.play('nexusBolt');
         break;
+      case 'pulseReady':
+        this.play('pulseReady');
+        break;
       case 'nexusShieldUp':
         this.play('shield');
         break;
