@@ -327,11 +327,34 @@ export class Effects {
           this.shake = Math.max(this.shake, 3);
           break;
         }
-        if (event.beam && event.to) {
-          // raio em linha a partir do herói
-          this.beams.push({ from: { x: event.x, y: event.y }, to: event.to, width: 14, color: look.ring, life: 0.35, maxLife: 0.35 });
-          this.burst(event.to.x, event.to.y, 16, look.particle, 90, 0.5, 2.6, true);
-          this.shake = Math.max(this.shake, 4);
+        if (event.kind === 'glide' || event.kind === 'flame' || event.kind === 'meteors' || event.kind === 'judgment' || event.kind === 'swarm') {
+          // esses têm visual próprio enquanto duram; aqui só um brilho no herói
+          this.ring(event.x, event.y + 6, 22, look.ring, 0.35, 3);
+          break;
+        }
+        if (event.kind === 'fissure' && event.to) {
+          // fenda: poeira e pedras ao longo da linha
+          for (let i = 0; i <= 16; i++) {
+            const t = i / 16;
+            this.burst(event.x + (event.to.x - event.x) * t, event.y + (event.to.y - event.y) * t + 6, 3, '#8a6a4a', 50, 0.6, 2.8, false, -40, 160);
+          }
+          this.ring(event.x, event.y + 8, 30, look.ring, 0.4, 4);
+          this.shake = Math.max(this.shake, 7);
+          break;
+        }
+        if (event.kind === 'hex') {
+          // nuvem verde de feitiço
+          this.ring(event.x, event.y, event.radius, '#7ad85a', 0.5, 5);
+          this.burst(event.x, event.y - 6, 40, '#a8f080', event.radius * 1.6, 0.6, 2.6, true);
+          this.burst(event.x, event.y - 6, 14, '#5a2a8a', event.radius, 0.7, 3, false, -20);
+          break;
+        }
+        if (event.kind === 'transform') {
+          // uivo de transformação: anel vermelho e lua
+          this.ring(event.x, event.y, event.radius, '#ff5a3a', 0.6, 6);
+          this.burst(event.x, event.y - 10, 30, '#ffb08a', 120, 0.7, 2.8, true, -40);
+          this.banner('Fúria Lunar', 'Transformação', '#ff8a5a', 1.2);
+          this.shake = Math.max(this.shake, 5);
           break;
         }
         if (event.to) {
@@ -367,6 +390,47 @@ export class Effects {
       }
       case 'screech':
         this.waves.push({ ...event, life: 0.4, maxLife: 0.4 });
+        break;
+      case 'pulseSwarm':
+        // morcegos voam do herói até cada alvo
+        for (const to of event.to) {
+          this.shots.push({ source: 'batSwarm', from: event.from, to, duration: 0.35, remaining: 0.35, trailTimer: 0 });
+        }
+        this.burst(event.from.x, event.from.y - 8, 14, '#5a2a6a', 70, 0.5, 2.4, false, -30);
+        break;
+      case 'pulseFlame': {
+        // jato de fogo: partículas em leque, renovadas a cada quadro
+        for (let i = 0; i < 4; i++) {
+          const a = event.angle + random(-event.halfAngle, event.halfAngle);
+          const speed = random(event.length * 2.6, event.length * 3.6);
+          this.particles.push({
+            x: event.x + Math.cos(event.angle) * 8,
+            y: event.y - 8 + Math.sin(event.angle) * 8,
+            vx: Math.cos(a) * speed,
+            vy: Math.sin(a) * speed,
+            life: 0.32,
+            maxLife: 0.32,
+            size: random(2.4, 4),
+            color: Math.random() < 0.5 ? '#ffb040' : Math.random() < 0.5 ? '#ff5a1a' : '#fff2c0',
+            gravity: -40,
+            glow: true,
+          });
+        }
+        break;
+      }
+      case 'pulseStrike':
+        if (event.kind === 'meteor') {
+          this.ring(event.x, event.y, event.radius, '#ff6a1a', 0.45, 5);
+          this.burst(event.x, event.y, 24, '#ffb040', 130, 0.55, 3, true);
+          this.burst(event.x, event.y, 10, '#3a2a2a', 60, 0.8, 4, false, -50, 120);
+          this.shake = Math.max(this.shake, 5);
+        } else {
+          // coluna de luz vinda do céu
+          this.beams.push({ from: { x: event.x, y: event.y - 200 }, to: { x: event.x, y: event.y + 6 }, width: event.radius * 0.9, color: '#fff6c0', life: 0.45, maxLife: 0.45 });
+          this.ring(event.x, event.y, event.radius, '#fff6c0', 0.5, 5);
+          this.burst(event.x, event.y - 6, 30, '#ffe9a8', 120, 0.6, 2.8, true, -40);
+          this.shake = Math.max(this.shake, 6);
+        }
         break;
       case 'poolCreated':
         this.burst(event.x, event.y, 12, '#a8f080', 60, 0.5, 2.6, true, -20);

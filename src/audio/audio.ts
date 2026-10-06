@@ -100,6 +100,12 @@ export class SoundPlayer {
       case 'explosion':
         this.play('stomp');
         break;
+      case 'pulseStrike':
+        this.play(event.kind === 'meteor' ? 'stomp' : 'shield');
+        break;
+      case 'pulseSwarm':
+        this.play('batSwarm');
+        break;
       case 'possessed':
         this.play('summon');
         break;

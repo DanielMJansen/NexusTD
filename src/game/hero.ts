@@ -41,7 +41,7 @@ export function updateHeroVitals(state: RunState, dt: number): void {
   healHero(state, state.heroStats.regen * dt);
   let incoming = 0;
   for (const enemy of state.enemies) {
-    if (enemy.dead || enemy.allyTimer > 0 || distance(enemy, hero) > enemy.def.radius + HERO_CONTACT_RANGE) continue;
+    if (enemy.dead || enemy.allyTimer > 0 || enemy.hexTimer > 0 || distance(enemy, hero) > enemy.def.radius + HERO_CONTACT_RANGE) continue;
     incoming += enemy.heroDps * dt;
     if (state.heroStats.thorns > 0) {
       damageEnemy(state, enemy, state.heroStats.thorns * dt, undefined, { ignoreArmor: true, overTime: true });

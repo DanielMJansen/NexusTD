@@ -48,7 +48,7 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Com o jogo pausado, a tooltip das cartas aparece por cima da tela de pausa.
 - [ ] Alcance do herói visível; Shift ou mouse sobre o herói destaca. Tooltip no botão do Pulso.
 - [ ] Números de dano aparecem (e somem ao desligar nas Configurações). Velocidade 1x/2x/4x (botão ou F).
-- [ ] Pulso (Espaço) com o nome do Pulso do herói: Onda de Choque, Revoada (cura), Rugido (raio maior), Uivo (inimigos com "!" fogem), Travessia (herói atravessa o campo), Maldição (veneno com bolhas verdes).
+- [ ] Pulsos (Espaço, miram no mouse ou WASD): Cavaleiro avança e arremessa; Vampiro solta morcegos que caçam 6 alvos e curam o herói; Draconato cospe fogo contínuo que segue o mouse; Licantropo vira lobisomem gigante (6 s); Espectro desliza translúcido com rastros; Bruxa transforma inimigos em sapos; Fada acelera as criaturas (pó dourado); Colosso abre uma fenda que atordoa e deixa lento; Senhor dos Mortos ergue esqueletos onde inimigos caíram; Górgona petrifica em leque (petrificados se despedaçam); Arquidemônio chama 5 meteoros (aviso no chão); Arcanjo derruba uma coluna de luz após o aviso dourado.
 - [ ] Habilidades: Guarda segura 2 (anel tracejado), Sanguinário cura, Caçador salta entre alvos, Alfa mostra a aura e acelera vizinhos, Assombração ignora armadura, Banshee grita em leque e empurra, Feiticeira envenena, Caldeirão cria poças.
 - [ ] Inimigos piscam ao levar dano (veneno e poças não piscam); morte com fantasma, moedas e "+ouro".
 

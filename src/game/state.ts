@@ -75,6 +75,11 @@ export interface Enemy extends Point {
   summonedAlly: boolean;
   /** Morreu executado (Ceifador). */
   executed: boolean;
+  /** Virou sapo (Feitiço do Sapo): lento, frágil e inofensivo enquanto durar. */
+  hexTimer: number;
+  hexVuln: number;
+  /** Último deslize do Espectro que já o atingiu (acerta uma vez por deslize). */
+  pulseHitId: number;
   dead: boolean;
 }
 
@@ -140,6 +145,30 @@ export interface Pool extends Point {
   color: string;
   /** Ouro extra por inimigo que morre dentro (Caldeirão Alquímico). */
   bounty?: number;
+  /** Deixa lento quem está dentro (fração), como a Fenda Sísmica. */
+  slow?: number;
+  /** Visual: poça comum ou rachadura no chão. */
+  look?: 'pool' | 'crack';
+}
+
+/** Golpe atrasado de um Pulso (meteoro, coluna de luz). */
+export interface PulseStrike extends Point {
+  delay: number;
+  total: number;
+  kind: 'meteor' | 'judgment';
+}
+
+/** Pulsos que duram no tempo. */
+export interface PulseFx {
+  /** Travessia do Espectro: desliza de \`from\` até \`to\`. */
+  glide: { from: Point; to: Point; elapsed: number; duration: number; width: number; id: number } | null;
+  /** Lança-Chamas: segundos restantes e direção atual. */
+  flame: { remaining: number; angle: number } | null;
+  /** Fúria Lunar: segundos restantes. */
+  transform: number;
+  strikes: PulseStrike[];
+  /** Contador para identificar cada deslize. */
+  count: number;
 }
 
 /** Moeda extra ou baú no chão (o herói coleta passando por cima). */
@@ -216,6 +245,10 @@ export interface RunState {
   unlocked: Set<CreatureId>;
   modifiers: Modifiers;
   pulse: { cooldown: number; remaining: number; radius: number };
+  /** Pulsos em andamento (deslize, lança-chamas, transformação, meteoros, coluna de luz). */
+  pulseFx: PulseFx;
+  /** Onde inimigos morreram há pouco (Erguer Mortos). */
+  recentDeaths: { x: number; y: number; at: number }[];
   /** Aceleração de todas as criaturas dada pelo Pulso (Bênção Feérica). */
   haste: { amount: number; remaining: number };
   /** Bônus dos talentos que valem a run inteira. */
@@ -348,6 +381,8 @@ export function createRun(setup: RunSetup): RunState {
     },
     talents: { ...t },
     haste: { amount: 0, remaining: 0 },
+    pulseFx: { glide: null, flame: null, transform: 0, strikes: [], count: 0 },
+    recentDeaths: [],
     pools: [],
     wardReady: false,
     lowestNexusRatio: 1,

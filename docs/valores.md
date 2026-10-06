@@ -33,27 +33,27 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 | Lobisomem | Caçador | 25 | 10 | 75 | 0,6 s | Garras em cadeia: o golpe salta para até 2 inimigos próximos (80% do dano a cada salto). | 60 ✦ |
 | Lobisomem | Alfa | 30 | 10 | 65 | 0,6 s | Aura: criaturas num raio de 80 atacam 20% mais rápido. | 70 ✦ |
 | Lobisomem | Uivador | 30 | 4 | 70 | 3 s | Golpe em área: atinge todos num raio de 70 ao redor dela. 60% de chance de assustar: o inimigo foge do Nexus por 1,5 s (chefes resistem). | 70 ✦ |
-| Fantasma | Assombração | 25 | 7 | 100 | 0,7 s | Ignora toda a armadura do alvo. | 60 ✦ |
+| Fantasma | Assombração | 25 | 6 | 100 | 0,7 s | Ignora toda a armadura do alvo. | 60 ✦ |
 | Fantasma | Banshee | 30 | 4 | 80 | 1,2 s | Grito em leque: atinge todos à frente e os empurra 16 para longe do Nexus (chefes resistem). | 70 ✦ |
-| Fantasma | Possessor | 35 | 4 | 90 | 5 s | Possui o alvo por 3 s: ele luta contra os outros inimigos (chefes resistem). | 90 ✦ |
-| Bruxa | Feiticeira | 25 | 5 | 110 | 0,8 s | Veneno: 8 de dano por segundo durante 3 s (ignora armadura). | 60 ✦ |
-| Bruxa | Caldeirão | 35 | 5 | 100 | 1,8 s | Poça: 13 de dano por segundo num raio de 30 durante 3 s. | 80 ✦ |
-| Bruxa | Herbalista | 25 | 5 | 100 | 1,1 s | 35% de chance de prender em raízes por 1,4 s (chefes resistem). | 70 ✦ |
+| Fantasma | Possessor | 35 | 4 | 90 | 6 s | Possui o alvo por 3 s: ele luta contra os outros inimigos (chefes resistem). | 90 ✦ |
+| Bruxa | Feiticeira | 25 | 5 | 110 | 0,8 s | Veneno: 7 de dano por segundo durante 3 s (ignora armadura). | 60 ✦ |
+| Bruxa | Caldeirão | 35 | 5 | 100 | 1,8 s | Poça: 11 de dano por segundo num raio de 30 durante 3 s. | 80 ✦ |
+| Bruxa | Herbalista | 25 | 5 | 100 | 1,1 s | 30% de chance de prender em raízes por 1,3 s (chefes resistem). | 70 ✦ |
 | Fada | Encantadora | 30 | 5 | 95 | 1 s | Bênção: criaturas num raio de 85 ganham +10% de dano, +8% de alcance. | 90 ✦ |
 | Fada | Travessa | 25 | 6 | 100 | 0,8 s | 25% de chance de confundir: o inimigo anda para trás por 1,5 s (chefes resistem). | 80 ✦ |
-| Fada | Lumina | 30 | 6 | 110 | 0,9 s | Marca o alvo: +15% de dano recebido por 3 s. | 90 ✦ |
-| Golem | Muralha | 30 | 6 | 45 | 1 s | Bloqueio: segura até 3 inimigos num raio de 32 (chefes não param). 25% de chance de atordoar por 1 s (chefes resistem). | 90 ✦ |
-| Golem | Cristal | 30 | 9 | 120 | 1,2 s | Raio que atravessa todos os inimigos em linha. | 100 ✦ |
-| Golem | Magma | 30 | 8 | 45 | 0,8 s | Golpe em área: atinge todos num raio de 45 ao redor dela. Dano contínuo: 4/s por 2 s (ignora armadura). | 90 ✦ |
-| Necromante | Esqueleto | 15 | 10 | 55 | 0,7 s | Alvo único, alcance alto. | 70 ✦ |
-| Necromante | Ceifador | 30 | 13 | 70 | 0,8 s | Executa inimigos comuns abaixo de 20% de vida. | 90 ✦ |
-| Necromante | Drenador | 25 | 8 | 100 | 1 s | Enfraquece por 3 s: 30% mais lento e −40% de dano ao Nexus. | 80 ✦ |
+| Fada | Lumina | 30 | 5 | 110 | 0,9 s | Marca o alvo: +15% de dano recebido por 3 s. | 90 ✦ |
+| Golem | Muralha | 30 | 8 | 45 | 1 s | Bloqueio: segura até 3 inimigos num raio de 32 (chefes não param). 25% de chance de atordoar por 1 s (chefes resistem). | 90 ✦ |
+| Golem | Cristal | 30 | 12 | 120 | 1 s | Raio que atravessa todos os inimigos em linha. | 100 ✦ |
+| Golem | Magma | 30 | 8 | 50 | 0,8 s | Golpe em área: atinge todos num raio de 50 ao redor dela. Dano contínuo: 4/s por 2 s (ignora armadura). | 90 ✦ |
+| Necromante | Esqueleto | 15 | 11 | 55 | 0,6 s | Alvo único, alcance alto. | 70 ✦ |
+| Necromante | Ceifador | 30 | 13 | 70 | 0,8 s | Executa inimigos comuns abaixo de 25% de vida. | 90 ✦ |
+| Necromante | Drenador | 25 | 8 | 100 | 1 s | Enfraquece por 3,5 s: 30% mais lento e −50% de dano ao Nexus. | 80 ✦ |
 | Górgona | Arqueira | 25 | 6 | 115 | 0,8 s | Dano contínuo: 6/s por 3 s (ignora armadura). | 80 ✦ |
 | Górgona | Medusa | 35 | 7 | 100 | 1,1 s | 20% de chance de petrificar por 1,8 s (chefes resistem). | 100 ✦ |
 | Górgona | Basilisco | 25 | 7 | 90 | 0,9 s | Corrói 3 de armadura por 3 s. | 80 ✦ |
 | Demônio | Diabrete | 15 | 6 | 95 | 0,5 s | Alvo único, alcance alto. | 80 ✦ |
-| Demônio | Súcubo | 30 | 6 | 110 | 1,2 s | Puxa o alvo 18 na direção da criatura (chefes resistem). | 90 ✦ |
-| Demônio | Infernal | 40 | 22 | 110 | 2,4 s | Área: atinge inimigos num raio de 40 ao redor do alvo com 80% do dano. | 110 ✦ |
+| Demônio | Súcubo | 30 | 8 | 110 | 1,2 s | Puxa o alvo 18 na direção da criatura (chefes resistem). | 90 ✦ |
+| Demônio | Infernal | 40 | 26 | 110 | 2,2 s | Área: atinge inimigos num raio de 40 ao redor do alvo com 80% do dano. | 110 ✦ |
 | Anjo | Querubim | 25 | 8 | 110 | 0,8 s | Garras em cadeia: o golpe salta para até 2 inimigos próximos (85% do dano a cada salto). | 80 ✦ |
 | Anjo | Valquíria | 35 | 16 | 105 | 1,1 s | Alvo único, alcance alto. | 100 ✦ |
 | Anjo | Guardião | 30 | 7 | 90 | 1 s | Bênção: criaturas num raio de 80 ganham imunidade a teia e atordoamento. | 90 ✦ |
@@ -101,18 +101,18 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 ## Heróis
 | Herói | Raça | Vida | Vel. | Ataque | Pulso | Bônus de raça | Preço |
 |---|---|---|---|---|---|---|---|
-| Cavaleiro | Humano | 120 | 115 | 10 de dano num alvo a cada 0,5 s, alcance 60. | Onda de Choque: 35 de dano, raio de 95, recarga 12 s. O dano cresce +10% por nível do herói. | Criaturas da raça Humano: +10% de alcance. | inicial |
-| Nobre Vampiro | Vampiro | 100 | 125 | 8 de dano num alvo a cada 0,45 s, alcance 55. Cada golpe cura 0,5 do Nexus. | Revoada de Morcegos: 25 de dano, raio de 100, recarga 12 s. Cura 4 de vida do herói por inimigo atingido. O dano cresce +10% por nível do herói. | Criaturas da raça Vampiro: cada abate cura 1 de vida do Nexus. | 150 ✦ |
-| Draconato | Dragão | 150 | 105 | 8 de dano em leque (todos à frente) a cada 0,65 s, alcance 55. | Rugido Flamejante: 30 de dano, raio de 130, recarga 13 s. O dano cresce +10% por nível do herói. | Criaturas da raça Dragão: +10% de dano. | 200 ✦ |
-| Licantropo | Lobisomem | 110 | 135 | 6 de dano num alvo a cada 0,3 s, alcance 48. | Uivo: 15 de dano, raio de 110, recarga 12 s. Inimigos fogem do Nexus por 2 s. O dano cresce +10% por nível do herói. | Criaturas da raça Lobisomem: +15% de velocidade de ataque. | 200 ✦ |
-| Espectro | Fantasma | 90 | 120 | 11 de dano num alvo a cada 0,5 s, alcance 75. Ignora armadura. | Travessia: 45 de dano, investida de 200 que atravessa o campo, recarga 10 s. O dano cresce +10% por nível do herói. | Criaturas da raça Fantasma: ignoram 2 de armadura. | 220 ✦ |
-| Bruxa | Bruxa | 90 | 115 | 8 de dano num alvo a cada 0,7 s, alcance 110. | Maldição: 10 de dano, raio de 115, recarga 12 s. Envenena: 8/s por 4 s. O dano cresce +10% por nível do herói. | Criaturas da raça Bruxa: venenos, poças e efeitos de golpe duram +1 s. | 220 ✦ |
-| Rainha Fada | Fada | 85 | 130 | 7 de dano num alvo a cada 0,45 s, alcance 95. | Bênção Feérica: 15 de dano, raio de 90, recarga 14 s. Todas as criaturas atacam 50% mais rápido por 5 s. O dano cresce +10% por nível do herói. | Criaturas da raça Fada: +12% de alcance. | 240 ✦ |
-| Colosso | Golem | 220 | 85 | 12 de dano em leque (todos à frente) a cada 0,9 s, alcance 45. | Terremoto: 25 de dano, raio de 100, recarga 13 s. Atordoa por 1,8 s (chefes resistem). O dano cresce +10% por nível do herói. | Criaturas da raça Golem: +12% de dano. | 260 ✦ |
-| Senhor dos Mortos | Necromante | 110 | 110 | 9 de dano em leque (todos à frente) a cada 0,6 s, alcance 55. | Erguer Mortos: 10 de dano, raio de 80, recarga 14 s. Ergue 3 esqueletos aliados por 8 s. O dano cresce +10% por nível do herói. | Criaturas da raça Necromante: +12% de velocidade de ataque. | 260 ✦ |
-| Rainha Górgona | Górgona | 100 | 115 | 9 de dano num alvo a cada 0,55 s, alcance 85. | Olhar Fatal: 20 de dano, leque à frente (alcance 140), recarga 13 s. Petrifica por 2,2 s (chefes resistem). O dano cresce +10% por nível do herói. | Criaturas da raça Górgona: venenos, poças e efeitos de golpe duram +1 s. | 260 ✦ |
-| Arquidemônio | Demônio | 130 | 120 | 9 de dano em leque (todos à frente) a cada 0,55 s, alcance 60. | Pacto: 90 de dano, raio de 110, recarga 12 s. Custa 30% da vida do herói. O dano cresce +10% por nível do herói. | Criaturas da raça Demônio: +10% de chance de crítico. | 280 ✦ |
-| Arcanjo | Anjo | 120 | 125 | 11 de dano num alvo a cada 0,5 s, alcance 60. | Juízo: 70 de dano, raio em linha (alcance 220), recarga 12 s. O dano cresce +10% por nível do herói. | Criaturas da raça Anjo: +25% de dano contra elites e chefes. | 280 ✦ |
+| Cavaleiro | Humano | 120 | 115 | 10 de dano num alvo a cada 0,5 s, alcance 60. | Carga Heroica (recarga 11 s): avança 150 com o escudo na direção da mira: 40 de dano em quem está no caminho, que é arremessado 60 para longe do Nexus (chefes resistem ao arremesso). O dano cresce +10% por nível do herói. | Criaturas da raça Humano: +10% de alcance. | inicial |
+| Nobre Vampiro | Vampiro | 100 | 125 | 8 de dano num alvo a cada 0,45 s, alcance 55. Cada golpe cura 0,5 do Nexus. | Revoada de Morcegos (recarga 12 s): morcegos caçam os 6 inimigos mais próximos (até 150): 30 de dano e sangramento 6/s por 3 s. Cura 4 de vida do herói por inimigo atingido. O dano cresce +10% por nível do herói. | Criaturas da raça Vampiro: cada abate cura 1 de vida do Nexus. | 150 ✦ |
+| Draconato | Dragão | 150 | 105 | 8 de dano em leque (todos à frente) a cada 0,65 s, alcance 55. | Lança-Chamas (recarga 13 s): jato de fogo por 2,5 s que segue a mira (alcance 110): 45 de dano por segundo e queimadura 6/s. O dano cresce +10% por nível do herói. | Criaturas da raça Dragão: +10% de dano. | 200 ✦ |
+| Licantropo | Lobisomem | 110 | 135 | 6 de dano num alvo a cada 0,3 s, alcance 48. | Fúria Lunar (recarga 16 s): vira um lobisomem gigante por 6 s: ataca 100% mais rápido, com +50% de dano, em leque, e cada golpe cura 15% do dano. Ao transformar, uiva (15 de dano num raio de 90). Inimigos atingidos fogem do Nexus por 1,5 s. O dano cresce +10% por nível do herói. | Criaturas da raça Lobisomem: +15% de velocidade de ataque. | 200 ✦ |
+| Espectro | Fantasma | 90 | 120 | 11 de dano num alvo a cada 0,5 s, alcance 75. Ignora armadura. | Travessia (recarga 10 s): desliza translúcido 200 na direção da mira em 0,6 s: 45 de dano em quem atravessa. Inimigos atingidos fogem do Nexus por 1,5 s. O dano cresce +10% por nível do herói. | Criaturas da raça Fantasma: ignoram 2 de armadura. | 220 ✦ |
+| Bruxa | Bruxa | 90 | 115 | 8 de dano num alvo a cada 0,7 s, alcance 110. | Feitiço do Sapo (recarga 16 s): inimigos comuns num raio de 90 viram sapos por 4 s: andam devagar, levam +50% de dano e não ferem o herói nem o Nexus. Chefes só levam 15 de dano. O dano cresce +10% por nível do herói. | Criaturas da raça Bruxa: venenos, poças e efeitos de golpe duram +1 s. | 220 ✦ |
+| Rainha Fada | Fada | 85 | 130 | 7 de dano num alvo a cada 0,45 s, alcance 95. | Bênção Feérica (recarga 14 s): todas as criaturas atacam 50% mais rápido por 5 s; 15 de dano num raio de 90. O dano cresce +10% por nível do herói. | Criaturas da raça Fada: +12% de alcance. | 240 ✦ |
+| Colosso | Golem | 220 | 85 | 12 de dano em leque (todos à frente) a cada 0,9 s, alcance 55. | Fenda Sísmica (recarga 13 s): soca o chão e abre uma fenda de 170 na direção da mira: 30 de dano; a fenda fica 3 s deixando quem passa 50% mais lento. Atordoa por 1,5 s (chefes resistem). O dano cresce +10% por nível do herói. | Criaturas da raça Golem: +12% de dano. | 260 ✦ |
+| Senhor dos Mortos | Necromante | 110 | 110 | 9 de dano em leque (todos à frente) a cada 0,6 s, alcance 55. | Erguer Mortos (recarga 14 s): ergue até 5 esqueletos aliados onde inimigos morreram nos últimos segundos (sem corpos, 2 ao redor do herói) por 8 s. O dano cresce +10% por nível do herói. | Criaturas da raça Necromante: +20% de velocidade de ataque. | 260 ✦ |
+| Rainha Górgona | Górgona | 100 | 115 | 9 de dano num alvo a cada 0,55 s, alcance 85. | Olhar Fatal (recarga 13 s): leque à frente (alcance 140): 20 de dano. Petrifica por 2,2 s (chefes resistem). O dano cresce +10% por nível do herói. | Criaturas da raça Górgona: venenos, poças e efeitos de golpe duram +1 s. | 260 ✦ |
+| Arquidemônio | Demônio | 130 | 120 | 9 de dano em leque (todos à frente) a cada 0,55 s, alcance 60. | Chuva de Meteoros (recarga 13 s): 5 meteoros caem em sequência ao redor da mira: 45 de dano cada (raio 38) e chão em chamas. Custa 25% da vida do herói. O dano cresce +10% por nível do herói. | Criaturas da raça Demônio: +10% de chance de crítico. | 280 ✦ |
+| Arcanjo | Anjo | 120 | 125 | 11 de dano num alvo a cada 0,5 s, alcance 60. | Juízo Celestial (recarga 12 s): após 0,8 s, uma coluna de luz desce na mira: 110 de dano (raio 45) e marca quem atinge (+30% de dano recebido por 4 s). O dano cresce +10% por nível do herói. | Criaturas da raça Anjo: +25% de dano contra elites e chefes. | 280 ✦ |
 
 XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51 · nível 5 → 111 · nível 10 → 366 · nível 15 → 771 · nível 20 → 1326.
 

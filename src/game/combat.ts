@@ -1,10 +1,10 @@
 import { ARENA, HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureCooldown, creatureDamage, creatureRange, killHaste } from './creatureStats';
-import { applyHitEffects, isHostile, onEnemyKilled, raiseSkeleton, sourceDamageMultiplier, vulnerability } from './hitEffects';
-import { PULSE_DAMAGE_PER_LEVEL } from '../data/heroUpgrades';
+import { applyHitEffects, isHostile, onEnemyKilled, sourceDamageMultiplier, vulnerability } from './hitEffects';
+import { heroTransform } from './pulses';
 import { WAVES } from '../data/waves';
 import { enemyArmor, shieldFactor } from './enemies';
-import { grantXp, healHero, heroMaxHp } from './hero';
+import { grantXp, healHero } from './hero';
 import { dropLoot } from './loot';
 import { spawnEnemyAt } from './spawning';
 import { random } from './random';
@@ -127,89 +127,6 @@ function distanceToSegment(p: Point, a: Point, b: Point): number {
   return Math.hypot(p.x - (a.x + dx * t), p.y - (a.y + dy * t));
 }
 
-const clampToArena = (p: Point): Point => {
-  const m = HERO_PLACEMENT.edgeMargin;
-  return { x: Math.min(ARENA.width - m, Math.max(m, p.x)), y: Math.min(ARENA.height - m, Math.max(m, p.y)) };
-};
-
-/** Multiplicador de dano do Pulso: talentos, melhorias do herói e +10% por nível do herói. */
-export const pulsePower = (state: RunState): number =>
-  (1 + state.talents.heroDamage) * (1 + state.heroStats.pulseDamage) * (1 + PULSE_DAMAGE_PER_LEVEL * (state.hero.level - 1));
-
-/** Habilidade do herói (dados em HeroDef.pulse). Devolve false se ainda está recarregando. */
-/**
- * `aim`: para onde mirar habilidades direcionais (cursor do mouse ou direção do teclado);
- * sem mira, vai no inimigo mais próximo.
- */
-export function firePulse(state: RunState, aim?: Point): boolean {
-  if (state.phase !== 'playing' || state.pulse.remaining > 0 || state.hero.dead) return false;
-  const { hero } = state;
-  const pulse = hero.def.pulse;
-  state.pulse.remaining = state.pulse.cooldown;
-  const start = { x: hero.x, y: hero.y };
-  let end: Point | undefined;
-  let cone: { angle: number; halfAngle: number; length: number } | undefined;
-  let beam = false;
-  let isHit: (e: Enemy) => boolean;
-
-  if (pulse.shape?.kind === 'dash') {
-    // Investida: atravessa o campo na direção do inimigo mais próximo (ou para onde olha).
-    const nearest = state.enemies.filter(isHostile).sort((a, b) => distance(a, hero) - distance(b, hero))[0];
-    const target = aim ?? nearest;
-    const angle = target ? Math.atan2(target.y - hero.y, target.x - hero.x) : hero.facing > 0 ? 0 : Math.PI;
-    const length = pulse.shape.length * (1 + state.talents.pulseRadius);
-    end = clampToArena({ x: hero.x + Math.cos(angle) * length, y: hero.y + Math.sin(angle) * length });
-    const halfWidth = pulse.shape.width / 2;
-    const segmentEnd = end;
-    isHit = (e) => distanceToSegment(e, start, segmentEnd) <= halfWidth;
-    hero.x = end.x;
-    hero.y = end.y;
-    hero.target = { ...end };
-  } else if (pulse.shape?.kind === 'cone' || pulse.shape?.kind === 'beam') {
-    // leque ou raio em linha na direção da mira (ou do inimigo mais próximo); o herói fica parado
-    const nearest = state.enemies.filter(isHostile).sort((a, b) => distance(a, hero) - distance(b, hero))[0];
-    const target = aim ?? nearest;
-    const angle = target ? Math.atan2(target.y - hero.y, target.x - hero.x) : hero.facing > 0 ? 0 : Math.PI;
-    const length = pulse.shape.length * (1 + state.talents.pulseRadius);
-    if (pulse.shape.kind === 'cone') {
-      const half = pulse.shape.halfAngle;
-      isHit = (e) => distance(e, hero) <= length && angleDiff(Math.atan2(e.y - hero.y, e.x - hero.x), angle) <= half;
-      cone = { angle, halfAngle: half, length };
-    } else {
-      end = { x: hero.x + Math.cos(angle) * length, y: hero.y + Math.sin(angle) * length };
-      const halfWidth = pulse.shape.width / 2;
-      const segmentEnd = end;
-      isHit = (e) => distanceToSegment(e, start, segmentEnd) <= halfWidth + e.def.radius * 0.5;
-      beam = true;
-    }
-  } else {
-    isHit = (e) => distance(e, hero) < state.pulse.radius;
-  }
-
-  // força do Pulso: talentos, melhorias do herói e nível do herói
-  const power = pulsePower(state);
-  let hit = 0;
-  for (const enemy of state.enemies) {
-    if (!isHostile(enemy) || !isHit(enemy)) continue;
-    damageEnemy(state, enemy, pulse.damage * power, undefined, {
-      ignoreArmor: hero.def.attack.pierceArmor,
-    });
-    if (pulse.fear && !enemy.def.isBoss) enemy.fearTimer = Math.max(enemy.fearTimer, pulse.fear);
-    if (pulse.poison) poisonEnemy(enemy, pulse.poison.dps * power, pulse.poison.duration);
-    if (pulse.stun && !enemy.def.isBoss && !enemy.dead) {
-      enemy.stunTimer = Math.max(enemy.stunTimer, pulse.stun.duration);
-      enemy.stunLook = pulse.stun.look;
-    }
-    hit++;
-  }
-  if (pulse.haste) state.haste = { amount: pulse.haste.amount, remaining: pulse.haste.duration };
-  if (pulse.raise) for (let i = 0; i < pulse.raise.count; i++) raiseSkeleton(state, hero, pulse.raise.duration);
-  if (pulse.selfDamage) hero.hp = Math.max(1, hero.hp - heroMaxHp(state) * pulse.selfDamage);
-  if (pulse.healPerEnemy > 0 && hit > 0) healHero(state, pulse.healPerEnemy * hit);
-  state.events.push({ type: 'pulse', hero: hero.def.id, x: start.x, y: start.y, radius: state.pulse.radius, to: end, cone, beam });
-  return true;
-}
-
 /** Move o herói (direção do teclado tem prioridade sobre o alvo de toque) e ataca. */
 export function updateHero(state: RunState, dt: number, direction: Point): void {
   const { hero } = state;
@@ -255,7 +172,9 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
   if (!target) return;
 
   // Leque: todos dentro do alcance e do ângulo na direção do alvo mais próximo.
-  const pattern = attack.pattern;
+  // Fúria Lunar: golpes em leque, mais fortes e mais rápidos, que curam o herói
+  const fury = heroTransform(state);
+  const pattern = fury && attack.pattern.kind === 'single' ? { kind: 'cone' as const, halfAngle: 0.9 } : attack.pattern;
   const aim = Math.atan2(target.y - hero.y, target.x - hero.x);
   const victims =
     pattern.kind === 'cone'
@@ -267,12 +186,13 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
       : [target];
   const crit = random() < state.modifiers.critChance;
   const damage =
-    attack.damage * state.modifiers.damage * (1 + state.talents.heroDamage + state.heroStats.damage) * (crit ? 2 : 1);
+    attack.damage * state.modifiers.damage * (1 + state.talents.heroDamage + state.heroStats.damage) * (crit ? 2 : 1) * (1 + (fury?.damage ?? 0));
   for (const victim of victims) damageEnemy(state, victim, damage, undefined, { ignoreArmor: attack.pierceArmor, crit });
-  if (attack.healPerHit > 0) healNexus(state, attack.healPerHit * victims.length);
-  if (state.heroStats.lifesteal > 0) healHero(state, damage * victims.length * state.heroStats.lifesteal);
+  if (attack.healPerHit > 0) healHero(state, attack.healPerHit * victims.length);
+  const lifesteal = state.heroStats.lifesteal + (fury?.lifesteal ?? 0);
+  if (lifesteal > 0) healHero(state, damage * victims.length * lifesteal);
 
-  hero.attackTimer = attack.cooldown / (state.modifiers.attackSpeed + state.heroStats.attackSpeed);
+  hero.attackTimer = attack.cooldown / (state.modifiers.attackSpeed + state.heroStats.attackSpeed) / (1 + (fury?.attackSpeed ?? 0));
   hero.lastAttackAt = state.time;
   if (!hero.moving) hero.facing = target.x >= hero.x ? 1 : -1;
   state.events.push({
@@ -329,6 +249,11 @@ export function updateDamageOverTime(state: RunState, dt: number): void {
     pool.remaining -= dt;
     for (const enemy of state.enemies) {
       if (isHostile(enemy) && distance(enemy, pool) <= pool.radius) {
+        if (pool.slow && !enemy.def.isBoss) {
+          enemy.slowTimer = Math.max(enemy.slowTimer, 0.3);
+          enemy.slowMultiplier = Math.min(enemy.slowTimer > 0.3 ? enemy.slowMultiplier : 1, 1 - pool.slow);
+        }
+        if (pool.dps <= 0) continue;
         damageEnemy(state, enemy, pool.dps * dt, undefined, { ignoreArmor: true, overTime: true });
         if (enemy.dead && pool.bounty) {
           state.gold += pool.bounty;

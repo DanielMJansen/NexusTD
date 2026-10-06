@@ -154,6 +154,7 @@ Todos `PROPOSTA` até o playtest. **Os números exatos ficam em [`docs/valores.m
 - Sem Fim: além disso, por onda depois da 20, vida ×1,08 e dano ×1,05 (exponencial) e elites até 35%.
 - XP do herói para o próximo nível: 15 + 12·(n − 1) + 3·(n − 1)² (≈ nível 14–15 numa vitória; Sem Fim vai além).
 - Dano do Pulso: × (1 + 0,1 × (nível do herói − 1)), além dos talentos e melhorias do herói. Pulsos que curam, curam o **herói** (nunca o Nexus).
+- **Pulsos com personalidade** (`docs/proposta-pulsos.md`): Carga Heroica (Cavaleiro), Revoada que caça (Vampiro), Lança-Chamas contínuo (Draconato), Fúria Lunar (Licantropo vira lobisomem gigante), Travessia que desliza (Espectro), Feitiço do Sapo (Bruxa), Bênção Feérica (Fada), Fenda Sísmica (Colosso), Erguer Mortos dos caídos (Senhor dos Mortos), Olhar Fatal (Górgona; petrificados se despedaçam), Chuva de Meteoros (Arquidemônio), Juízo Celestial (Arcanjo). Pulsos direcionais miram no mouse ou no WASD.
 
 **Calibragem de 07/10/2026** (simulação real, 30 runs por equipe; bot que invoca, evolui escolhendo vertentes ao acaso, compra vagas e Nexus, abre baús, busca loot e usa o Pulso; cada raça com o Arqueiro + suas 3 classes e o próprio herói). Talentos comprados do mais barato para o mais caro:
 
@@ -164,7 +165,7 @@ Todos `PROPOSTA` até o playtest. **Os números exatos ficam em [`docs/valores.m
 | ~2.500 ✦ (≈ 20 runs) | ~66% | |
 | Árvore completa (7.255 ✦) | ~93%; Sem Fim termina entre as ondas 24 e 40 (média ~32) | |
 
-Diferença entre raças com ~2.500 ✦: Fantasma, Fada, Bruxa, Dragão e Lobisomem no topo (~85–95%); Humano e Necromante embaixo (~35–50%). Revisar com playtest real: o bot não posiciona criaturas nem move o herói como um jogador.
+Depois dos Pulsos novos (mesma média: ~25% sem talentos, ~68% com 2.500 ✦): Bruxa, Fantasma, Lobisomem e Fada no topo (~85–95% com 2.500 ✦); Necromante, Humano e Anjo embaixo (~35–45%). Revisar com playtest real: o bot não posiciona criaturas nem move o herói como um jogador.
 
 ## 10. Monetização (adiada)
 Nada no MVP. Opções futuras: venda direta, cosméticos (as skins já existem como base), passe de batalha, doação. Gacha pago exige checar regras (no Brasil, ECA Digital sobre caixas de recompensa, além das lojas). Evitar economia com troca entre jogadores.
@@ -211,6 +212,7 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 | 07/10/2026 | F10: raça Górgona (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Demônio (3 classes com vertentes + herói) |
 | 07/10/2026 | F10: raça Anjo (3 classes com vertentes + herói) |
+| 07/10/2026 | Pulsos refeitos com personalidade (12 tipos); ataque do Nobre Vampiro cura o herói; ajuste de raças (Golem, Demônio, Necromante +; Fantasma, Bruxa, Fada −) |
 | 07/10/2026 | Pulsos: dano cresce +10% por nível do herói; a Revoada do Vampiro cura o herói em vez do Nexus |
 | 07/10/2026 | Recalibragem completa: talentos bem mais fracos (Nexus+ e Legião mais caros), inimigos mais fortes e numerosos, Sem Fim com escalada exponencial, XP do herói mais lenta, raças aproximadas; valores exatos em `docs/valores.md` (gerado) |
 | 06/10/2026 | Plano v1.0: herói com XP, vida e renascimento; run de 20 ondas com 3 chefes, escalonamento, inimigos com habilidades e modo Sem Fim; ouro para loot, Nexus upável e evolução progressiva (a implementar) |
@@ -218,7 +220,6 @@ Escopo grande (4 gêneros) · explosão de conteúdo (raças × classes × heró
 **Em aberto:** passivas de raça além do bônus do herói · duração real da run · nível permanente (fragmentos) · variantes · tags/sinergias · estágios e modos · arte e música finais · engine final.
 
 ## 13. Próximos passos
-1. Revisar com o usuário os Pulsos de cada herói.
 2. Playtest com a nova dificuldade; ajustar as raças mais fortes/fracas.
 3. Próximo lote de raças (Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais), com proposta antes.
 2. Playtest com outras pessoas pelo GitHub Pages.

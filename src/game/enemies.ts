@@ -142,7 +142,8 @@ export function updateEnemies(state: RunState, dt: number): void {
       updateAlly(state, enemy, dt);
       continue;
     }
-    const pace = useTraits(state, enemy, dt);
+    // sapo: sem habilidades e bem devagar
+    const pace = enemy.hexTimer > 0 ? 0.4 : useTraits(state, enemy, dt);
     enemy.slowTimer -= dt;
     const charge = enemy.charging > 0 ? findTrait(enemy, 'charge') : undefined;
     const enrage = enemy.enraged ? findTrait(enemy, 'enrage') : undefined;
@@ -165,7 +166,7 @@ export function updateEnemies(state: RunState, dt: number): void {
     }
     if (enemy.held || pace === 0) continue;
     if (length < NEXUS.contactRadius) {
-      damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
+      if (enemy.hexTimer <= 0) damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
       enemy.dead = true;
       continue;
     }

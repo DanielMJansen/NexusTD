@@ -9,8 +9,8 @@ import { findFamily, type Tier } from '../data/upgrades';
 import type { Choice, RunState } from '../game/state';
 
 export const RUN_KEY = 'nexus-run-v1';
-/** v6: efeitos de golpe, aliados temporários e aceleração do Pulso (runs salvas em versões anteriores são descartadas). */
-const RUN_VERSION = 6;
+/** v7: Pulsos com personalidade (runs salvas em versões anteriores são descartadas). */
+const RUN_VERSION = 7;
 
 interface SavedRun {
   version: number;

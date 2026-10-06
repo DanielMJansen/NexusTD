@@ -1,6 +1,6 @@
 import type { CreatureId } from '../data/creatures';
 import type { EnemyId } from '../data/enemies';
-import type { HeroId } from '../data/heroes';
+import type { HeroId, PulseEffect } from '../data/heroes';
 import type { NexusUpgradeId } from '../data/nexusUpgrades';
 import type { Point, RunResult } from './state';
 
@@ -25,13 +25,19 @@ export type GameEvent =
   | {
       type: 'pulse';
       hero: HeroId;
+      kind: PulseEffect['kind'];
       x: number;
       y: number;
       radius: number;
       to?: Point;
       cone?: { angle: number; halfAngle: number; length: number };
-      beam?: boolean;
     }
+  /** Revoada: morcegos saem do herói até cada alvo. */
+  | { type: 'pulseSwarm'; from: Point; to: Point[] }
+  /** Lança-Chamas (a cada quadro enquanto dura). */
+  | { type: 'pulseFlame'; x: number; y: number; angle: number; halfAngle: number; length: number }
+  /** Meteoro ou coluna de luz caindo. */
+  | { type: 'pulseStrike'; kind: 'meteor' | 'judgment'; x: number; y: number; radius: number }
   /** Grito em leque (Banshee). */
   | { type: 'screech'; x: number; y: number; angle: number; halfAngle: number; range: number }
   | { type: 'poolCreated'; x: number; y: number; radius: number }

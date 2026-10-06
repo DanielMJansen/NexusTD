@@ -135,6 +135,9 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
     allyExplode: null,
     summonedAlly: false,
     executed: false,
+    hexTimer: 0,
+    hexVuln: 0,
+    pulseHitId: 0,
     // primeira recarga sorteada para os inimigos não agirem em sincronia
     timers: def.traits.map(() => 1 + random() * 2),
     charging: 0,

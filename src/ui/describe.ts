@@ -274,22 +274,57 @@ export function attackText(def: HeroDef): string {
 /** Pulso do herói, em texto (com o nome em negrito). */
 export function pulseText(def: HeroDef): string {
   const p = def.pulse;
-  const heal = p.healPerEnemy > 0 ? ` Cura ${p.healPerEnemy} de vida do herói por inimigo atingido.` : '';
-  const fear = p.fear ? ` Inimigos fogem do Nexus por ${p.fear} s.` : '';
-  const poison = p.poison ? ` Envenena: ${p.poison.dps}/s por ${p.poison.duration} s.` : '';
-  const stun = p.stun ? ` ${p.stun.look === 'stone' ? 'Petrifica' : 'Atordoa'} por ${formatNumber(p.stun.duration)} s (chefes resistem).` : '';
-  const haste = p.haste ? ` Todas as criaturas atacam ${Math.round(p.haste.amount * 100)}% mais rápido por ${formatNumber(p.haste.duration)} s.` : '';
-  const raise = p.raise ? ` Ergue ${p.raise.count} esqueletos aliados por ${formatNumber(p.raise.duration)} s.` : '';
-  const cost = p.selfDamage ? ` Custa ${Math.round(p.selfDamage * 100)}% da vida do herói.` : '';
-  const area =
-    p.shape?.kind === 'dash'
-      ? `investida de ${p.shape.length} que atravessa o campo`
-      : p.shape?.kind === 'cone'
-        ? `leque à frente (alcance ${p.shape.length})`
-        : p.shape?.kind === 'beam'
-          ? `raio em linha (alcance ${p.shape.length})`
-          : `raio de ${p.radius}`;
-  const damage = p.damage > 0 ? `${p.damage} de dano, ` : '';
-  const scaling = p.damage > 0 ? ' O dano cresce +10% por nível do herói.' : '';
-  return `<b>${p.name}</b>: ${damage}${area}, recarga ${p.cooldown} s.${heal}${fear}${poison}${stun}${haste}${raise}${cost}${scaling}`;
+  const e = p.effect;
+  const d = formatNumber(p.damage);
+  const pctOf = (v: number) => `${Math.round(v * 100)}%`;
+  let what: string;
+  switch (e.kind) {
+    case 'burst':
+      what = `explosão de ${d} de dano num raio de ${p.radius}.`;
+      break;
+    case 'charge':
+      what = `avança ${e.length} com o escudo na direção da mira: ${d} de dano em quem está no caminho, que é arremessado ${e.knockback} para longe do Nexus (chefes resistem ao arremesso).`;
+      break;
+    case 'glide':
+      what = `desliza translúcido ${e.length} na direção da mira em ${formatNumber(e.duration)} s: ${d} de dano em quem atravessa.`;
+      break;
+    case 'cone':
+      what = `leque à frente (alcance ${e.length}): ${d} de dano.`;
+      break;
+    case 'swarm':
+      what = `morcegos caçam os ${e.count} inimigos mais próximos (até ${e.range}): ${d} de dano e sangramento ${formatNumber(e.bleed.dps)}/s por ${formatNumber(e.bleed.duration)} s.`;
+      break;
+    case 'flame':
+      what = `jato de fogo por ${formatNumber(e.duration)} s que segue a mira (alcance ${e.length}): ${d} de dano por segundo e queimadura ${formatNumber(e.burn.dps)}/s.`;
+      break;
+    case 'transform':
+      what = `vira um lobisomem gigante por ${formatNumber(e.duration)} s: ataca ${pctOf(e.attackSpeed)} mais rápido, com +${pctOf(e.damage)} de dano, em leque, e cada golpe cura ${pctOf(e.lifesteal)} do dano. Ao transformar, uiva (${d} de dano num raio de ${p.radius}).`;
+      break;
+    case 'hex':
+      what = `inimigos comuns num raio de ${p.radius} viram sapos por ${formatNumber(e.duration)} s: andam devagar, levam +${pctOf(e.vulnerable)} de dano e não ferem o herói nem o Nexus. Chefes só levam ${d} de dano.`;
+      break;
+    case 'haste':
+      what = `todas as criaturas atacam ${pctOf(e.amount)} mais rápido por ${formatNumber(e.duration)} s; ${d} de dano num raio de ${p.radius}.`;
+      break;
+    case 'fissure':
+      what = `soca o chão e abre uma fenda de ${e.length} na direção da mira: ${d} de dano; a fenda fica ${formatNumber(e.duration)} s deixando quem passa ${pctOf(e.slow)} mais lento.`;
+      break;
+    case 'raise':
+      what = `ergue até ${e.count} esqueletos aliados onde inimigos morreram nos últimos segundos (sem corpos, ${e.fallback} ao redor do herói) por ${formatNumber(e.duration)} s.`;
+      break;
+    case 'meteors':
+      what = `${e.count} meteoros caem em sequência ao redor da mira: ${d} de dano cada (raio ${e.radius}) e chão em chamas.`;
+      break;
+    case 'judgment':
+      what = `após ${formatNumber(e.delay)} s, uma coluna de luz desce na mira: ${d} de dano (raio ${e.radius}) e marca quem atinge (+${pctOf(e.mark.amount)} de dano recebido por ${formatNumber(e.mark.duration)} s).`;
+      break;
+  }
+  const extras = [
+    p.stun ? `${p.stun.look === 'stone' ? 'Petrifica' : 'Atordoa'} por ${formatNumber(p.stun.duration)} s (chefes resistem).` : '',
+    p.fear ? `Inimigos atingidos fogem do Nexus por ${formatNumber(p.fear)} s.` : '',
+    p.healPerEnemy > 0 ? `Cura ${p.healPerEnemy} de vida do herói por inimigo atingido.` : '',
+    p.selfDamage ? `Custa ${pctOf(p.selfDamage)} da vida do herói.` : '',
+    p.damage > 0 ? 'O dano cresce +10% por nível do herói.' : '',
+  ].filter(Boolean);
+  return `<b>${p.name}</b> (recarga ${p.cooldown} s): ${what}${extras.length ? ' ' + extras.join(' ') : ''}`;
 }

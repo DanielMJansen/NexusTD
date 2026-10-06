@@ -45,6 +45,7 @@ export function drawFrame(
 
   drawNexusGround(ctx, state, !!interaction.nexusOpen, time);
   for (const pool of state.pools) drawPool(ctx, pool, time);
+  for (const strike of state.pulseFx.strikes) drawStrikeWarning(ctx, strike, time);
   for (const item of state.loot) drawLoot(ctx, item, time);
   for (const creature of state.creatures) drawAuraRing(ctx, creature, time);
 
@@ -127,11 +128,14 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
   if (enemy.allyTimer > 0) filters.push('hue-rotate(90deg) saturate(0.7)');
   if (state.time - enemy.lastHitAt < HIT_FLASH) filters.push('brightness(2.4) saturate(0.4)');
   if (filters.length) ctx.filter = filters.join(' ');
-  drawSprite(ctx, enemy.def.id, enemy.x, enemy.y, scale, {
-    time: time + enemy.animationOffset,
-    facing: enemy.x < ARENA.center.x ? 1 : -1,
-    moving: !enemy.stone,
-  });
+  if (enemy.hexTimer > 0) drawFrog(ctx, enemy.x, enemy.y, scale, time + enemy.animationOffset);
+  else {
+    drawSprite(ctx, enemy.def.id, enemy.x, enemy.y, scale, {
+      time: time + enemy.animationOffset,
+      facing: enemy.x < ARENA.center.x ? 1 : -1,
+      moving: !enemy.stone,
+    });
+  }
   ctx.restore();
   if (enemy.shield > 0) {
     // escudo do Lich
@@ -252,6 +256,7 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
   ctx.restore();
   const form = ascendedForm(creature);
   if (form) drawBranchEmblem(ctx, creature.x + 13, creature.y + 12, form.icon, form.color);
+  if (state.haste.remaining > 0) drawSparkles(ctx, creature.x, creature.y - 10, time + creature.x);
   if (creature.webTimer > 0) drawWeb(ctx, creature.x, creature.y - 4, Math.min(1, creature.webTimer * 2));
   if (creature.stunTimer > 0) drawStunStars(ctx, creature.x, creature.y - 26, time);
   if (creature.level > 1) drawLevelStars(ctx, creature.x, creature.y + 20, creature.level);
@@ -297,6 +302,88 @@ function drawWeb(ctx: CanvasRenderingContext2D, x: number, y: number, alpha: num
   }
   ctx.stroke();
   ctx.restore();
+}
+
+/** Sapo (Feitiço do Sapo): pulinhos no lugar do inimigo. */
+function drawFrog(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number): void {
+  const hop = Math.abs(Math.sin(time * 4)) * 4;
+  const s = Math.max(0.8, scale * 0.8);
+  ctx.save();
+  ctx.translate(x, y + 8 - hop);
+  ctx.scale(s, s);
+  ctx.fillStyle = '#5ac85a';
+  ctx.strokeStyle = '#170c24';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 7, 5, 0, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  for (const side of [-1, 1]) {
+    ctx.fillStyle = '#7ae87a';
+    ctx.beginPath();
+    ctx.arc(side * 3.5, -4, 2.4, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#12081c';
+    ctx.beginPath();
+    ctx.arc(side * 3.5, -4.2, 1, 0, TAU);
+    ctx.fill();
+  }
+  ctx.strokeStyle = '#2a5a2a';
+  ctx.beginPath();
+  ctx.arc(0, 0.5, 3, 0.3, Math.PI - 0.3);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Aviso no chão antes do golpe: meteoro caindo (vermelho) ou coluna de luz (dourado). */
+function drawStrikeWarning(ctx: CanvasRenderingContext2D, strike: { x: number; y: number; delay: number; total: number; kind: 'meteor' | 'judgment' }, time: number): void {
+  const progress = 1 - strike.delay / strike.total;
+  const color = strike.kind === 'meteor' ? '255, 90, 40' : '255, 236, 160';
+  const r = strike.kind === 'meteor' ? 30 : 42;
+  ctx.save();
+  ctx.strokeStyle = `rgba(${color}, ${0.4 + progress * 0.5})`;
+  ctx.fillStyle = `rgba(${color}, ${0.08 + progress * 0.18})`;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(strike.x, strike.y + 6, r, r * 0.45, 0, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(strike.x, strike.y + 6, r * progress, r * 0.45 * progress, 0, 0, TAU);
+  ctx.stroke();
+  if (strike.kind === 'meteor') {
+    // meteoro descendo em diagonal
+    const fall = (1 - progress) * 160;
+    const mx = strike.x + fall * 0.5;
+    const my = strike.y - fall;
+    const g = ctx.createRadialGradient(mx, my, 0, mx, my, 9);
+    g.addColorStop(0, '#fff2c0');
+    g.addColorStop(0.4, '#ff8a2a');
+    g.addColorStop(1, '#ff4a1a00');
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(mx, my, 9, 0, TAU);
+    ctx.fill();
+  } else {
+    ctx.fillStyle = `rgba(255, 246, 192, ${0.15 + Math.sin(time * 20) * 0.08})`;
+    ctx.fillRect(strike.x - 3, strike.y - 200, 6, 206);
+  }
+  ctx.restore();
+}
+
+/** Pó dourado caindo: criatura acelerada pela Bênção Feérica. */
+function drawSparkles(ctx: CanvasRenderingContext2D, x: number, y: number, time: number): void {
+  ctx.fillStyle = '#ffe9a8';
+  for (let i = 0; i < 3; i++) {
+    const phase = (time * 1.4 + i / 3) % 1;
+    ctx.globalAlpha = 1 - phase;
+    ctx.beginPath();
+    ctx.arc(x + Math.sin(time * 3 + i * 2) * 8, y - 10 + phase * 16, 1.1, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
 }
 
 /** Raízes enroladas nos pés (preso pela Herbalista). */
@@ -441,9 +528,32 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
   ctx.fill();
   ctx.stroke();
   ctx.restore();
+  const glide = state.pulseFx.glide;
+  if (glide) {
+    // rastros fantasmagóricos ao longo do caminho percorrido
+    for (let i = 1; i <= 5; i++) {
+      const t = (glide.elapsed / glide.duration) * (1 - i * 0.16);
+      if (t <= 0) continue;
+      const eased = 1 - (1 - t) * (1 - t);
+      ctx.save();
+      ctx.globalAlpha = 0.28 - i * 0.04;
+      drawSprite(ctx, hero.def.id, glide.from.x + (glide.to.x - glide.from.x) * eased, glide.from.y + (glide.to.y - glide.from.y) * eased, 1.05, {
+        palette: hero.palette,
+        time,
+        facing: glide.to.x >= glide.from.x ? 1 : -1,
+      });
+      ctx.restore();
+    }
+  }
+  const fury = state.pulseFx.transform > 0;
   ctx.save();
+  if (glide) ctx.globalAlpha = 0.55;
+  if (fury) {
+    ctx.shadowColor = '#ff5a3a';
+    ctx.shadowBlur = 14;
+  }
   if (state.time - hero.lastHitAt < 0.08) ctx.filter = 'brightness(1.8) saturate(0.5)';
-  drawSprite(ctx, hero.def.id, hero.x, hero.y, 1.05, {
+  drawSprite(ctx, hero.def.id, hero.x, hero.y - (fury ? 6 : 0), fury ? 1.5 : 1.05, {
     palette: hero.palette,
     time,
     facing: hero.facing,
@@ -469,6 +579,26 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
 /** Poça borbulhante do Caldeirão (desaparece no fim). */
 function drawPool(ctx: CanvasRenderingContext2D, pool: Pool, time: number): void {
   const fade = Math.min(1, pool.remaining / 0.4) * Math.min(1, (pool.duration - pool.remaining) / 0.15 + 0.2);
+  if (pool.look === 'crack') {
+    ctx.save();
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = '#1a100a';
+    ctx.strokeStyle = '#ff8a3a88';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    const r = pool.radius * 0.6;
+    ctx.moveTo(pool.x - r, pool.y + 6);
+    ctx.lineTo(pool.x - r * 0.3, pool.y + 3);
+    ctx.lineTo(pool.x + r * 0.2, pool.y + 8);
+    ctx.lineTo(pool.x + r, pool.y + 5);
+    ctx.lineTo(pool.x + r * 0.3, pool.y + 9);
+    ctx.lineTo(pool.x - r * 0.4, pool.y + 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
   ctx.save();
   ctx.globalAlpha = fade;
   ctx.translate(pool.x, pool.y + 6);

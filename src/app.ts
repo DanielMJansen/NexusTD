@@ -8,7 +8,7 @@ import { buyNexusUpgrade } from './game/nexus';
 import { showChestChoices } from './ui/chestChoices';
 import { NexusPanel } from './ui/nexusPanel';
 import { CreaturePopup } from './ui/creaturePopup';
-import { firePulse } from './game/combat';
+import { firePulse } from './game/pulses';
 import type { GameEvent } from './game/events';
 import {
   buyHero,
@@ -271,6 +271,14 @@ export class App {
     }
   }
 
+  /** Mira dos Pulsos: direção do teclado, se pressionada; senão, o cursor sobre a arena. */
+  private aimPoint(): { x: number; y: number } | undefined {
+    const dir = this.keyboard.direction();
+    const hero = this.run.hero;
+    if (dir.x || dir.y) return { x: hero.x + dir.x * 100, y: hero.y + dir.y * 100 };
+    return this.interaction.pointerInArena ? { ...this.interaction.pointer } : undefined;
+  }
+
   private pulse(): void {
     if (!this.isPlaying()) return;
     // Mira: direção do teclado, se pressionada; senão, o cursor sobre a arena.
@@ -296,7 +304,7 @@ export class App {
       let remaining = elapsed * this.settings.gameSpeed;
       while (remaining > 1e-6) {
         const dt = Math.min(SIMULATION.maxFrameTime, remaining);
-        updateRun(this.run, dt, { direction: this.keyboard.direction() });
+        updateRun(this.run, dt, { direction: this.keyboard.direction(), aim: this.aimPoint() });
         this.effects.update(dt);
         remaining -= dt;
       }

@@ -26,7 +26,9 @@ export function sourceDamageMultiplier(creature: Creature, enemy: Enemy): number
 
 /** Multiplicador de dano recebido por marca e vulnerabilidade. */
 export const vulnerability = (enemy: Enemy): number =>
-  (enemy.markTimer > 0 ? 1 + enemy.markAmount : 1) * (enemy.vulnTimer > 0 ? 1 + enemy.vulnAmount : 1);
+  (enemy.markTimer > 0 ? 1 + enemy.markAmount : 1) *
+  (enemy.vulnTimer > 0 ? 1 + enemy.vulnAmount : 1) *
+  (enemy.hexTimer > 0 ? 1 + enemy.hexVuln : 1);
 
 /** Aplica os efeitos de golpe da criatura num inimigo atingido. `scale` = força do golpe (nível, melhorias). */
 export function applyHitEffects(state: RunState, creature: Creature, enemy: Enemy, scale: number, extraDuration = 0): void {
@@ -122,7 +124,13 @@ function explode(state: RunState, at: Enemy, radius: number, damage: number): vo
 
 /** Efeitos ao abater: explosão de marcados, ouro extra, esqueleto erguido, abates acumulados. */
 export function onEnemyKilled(state: RunState, enemy: Enemy, source?: Creature): void {
+  if (!enemy.summonedAlly) {
+    state.recentDeaths.push({ x: enemy.x, y: enemy.y, at: state.time });
+    if (state.recentDeaths.length > 12) state.recentDeaths.shift();
+  }
   if (enemy.markTimer > 0 && enemy.markExplode) explode(state, enemy, enemy.markExplode.radius, enemy.maxHp * enemy.markExplode.ratio);
+  // petrificado que morre se despedaça, ferindo os vizinhos
+  if (enemy.stunTimer > 0 && enemy.stunLook === 'stone' && !enemy.def.isBoss) explode(state, enemy, 30, enemy.maxHp * 0.25);
   if (!source) return;
   source.killStacks++;
   for (const effect of creatureEffects(source)) {
@@ -154,6 +162,7 @@ export function updateStatusTimers(enemy: Enemy, dt: number): void {
   }
   if (enemy.vulnTimer > 0 && (enemy.vulnTimer -= dt) <= 0) enemy.vulnAmount = 0;
   if (enemy.corrodeTimer > 0 && (enemy.corrodeTimer -= dt) <= 0) enemy.corrodeAmount = 0;
+  if (enemy.hexTimer > 0 && (enemy.hexTimer -= dt) <= 0) enemy.hexVuln = 0;
   if (enemy.weakenTimer > 0 && (enemy.weakenTimer -= dt) <= 0) {
     enemy.weakenSlow = 0;
     enemy.weakenDamage = 0;

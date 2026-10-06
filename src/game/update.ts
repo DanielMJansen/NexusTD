@@ -3,6 +3,7 @@ import { WAVES } from '../data/waves';
 import { offerChoices } from './choices';
 import { applyBlocks, updateCreatures, updateDamageOverTime, updateHero } from './combat';
 import { updateEnemies } from './enemies';
+import { updatePulses } from './pulses';
 import { updateLoot } from './loot';
 import { updateNexus } from './nexus';
 import { updateHeroVitals } from './hero';
@@ -12,6 +13,8 @@ import { createRun, type Point, type RunSetup, type RunState } from './state';
 export interface FrameInput {
   /** Direção do teclado (-1, 0 ou 1 em cada eixo). */
   direction: Point;
+  /** Ponto mirado (mouse sobre a arena ou direção do teclado), para Pulsos contínuos. */
+  aim?: Point;
 }
 
 export function startRun(setup: RunSetup): RunState {
@@ -47,7 +50,9 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   }
 
   updateHeroVitals(state, dt);
-  updateHero(state, dt, input.direction);
+  updatePulses(state, dt, input.aim);
+  // deslizando (Travessia), o herói não anda nem ataca por conta própria
+  if (!state.pulseFx.glide) updateHero(state, dt, input.direction);
   applyBlocks(state);
   updateEnemies(state, dt);
   updateNexus(state, dt);
