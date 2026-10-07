@@ -166,6 +166,40 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 ### Revisão das Fases 1 e 2 `[x]` (feita em 07/10, antes da Tundra)
 - Dar ao Cemitério e ao Pântano roteiros próprios (hordas, eventos, tréguas) e, se fizer sentido, trilhas e câmera — também fora do molde.
 
+### PUB. Publicação e segurança `[ ]` — PROPOSTA (07/10/2026)
+Objetivo: deixar o código seguro e pronto para ser **distribuído** em sites com anúncios e, depois, na **Steam**. Viável neste projeto: o jogo não tem servidor, a versão publicada tem ~590 KB e a simulação já é separada da interface. Esforço: PUB-A fácil (1 sessão), PUB-B médio-baixo (1–2 sessões), PUB-C médio (várias sessões, mais trâmites da Steam).
+
+**Princípio:** jogo só no navegador não tem segredo; qualquer um edita o save e lê o código. Para single-player isso é aceitável (quem trapaceia estraga só o próprio jogo). Tudo que valer dinheiro ou envolver competição precisa vir de fora do cliente: plataforma (Steam/portal) ou servidor.
+
+**PUB-A. Consolidar (fácil)**
+1. **Repositório privado** `[ ]` (hoje é público: qualquer um clona e hospeda o jogo). Publicar a versão web por **Cloudflare Pages** ou **Netlify**, que aceitam repositório privado de graça. O link do GitHub Pages deixa de funcionar. *Ação do Daniel: conta na Cloudflare/Netlify e trocar a visibilidade no GitHub.*
+2. **Admin só em desenvolvimento** `[ ]`: painel, botão e hash do código de admin entram só no `npm run dev` (`import.meta.env.DEV`); o build público não os contém.
+3. **Fontes no próprio jogo** `[ ]`: Cinzel, Cinzel Decorative e Crimson Pro em `public/fonts` (licença OFL permite), sem chamar o Google. Funciona offline (necessário na Steam), carrega mais rápido e não envia o IP do jogador a terceiros (LGPD/GDPR).
+4. **Política de conteúdo (CSP)** `[ ]` no `index.html`: só arquivos do próprio site (os portais pedem exceções para o SDK deles; ver PUB-B).
+5. **Higiene do GitHub** `[ ]`: 2FA na conta, proteção da `main`, Dependabot (`.github/dependabot.yml`), varredura de segredos e workflow com `permissions` mínimas.
+6. **Licença "todos os direitos reservados"** `[ ]`: arquivo `LICENSE` proprietário e aviso de copyright no jogo (Configurações → Sobre).
+7. **Códigos de presente** `[ ]`: mantidos como mimo para amigos (não são proteção: dá para descobrir por força bruta ou editar o save). Conteúdo **pago** nunca vai por código no cliente.
+8. **Nome definitivo** `[ ]` — decisão do Daniel. "Nexus" é comum; pesquisar no INPI e na Steam antes de divulgar.
+
+**PUB-B. Sites com anúncios (médio-baixo)**
+- **Portal:** CrazyGames (aceita jogos só de computador, SDK simples, divide a receita de anúncios) é o primeiro candidato; GameDistribution como alternativa. Poki é seletivo e prioriza celular. Receita esperada: modesta. Vale como vitrine e para medir público.
+- **Camada de plataforma** `src/platform/` (fora da simulação): `init`, `gameplayStart/Stop`, `midgameAd` (entre runs), `rewardedAd` e `storage`. Versões `web` (sem anúncio) e `crazygames`, escolhidas no build (`vite --mode crazygames`).
+- **Onde entram anúncios** (PROPOSTA): só **entre runs** (fim da run → menu), nunca no meio da onda. Recompensado e opcional (ex.: dobrar a Essência da run) — decidir antes de implementar, porque mexe no balanceamento.
+- Pausar jogo e som durante o anúncio; save pelo módulo de dados do portal (nuvem) com o `localStorage` como reserva; nada de links para fora do portal.
+
+**PUB-C. Steam (médio)**
+- **App de desktop:** Electron + `steamworks.js` (mais simples para a Steamworks) ou Tauri (app menor). Janela/tela cheia, sair do jogo pelo menu, save em arquivo + **Steam Cloud**.
+- **Steamworks:** conta de desenvolvedor (US$ 100 por jogo, dados fiscais/W-8BEN), conquistas da Steam espelhando as do jogo, página "Em breve" (cápsulas, capturas, trailer) pelo menos 2 semanas antes, revisão da build.
+- **Demo grátis** (Fases 1–2) por opção de build; a versão web/portal pode ser essa demo, levando à página da Steam.
+- Preço sugerido US$ 5–10 com preço regional.
+
+**PUB-D. Legal**
+- Registrar a marca (INPI, classes 9 e 41) com o nome definitivo.
+- Conversa com advogado de propriedade intelectual: arte e código feitos com IA têm proteção autoral incerta (não impede vender).
+- Página de privacidade simples quando houver anúncios (o portal cuida do consentimento, mas a página é pedida).
+
+**Ordem sugerida:** PUB-A → PUB-B (CrazyGames) → PUB-C. Decisões pendentes: nome definitivo, portal, anúncio recompensado (sim/não e qual recompensa), Electron ou Tauri.
+
 ### Em paralelo (encaixar entre fases)
 - **Balanceamento das raças** `[~]` (07/10/2026): rodada feita nas 3 fases (ver Registro do GDD); Humanos com a passiva **Disciplina**. Pendente: Lobisomem na Tundra (0/30) e Bruxa no Pântano (24/30).
 - **Limites da run** `[x]` (decidido em 07/10/2026): crítico até 100% (a Precisão some das ofertas ao chegar) e herói até o **nível 30** — feitos. O Sem Fim continua até perder (sem onda final). Tetos de todas as melhorias feitos (07/10/2026).
