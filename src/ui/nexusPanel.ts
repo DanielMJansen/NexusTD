@@ -26,6 +26,7 @@ export function nexusLevelText(level: NexusLevel): string {
 export class NexusPanel {
   private button = document.querySelector<HTMLButtonElement>('#nexus-button')!;
   private panel = document.querySelector<HTMLElement>('#nexus-panel')!;
+  private key = '';
 
   constructor(onToggle: () => void, onBuy: (id: NexusUpgradeId) => void) {
     this.button.addEventListener('click', () => {
@@ -43,7 +44,10 @@ export class NexusPanel {
     this.button.classList.toggle('open', open);
     this.button.classList.toggle('affordable', anyAffordable && !open);
     this.panel.hidden = !open;
-    if (!open) return;
+    if (!open) {
+      this.key = '';
+      return;
+    }
     const rows = NEXUS_UPGRADES.map((u) => {
       const level = run.nexusLevels[u.id];
       const cost = nexusUpgradeCost(run, u.id);
@@ -64,7 +68,19 @@ export class NexusPanel {
         }
       </div>`;
     }).join('');
-    const html = `<h4>Nexus <small>${Math.ceil(run.nexus.hp)}/${run.nexus.maxHp}</small></h4>${rows}`;
-    if (this.panel.innerHTML !== html) this.panel.innerHTML = html;
+    // só refaz o HTML quando um nível muda; vida e ouro atualizam no lugar (refazer a cada
+    // quadro trocava o botão sob o mouse e o clique de compra se perdia)
+    const key = NEXUS_UPGRADES.map((u) => run.nexusLevels[u.id]).join(',');
+    if (key !== this.key) {
+      this.key = key;
+      this.panel.innerHTML = `<h4>Nexus <small></small></h4>${rows}`;
+    }
+    const hp = `${Math.ceil(run.nexus.hp)}/${run.nexus.maxHp}`;
+    const small = this.panel.querySelector('h4 small')!;
+    if (small.textContent !== hp) small.textContent = hp;
+    for (const button of this.panel.querySelectorAll<HTMLButtonElement>('[data-upgrade]')) {
+      const disabled = !canBuyNexusUpgrade(run, button.dataset.upgrade as NexusUpgradeId);
+      if (button.disabled !== disabled) button.disabled = disabled;
+    }
   }
 }

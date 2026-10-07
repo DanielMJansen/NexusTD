@@ -128,6 +128,13 @@ export interface ScriptedWave {
 export const DEFAULT_MAP: StageMap = { width: 640, height: 360, nexus: { x: 320, y: 180 } };
 
 /** Fase: bioma, inimigos e chefes próprios; as regras de onda (quantidade, escala, elites) são globais. */
+/** Dica do tutorial da fase (quadro na primeira run da fase e na pausa). */
+export interface StageTip {
+  icon: string;
+  title: string;
+  text: string;
+}
+
 export interface StageDef {
   id: StageId;
   number: number;
@@ -167,6 +174,8 @@ export interface StageDef {
   escort?: EscortRule;
   /** Fase que precisa ser vencida para liberar esta (null = aberta desde o início). */
   requires: StageId | null;
+  /** Como funciona a fase (sem números: os valores ficam nas regras acima). */
+  intro: StageTip[];
 }
 
 export const STAGES: Record<StageId, StageDef> = {
@@ -175,6 +184,12 @@ export const STAGES: Record<StageId, StageDef> = {
     number: 1,
     name: 'Cemitério',
     description: 'Mortos-vivos, aranhas e gárgulas cercam o Nexus entre lápides e velas.',
+    intro: [
+      { icon: '🚪', title: 'Muro e portões', text: 'O cemitério é cercado por um muro. Os inimigos entram pelos portões e seguem as alamedas até o Nexus; nas primeiras ondas, só pelos portões do oeste e do leste. Invoque criaturas ao longo das alamedas.' },
+      { icon: '🗺', title: 'Mapa maior que a tela', text: 'A câmera acompanha o herói. O minimapa, no canto, mostra o Nexus, os inimigos e as suas criaturas.' },
+      { icon: '🏴', title: 'Ondas especiais', text: 'Algumas ondas têm nome (Revoada, Noite dos Mortos, Cavaleiros...) e uma faixa avisa quando começam. Na Trégua não vem ninguém: aproveite para invocar, evoluir e melhorar o Nexus.' },
+      { icon: '👑', title: 'Chefes', text: 'Nas ondas de chefe a música muda. O chefe é bem mais forte: concentre as criaturas e guarde o Pulso para ele.' },
+    ],
     biome: 'graveyard',
     color: '#9a7aff',
     power: { hp: 0.75, damage: 0.85 },
@@ -248,6 +263,12 @@ export const STAGES: Record<StageId, StageDef> = {
     number: 2,
     name: 'Pântano',
     description: 'Lama que prende os pés, sapos que saltam, sanguessugas e a Hidra que não morre fácil.',
+    intro: [
+      { icon: '🟤', title: 'Lama', text: 'Criaturas invocadas na lama atacam mais devagar, e o herói anda mais devagar dentro dela. Prefira invocar em terra firme, nas margens.' },
+      { icon: '🌊', title: 'Rio', text: 'Além das quatro margens, os inimigos também chegam pelas duas pontas do rio, direto para a ilhota do Nexus.' },
+      { icon: '🐊', title: 'Crocodilos', text: 'Dentro da lama, crocodilos ficam submersos e não podem ser atingidos. Posicione as criaturas onde eles saem da lama.' },
+      { icon: '🐉', title: 'Hidra', text: 'No chefe final, cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro se a Hidra não morrer a tempo: junte dano e Pulso para acabar rápido.' },
+    ],
     biome: 'swamp',
     color: '#7aba5a',
     power: { hp: 0.9, damage: 1 },
@@ -324,6 +345,13 @@ export const STAGES: Record<StageId, StageDef> = {
     number: 3,
     name: 'Tundra Gelada',
     description: 'Um lago congelado cercado de montanhas: o gelo racha, a nevasca cega e a avalanche não perdoa.',
+    intro: [
+      { icon: '🧊', title: 'Gelo', text: 'No lago congelado os inimigos deslizam: ficam mais rápidos e não podem ser segurados. O Nexus fica numa ilha de pedra no meio.' },
+      { icon: '🕳', title: 'O gelo racha', text: 'Onde muitos inimigos passam, o gelo racha (veja as trincas) e vira um buraco por um tempo. Inimigo comum que cai no buraco morre; chefes não caem.' },
+      { icon: '❄', title: 'Nevasca', text: 'De tempos em tempos vem uma nevasca (com aviso antes): o alcance das criaturas cai, menos perto das fogueiras acesas. A nevasca apaga as fogueiras; pare o herói perto de uma para reacendê-la.' },
+      { icon: '🔥', title: 'Fogo contra gelo', text: 'Criaturas de fogo (Dragão de Fogo, Diabrete, Infernal, Golem de Magma) causam mais dano aqui e impedem que os inimigos regenerem. Alguns inimigos de gelo congelam criaturas por alguns segundos.' },
+      { icon: '🏔', title: 'Avalanche', text: 'Em algumas ondas, uma avalanche desce por uma trilha (com aviso): esmaga os inimigos comuns e congela as criaturas no caminho.' },
+    ],
     biome: 'tundra',
     color: '#8ad0ff',
     power: { hp: 1.1, damage: 1 },

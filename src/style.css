@@ -3507,3 +3507,62 @@ body:not([data-mode='run']) .team-slots {
 .stage-dot.locked {
   opacity: 0.4;
 }
+
+/* tutorial da fase */
+.panel.stage-intro {
+  --card-color: var(--accent);
+  width: min(900px, 94vw);
+  max-width: none;
+  border-color: color-mix(in srgb, var(--card-color) 55%, var(--line));
+}
+
+.stage-intro h2 {
+  color: var(--card-color);
+  margin-top: 0;
+}
+
+.intro-kicker {
+  font: 600 12px var(--font-label);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.intro-tips {
+  list-style: none;
+  margin: 12px 0 16px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  text-align: left;
+}
+
+.intro-tips li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0d0818aa;
+}
+
+.intro-icon {
+  flex: none;
+  width: 28px;
+  text-align: center;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.intro-tips b {
+  font: 700 14px var(--font-label);
+  color: var(--fg);
+}
+
+.intro-tips p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}

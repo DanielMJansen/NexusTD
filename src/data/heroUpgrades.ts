@@ -40,7 +40,7 @@ export const HERO_UPGRADES: HeroUpgradeDef[] = [
   { id: 'thorns', name: 'Espinhos', icon: '✷', text: 'Inimigos encostados no herói sofrem 8 de dano/s', stat: 'thorns', value: 8 },
   { id: 'pulseSize', name: 'Pulso Ampliado', icon: '✸', text: 'Pulso +20% maior: área, alcance, duração e quantidade (morcegos, meteoros, esqueletos)', stat: 'pulseSize', value: 0.2, maxPicks: 3 },
   { id: 'pulseEcho', name: 'Eco do Pulso', icon: '↻', text: '25% de chance de o Pulso recarregar quase na hora', stat: 'pulseEcho', value: 0.25, maxPicks: 2 },
-  { id: 'magnet', name: 'Ímã', icon: '⊛', text: 'Coleta moedas e baús 50% mais longe', stat: 'pickup', value: 0.5, maxPicks: 3 },
+  { id: 'magnet', name: 'Ímã', icon: '⊛', text: 'Puxa moedas e baús de 50% mais longe', stat: 'pickup', value: 0.5, maxPicks: 3 },
   { id: 'bulwark', name: 'Couraça', icon: '⛨', text: 'O herói recebe 15% menos dano', stat: 'armor', value: 0.15, maxPicks: 4 },
 ];
 
@@ -49,6 +49,8 @@ export const xpToNextLevel = (level: number): number => Math.round(15 + 12 * (le
 
 /** Tempo para renascer depois de morrer (s). */
 export const HERO_RESPAWN_TIME = 8;
+/** Segundos de invulnerabilidade ao nascer (início da run e renascimento). */
+export const HERO_SPAWN_SHIELD = 3;
 /** Distância (além do raio do inimigo) em que um inimigo encosta no herói. */
 /** Dano do Pulso: +10% por nível do herói acima do 1. */
 export const PULSE_DAMAGE_PER_LEVEL = 0.1;

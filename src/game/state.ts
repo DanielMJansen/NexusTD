@@ -1,3 +1,4 @@
+import { HERO_SPAWN_SHIELD } from '../data/heroUpgrades';
 import type { NexusLook } from '../data/nexusSkins';
 import type { VariantTier } from '../data/altar';
 import { DEFAULT_MAP, FIRST_STAGE, STAGES, type StageId } from '../data/stages';
@@ -174,6 +175,8 @@ export interface Hero extends Point {
   dead: boolean;
   /** Segundos até renascer (quando morto). */
   respawnTimer: number;
+  /** Segundos de invulnerabilidade restantes (ao nascer). */
+  shieldTimer: number;
   level: number;
   xp: number;
   /** Momento do último dano recebido (clarão). */
@@ -493,6 +496,7 @@ export function createRun(setup: RunSetup): RunState {
       hp: heroDef.maxHp + t.heroMaxHp,
       dead: false,
       respawnTimer: 0,
+      shieldTimer: HERO_SPAWN_SHIELD,
       level: 1,
       xp: 0,
       lastHitAt: -Infinity,

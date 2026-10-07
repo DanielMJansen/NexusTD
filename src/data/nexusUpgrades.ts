@@ -99,6 +99,10 @@ export const LOOT = {
   lifetime: 12,
   /** Distância do herói para coletar. */
   pickupRadius: 16,
+  /** Ímã: itens dentro deste raio (× bônus de coleta do herói) voam até ele. */
+  magnetRadius: 40,
+  /** Velocidade com que o item voa até o herói (unidades por segundo). */
+  magnetSpeed: 320,
   /** Baú: tier mínimo das 3 melhorias oferecidas. */
   chestMinTier: 'rare',
 } as const;

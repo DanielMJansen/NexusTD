@@ -97,3 +97,8 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] P/Esc pausam; "Sair para o menu" funciona.
 - [ ] Sem erros no console.
 - [ ] `npm run build` e `npm run preview` funcionam.
+- [ ] Tutorial de fase: na primeira run de cada fase aparece o quadro "Como funciona" (jogo parado até "Começar"); não aparece de novo; na pausa, "📜 Como funciona esta fase" mostra o quadro e "← Voltar" retorna à pausa. Na primeira run do jogo, o tutorial guiado começa depois do quadro.
+- [ ] Herói nasce com escudo (bolha dourada, ~3 s, pisca no fim): não toma dano no início da run nem ao renascer.
+- [ ] Ímã: moedas e baús perto do herói voam até ele; o upgrade Ímã aumenta de onde eles são puxados.
+- [ ] Painel do Nexus: comprar várias vezes seguidas funciona com o Nexus apanhando (o clique não se perde).
+- [ ] Variante do Altar aparece também nas formas evoluídas (Coleção, nível 3) e na carta da criatura na run.

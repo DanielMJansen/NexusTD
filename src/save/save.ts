@@ -124,6 +124,8 @@ function sanitize(data: unknown): Profile {
   profile.stats = { runs: toNumber(stats.runs), wins: toNumber(stats.wins), kills: toNumber(stats.kills) };
   const seen = Array.isArray(raw.seenEnemies) ? raw.seenEnemies : [];
   profile.seenEnemies = ENEMY_IDS.filter((id) => seen.includes(id));
+  const intros = Array.isArray(raw.seenStageIntros) ? raw.seenStageIntros : [];
+  profile.seenStageIntros = STAGE_IDS.filter((id) => intros.includes(id));
   profile.bestWave = Math.floor(toNumber(raw.bestWave));
   // fases (campos novos: padrão sem recordes; a Fase 1 herda as vitórias e o recorde antigos)
   const records = (raw.stageRecords ?? {}) as Record<string, Record<string, unknown> | undefined>;

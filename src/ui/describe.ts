@@ -421,7 +421,7 @@ export function heroStatText(stat: HeroStat, value: number): string {
     case 'armor':
       return `−${pctText(Math.min(0.6, value))} de dano recebido`;
     case 'pickup':
-      return `+${pctText(value)} de raio de coleta`;
+      return `+${pctText(value)} no raio do ímã de moedas e baús`;
     case 'pulseSize':
       return `Pulso +${pctText(value)} maior`;
     case 'pulseEcho':

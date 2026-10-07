@@ -37,6 +37,8 @@ export interface Profile {
   stats: { runs: number; wins: number; kills: number };
   /** Inimigos já enfrentados (códex). */
   seenEnemies: EnemyId[];
+  /** Fases cujo tutorial (quadro de mecânicas) já foi visto. */
+  seenStageIntros: StageId[];
   /** Onda mais alta alcançada (inclui o Sem Fim). */
   bestWave: number;
   /** Fragmentos de raça (Santuário). */
@@ -73,6 +75,7 @@ export function createProfile(): Profile {
     achievements: [],
     stats: { runs: 0, wins: 0, kills: 0 },
     seenEnemies: [],
+    seenStageIntros: [],
     bestWave: 0,
     selectedStage: FIRST_STAGE,
     fragments: {},

@@ -5,6 +5,8 @@ import { showOverlay } from './overlay';
 export interface PauseHandlers {
   onResume(): void;
   onSettings(): void;
+  /** Rever o quadro de mecânicas da fase. */
+  onStageIntro(): void;
   /** Salva a run e volta ao menu (dá para continuar depois). */
   onSaveAndQuit(): void;
   /** Desiste da run: apaga o save, sem Essência. */
@@ -18,6 +20,7 @@ export function showPause(handlers: PauseHandlers, run?: RunState): void {
       <p class="subtitle">As hordas esperam.</p>
       <div class="stack">
         <button class="play-button" data-action="resume">▶ Continuar</button>
+        <button data-action="intro">📜 Como funciona esta fase</button>
         <button data-action="settings">⚙ Configurações</button>
         <button data-action="save">💾 Salvar e sair para o menu</button>
         <button data-action="abandon">Abandonar run</button>
@@ -30,7 +33,6 @@ export function showPause(handlers: PauseHandlers, run?: RunState): void {
         <dt>E</dt><dd>evoluir a selecionada</dd>
         <dt>N / clique no Nexus</dt><dd>melhorar o Nexus</dd>
         <dt>Espaço</dt><dd>Pulso do herói</dd>
-        <dt>Mouse na borda · C</dt><dd>mover a vista · voltar ao herói</dd>
         <dt>Botão direito</dt><dd>cancelar</dd>
         <dt>P / Esc</dt><dd>pausar</dd>
         <dt>F / 0</dt><dd>velocidade / congelar</dd>
@@ -40,6 +42,7 @@ export function showPause(handlers: PauseHandlers, run?: RunState): void {
     {
       resume: () => handlers.onResume(),
       settings: () => handlers.onSettings(),
+      intro: () => handlers.onStageIntro(),
       save: () => handlers.onSaveAndQuit(),
       abandon: () => handlers.onAbandon(),
     },

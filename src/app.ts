@@ -1,3 +1,4 @@
+import { showStageIntro } from './ui/stageIntro';
 import { RenderQuality } from './render/quality';
 import { Camera, drawMinimap } from './render/camera';
 import { buyNexusColor, selectNexusLook } from './game/nexusSkins';
@@ -763,7 +764,18 @@ export class App {
     this.music.setIntensity(0);
     this.run = startRun(runSetup(this.profile));
     this.camera.snap(this.run);
-    if (!this.settings.tutorialDone) this.tutorial.start();
+    const stage = this.run.stage;
+    if (!this.profile.seenStageIntros.includes(stage)) {
+      // primeira run na fase: mostra as mecânicas do mapa antes de começar
+      this.paused = true;
+      showStageIntro(stage, () => {
+        this.profile.seenStageIntros.push(stage);
+        saveProfile(this.profile);
+        hideOverlay();
+        this.paused = false;
+        if (!this.settings.tutorialDone) this.tutorial.start();
+      });
+    } else if (!this.settings.tutorialDone) this.tutorial.start();
   }
 
   private togglePause(): void {
@@ -781,6 +793,7 @@ export class App {
     showPause({
       onResume: () => this.togglePause(),
       onSettings: () => this.openSettings(),
+      onStageIntro: () => showStageIntro(this.run.stage, () => this.showPauseScreen(), '← Voltar'),
       onSaveAndQuit: () => {
         saveRun(this.run);
         this.openMenu();

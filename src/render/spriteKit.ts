@@ -147,7 +147,10 @@ export interface LayerLook {
   shadowBlur?: number;
 }
 
-let layer: HTMLCanvasElement | null = null;
+/** Várias camadas em rodízio: reusar a mesma logo depois de colá-la força a GPU a sincronizar. */
+const layers: HTMLCanvasElement[] = [];
+let nextLayer = 0;
+const LAYER_POOL = 12;
 
 /**
  * Desenha um sprite numa camada e cola com brilho/filtro numa só operação. Com shadowBlur ou
@@ -163,7 +166,8 @@ export function drawLayered(ctx: Ctx, cx: number, cy: number, half: number, look
   const m = ctx.getTransform();
   const s = Math.max(0.5, Math.hypot(m.a, m.b));
   const size = Math.ceil(half * 2 * s);
-  layer ??= document.createElement('canvas');
+  nextLayer = (nextLayer + 1) % LAYER_POOL;
+  const layer = (layers[nextLayer] ??= document.createElement('canvas'));
   if (layer.width < size || layer.height < size) layer.width = layer.height = Math.max(size, layer.width);
   const lc = layer.getContext('2d')!;
   lc.setTransform(1, 0, 0, 1, 0, 0);

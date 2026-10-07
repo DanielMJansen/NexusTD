@@ -5,6 +5,7 @@ import {
   HERO_UPGRADES,
   xpToNextLevel,
   type HeroUpgradeDef,
+  HERO_SPAWN_SHIELD,
 } from '../data/heroUpgrades';
 import { refreshPulseCooldown } from './choices';
 import { damageEnemy } from './combat';
@@ -38,10 +39,13 @@ export function updateHeroVitals(state: RunState, dt: number): void {
       hero.x = state.nexus.x;
       hero.y = state.nexus.y + HERO_PLACEMENT.startOffsetY;
       hero.target = { x: hero.x, y: hero.y };
+      hero.shieldTimer = HERO_SPAWN_SHIELD;
       state.events.push({ type: 'heroRespawned', x: hero.x, y: hero.y });
     }
     return;
   }
+  // save antigo sem o campo: sem escudo
+  hero.shieldTimer = Math.max(0, (hero.shieldTimer ?? 0) - dt);
 
   healHero(state, state.heroStats.regen * dt);
   let incoming = 0;
@@ -61,7 +65,7 @@ export function updateHeroVitals(state: RunState, dt: number): void {
 /** Dano ao herói (contato ou tiros), reduzido pela Couraça; pode derrubá-lo. */
 export function damageHero(state: RunState, amount: number): void {
   const { hero } = state;
-  if (hero.dead || amount <= 0) return;
+  if (hero.dead || amount <= 0 || hero.shieldTimer > 0) return;
   hero.hp -= amount * (1 - Math.min(0.6, state.heroStats.armor));
   hero.lastHitAt = state.time;
   if (hero.hp <= 0) {

@@ -48,7 +48,7 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
       <div class="cc-branches">${def.ascended
         .map(
           (form, i) => `<figure style="--branch-color:${form.color}">
-            <canvas data-sprite="${def.id}" data-level="3" data-branch="${i}"${owned ? '' : ' data-silhouette'}></canvas>
+            <canvas data-sprite="${def.id}" data-level="3" data-branch="${i}"${owned ? (profile.selectedVariants[def.id] ? ` data-variant="${profile.selectedVariants[def.id]}"` : '') : ' data-silhouette'}></canvas>
             <figcaption>${form.icon} ${form.name}</figcaption>
           </figure>`,
         )

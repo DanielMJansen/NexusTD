@@ -16,7 +16,9 @@ export function dropLoot(state: RunState, enemy: Enemy): void {
   }
 }
 
-export const pickupRadius = (state: RunState): number => LOOT.pickupRadius * (1 + state.heroStats.pickup);
+export const pickupRadius = (): number => LOOT.pickupRadius;
+/** Raio do ímã: o bônus de coleta (Ímã) aumenta de onde os itens são puxados. */
+export const magnetRadius = (state: RunState): number => LOOT.magnetRadius * (1 + state.heroStats.pickup);
 
 function collect(state: RunState, index: number): void {
   const item = state.loot[index]!;
@@ -33,10 +35,18 @@ function collect(state: RunState, index: number): void {
 /** Itens somem com o tempo (só conta durante as ondas); o herói vivo coleta o que estiver perto. */
 export function updateLoot(state: RunState, dt: number): void {
   const { hero } = state;
-  const radius = pickupRadius(state);
+  const radius = pickupRadius();
+  const magnet = magnetRadius(state);
   for (let i = state.loot.length - 1; i >= 0; i--) {
     const item = state.loot[i]!;
     item.remaining -= dt;
+    const d = distance(item, hero);
+    if (!hero.dead && d <= magnet && d > radius) {
+      // ímã: o item voa até o herói
+      const step = Math.min(d, LOOT.magnetSpeed * dt);
+      item.x += ((hero.x - item.x) / d) * step;
+      item.y += ((hero.y - item.y) / d) * step;
+    }
     if (!hero.dead && distance(item, hero) <= radius) collect(state, i);
     else if (item.remaining <= 0) state.loot.splice(i, 1);
   }

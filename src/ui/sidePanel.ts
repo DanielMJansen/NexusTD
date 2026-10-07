@@ -1,3 +1,4 @@
+import { VARIANTS } from '../data/altar';
 import { raisableCorpses } from '../game/raise';
 import { SYNERGIES } from '../data/synergies';
 import { raceClassCount, racesInField } from '../game/synergies';
@@ -136,7 +137,11 @@ export class SidePanel {
       card.root.classList.toggle('denied', interaction.denied?.id === id && now - interaction.denied.at < 400);
       setHtml(card.cost, full ? '<span class="card-full">Sem vaga</span>' : gold(cost));
       card.cost.classList.toggle('too-expensive', !affordable);
-      if (redraw) drawPortrait(card.portrait, id, time + id.length);
+      if (redraw) {
+        // variante do Altar escolhida para esta criatura (mesma cor do campo)
+        const variant = run.variants[id];
+        drawPortrait(card.portrait, id, time + id.length, variant ? { filter: VARIANTS[variant].filter } : {});
+      }
     }
 
     const { remaining, cooldown } = run.pulse;

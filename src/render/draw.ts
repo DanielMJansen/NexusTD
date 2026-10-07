@@ -145,41 +145,44 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
   }
 
   // brilho e filtros vão para a camada do sprite (um efeito por inimigo, não por traço)
+  // brilhos (elite, fúria, lento): halo em cache atrás do sprite, sem camada nem shadowBlur
   const look: LayerLook = {};
-  if (enemy.elite || enemy.enraged) {
-    look.shadowColor = enemy.enraged ? '#ff2a3a' : '#ffd25a';
-    look.shadowBlur = 8 + Math.sin(time * 5) * 3;
-  }
-  if (enemy.slowTimer > 0) {
-    look.shadowColor = '#7fd8ff';
-    look.shadowBlur = 12;
-  }
+  if (enemy.slowTimer > 0) halo(ctx, enemy.x, enemy.y - 6 * scale, 24 * scale, '#7fd8ff', 0.55);
+  else if (enemy.elite || enemy.enraged) halo(ctx, enemy.x, enemy.y - 6 * scale, (24 + Math.sin(time * 5) * 3) * scale, enemy.enraged ? '#ff2a3a' : '#ffd25a', 0.6);
   // tintas baratas (sem filtro de canvas): aliado verde, pedra cinza, clarão de golpe branco
   if (enemy.allyTimer > 0) {
     look.tint = 'rgba(110, 255, 170, 0.38)';
     halo(ctx, enemy.x, enemy.y - 4 * scale, 18 * scale, '#7affb0', 0.5);
   }
   if (enemy.stone || (enemy.stunTimer > 0 && enemy.stunLook === 'stone')) look.tint = 'rgba(150, 150, 160, 0.7)';
-  if (state.time - enemy.lastHitAt < HIT_FLASH) look.tint = 'rgba(255, 255, 255, 0.65)';
+  const flash = state.time - enemy.lastHitAt < HIT_FLASH;
   // esqueleto erguido: sobe da terra no primeiro meio segundo
   const rising = enemy.summonedAlly && enemy.raisedAt !== undefined ? Math.min(1, (state.time - enemy.raisedAt) / 0.5) : 1;
   // ataque: tranco curto na direção do golpe e pose de ataque do sprite
   const lunge = Math.max(0, 1 - (state.time - enemy.lastAttackAt) / 0.3);
   const ex = enemy.x + Math.cos(enemy.attackAngle) * lunge * 5;
   const ey = enemy.y + Math.sin(enemy.attackAngle) * lunge * 5 - lift + (1 - rising) * 16 * scale;
+  const enemyFacing = lunge > 0 ? (Math.cos(enemy.attackAngle) >= 0 ? 1 : -1) : enemy.x < state.nexus.x ? 1 : -1;
   drawLayered(ctx, ex, ey - 6 * scale, 40 * scale, look, (c) => {
     if (enemy.hexTimer > 0) drawFrog(c, enemy.x, enemy.y, scale, time + enemy.animationOffset);
     else {
       drawSprite(c, enemy.def.id, ex, ey, scale, {
         attack: lunge,
         time: time + enemy.animationOffset,
-        facing: lunge > 0 ? (Math.cos(enemy.attackAngle) >= 0 ? 1 : -1) : enemy.x < state.nexus.x ? 1 : -1,
+        facing: enemyFacing,
         moving: !enemy.stone,
         // Hidra: nível = cabeças vivas
         level: enemy.heads ?? 1,
       });
     }
   });
+  if (flash) {
+    // clarão do golpe: brilho branco somado por cima (sem camada)
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    halo(ctx, ex, ey - 6 * scale, 20 * scale, '#ffffff', 0.55);
+    ctx.restore();
+  }
   if (enemy.shield > 0) {
     // escudo do Lich
     ctx.save();
@@ -331,14 +334,11 @@ function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: 
     ctx.fill();
   }
   const variant = creature.variant ? VARIANTS[creature.variant] : null;
-  const look: LayerLook =
-    frenzy || ascended
-      ? { shadowColor: frenzy ? '#ff2a40' : (ascendedForm(creature)?.color ?? '#ffd25a'), shadowBlur: frenzy ? 16 : 5 }
-      : variant?.glow
-        ? { shadowColor: variant.glow, shadowBlur: 7 + Math.sin(time * 3 + creature.x) * 2 }
-        : {};
-  if (variant) look.filter = variant.filter;
   const spriteScale = levelInfo(creature).scale;
+  // brilho (fúria, variante): halo em cache atrás do sprite; a forma evoluída já tem a aura acima
+  if (frenzy) halo(ctx, creature.x, creature.y + hover - 6 * spriteScale, 28 * spriteScale, '#ff2a40', 0.7);
+  else if (variant?.glow) halo(ctx, creature.x, creature.y + hover - 6 * spriteScale, (24 + Math.sin(time * 3 + creature.x) * 2) * spriteScale, variant.glow, 0.6);
+  const look: LayerLook = variant ? { filter: variant.filter } : {};
   drawLayered(ctx, creature.x, creature.y + hover - 6 * spriteScale, 40 * spriteScale, look, (c) =>
     drawSprite(c, creature.def.id, creature.x, creature.y + hover, spriteScale, {
       time: time + creature.x * 0.01,
@@ -661,7 +661,8 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
   ctx.save();
   if (glide) ctx.globalAlpha = 0.55;
   const heroScale = fury ? 1.5 : 1.05;
-  const heroLook: LayerLook = fury ? { shadowColor: '#ff5a3a', shadowBlur: 14 } : {};
+  if (fury) halo(ctx, hero.x, hero.y - 6 - 6 * heroScale, 34 * heroScale, '#ff5a3a', 0.6);
+  const heroLook: LayerLook = {};
   if (state.time - hero.lastHitAt < 0.08) heroLook.filter = 'brightness(1.8) saturate(0.5)';
   drawLayered(ctx, hero.x, hero.y - (fury ? 6 : 0) - 6 * heroScale, 40 * heroScale, heroLook, (c) =>
     drawSprite(c, hero.def.id, hero.x, hero.y - (fury ? 6 : 0), heroScale, {
@@ -673,6 +674,21 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
     }),
   );
   ctx.restore();
+  if (hero.shieldTimer > 0) {
+    // invulnerável ao nascer: bolha dourada que pisca no último segundo
+    const blink = hero.shieldTimer > 1 || Math.sin(time * 24) > 0;
+    if (blink) {
+      ctx.save();
+      ctx.globalAlpha = 0.5 + Math.sin(time * 5) * 0.12;
+      halo(ctx, hero.x, hero.y - 6, 30, '#ffe08a', 0.5);
+      ctx.strokeStyle = '#ffe9a8';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(hero.x, hero.y - 6, 21, 0, TAU);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
   // vida do herói (só quando ferido)
   const ratio = hero.hp / heroMaxHp(state);
   if (ratio < 1) {
