@@ -214,8 +214,21 @@ function tinyBat(ctx: Ctx, x: number, y: number, s: number, t: number, body: str
 export function drawBatSwarm(ctx: Ctx, p: Pose): void {
   const blood = formA(p);
   const hunger = formB(p);
-  const body = hunger ? '#5a2a8a' : '#4a2a50';
-  const eyes = hunger ? '#e0a0ff' : '#ff3a4a';
+  // Formas Supremas: Eclipse (A, nuvem negra que escurece o chão) e Fome Eterna (B, morcegos maiores de olhos dourados)
+  const eclipse = p.supreme && blood;
+  const eternal = p.supreme && hunger;
+  const body = eclipse ? '#1a0a14' : hunger ? '#5a2a8a' : '#4a2a50';
+  const eyes = eternal ? '#ffd25a' : hunger ? '#e0a0ff' : '#ff3a4a';
+  if (eclipse) {
+    // sombra escurecendo o chão e disco negro de borda vermelha
+    shape(ctx, '#05020a88', () => ellipse(ctx, 0, 13, 26, 7), 0);
+    shape(ctx, '#0a0410', () => circle(ctx, 0, -6, 15), 0);
+    ctx.strokeStyle = '#ff3a50aa';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    circle(ctx, 0, -6, 15 + Math.sin(p.time * 3) * 0.8);
+    ctx.stroke();
+  }
   ctx.translate(0, -5 + Math.sin(p.time * 3) * 1.5);
   if (blood) {
     const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 20);
@@ -226,11 +239,11 @@ export function drawBatSwarm(ctx: Ctx, p: Pose): void {
     circle(ctx, 0, 0, 20);
     ctx.fill();
   }
-  const count = hunger ? 7 : 5;
-  const spread = 12 + p.attack * 5;
+  const count = eclipse ? 9 : hunger ? 7 : 5;
+  const spread = (eclipse ? 17 : 12) + p.attack * 5;
   for (let i = 0; i < count; i++) {
     const a = p.time * (hunger ? 3.2 : 2.4) + (i * TAU) / count;
-    tinyBat(ctx, Math.cos(a) * spread, Math.sin(a) * spread * 0.6, 1.15, p.time + i, body, eyes);
+    tinyBat(ctx, Math.cos(a) * spread, Math.sin(a) * spread * 0.6, eternal ? 1.6 : 1.15, p.time + i, body, eyes);
   }
   // morcego-líder no centro
   tinyBat(ctx, 0, -1, 2.1, p.time * 0.8, hunger ? '#7a3ab0' : '#6a2a5a', eyes);
