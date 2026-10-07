@@ -29,14 +29,68 @@ export function upgradeText(upgrade: OfferedUpgrade): string {
   return family.text.replace('{v}', v).replace('{race}', race ?? '');
 }
 
-export function choiceCard(choice: Choice, index: number): string {
+/** Valor atual e depois de pegar a melhoria ("máx." quando bate no teto); null quando não há número a comparar. */
+export function upgradeDelta(run: RunState, upgrade: OfferedUpgrade): [string, string] | null {
+  const m = run.modifiers;
+  const t = run.talents;
+  const v = upgrade.value;
+  const plus = (now: number, after: number, cap = Infinity): [string, string] => [
+    `+${pct(now)}`,
+    `+${pct(Math.min(cap, after))}${after >= cap ? ' (máx.)' : ''}`,
+  ];
+  const minus = (now: number, after: number, cap: number): [string, string] => [
+    `−${pct(Math.min(cap, now))}`,
+    `−${pct(Math.min(cap, after))}${after >= cap ? ' (máx.)' : ''}`,
+  ];
+  switch (upgrade.family.kind) {
+    case 'damage':
+      return plus(m.damage - 1, m.damage - 1 + v);
+    case 'attackSpeed':
+      return plus(m.attackSpeed - 1, m.attackSpeed - 1 + v);
+    case 'range':
+      return plus(m.range - 1, m.range - 1 + v);
+    case 'gold':
+      return [`◉ ${run.gold}`, `◉ ${run.gold + v}`];
+    case 'nexusMaxHp':
+    case 'nexusHeart':
+      return [`${run.nexus.maxHp} de vida`, `${run.nexus.maxHp + v}`];
+    case 'pulseCooldown':
+      return minus(t.pulseCooldown, t.pulseCooldown + v, 0.65);
+    case 'nexusRegen':
+      return [`${formatNumber(t.nexusRegen)}/s`, `${formatNumber(t.nexusRegen + v)}/s`];
+    case 'killGold':
+      return plus(t.killGold, t.killGold + v);
+    case 'heroXp':
+      return plus(t.heroXp, t.heroXp + v);
+    case 'heroDamage':
+      return plus(t.heroDamage, t.heroDamage + v);
+    case 'evolveDiscount':
+      return minus(t.evolveDiscount, t.evolveDiscount + v, 0.75);
+    case 'raceDamage': {
+      const now = upgrade.race ? (m.raceDamage[upgrade.race] ?? 0) : 0;
+      return plus(now, now + v);
+    }
+    case 'critChance':
+      return [pct(m.critChance), `${pct(Math.min(0.75, m.critChance + v))}${m.critChance + v >= 0.75 ? ' (máx.)' : ''}`];
+    case 'creatureSlot':
+      return [`${run.creatureLimit} vagas`, `${run.creatureLimit + v}`];
+    case 'execute':
+      return m.executeBelow > 0 ? [`< ${pct(m.executeBelow)}`, `< ${pct(Math.max(m.executeBelow, v))}`] : null;
+    default:
+      return null;
+  }
+}
+
+export function choiceCard(run: RunState, choice: Choice, index: number): string {
   const { upgrade } = choice;
   const tier = TIERS[upgrade.tier];
+  const delta = upgradeDelta(run, upgrade);
   return `<button class="choice tier-${upgrade.tier}" style="--card-color:${tier.color}" data-action="choose" data-value="${index}">
     <span class="upgrade-icon">${upgrade.family.icon}</span>
     <span class="choice-kind">${tier.name}</span>
     <span class="choice-name">${upgrade.family.name}</span>
     <span class="choice-detail">${upgradeText(upgrade)}</span>
+    ${delta ? `<span class="choice-delta">Agora ${delta[0]} → <b>${delta[1]}</b></span>` : ''}
   </button>`;
 }
 
@@ -91,7 +145,7 @@ export function showWaveChoices(run: RunState, reason: ChoiceReason, handlers: C
     `<div class="panel wide">
       <h2>Onda ${run.wave} vencida!</h2>
       <p class="subtitle">Escolha uma recompensa.</p>
-      <div class="choices">${run.choices.map(choiceCard).join('')}</div>
+      <div class="choices">${run.choices.map((c, i) => choiceCard(run, c, i)).join('')}</div>
       ${reason === 'waveCleared' ? shopFooter(run) : ''}
       <div class="bonus-summary"><h3>Seus bônus</h3><div>${bonuses}</div></div>
     </div>`,

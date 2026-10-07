@@ -3,7 +3,7 @@ import { VARIANTS, type VariantTier } from '../data/altar';
 import { CREATURES, CREATURE_IDS, type CreatureDef, type CreatureId } from '../data/creatures';
 import { ownsCreature, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
-import { abilityText, ascendedFormsHtml, creatureStats } from './describe';
+import { abilityText, ascendedFormsHtml, creatureStats, racePassiveHtml } from './describe';
 import { showOverlay } from './overlay';
 
 export interface CollectionHandlers {
@@ -60,6 +60,7 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
       <p class="cc-lore">“${def.lore}”</p>
       <dl class="cc-stats">${stats}</dl>
       <p class="cc-ability">${abilityText(def.ability, def.effects)}</p>
+      ${racePassiveHtml(def.race)}
       ${ascendedFormsHtml(def)}
       ${variantRow(profile, def.id)}
       <div class="cc-footer">${footer}</div>

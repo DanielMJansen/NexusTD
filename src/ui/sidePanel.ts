@@ -9,7 +9,7 @@ import type { RunState } from '../game/state';
 import type { Interaction } from '../input/interaction';
 import { drawPortrait } from '../render/portrait';
 import { gold } from './currency';
-import { abilityText, ascendedFormsHtml, creatureStats, pulseText, raceBonusText } from './describe';
+import { abilityText, ascendedFormsHtml, creatureStats, pulseText, raceBonusText, racePassiveHtml } from './describe';
 import type { HeroDef, HeroId } from '../data/heroes';
 
 interface Card {
@@ -78,6 +78,7 @@ export class SidePanel {
           <p class="special">${def.description}</p>
           <dl>${stats}</dl>
           <p class="special">${abilityText(def.ability, def.effects)}</p>
+          ${racePassiveHtml(def.race, 'special')}
           ${ascendedFormsHtml(def, 'special evolves')}
           ${def.race === hero.race ? `<p class="special hero-bonus">Bônus do ${hero.name}: ${raceBonusText(hero.race, hero.raceBonus)}</p>` : ''}
         </div>`;

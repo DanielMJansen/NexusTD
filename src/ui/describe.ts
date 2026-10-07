@@ -1,3 +1,4 @@
+import { RACE_PASSIVES } from '../data/races';
 import { heroMaxHp, heroRange } from '../game/hero';
 import { pulsePower } from '../game/pulses';
 import type { RunState } from '../game/state';
@@ -463,4 +464,12 @@ export function heroSheetHtml(run: RunState): string {
   return `<dl class="hero-sheet-list">${heroSheetRows(run)
     .map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`)
     .join('')}</dl>`;
+}
+
+/** Passiva da raça em HTML (vazio se a raça não tiver). */
+export function racePassiveHtml(race: string, className = 'cc-ability race-passive'): string {
+  const def = RACE_PASSIVES[race];
+  if (!def) return '';
+  const text = def.passive.kind === 'evolveDiscount' ? `evolui ${pctText(def.passive.value)} mais barato` : '';
+  return `<p class="${className}"><b>${def.name}</b> (raça ${race}): ${text}.</p>`;
 }

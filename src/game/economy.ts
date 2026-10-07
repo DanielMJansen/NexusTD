@@ -1,3 +1,4 @@
+import { raceEvolveDiscount } from '../data/races';
 import { random } from './random';
 import { ECONOMY, NEXUS } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
@@ -63,7 +64,9 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
  */
 export function evolveCost(creature: Creature, discount = 0): number | null {
   const next = EVOLUTION_LEVELS[creature.level];
-  return next ? Math.round(creature.summonCost * next.costMultiplier * (1 - discount)) : null;
+  // desconto dos talentos e da passiva da raça (Disciplina dos Humanos), multiplicados
+  const race = raceEvolveDiscount(creature.def.race);
+  return next ? Math.round(creature.summonCost * next.costMultiplier * (1 - discount) * (1 - race)) : null;
 }
 
 export function canEvolve(state: RunState, creature: Creature): boolean {

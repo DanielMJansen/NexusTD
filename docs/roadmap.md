@@ -152,13 +152,13 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 
 ### F15. Fase 4 — Deserto Dourado + Relíquias `[ ]` — PROPOSTA
 - Cenário de areia e sol. Regra de mapa: **tempestade de areia** (inimigos ficam ocultos até chegar perto) e **oásis** que curam o herói.
-- Ideia de modo diferente: **escoltar uma caravana** que atravessa o deserto (o Nexus anda), com paradas para montar defesas.
+- Modo diferente (decidido em 07/10/2026, no lugar da escolta): **dois Nexus** para defender ao mesmo tempo (ex.: dois oásis); a run acaba se qualquer um cair. A escolta foi descartada.
 - Destrava **Relíquias**: chefes deixam relíquias (itens permanentes com efeito); o herói equipa 1 a 3 antes da run.
 - Nexus temático: **Obelisco Solar**.
 
 ### F16. Fase 5 — Cidadela Celeste + Ascensão e Desafio diário `[ ]` — PROPOSTA
 - Nuvens, luz e ruínas brancas. Regra de mapa: **ventos** que desviam projéteis e empurram inimigos voadores.
-- Ideia de modo diferente: **ilhas flutuantes** ligadas por pontes; defender **dois Nexus** ao mesmo tempo.
+- Modo diferente: **a definir** (os dois Nexus foram para o Deserto). Ventos continuam como regra de mapa.
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).
 - Nexus temático: **Olho Celeste**.
 
@@ -166,7 +166,9 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 - Dar ao Cemitério e ao Pântano roteiros próprios (hordas, eventos, tréguas) e, se fizer sentido, trilhas e câmera — também fora do molde.
 
 ### Em paralelo (encaixar entre fases)
-- **Raças novas** `[ ]` — PROPOSTA por lote: Zumbis, Unicórnio, Sereia, Centauro, Goblin, Elementais. Ideia: cada fase libera 1–2 raças ligadas ao bioma (ex.: Sereia no Pântano, Elementais na Tundra, Goblin no Deserto, Unicórnio na Cidadela).
+- **Balanceamento das raças** `[~]` (07/10/2026): rodada feita nas 3 fases (ver Registro do GDD); Humanos com a passiva **Disciplina**. Pendente: Lobisomem na Tundra (0/30) e Bruxa no Pântano (24/30).
+- **Unicórnio exclusivo** `[ ]` — raça especial de um jogador específico, liberada por **código secreto** em Configurações (código guardado só como hash; libera no save da pessoa). Classes e herói: PROPOSTA a apresentar.
+- **Raças novas** `[ ]` — PROPOSTA por lote: Zumbis, Sereia, Centauro, Goblin, Elementais. Ideia: cada fase libera 1–2 raças ligadas ao bioma (ex.: Sereia no Pântano, Elementais na Tundra, Goblin no Deserto, Unicórnio na Cidadela).
 - **Playtest** com outras pessoas pelo GitHub Pages a cada fase nova.
 
 ### Depois

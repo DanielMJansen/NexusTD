@@ -3566,3 +3566,14 @@ body:not([data-mode='run']) .team-slots {
   font-size: 14px;
   color: var(--muted);
 }
+
+/* melhoria da run: valor atual → depois */
+.choice .choice-delta {
+  margin-top: 6px;
+  font: 600 12px var(--font-label);
+  color: var(--muted);
+}
+
+.choice .choice-delta b {
+  color: #7af0b0;
+}
