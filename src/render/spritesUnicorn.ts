@@ -160,6 +160,20 @@ export function drawStarFoal(ctx: Ctx, p: Pose): void {
   const prism = formA(p);
   const guide = formB(p);
   const mane = prism ? RAINBOW : guide ? ['#bfe8ff', '#ffffff', '#9ad8ff'] : ['#ffb0d8', '#d8b0ff', '#b0d8ff'];
+  if (p.supreme && prism) {
+    // Arco-Íris Vivo: arco atrás do potro, como uma moldura (não cobre o corpo)
+    halo(ctx, 0, -8, 26, '#ffd0f4', 0.25);
+    RAINBOW.forEach((color, i) => {
+      ctx.save();
+      ctx.globalAlpha *= 0.7;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(0, 12, 30 - i * 1.7, Math.PI * 1.08, Math.PI * 1.92);
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
   const { hx, hy } = horse(ctx, p, { coat: '#fbf7ff', coatDark: '#c8bce0', hoof: '#b8a0d8', mane, horn: prism ? '#ff9ad8' : GOLD, size: 0.9 });
   hornGlow(ctx, p, hx, hy, prism ? '#ffd0f4' : '#fff6c0');
   if (guide) {
@@ -167,19 +181,6 @@ export function drawStarFoal(ctx: Ctx, p: Pose): void {
     const y = hy - 17 + Math.sin(p.time * 3) * 1.2;
     halo(ctx, hx + 2, y, 8, '#bfe8ff', 0.7);
     shape(ctx, '#ffffff', () => poly(ctx, [hx + 2, y - 3.5, hx + 3, y - 1, hx + 5.5, y, hx + 3, y + 1, hx + 2, y + 3.5, hx + 1, y + 1, hx - 1.5, y, hx + 1, y - 1]), 0.5);
-  }
-  if (p.supreme && prism) {
-    // Arco-Íris Vivo: arco de cores sobre o corpo
-    RAINBOW.forEach((color, i) => {
-      ctx.save();
-      ctx.globalAlpha *= 0.55;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.arc(0, -4, 16 + i * 1.6, Math.PI * 1.05, Math.PI * 1.95);
-      ctx.stroke();
-      ctx.restore();
-    });
   }
   if (p.supreme && guide) {
     // Constelação: estrelas cintilando na pelagem
