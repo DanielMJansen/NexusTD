@@ -2,7 +2,7 @@
 import type { AchievementId } from './achievements';
 import type { StageId } from './stages';
 
-export type NexusModelId = 'crystal' | 'lotus';
+export type NexusModelId = 'crystal' | 'lotus' | 'glacier';
 
 /** Cores do Nexus; os modelos usam as mesmas chaves. */
 export interface NexusPalette {
@@ -40,6 +40,13 @@ export const NEXUS_MODELS: Record<NexusModelId, NexusModelDef> = {
     description: 'Uma flor de luz que brota do Pântano. Vença o Pântano para liberar.',
     stage: 'swamp',
     palette: { dark: '#c0407a', mid: '#f07ab0', light: '#ffd0e8', glow: '#ff8ac8', accent: '#ffe08a' },
+  },
+  glacier: {
+    id: 'glacier',
+    name: 'Pináculo Glacial',
+    description: 'Uma agulha de gelo eterno da Tundra. Vença a Tundra para liberar.',
+    stage: 'tundra',
+    palette: { dark: '#3a8ad0', mid: '#7ac4f4', light: '#e4f6ff', glow: '#9adcff', accent: '#ffffff' },
   },
 };
 

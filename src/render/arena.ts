@@ -1,3 +1,4 @@
+import { drawTundraLife, paintTundraStatic } from './arenaTundra';
 import { NEXUS_MODELS, type NexusModelId, type NexusPalette } from '../data/nexusSkins';
 import type { StageDef } from '../data/stages';
 import { drawSwampLife, paintSwampStatic } from './arenaSwamp';
@@ -118,17 +119,28 @@ export function drawBackground(
     const c = cache.getContext('2d')!;
     c.setTransform(cw / world.width, 0, 0, ch / world.height, 0, 0);
     if (stage.biome === 'swamp') paintSwampStatic(c, stage, world, nexus);
+    else if (stage.biome === 'tundra') paintTundraStatic(c, stage, world, nexus);
     else paintStatic(c, stage, world, nexus);
   }
   ctx.drawImage(cache, 0, 0, world.width, world.height);
 
   if (stage.biome === 'swamp') drawSwampLife(ctx, time, stage.terrain?.kind === 'mud' ? stage.terrain : undefined, world);
+  if (stage.biome === 'tundra') drawTundraLife(ctx, time, world);
   drawRuneCircle(ctx, time, nexus);
   if (stage.biome === 'graveyard') for (const candle of graveyardLayout(stage, world, nexus).candles) drawCandle(ctx, candle.x, candle.y, time + candle.phase);
 }
 
 /** Névoa e vinheta por cima de tudo. */
-export function drawAtmosphere(ctx: CanvasRenderingContext2D, time: number): void {
+export function drawAtmosphere(ctx: CanvasRenderingContext2D, time: number, bright = false): void {
+  if (bright) {
+    // fases claras: só uma vinheta leve e azulada
+    const v = ctx.createRadialGradient(center.x, center.y, H * 0.45, center.x, center.y, W * 0.7);
+    v.addColorStop(0, '#00000000');
+    v.addColorStop(1, '#1a2a4a55');
+    ctx.fillStyle = v;
+    ctx.fillRect(0, 0, W, H);
+    return;
+  }
   for (const f of fog) {
     const x = ((f.x + time * f.speed) % (W + 2 * f.r)) - f.r;
     const g = ctx.createRadialGradient(x, f.y, 0, x, f.y, f.r);
@@ -492,7 +504,8 @@ export function drawNexusModel(
   ctx.ellipse(x, y + 12, 60, 30, 0, 0, TAU);
   ctx.fill();
 
-  const top = look.model === 'lotus' ? drawLotus(ctx, x, y, time, p, hurt, float) : drawCrystal(ctx, x, y, time, p, hurt, float);
+  const top =
+    look.model === 'lotus' ? drawLotus(ctx, x, y, time, p, hurt, float) : look.model === 'glacier' ? drawGlacier(ctx, x, y, time, p, hurt, float) : drawCrystal(ctx, x, y, time, p, hurt, float);
   ctx.restore();
   return top;
 }
@@ -656,4 +669,78 @@ function poly(ctx: CanvasRenderingContext2D, pts: number[]): void {
   ctx.moveTo(pts[0]!, pts[1]!);
   for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i]!, pts[i + 1]!);
   ctx.closePath();
+}
+
+/** Pináculo Glacial: agulha de gelo sobre rochas nevadas, com um anel de flocos girando. */
+function drawGlacier(ctx: CanvasRenderingContext2D, x: number, y: number, time: number, p: NexusPalette, hurt: number, float: number): number {
+  // base de rochas com neve
+  ctx.fillStyle = '#7a8a9e';
+  ctx.strokeStyle = '#2a3446';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 10, 22, 8, 0, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#f2f8ff';
+  ctx.beginPath();
+  ctx.ellipse(x - 2, y + 7, 16, 4.5, 0, 0, TAU);
+  ctx.fill();
+  const cy = y - 6 + float * 0.5;
+  const top = cy - 44;
+  ctx.save();
+  ctx.shadowColor = hurt > 0 ? '#ff4a5a' : p.glow;
+  ctx.shadowBlur = 22 + Math.sin(time * 3) * 6;
+  // agulha central e lascas laterais
+  const spike = (bx: number, h: number, w: number, color: string) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(bx - w, cy + 10);
+    ctx.lineTo(bx, cy + 10 - h);
+    ctx.lineTo(bx + w, cy + 10);
+    ctx.closePath();
+    ctx.fill();
+  };
+  spike(x - 11, 28, 5, p.dark);
+  spike(x + 11, 24, 5, p.dark);
+  spike(x, 54, 9, p.mid);
+  ctx.restore();
+  ctx.fillStyle = p.light;
+  ctx.beginPath();
+  ctx.moveTo(x, top);
+  ctx.lineTo(x + 3, cy + 6);
+  ctx.lineTo(x - 2, cy + 6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#1a3450';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(x - 9, cy + 10);
+  ctx.lineTo(x, top);
+  ctx.lineTo(x + 9, cy + 10);
+  ctx.stroke();
+  if (hurt > 0) {
+    ctx.fillStyle = `rgba(255, 255, 255, ${hurt * 0.6})`;
+    ctx.beginPath();
+    ctx.moveTo(x - 9, cy + 10);
+    ctx.lineTo(x, top);
+    ctx.lineTo(x + 9, cy + 10);
+    ctx.closePath();
+    ctx.fill();
+  }
+  // anel de flocos girando
+  for (let i = 0; i < 6; i++) {
+    const a = time * 1.2 + (i / 6) * TAU;
+    const fx = x + Math.cos(a) * 22;
+    const fy = cy - 22 + Math.sin(a) * 6;
+    ctx.strokeStyle = p.accent;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let k = 0; k < 3; k++) {
+      const b = (k / 3) * Math.PI;
+      ctx.moveTo(fx - Math.cos(b) * 2.5, fy - Math.sin(b) * 2.5);
+      ctx.lineTo(fx + Math.cos(b) * 2.5, fy + Math.sin(b) * 2.5);
+    }
+    ctx.stroke();
+  }
+  return top;
 }

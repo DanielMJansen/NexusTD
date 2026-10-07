@@ -98,7 +98,7 @@ export function drawFrame(
   ctx.restore();
   if (state.weather.active) drawBlizzard(ctx, time);
 
-  drawAtmosphere(ctx, time);
+  drawAtmosphere(ctx, time, STAGES[state.stage].biome === 'tundra');
   effects.drawBanners(ctx);
 }
 

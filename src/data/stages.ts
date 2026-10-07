@@ -3,9 +3,9 @@ import type { EnemyId } from './enemies';
 import { WAVES } from './waves';
 import type { BossEntry, WaveEntry } from './waves';
 
-export type StageId = 'graveyard' | 'swamp';
+export type StageId = 'graveyard' | 'swamp' | 'tundra';
 /** Cenário desenhado na arena. */
-export type Biome = 'graveyard' | 'swamp';
+export type Biome = 'graveyard' | 'swamp' | 'tundra';
 
 /** Lama: criaturas invocadas nela atacam mais devagar; o herói anda mais devagar. */
 export interface MudTerrain {
@@ -318,6 +318,75 @@ export const STAGES: Record<StageId, StageDef> = {
       { kind: 'boss', title: 'A Hidra', groups: [{ enemy: 'hydra', count: 1, entrance: 5 }], rolls: 1 },
     ],
     requires: 'graveyard',
+  },
+  tundra: {
+    id: 'tundra',
+    number: 3,
+    name: 'Tundra Gelada',
+    description: 'Um lago congelado cercado de montanhas: o gelo racha, a nevasca cega e a avalanche não perdoa.',
+    biome: 'tundra',
+    color: '#8ad0ff',
+    power: { hp: 1.1, damage: 1 },
+    essenceMultiplier: 1.5,
+    fragments: true,
+    nexusModel: 'glacier',
+    composition: [
+      { enemy: 'frostWolf', fromWave: 1, weight: 8, perWave: -0.2, minWeight: 3 },
+      { enemy: 'snowGolem', fromWave: 2, weight: 4, perWave: 0 },
+      { enemy: 'iceSpirit', fromWave: 4, weight: 2.5, perWave: 0.03 },
+      { enemy: 'kobold', fromWave: 5, weight: 2, perWave: 0.02 },
+      { enemy: 'glacierTroll', fromWave: 7, weight: 1.8, perWave: 0.04 },
+    ],
+    bosses: [
+      { wave: 6, enemy: 'yetiElder' },
+      { wave: 18, enemy: 'frostWyrm' },
+    ],
+    endlessBosses: ['yetiElder', 'frostWyrm'],
+    // lago congelado (2 telas de largura) com o Nexus numa ilha de pedra; 3 passagens nas montanhas
+    map: { width: 1280, height: 720, nexus: { x: 640, y: 380 } },
+    entrances: [
+      { name: 'Passagem norte', path: [{ x: 640, y: -24 }, { x: 640, y: 40 }, { x: 600, y: 110 }, { x: 640, y: 165 }, { x: 640, y: 290 }] },
+      { name: 'Passagem oeste', path: [{ x: -24, y: 300 }, { x: 40, y: 300 }, { x: 150, y: 330 }, { x: 240, y: 370 }, { x: 540, y: 380 }] },
+      { name: 'Passagem leste', path: [{ x: 1304, y: 300 }, { x: 1240, y: 300 }, { x: 1130, y: 330 }, { x: 1040, y: 370 }, { x: 740, y: 380 }] },
+    ],
+    terrain: { kind: 'ice', lake: { x: 640, y: 380, rx: 420, ry: 230 }, island: { x: 640, y: 380, r: 78 }, slide: 1.3, cell: 32, crackAt: 7, holeTime: 18 },
+    interactables: [
+      { kind: 'brazier', x: 520, y: 330, radius: 90 },
+      { kind: 'brazier', x: 760, y: 330, radius: 90 },
+      { kind: 'brazier', x: 640, y: 470, radius: 90 },
+    ],
+    weather: { kind: 'blizzard', every: 60, duration: 12, warning: 5, rangeMultiplier: 0.7 },
+    script: [
+      { kind: 'normal', entrances: [1, 2], rolls: 0.7 },
+      { kind: 'normal', entrances: [1, 2], rolls: 0.7 },
+      { kind: 'normal' },
+      { kind: 'normal' },
+      { kind: 'horde', title: 'Matilha', groups: [{ enemy: 'frostWolf', count: 28, entrance: 0 }], rolls: 0, interval: 0.18 },
+      { kind: 'boss', title: 'O Yeti Ancião', groups: [{ enemy: 'yetiElder', count: 1, entrance: 0 }], rolls: 1 },
+      { kind: 'normal' },
+      { kind: 'normal' },
+      { kind: 'elite', title: 'Guarda Gélida', groups: [{ enemy: 'glacierTroll', count: 3, elite: true }, { enemy: 'snowGolem', count: 3, elite: true }], rolls: 0.5 },
+      { kind: 'event', title: 'Avalanche', groups: [{ enemy: 'frostWolf', count: 12, entrance: 0 }], rolls: 0.6, event: { kind: 'avalanche', entrance: 0, delay: 7, duration: 5, width: 34 } },
+      { kind: 'truce', title: 'Trégua' },
+      { kind: 'elite', title: 'Gigantes', groups: [{ enemy: 'glacierTroll', count: 5 }, { enemy: 'snowGolem', count: 4 }], rolls: 0.2, interval: 1.2 },
+      { kind: 'event', title: 'Nevasca Eterna', weather: true },
+      { kind: 'elite', title: 'Gigantes', groups: [{ enemy: 'glacierTroll', count: 3, elite: true }], rolls: 0.8 },
+      { kind: 'normal' },
+      {
+        kind: 'horde',
+        title: 'Grande Matilha',
+        groups: [
+          { enemy: 'frostWolf', count: 14, entrance: 0 },
+          { enemy: 'frostWolf', count: 14, entrance: 1 },
+          { enemy: 'frostWolf', count: 14, entrance: 2 },
+        ],
+        rolls: 0,
+        interval: 0.12,
+      },
+      { kind: 'normal', rolls: 1.3 },
+      { kind: 'boss', title: 'O Wyrm de Gelo', groups: [{ enemy: 'frostWyrm', count: 1, entrance: 0 }], rolls: 1 },
+    ],
+    requires: 'swamp',
   },
 };
 
