@@ -22,38 +22,38 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 | Raça | Criatura | Custo | Dano | Alcance | Recarga | Habilidade | Desbloqueio |
 |---|---|---|---|---|---|---|---|
 | Humano | Arqueiro | 15 | 7 | 120 | 0,7 s | Alvo único, alcance alto. | inicial |
-| Humano | Guarda | 20 | 8 | 55 | 0,8 s | Bloqueio: segura até 2 inimigos num raio de 30 (chefes não param). | 30 ✦ |
-| Humano | Clériga | 25 | 7 | 90 | 1 s | Bênção: criaturas num raio de 100 ganham +25% de dano. | 70 ✦ |
+| Humano | Guarda | 20 | 10 | 55 | 0,8 s | Bloqueio: segura até 2 inimigos num raio de 30 (chefes não param). | 30 ✦ |
+| Humano | Clériga | 25 | 9 | 90 | 1 s | Bênção: criaturas num raio de 100 ganham +25% de dano. | 70 ✦ |
 | Vampiro | Duelista | 20 | 8 | 90 | 0,5 s | Frenesi: a cada 6 golpes, 3 s com ×1,5 de dano e ataques 2× mais rápidos. | 40 ✦ |
 | Vampiro | Sanguinário | 25 | 6 | 100 | 0,8 s | Sustento: cada abate desta criatura cura 2 de vida do herói. | 50 ✦ |
 | Vampiro | Enxame | 30 | 6 | 95 | 1 s | Área: atinge inimigos num raio de 32 ao redor do alvo com 100% do dano. | 80 ✦ |
 | Dragão | Fogo | 30 | 12 | 110 | 1,4 s | Área: atinge inimigos num raio de 40 ao redor do alvo com 60% do dano. | 80 ✦ |
 | Dragão | Gelo | 25 | 4 | 100 | 1 s | Lentidão: o alvo fica 50% mais lento por 1,5 s. | 80 ✦ |
 | Dragão | Tempestade | 30 | 9 | 105 | 1,1 s | Garras em cadeia: o golpe salta para até 3 inimigos próximos (85% do dano a cada salto). | 80 ✦ |
-| Lobisomem | Caçador | 25 | 10 | 75 | 0,6 s | Garras em cadeia: o golpe salta para até 2 inimigos próximos (80% do dano a cada salto). | 60 ✦ |
-| Lobisomem | Alfa | 30 | 10 | 65 | 0,6 s | Aura: criaturas num raio de 80 atacam 20% mais rápido. | 70 ✦ |
-| Lobisomem | Uivador | 30 | 4 | 70 | 3 s | Golpe em área: atinge todos num raio de 70 ao redor dela. 60% de chance de assustar: o inimigo foge do Nexus por 1,5 s (chefes resistem). | 70 ✦ |
-| Fantasma | Assombração | 25 | 6 | 100 | 0,7 s | Ignora toda a armadura do alvo. | 60 ✦ |
-| Fantasma | Banshee | 30 | 4 | 80 | 1,2 s | Grito em leque: atinge todos à frente e os empurra 16 para longe do Nexus (chefes resistem). O mesmo inimigo só sofre o efeito de novo após 2 s. | 70 ✦ |
-| Fantasma | Possessor | 35 | 4 | 90 | 6 s | Possui o alvo por 3 s: ele luta contra os outros inimigos (chefes resistem). | 90 ✦ |
-| Bruxa | Feiticeira | 25 | 5 | 110 | 0,8 s | Veneno: 7 de dano por segundo durante 3 s (ignora armadura). | 60 ✦ |
-| Bruxa | Caldeirão | 35 | 5 | 100 | 1,8 s | Poça: 11 de dano por segundo num raio de 30 durante 3 s. | 80 ✦ |
-| Bruxa | Herbalista | 25 | 5 | 100 | 1,1 s | 30% de chance de prender em raízes por 1,3 s (chefes resistem). | 70 ✦ |
+| Lobisomem | Caçador | 25 | 12 | 75 | 0,6 s | Garras em cadeia: o golpe salta para até 3 inimigos próximos (80% do dano a cada salto). | 60 ✦ |
+| Lobisomem | Alfa | 30 | 12 | 65 | 0,6 s | Aura: criaturas num raio de 80 atacam 25% mais rápido. | 70 ✦ |
+| Lobisomem | Uivador | 30 | 8 | 70 | 3 s | Golpe em área: atinge todos num raio de 70 ao redor dela. 60% de chance de assustar: o inimigo foge do Nexus por 1,5 s (chefes resistem). | 70 ✦ |
+| Fantasma | Assombração | 25 | 10 | 100 | 0,6 s | Ignora armadura e causa +50% de dano em inimigos com armadura. | 60 ✦ |
+| Fantasma | Banshee | 30 | 6 | 80 | 1,2 s | Grito em leque: atinge todos à frente e os empurra 16 para longe do Nexus (chefes resistem). O mesmo inimigo só sofre o efeito de novo após 2 s. | 70 ✦ |
+| Fantasma | Possessor | 35 | 10 | 90 | 6 s | Possui o alvo por 3 s: ele luta contra os outros inimigos (chefes resistem). | 90 ✦ |
+| Bruxa | Feiticeira | 30 | 5 | 110 | 0,8 s | Veneno: 6 de dano por segundo durante 3 s (ignora armadura). | 60 ✦ |
+| Bruxa | Caldeirão | 40 | 5 | 100 | 1,8 s | Poça: 8 de dano por segundo num raio de 30 durante 3 s. | 80 ✦ |
+| Bruxa | Herbalista | 25 | 5 | 100 | 1,1 s | 22% de chance de prender em raízes por 1,3 s (chefes resistem). | 70 ✦ |
 | Fada | Encantadora | 30 | 5 | 95 | 1 s | Bênção: criaturas num raio de 85 ganham +10% de dano, +8% de alcance. | 90 ✦ |
-| Fada | Travessa | 25 | 6 | 100 | 0,8 s | 25% de chance de confundir: o inimigo anda para trás por 1,5 s (chefes resistem). | 80 ✦ |
-| Fada | Lumina | 30 | 5 | 110 | 0,9 s | Marca o alvo: +15% de dano recebido por 3 s. | 90 ✦ |
+| Fada | Travessa | 25 | 8 | 100 | 0,8 s | 25% de chance de confundir: o inimigo anda para trás por 1,5 s (chefes resistem). | 80 ✦ |
+| Fada | Lumina | 30 | 7 | 110 | 0,9 s | Marca o alvo: +15% de dano recebido por 3 s. | 90 ✦ |
 | Golem | Muralha | 30 | 8 | 45 | 1 s | Bloqueio: segura até 3 inimigos num raio de 32 (chefes não param). 25% de chance de atordoar por 1 s (chefes resistem). | 90 ✦ |
 | Golem | Cristal | 30 | 12 | 120 | 1 s | Raio que atravessa todos os inimigos em linha. | 100 ✦ |
 | Golem | Magma | 30 | 8 | 50 | 0,8 s | Golpe em área: atinge todos num raio de 50 ao redor dela. Dano contínuo: 4/s por 2 s (ignora armadura). | 90 ✦ |
-| Necromante | Esqueleto | 15 | 11 | 55 | 0,6 s | Alvo único, alcance alto. | 70 ✦ |
-| Necromante | Ceifador | 30 | 13 | 70 | 0,8 s | Executa inimigos comuns abaixo de 25% de vida. | 90 ✦ |
-| Necromante | Drenador | 25 | 8 | 100 | 1 s | Enfraquece por 3,5 s: 30% mais lento e −50% de dano ao Nexus. | 80 ✦ |
+| Necromante | Esqueleto | 15 | 12 | 55 | 0,6 s | Alvo único, alcance alto. | 70 ✦ |
+| Necromante | Ceifador | 30 | 18 | 70 | 0,8 s | Executa inimigos comuns abaixo de 25% de vida. | 90 ✦ |
+| Necromante | Drenador | 25 | 10 | 100 | 1 s | Enfraquece por 3,5 s: 30% mais lento e −50% de dano ao Nexus. | 80 ✦ |
 | Górgona | Domadora | 25 | 6 | 115 | 0,8 s | Dano contínuo: 6/s por 3 s (ignora armadura). | 80 ✦ |
 | Górgona | Medusa | 35 | 7 | 100 | 1,1 s | 20% de chance de petrificar por 1,8 s (chefes resistem). | 100 ✦ |
 | Górgona | Basilisco | 25 | 7 | 90 | 0,9 s | Corrói 3 de armadura por 3 s. | 80 ✦ |
 | Demônio | Diabrete | 15 | 6 | 95 | 0,5 s | Alvo único, alcance alto. | 80 ✦ |
 | Demônio | Súcubo | 30 | 8 | 110 | 1,2 s | Puxa o alvo 18 na direção da criatura (chefes resistem). | 90 ✦ |
-| Demônio | Infernal | 40 | 26 | 110 | 2,2 s | Área: atinge inimigos num raio de 40 ao redor do alvo com 80% do dano. | 110 ✦ |
+| Demônio | Infernal | 40 | 22 | 110 | 2,2 s | Área: atinge inimigos num raio de 40 ao redor do alvo com 80% do dano. | 110 ✦ |
 | Anjo | Querubim | 25 | 8 | 110 | 0,8 s | Garras em cadeia: o golpe salta para até 2 inimigos próximos (85% do dano a cada salto). | 80 ✦ |
 | Anjo | Valquíria | 35 | 16 | 105 | 1,1 s | Alvo único, alcance alto. | 100 ✦ |
 | Anjo | Guardião | 30 | 7 | 90 | 1 s | Bênção: criaturas num raio de 80 ganham imunidade a teia e atordoamento. | 90 ✦ |
@@ -76,8 +76,8 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 | Assombração | **Espírito Vingativo**: Ignora armadura e causa +50% de dano em inimigos com armadura. | **Aparição Gélida**: Lentidão: o alvo fica 45% mais lento por 2 s. (damage ×1,6) |
 | Banshee | **Banshee Ancestral**: Grito em leque: atinge todos à frente e os empurra 34 para longe do Nexus (chefes resistem). O mesmo inimigo só sofre o efeito de novo após 2,5 s. | **Arauto do Pavor**: Grito em leque: atinge todos à frente e os faz fugir do Nexus por 1,4 s (chefes resistem). O mesmo inimigo só sofre o efeito de novo após 3,5 s. (damage ×1,3) |
 | Possessor | **Marionetista**: Multi-tiro: ataca 2 inimigos de uma vez. Possui o alvo por 4,5 s: ele luta contra os outros inimigos (chefes resistem). | **Devorador**: Possui o alvo por 4 s: ele luta contra os outros inimigos e explode no fim (raio 50) (chefes resistem). |
-| Feiticeira | **Arquibruxa**: Veneno: 16 de dano por segundo durante 4 s (ignora armadura). | **Feiticeira do Caos**: Garras em cadeia: o golpe salta para até 3 inimigos próximos (85% do dano a cada salto). (damage ×2,4, cooldown ×0,85) |
-| Caldeirão | **Caldeirão Infernal**: Poça: 24 de dano por segundo num raio de 40 durante 4 s. | **Caldeirão Alquímico**: Poça dourada: 16 de dano por segundo num raio de 32 durante 3 s; cada inimigo que morre nela rende +3 de ouro. |
+| Feiticeira | **Arquibruxa**: Veneno: 13 de dano por segundo durante 4 s (ignora armadura). | **Feiticeira do Caos**: Garras em cadeia: o golpe salta para até 3 inimigos próximos (85% do dano a cada salto). (damage ×2,4, cooldown ×0,85) |
+| Caldeirão | **Caldeirão Infernal**: Poça: 14 de dano por segundo num raio de 40 durante 4 s. | **Caldeirão Alquímico**: Poça dourada: 16 de dano por segundo num raio de 32 durante 3 s; cada inimigo que morre nela rende +3 de ouro. |
 | Herbalista | **Jardim Venenoso**: 40% de chance de prender em raízes por 1,5 s (chefes resistem). Dano contínuo: 10/s por 3 s (ignora armadura). | **Guardiã do Bosque**: Área: atinge inimigos num raio de 40 ao redor do alvo com 60% do dano. 35% de chance de prender em raízes por 1,4 s (chefes resistem). |
 | Encantadora | **Rainha das Flores**: Bênção: criaturas num raio de 110 ganham +20% de dano, +15% de alcance. | **Fada Guerreira**: Multi-tiro: ataca 3 inimigos de uma vez. (damage ×2,4) |
 | Travessa | **Pregadora de Peças**: Área: atinge inimigos num raio de 35 ao redor do alvo com 50% do dano. 35% de chance de confundir: o inimigo anda para trás por 1,8 s (chefes resistem). | **Ladra de Ouro**: 35% de chance de confundir: o inimigo anda para trás por 1,6 s (chefes resistem). Inimigos confusos ou assustados que morrem rendem +3 de ouro. (damage ×1,3) |
@@ -130,7 +130,7 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 | Espinhos | Inimigos encostados no herói sofrem 8 de dano/s | — |
 | Pulso Ampliado | Pulso +20% maior: área, alcance, duração e quantidade (morcegos, meteoros, esqueletos) | 3 |
 | Eco do Pulso | 25% de chance de o Pulso recarregar quase na hora | 2 |
-| Ímã | Coleta moedas e baús 50% mais longe | 3 |
+| Ímã | Puxa moedas e baús de 50% mais longe | 3 |
 | Couraça | O herói recebe 15% menos dano | 4 |
 
 ## Inimigos
@@ -159,11 +159,20 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 | Rei Sapo (chefe) | 440 | 13 | 3 | 35 | 35 | 35 | 45 | Salto: a cada 7 s, pula 40 para a frente, por cima de bloqueios. Engolir: a cada 12 s, engole a criatura mais próxima (alcance 75), que fica fora de combate por 5 s ou até ele levar 12% da vida em dano. |
 | Crocodilo Ancião (chefe) | 680 | 14 | 5 | 45 | 35 | 50 | 65 | Mergulho: a cada 14 s, some na lama por 1,4 s e reaparece perto do Nexus em investida. Investida: a cada 9 s, corre 2,5× mais rápido por 0,8 s. |
 | Hidra (chefe) | 250 | 11 | 4 | 70 | 40 | 90 | 110 | Cabeças: nasce com 3; cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro após 10 s (até 5), a não ser que a Hidra morra antes. Tiro: com o herói a até 120, avança devagar e atira (6 de dano a cada 1,8 s). |
+| Lobo Gélido | 15 | 56 | 0 | 4 | 7 | 2 | 2 | — |
+| Golem de Neve | 70 | 18 | 2 | 10 | 10 | 6 | 6 | Divisão: ao morrer, vira 3 Bola de Neves. |
+| Bola de Neve | 10 | 64 | 0 | 3 | 4 | 1 | 1 | — |
+| Espírito do Gelo | 24 | 32 | 0 | 5 | 4 | 4 | 3 | Toque gélido: a cada 6 s, congela a criatura que tocar por 2 s. |
+| Troll da Geleira | 150 | 16 | 3 | 14 | 14 | 9 | 8 | Regeneração: recupera 4% da vida por segundo, a não ser que leve dano de fogo. |
+| Kobold Escavador | 28 | 26 | 0 | 5 | 6 | 4 | 3 | Mergulho: a cada 14 s, some na lama por 2 s e reaparece perto do Nexus em investida. |
+| Yeti Ancião (chefe) | 440 | 13 | 3 | 25 | 35 | 40 | 50 | Bola de neve: a cada 5,5 s, congela a criatura mais próxima (alcance 150) por 2,2 s. Pisão: a cada 12 s, atordoa as criaturas num raio de 70 por 1 s. |
+| Wyrm de Gelo (chefe) | 1150 | 12 | 3 | 70 | 40 | 100 | 120 | Mergulho: nada sob o gelo (intocável) e emerge rachando o gelo e congelando as criaturas num raio de 80 por 1,8 s. Tiro: com o herói a até 120, avança devagar e atira (10 de dano a cada 2 s). |
 
 ## Ondas
 - 20 ondas; quantidade = 4 + 3 × onda; chefes por fase abaixo.
 - **Fase 1 · Cemitério**: vida dos inimigos ×0,75, dano ×0,85, Essência ×1; chefes: onda 7 Rei Ogro, onda 14 Rainha Aranha, onda 20 Lich; inimigos: Zumbi (onda 1+), Morcego (onda 2+), Esqueleto Arqueiro (onda 3+), Ogro (onda 4+), Lodo (onda 5+), Aranha (onda 6+), Gárgula (onda 8+), Cavaleiro Sem Cabeça (onda 9+), Banshee Sombria (onda 11+), Necromante (onda 12+).
 - **Fase 2 · Pântano**: vida dos inimigos ×0,9, dano ×1, Essência ×1,25; chefes: onda 7 Rei Sapo, onda 14 Crocodilo Ancião, onda 20 Hidra; inimigos: Sanguessuga (onda 1+), Sapo-Boi (onda 1+), Fogo-fátuo (onda 3+), Bruxa do Brejo (onda 5+), Crocodilo (onda 6+), Lodo (onda 9+); lama: 8 poças, criaturas −25% vel. de ataque, herói −40% velocidade.
+- **Fase 3 · Tundra Gelada**: vida dos inimigos ×1,1, dano ×1, Essência ×1,5; chefes: onda 6 Yeti Ancião, onda 18 Wyrm de Gelo; inimigos: Lobo Gélido (onda 1+), Golem de Neve (onda 2+), Espírito do Gelo (onda 4+), Kobold Escavador (onda 5+), Troll da Geleira (onda 7+); gelo: inimigos ×1,3 de velocidade, racha com 7 de desgaste, buraco por 18 s; nevasca a cada 60 s por 12 s (alcance ×0,7).
 - Força (o = onda − 1): vida × (1 + 0,18·o + 0,02·o²); velocidade +2% por onda (máx. +40%); dano +6% por onda.
 - Elites a partir da onda 8: chance 5% (+1%/onda, máx. 25%); vida ×2,5, dano ×1,5, recompensa ×2.
 - Sem Fim: chefe a cada 5 ondas; por onda além da 20, vida ×1,08 e dano ×1,05 a mais (exponencial); elites até 35%.
