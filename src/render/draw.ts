@@ -856,20 +856,64 @@ function drawCrack(ctx: CanvasRenderingContext2D, pool: Pool, time: number, fade
 }
 
 /** Raio da aura do Alfa (discreto). */
+/**
+ * Auras no chão (Alfa, bênçãos da Clériga, Encantadora, Guardião, Unicórnio...): área suave, borda com
+ * tracejado girando; auras que ferem (dps) pulsam ondas para fora e soltam faíscas.
+ */
 function drawAuraRing(ctx: CanvasRenderingContext2D, creature: Creature, time: number): void {
   const ability = creatureAbility(creature);
-  if (ability.kind !== 'aura') return;
+  if (ability.kind !== 'aura' && ability.kind !== 'bless') return;
+  const radius = ability.radius;
+  const color = ascendedForm(creature)?.color ?? creature.def.color;
+  const harmful = ability.kind === 'bless' && (ability.dps ?? 0) > 0;
+  const tint = harmful ? '#ff8a4a' : color;
   ctx.save();
   ctx.translate(creature.x, creature.y + 12);
   ctx.scale(1, 0.5);
-  ctx.strokeStyle = withAlpha(creature.def.color, 0.3 + Math.sin(time * 3) * 0.1);
-  ctx.setLineDash([6, 6]);
-  ctx.lineDashOffset = -time * 10;
-  ctx.lineWidth = 1.5;
+  // área preenchida: transparente no centro, mais forte perto da borda
+  const fill = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
+  fill.addColorStop(0, withAlpha(tint, 0));
+  fill.addColorStop(0.75, withAlpha(tint, harmful ? 0.12 : 0.08));
+  fill.addColorStop(1, withAlpha(tint, harmful ? 0.22 : 0.16));
+  ctx.fillStyle = fill;
   ctx.beginPath();
-  ctx.arc(0, 0, ability.radius, 0, TAU);
+  ctx.arc(0, 0, radius, 0, TAU);
+  ctx.fill();
+  // borda nítida e tracejado girando por cima
+  ctx.strokeStyle = withAlpha(tint, 0.45 + Math.sin(time * 3 + creature.x) * 0.1);
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, TAU);
   ctx.stroke();
+  ctx.strokeStyle = withAlpha(tint, 0.85);
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8, 14]);
+  ctx.lineDashOffset = -time * 14;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, TAU);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  if (harmful) {
+    // ondas que saem do centro: a aura fere quem está dentro
+    for (let i = 0; i < 2; i++) {
+      const t = (time * 0.9 + i / 2) % 1;
+      ctx.strokeStyle = withAlpha('#ffb07a', (1 - t) * 0.55);
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * t, 0, TAU);
+      ctx.stroke();
+    }
+  }
   ctx.restore();
+  if (harmful) {
+    // faíscas subindo dentro da área
+    for (let i = 0; i < 4; i++) {
+      const phase = (time * 0.7 + i / 4 + creature.x * 0.01) % 1;
+      const a = i * 1.9 + creature.y;
+      const r = radius * (0.3 + 0.6 * ((i * 0.37) % 1));
+      halo(ctx, creature.x + Math.cos(a) * r, creature.y + 12 + Math.sin(a) * r * 0.5 - phase * 14, 3, '#ffd08a', 1 - phase);
+    }
+  }
 }
 
 /** Marca do herói: anel rúnico dourado girando sob os pés (ciano fica reservado para lentidão). */
