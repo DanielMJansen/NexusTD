@@ -2794,7 +2794,7 @@ body:not([data-mode='run']) #side-panel {
   border: 1px solid var(--line);
   border-radius: 6px;
   box-shadow: 0 4px 14px #000a;
-  cursor: pointer;
+  pointer-events: none;
   z-index: 5;
 }
 
@@ -3387,4 +3387,123 @@ body:not([data-mode='run']) .team-slots {
   border-color: var(--accent);
   background: #9a7aff33;
   color: var(--fg);
+}
+
+/* abas com retrato (heróis) */
+.screen-tab.with-portrait {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px 3px 4px;
+}
+
+.tab-portrait {
+  width: 30px;
+  height: 30px;
+}
+
+/* fases em carrossel */
+.carousel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.carousel-arrow {
+  flex: none;
+  width: 54px;
+  height: 120px;
+  font-size: 26px;
+}
+
+.stage-hero {
+  --card-color: var(--accent);
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--card-color) 55%, var(--line));
+  border-radius: 16px;
+  background: linear-gradient(#21173a, #150e26);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--card-color) 25%, transparent);
+}
+
+.stage-hero.locked .stage-map {
+  filter: grayscale(0.85) brightness(0.55);
+}
+
+.stage-map {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.stage-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stage-info .cc-head b {
+  font-size: 22px;
+  color: var(--card-color);
+}
+
+.stage-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stage-stats div {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0d0818;
+}
+
+.stage-stats small {
+  font: 600 11px var(--font-label);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stage-stats b {
+  font: 700 20px var(--font-label);
+  color: var(--fg);
+}
+
+.stage-info .cc-footer {
+  margin-top: auto;
+  justify-content: flex-start;
+}
+
+.stage-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.stage-dot {
+  --card-color: var(--accent);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--card-color);
+  background: #0d0818;
+}
+
+.stage-dot.active {
+  background: var(--card-color);
+  box-shadow: 0 0 8px var(--card-color);
+}
+
+.stage-dot.locked {
+  opacity: 0.4;
 }

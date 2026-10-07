@@ -11,7 +11,7 @@ const NEXUS_CLICK_RADIUS = 20;
 export interface PointerContext {
   canvas: HTMLCanvasElement;
   /** Câmera (o mouse vira coordenada do mundo; guiar o herói volta a segui-lo). */
-  camera: { x: number; y: number; follow: boolean };
+  camera: { x: number; y: number };
   interaction: Interaction;
   getRun(): RunState;
   /** Só aceita comandos durante uma onda, sem pausa. */
@@ -111,7 +111,6 @@ export function attachPointer({ canvas, camera, interaction, getRun, isActive }:
     }
 
     run.hero.target = point;
-    camera.follow = true;
     interaction.holding = true;
   });
 

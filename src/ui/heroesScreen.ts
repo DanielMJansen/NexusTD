@@ -50,6 +50,9 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
   const tabs: Tab[] = HERO_IDS.map((id) => ({
     id,
     label: `${ownsHero(profile, id) ? '' : '🔒 '}${HEROES[id].name}`,
+    sprite: id,
+    skin: heroSkin(profile, id).id,
+    silhouette: !ownsHero(profile, id),
     badge: profile.selectedHero === id ? '✓' : undefined,
     color: HEROES[id].color,
   }));

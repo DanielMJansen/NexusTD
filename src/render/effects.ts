@@ -421,13 +421,18 @@ export class Effects {
           break;
         }
         if (event.kind === 'fissure' && event.to) {
-          // fenda: poeira e pedras ao longo da linha
-          for (let i = 0; i <= 16; i++) {
-            const t = i / 16;
-            this.burst(event.x + (event.to.x - event.x) * t, event.y + (event.to.y - event.y) * t + 6, 3, '#8a6a4a', 50, 0.6, 2.8, false, -40, 160);
+          // fenda: pedras saltando e poeira ao longo da linha, brasas na abertura, anel de impacto no herói
+          for (let i = 0; i <= 20; i++) {
+            const t = i / 20;
+            const x = event.x + (event.to.x - event.x) * t;
+            const y = event.y + (event.to.y - event.y) * t + 6;
+            this.burst(x, y, 4, '#8a6a4a', 70, 0.75, 3.4, false, -90, 260);
+            this.burst(x, y, 3, '#c8a878', 40, 0.9, 4.5, false, -25);
+            if (i % 2 === 0) this.burst(x, y, 2, '#ffa040', 45, 0.6, 2.2, true, -60);
           }
-          this.ring(event.x, event.y + 8, 30, look.ring, 0.4, 4);
-          this.shake = Math.max(this.shake, 7);
+          this.ring(event.x, event.y + 8, 44, look.ring, 0.5, 6);
+          this.ring(event.x, event.y + 8, 24, '#ffa040', 0.35, 3);
+          this.shake = Math.max(this.shake, 10);
           break;
         }
         if (event.kind === 'hex') {

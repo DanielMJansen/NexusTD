@@ -9,6 +9,11 @@ export interface Tab {
   badge?: string;
   /** Cor de destaque (raça, herói). */
   color?: string;
+  /** Retrato animado na aba (id de sprite e skin opcional). */
+  sprite?: string;
+  skin?: string;
+  /** Retrato em silhueta (bloqueado). */
+  silhouette?: boolean;
 }
 
 /** Aba atual da tela (ou a primeira, se a guardada não existe mais). */
@@ -26,7 +31,7 @@ export function tabsHtml(tabs: Tab[], current: string): string {
   return `<nav class="screen-tabs">${tabs
     .map(
       (t) =>
-        `<button class="screen-tab${t.id === current ? ' active' : ''}" data-action="tab" data-value="${t.id}"${t.color ? ` style="--tab-color:${t.color}"` : ''}>${t.label}${t.badge ? ` <small>${t.badge}</small>` : ''}</button>`,
+        `<button class="screen-tab${t.id === current ? ' active' : ''}${t.sprite ? ' with-portrait' : ''}" data-action="tab" data-value="${t.id}"${t.color ? ` style="--tab-color:${t.color}"` : ''}>${t.sprite ? `<canvas class="tab-portrait" data-sprite="${t.sprite}"${t.skin ? ` data-skin="${t.skin}"` : ''}${t.silhouette ? ' data-silhouette' : ''}></canvas>` : ''}${t.label}${t.badge ? ` <small>${t.badge}</small>` : ''}</button>`,
     )
     .join('')}</nav>`;
 }

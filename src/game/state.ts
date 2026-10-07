@@ -193,6 +193,10 @@ export interface Pool extends Point {
   slow?: number;
   /** Visual: poça comum ou rachadura no chão. */
   look?: 'pool' | 'crack';
+  /** Rachadura: direção da fenda, comprimento do trecho e posição ao longo dela (0 = herói, 1 = ponta). */
+  angle?: number;
+  span?: number;
+  along?: number;
 }
 
 /** Golpe atrasado de um Pulso (meteoro, coluna de luz). */

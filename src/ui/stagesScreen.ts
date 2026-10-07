@@ -1,6 +1,6 @@
 import { STAGE_IDS, stageWaveCount, STAGES, type StageId } from '../data/stages';
-import { ENEMIES } from '../data/enemies';
 import { isStageUnlocked, type Profile } from '../game/profile';
+import { paintStageThumbnail } from '../render/arena';
 import { showOverlay } from './overlay';
 
 export interface StageHandlers {
@@ -8,43 +8,63 @@ export interface StageHandlers {
   onBack(): void;
 }
 
-/** Mapa de fases: liberadas, vencidas, recordes e a fase da próxima run. */
+/** Fase mostrada no carrossel (lembrada enquanto o jogo estiver aberto). */
+let shown: StageId | null = null;
+
+/** Fases em carrossel: uma por vez, com a miniatura do mapa, recordes e a escolha. */
 export function showStages(profile: Profile, handlers: StageHandlers): void {
-  const cards = STAGE_IDS.map((id) => {
-    const def = STAGES[id];
-    const unlocked = isStageUnlocked(profile, id);
-    const selected = profile.selectedStage === id;
-    const record = profile.stageRecords[id];
-    const bosses = (def.script
-      ? def.script.flatMap((w, i) => (w.groups ?? []).filter((g) => ENEMIES[g.enemy].isBoss).map((g) => `onda ${i + 1}: ${ENEMIES[g.enemy].name}`))
-      : def.bosses.map((b) => `onda ${b.wave}: ${ENEMIES[b.enemy].name}`)
-    ).join(' · ');
-    const status = record?.wins ? `✓ Vencida ${record.wins}×` : record?.bestWave ? `Melhor onda ${record.bestWave}` : 'Ainda não jogada';
-    let footer: string;
-    if (!unlocked) footer = `<span class="cc-tag locked-tag">🔒 Vença a Fase ${STAGES[def.requires!].number}</span>`;
-    else if (selected) footer = '<span class="cc-tag">✓ Fase escolhida</span>';
-    else footer = `<button data-action="select" data-value="${id}">Escolher</button>`;
-    return `<div class="creature-card stage-card${unlocked ? '' : ' locked'}${selected ? ' selected' : ''}" style="--card-color:${def.color}">
-      <div class="cc-body">
-        <div class="cc-head"><b>Fase ${def.number} · ${def.name}</b><span>${status}</span></div>
-        <p class="cc-desc">${def.description}</p>
-        <p class="cc-ability">${stageWaveCount(id)} ondas · chefes — ${bosses}</p>
-        ${record?.bestWave ? `<p class="cc-ability">Recorde: onda ${record.bestWave}${record.bestWave > stageWaveCount(id) ? ' (Sem Fim)' : ''}</p>` : ''}
-        <div class="cc-footer">${footer}</div>
-      </div>
-    </div>`;
-  }).join('');
-  showOverlay(
-    `<div class="panel screen">
+  if (!shown || !STAGE_IDS.includes(shown)) shown = profile.selectedStage;
+  const index = STAGE_IDS.indexOf(shown);
+  const id = shown;
+  const def = STAGES[id];
+  const unlocked = isStageUnlocked(profile, id);
+  const selected = profile.selectedStage === id;
+  const record = profile.stageRecords[id];
+  const total = stageWaveCount(id);
+  const best = record?.bestWave ?? 0;
+  let footer: string;
+  if (!unlocked) footer = `<span class="cc-tag locked-tag">🔒 Vença a Fase ${STAGES[def.requires!].number} · ${STAGES[def.requires!].name}</span>`;
+  else if (selected) footer = '<span class="cc-tag">✓ Fase escolhida</span>';
+  else footer = `<button class="play-button" data-action="select" data-value="${id}">Escolher esta fase</button>`;
+  const dots = STAGE_IDS.map((s) => `<span class="stage-dot${s === id ? ' active' : ''}${isStageUnlocked(profile, s) ? '' : ' locked'}" style="--card-color:${STAGES[s].color}"></span>`).join('');
+  const element = showOverlay(
+    `<div class="panel screen stage-carousel">
       <div class="screen-head">
         <button data-action="back">← Voltar</button>
         <h2>Fases</h2>
         <div></div>
       </div>
-      <p class="subtitle">Vencer uma fase libera a próxima. Novas fases trazem inimigos, chefes e mecânicas novas.</p>
-      <div class="creature-grid">${cards}</div>
+      <div class="carousel">
+        <button class="carousel-arrow" data-action="prev"${index > 0 ? '' : ' disabled'} title="Fase anterior">◀</button>
+        <div class="stage-hero${unlocked ? '' : ' locked'}${selected ? ' selected' : ''}" style="--card-color:${def.color}">
+          <canvas class="stage-map" width="760" height="380"></canvas>
+          <div class="stage-info">
+            <div class="cc-head"><b>Fase ${def.number} · ${def.name}</b><span>${total} ondas</span></div>
+            <p class="cc-desc">${def.description}</p>
+            <div class="stage-stats">
+              <div><small>Vitórias</small><b>${record?.wins ?? 0}</b></div>
+              <div><small>Melhor onda</small><b>${best ? `${best}${best > total ? ' · Sem Fim' : ''}` : '—'}</b></div>
+            </div>
+            <div class="cc-footer">${footer}</div>
+          </div>
+        </div>
+        <button class="carousel-arrow" data-action="next"${index < STAGE_IDS.length - 1 ? '' : ' disabled'} title="Próxima fase">▶</button>
+      </div>
+      <div class="stage-dots">${dots}</div>
     </div>`,
-    { select: (id) => handlers.onSelect(id as StageId), back: () => handlers.onBack() },
-    { keepScroll: true },
+    {
+      prev: () => {
+        shown = STAGE_IDS[Math.max(0, index - 1)]!;
+        showStages(profile, handlers);
+      },
+      next: () => {
+        shown = STAGE_IDS[Math.min(STAGE_IDS.length - 1, index + 1)]!;
+        showStages(profile, handlers);
+      },
+      select: (value) => handlers.onSelect(value as StageId),
+      back: () => handlers.onBack(),
+    },
   );
+  const map = element.querySelector<HTMLCanvasElement>('.stage-map');
+  if (map) paintStageThumbnail(map, def);
 }

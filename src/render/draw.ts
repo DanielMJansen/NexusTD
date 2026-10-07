@@ -692,23 +692,7 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
 function drawPool(ctx: CanvasRenderingContext2D, pool: Pool, time: number): void {
   const fade = Math.min(1, pool.remaining / 0.4) * Math.min(1, (pool.duration - pool.remaining) / 0.15 + 0.2);
   if (pool.look === 'crack') {
-    ctx.save();
-    ctx.globalAlpha = fade;
-    ctx.fillStyle = '#1a100a';
-    ctx.strokeStyle = '#ff8a3a88';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    const r = pool.radius * 0.6;
-    ctx.moveTo(pool.x - r, pool.y + 6);
-    ctx.lineTo(pool.x - r * 0.3, pool.y + 3);
-    ctx.lineTo(pool.x + r * 0.2, pool.y + 8);
-    ctx.lineTo(pool.x + r, pool.y + 5);
-    ctx.lineTo(pool.x + r * 0.3, pool.y + 9);
-    ctx.lineTo(pool.x - r * 0.4, pool.y + 8);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
+    drawCrack(ctx, pool, time, fade);
     return;
   }
   ctx.save();
@@ -730,6 +714,74 @@ function drawPool(ctx: CanvasRenderingContext2D, pool: Pool, time: number): void
     ctx.globalAlpha = fade * (1 - phase);
     ctx.beginPath();
     ctx.arc(Math.cos(a) * pool.radius * 0.5, Math.sin(a) * pool.radius * 0.5, 1.5 + phase * 2.5, 0, TAU);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/** Trecho da Fenda Sísmica: chão aberto na direção do golpe, magma no fundo e lascas de pedra nas bordas. */
+function drawCrack(ctx: CanvasRenderingContext2D, pool: Pool, time: number, fade: number): void {
+  const angle = pool.angle ?? 0;
+  const half = (pool.span ?? 18) * 0.62; // trechos se sobrepõem: a fenda fica contínua
+  // mais larga perto do herói, afina na ponta; abre rápido no começo
+  const opened = Math.min(1, (pool.duration - pool.remaining) / 0.12);
+  const width = pool.radius * (1.6 - (pool.along ?? 0.5) * 0.7) * opened;
+  const seed = Math.round(pool.x * 7 + pool.y * 13);
+  const jag = (k: number) => ((Math.sin(seed * 0.37 + k * 2.1) + 1) / 2) * 0.5 + 0.5;
+  ctx.save();
+  ctx.globalAlpha = fade;
+  ctx.translate(pool.x, pool.y + 6);
+  ctx.scale(1, 0.75);
+  ctx.rotate(angle);
+  // brilho de magma vazando
+  if (fade > 0.3) {
+    ctx.fillStyle = '#ff7a2a22';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, half + 8, width * 1.3, 0, 0, TAU);
+    ctx.fill();
+  }
+  // sombra do chão afundado
+  ctx.fillStyle = '#00000055';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, half + 4, width * 0.95, 0, 0, TAU);
+  ctx.fill();
+  // contorno recortado (borda de cima e de baixo)
+  const edge = (side: number, scale: number) => {
+    ctx.moveTo(-half, 0);
+    ctx.lineTo(-half * 0.45, side * width * scale * jag(side + 1));
+    ctx.lineTo(0, side * width * scale * 0.55 * jag(side + 2));
+    ctx.lineTo(half * 0.5, side * width * scale * jag(side + 3));
+    ctx.lineTo(half, 0);
+  };
+  // lábios de pedra levantados
+  ctx.fillStyle = '#6a4a32';
+  ctx.beginPath();
+  edge(-1, 0.75);
+  edge(1, 0.75);
+  ctx.fill();
+  // fundo escuro
+  ctx.fillStyle = '#140a06';
+  ctx.beginPath();
+  edge(-1, 0.52);
+  edge(1, 0.52);
+  ctx.fill();
+  // magma pulsando no fundo
+  const glow = 0.55 + 0.45 * Math.sin(time * 6 + seed);
+  ctx.fillStyle = `rgba(255, ${Math.round(110 + glow * 70)}, 40, ${0.55 + glow * 0.35})`;
+  ctx.beginPath();
+  edge(-1, 0.3);
+  edge(1, 0.3);
+  ctx.fill();
+  // lascas de pedra soltas nas bordas
+  ctx.fillStyle = '#8a6a4a';
+  for (const side of [-1, 1]) {
+    const x = (jag(side * 5) - 0.75) * half * 2;
+    const y = side * width * 0.82;
+    ctx.beginPath();
+    ctx.moveTo(x - 3, y);
+    ctx.lineTo(x, y - side * 3.5);
+    ctx.lineTo(x + 3, y);
+    ctx.closePath();
     ctx.fill();
   }
   ctx.restore();

@@ -764,3 +764,30 @@ function drawGlacier(ctx: CanvasRenderingContext2D, x: number, y: number, time: 
   }
   return top;
 }
+
+const thumbnails = new Map<string, HTMLCanvasElement>();
+
+/** Miniatura do mapa da fase (cenário + Nexus do mapa), pintada uma vez e reaproveitada. */
+export function paintStageThumbnail(target: HTMLCanvasElement, stage: StageDef): void {
+  const world = stage.map ?? { width: W, height: H, nexus: center };
+  const key = `${stage.id}:${target.width}x${target.height}`;
+  let image = thumbnails.get(key);
+  if (!image) {
+    image = document.createElement('canvas');
+    image.width = target.width;
+    image.height = target.height;
+    const c = image.getContext('2d')!;
+    // enquadra o mundo inteiro mantendo a proporção (centralizado)
+    const s = Math.min(image.width / world.width, image.height / world.height);
+    c.fillStyle = '#07040d';
+    c.fillRect(0, 0, image.width, image.height);
+    c.setTransform(s, 0, 0, s, (image.width - world.width * s) / 2, (image.height - world.height * s) / 2);
+    const nexus = world.nexus;
+    if (stage.biome === 'swamp') paintSwampStatic(c, stage, world, nexus);
+    else if (stage.biome === 'tundra') paintTundraStatic(c, stage, world, nexus);
+    else paintStatic(c, stage, world, nexus);
+    drawNexusModel(c, nexus.x, nexus.y, 0, { model: stage.nexusModel, palette: NEXUS_MODELS[stage.nexusModel].palette });
+    thumbnails.set(key, image);
+  }
+  target.getContext('2d')!.drawImage(image, 0, 0);
+}

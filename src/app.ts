@@ -121,15 +121,6 @@ export class App {
       isActive: () => this.isPlaying(),
     });
     this.sound.onReady = (ctx, output) => this.music.connect(ctx, output);
-    // minimapa: clicar move a vista para aquele ponto do mundo
-    this.minimap.addEventListener('pointerdown', (event) => {
-      const rect = this.minimap.getBoundingClientRect();
-      this.camera.lookAt(this.run, {
-        x: ((event.clientX - rect.left) / rect.width) * this.run.map.width,
-        y: ((event.clientY - rect.top) / rect.height) * this.run.map.height,
-      });
-      event.stopPropagation();
-    });
     this.keyboard = new Keyboard((key, event) => this.onKey(key, event));
     addEventListener('pointerdown', () => this.sound.unlock());
 
@@ -406,9 +397,8 @@ export class App {
     view.heroRange =
       this.keyboard.isDown('shift') ||
       (this.interaction.pointerInArena && Math.hypot(this.interaction.pointer.x - hero.x, this.interaction.pointer.y - hero.y) < 18);
-    // câmera: segue o herói; mouse na borda rola; WASD volta a seguir
-    if (this.keyboard.direction().x || this.keyboard.direction().y) this.camera.follow = true;
-    this.camera.update(this.run, elapsed, this.mode === 'run' && this.interaction.pointerInArena ? this.interaction.viewPointer : null, this.interaction.draggingCard);
+    // câmera: sempre no herói
+    this.camera.update(this.run, elapsed);
     this.creaturePopup.camera = this.camera;
     drawFrame(this.ctx, this.run, this.effects, view, time, this.camera);
     const showMinimap = this.mode === 'run' && this.camera.scrolls(this.run);

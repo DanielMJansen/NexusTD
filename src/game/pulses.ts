@@ -165,6 +165,7 @@ export function firePulse(state: RunState, aim?: Point): boolean {
       const end = clampToArena(state, { x: hero.x + Math.cos(angle) * length, y: hero.y + Math.sin(angle) * length });
       hit = hitWhere(state, (e) => distanceToSegment(e, start, end) <= effect.width / 2 + e.def.radius * 0.5, damage);
       const steps = Math.max(1, Math.round(distance(start, end) / 18));
+      const span = distance(start, end) / steps;
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         state.pools.push({
@@ -177,6 +178,9 @@ export function firePulse(state: RunState, aim?: Point): boolean {
           color: '#5a3a2a',
           slow: effect.slow,
           look: 'crack',
+          angle,
+          span,
+          along: t,
         });
       }
       to = end;
