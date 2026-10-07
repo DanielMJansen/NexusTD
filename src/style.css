@@ -3186,25 +3186,75 @@ body:not([data-mode='run']) .panel.screen {
   font-style: normal;
 }
 
-/* equipe numa linha só: herói maior e as criaturas encolhem para caber */
+/* equipe numa linha só: herói em destaque e as criaturas agrupadas por raça */
 .hub-hero .hub-team {
   flex-wrap: nowrap;
-  align-items: center;
+  align-items: flex-end;
+  gap: 6px;
 }
 
 .hub-hero .team-mini {
-  width: 46px;
-  height: 46px;
-  flex: 0 1 46px;
-  min-width: 0;
-  aspect-ratio: 1;
+  width: 44px;
   height: auto;
+  aspect-ratio: 1;
+  min-width: 0;
+  flex: 0 1 44px;
 }
 
-.hub-hero .team-mini:first-child {
-  width: 58px;
+.hub-hero-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   flex: none;
-  margin-right: 8px;
+  margin-right: 6px;
+}
+
+.hub-hero-pick small {
+  color: var(--gold, #f0c35a);
+  font: 700 10px var(--font-label);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.hub-hero .hub-hero-pick .team-mini {
+  width: 54px;
+  flex: none;
+  border: 1px solid #f0c35a99;
+  border-radius: 50%;
+  background: radial-gradient(#f0c35a26, transparent 70%);
+  box-shadow: 0 0 10px #f0c35a40;
+}
+
+.hub-hero-pick span,
+.hub-race > span {
+  font: 600 11px var(--font-label);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.hub-hero-pick span {
+  color: #f6e6b8;
+}
+
+.hub-race {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.hub-race > div {
+  display: flex;
+  justify-content: center;
+}
+
+.hub-race > span {
+  margin-top: 1px;
+  padding-top: 1px;
+  border-top: 1px solid var(--line-strong);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hub-play {

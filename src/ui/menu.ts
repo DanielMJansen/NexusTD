@@ -2,7 +2,7 @@ import { isAltarUnlocked } from '../game/altar';
 import { FIRST_STAGE, stageWaveCount, STAGES } from '../data/stages';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
 import { GAME_TITLE } from '../data/config';
-import { CREATURE_IDS } from '../data/creatures';
+import { CREATURE_IDS, CREATURES, type CreatureId } from '../data/creatures';
 import { ENEMIES } from '../data/enemies';
 import { HEROES } from '../data/heroes';
 import { hasSanctuary, heroSkin, TEAM_SIZE, type Profile, runSetup } from '../game/profile';
@@ -43,8 +43,19 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
         <canvas class="hub-stage-map" width="240" height="135"></canvas>
         <span class="hub-stage-info"><small>Fase ${stage.number} escolhida</small><b>${stage.name}</b><span>${goal}</span><em>Trocar fase ›</em></span>
       </button>`;
-  const hero = `<canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas>`;
-  const team = hero + profile.team.map((id) => `<canvas class="team-mini" data-sprite="${id}"></canvas>`).join('');
+  // herói em moldura dourada com o nome; criaturas vizinhas da mesma raça agrupadas sob o nome da raça
+  const hero = `<div class="hub-hero-pick" title="Herói: ${HEROES[profile.selectedHero].name}"><small>Herói</small><canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas><span>${HEROES[profile.selectedHero].name}</span></div>`;
+  const groups: CreatureId[][] = [];
+  for (const id of profile.team) {
+    const last = groups.at(-1);
+    if (last && CREATURES[last[0]!].race === CREATURES[id].race) last.push(id);
+    else groups.push([id]);
+  }
+  const team =
+    hero +
+    groups
+      .map((ids) => `<div class="hub-race"><div>${ids.map((id) => `<canvas class="team-mini" data-sprite="${id}" title="${CREATURES[id].name} · ${CREATURES[id].race}"></canvas>`).join('')}</div><span>${CREATURES[ids[0]!].race}</span></div>`)
+      .join('');
 
   showOverlay(
     `<div class="menu-page">
