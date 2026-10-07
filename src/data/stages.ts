@@ -3,9 +3,9 @@ import type { EnemyId } from './enemies';
 import { WAVES } from './waves';
 import type { BossEntry, WaveEntry } from './waves';
 
-export type StageId = 'graveyard' | 'swamp' | 'tundra';
+export type StageId = 'graveyard' | 'swamp' | 'tundra' | 'desert';
 /** Cenário desenhado na arena. */
-export type Biome = 'graveyard' | 'swamp' | 'tundra';
+export type Biome = 'graveyard' | 'swamp' | 'tundra' | 'desert';
 
 /** Lama: criaturas invocadas nela atacam mais devagar; o herói anda mais devagar. */
 export interface MudTerrain {
@@ -32,7 +32,17 @@ export interface IceTerrain {
   holeTime: number;
 }
 
-export type Terrain = MudTerrain | IceTerrain;
+/** Areia com oásis: o herói recupera vida dentro deles e as criaturas ali atacam mais rápido. */
+export interface SandTerrain {
+  kind: 'sand';
+  oases: { x: number; y: number; r: number }[];
+  /** Vida por segundo do herói dentro de um oásis. */
+  heroRegen: number;
+  /** Fração a mais na velocidade de ataque das criaturas dentro de um oásis. */
+  creatureAttackSpeed: number;
+}
+
+export type Terrain = MudTerrain | IceTerrain | SandTerrain;
 
 /** Geometria do mapa: tamanho do mundo e posição do Nexus (padrão: a tela, Nexus no centro). */
 export interface StageMap {
@@ -85,6 +95,8 @@ export interface GuardPoint {
   y: number;
   hp: number;
   vital: boolean;
+  /** Segundo Nexus: desenhado como o Nexus da fase e com a mesma vida máxima dele. */
+  twin?: boolean;
 }
 
 /** Escolta: o Nexus (com criaturas e herói) muda de parada a cada `wavesPerStop` ondas. */
@@ -416,6 +428,47 @@ export const STAGES: Record<StageId, StageDef> = {
       { kind: 'boss', title: 'O Wyrm de Gelo', groups: [{ enemy: 'frostWyrm', count: 1, entrance: 0 }], rolls: 1 },
     ],
     requires: 'swamp',
+  },
+  desert: {
+    id: 'desert',
+    number: 4,
+    name: 'Deserto Dourado',
+    description: 'Dois Obeliscos Solares em dois oásis: proteja os dois, porque basta um cair para tudo acabar.',
+    intro: [
+      { icon: '☀', title: 'Dois Obeliscos', text: 'Há dois Nexus, um em cada oásis. Os inimigos atacam o mais próximo, e se qualquer um cair a run acaba. Divida as criaturas e mova o herói entre os dois lados.' },
+      { icon: '🌴', title: 'Oásis', text: 'Parado num oásis, o herói recupera vida. Criaturas invocadas dentro dele atacam mais rápido.' },
+      { icon: '🗺', title: 'Mapa aberto', text: 'Inimigos chegam pelo norte, pelo sul e pelas duas pontas da estrada de caravana. Use o zoom (roda do mouse) para ver o mapa inteiro.' },
+    ],
+    biome: 'desert',
+    color: '#f0c35a',
+    power: { hp: 1.25, damage: 1.05 },
+    essenceMultiplier: 1.75,
+    fragments: true,
+    nexusModel: 'obelisk',
+    // provisório (parte 1): inimigos de fases anteriores até chegarem os do deserto
+    composition: [
+      { enemy: 'spider', fromWave: 1, weight: 6, perWave: -0.15, minWeight: 2 },
+      { enemy: 'gargoyle', fromWave: 2, weight: 3, perWave: 0.02 },
+      { enemy: 'headless', fromWave: 4, weight: 2.5, perWave: 0.03 },
+      { enemy: 'kobold', fromWave: 5, weight: 2, perWave: 0.02 },
+      { enemy: 'ogre', fromWave: 7, weight: 1.6, perWave: 0.04 },
+    ],
+    bosses: [
+      { wave: 10, enemy: 'ogreKing' },
+      { wave: 20, enemy: 'lich' },
+    ],
+    endlessBosses: ['ogreKing', 'lich'],
+    // deserto largo: Obelisco oeste (o Nexus principal) e Obelisco leste, cada um num oásis
+    map: { width: 1280, height: 720, nexus: { x: 420, y: 380 } },
+    guards: [{ name: 'Obelisco Leste', x: 860, y: 380, hp: 100, vital: true, twin: true }],
+    entrances: [
+      { name: 'Duna norte', path: [{ x: 640, y: -24 }, { x: 640, y: 60 }, { x: 610, y: 170 }, { x: 640, y: 280 }] },
+      { name: 'Duna sul', path: [{ x: 640, y: 744 }, { x: 640, y: 660 }, { x: 670, y: 560 }, { x: 640, y: 480 }] },
+      { name: 'Estrada oeste', path: [{ x: -24, y: 360 }, { x: 90, y: 350 }, { x: 200, y: 370 }, { x: 330, y: 380 }] },
+      { name: 'Estrada leste', path: [{ x: 1304, y: 360 }, { x: 1190, y: 350 }, { x: 1080, y: 370 }, { x: 950, y: 380 }] },
+    ],
+    terrain: { kind: 'sand', oases: [{ x: 420, y: 380, r: 75 }, { x: 860, y: 380, r: 75 }], heroRegen: 4, creatureAttackSpeed: 0.15 },
+    requires: 'tundra',
   },
 };
 

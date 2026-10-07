@@ -85,7 +85,9 @@ export function drawFrame(
     },
   ];
   for (const g of state.guards) {
-    layers.push({ y: g.y + 10, draw: () => drawNexus(ctx, g.hp, g.maxHp, time, state.time - g.lastHitAt < 0.15 ? 1 : 0, GUARD_LOOK, g) });
+    // ponto vital gêmeo (Deserto): mesmo visual do Nexus da fase
+    const look = g.twin ? resolveNexus(state.nexusLook, state.stage) : GUARD_LOOK;
+    layers.push({ y: g.y + 10, draw: () => drawNexus(ctx, g.hp, g.maxHp, time, state.time - g.lastHitAt < 0.15 ? 1 : 0, look, g) });
   }
   for (const o of state.interactables) layers.push({ y: o.y, draw: () => drawInteractable(ctx, o, time, state.weather.active) });
   for (const enemy of state.enemies) layers.push({ y: enemy.y, draw: () => drawEnemy(ctx, state, enemy, time) });

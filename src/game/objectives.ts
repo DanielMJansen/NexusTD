@@ -30,6 +30,22 @@ export function damageGuard(state: RunState, index: number, amount: number): voi
   if (g.hp <= 0) state.events.push({ type: 'guardDestroyed', name: g.name, x: g.x, y: g.y });
 }
 
+/**
+ * Segundos Nexus (pontos gêmeos, Deserto) acompanham a vida do Nexus principal:
+ * `grow` soma à vida máxima (e à atual); `heal` cura; `fill` enche.
+ */
+export function syncTwins(state: RunState, change: { grow?: number; heal?: number; fill?: boolean }): void {
+  for (const g of state.guards) {
+    if (!g.twin || g.hp <= 0) continue;
+    if (change.grow) {
+      g.maxHp += change.grow;
+      g.hp += change.grow;
+    }
+    if (change.heal) g.hp = Math.min(g.maxHp, g.hp + change.heal);
+    if (change.fill) g.hp = g.maxHp;
+  }
+}
+
 /** Um ponto vital caiu? */
 export const vitalGuardLost = (state: RunState): boolean => state.guards.some((g) => g.vital && g.hp <= 0);
 

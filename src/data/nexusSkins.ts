@@ -2,7 +2,7 @@
 import type { AchievementId } from './achievements';
 import type { StageId } from './stages';
 
-export type NexusModelId = 'crystal' | 'lotus' | 'glacier';
+export type NexusModelId = 'crystal' | 'lotus' | 'glacier' | 'obelisk';
 
 /** Cores do Nexus; os modelos usam as mesmas chaves. */
 export interface NexusPalette {
@@ -47,6 +47,13 @@ export const NEXUS_MODELS: Record<NexusModelId, NexusModelDef> = {
     description: 'Uma agulha de gelo eterno da Tundra. Vença a Tundra para liberar.',
     stage: 'tundra',
     palette: { dark: '#3a8ad0', mid: '#7ac4f4', light: '#e4f6ff', glow: '#9adcff', accent: '#ffffff' },
+  },
+  obelisk: {
+    id: 'obelisk',
+    name: 'Obelisco Solar',
+    description: 'Um obelisco de arenito com um sol de ouro no topo. Vença o Deserto para liberar.',
+    stage: 'desert',
+    palette: { dark: '#a06a10', mid: '#e8b030', light: '#fff0b0', glow: '#ffd25a', accent: '#ff8a3a' },
   },
 };
 

@@ -1,3 +1,4 @@
+import { syncTwins } from './objectives';
 
 import { findNexusUpgrade, NEXUS_UPGRADES, type NexusLevel, type NexusUpgradeId } from '../data/nexusUpgrades';
 import { damageEnemy } from './combat';
@@ -32,6 +33,7 @@ export function buyNexusUpgrade(state: RunState, id: NexusUpgradeId): boolean {
     const gained = (nexusLevel(state, 'vitality')?.maxHp ?? 0) - before;
     state.nexus.maxHp += gained;
     state.nexus.hp += gained;
+    syncTwins(state, { grow: gained });
   }
   if (id === 'shield' && state.nexusLevels.shield === 1) state.nexusShield.cooldown = 0;
   state.events.push({ type: 'nexusUpgraded', upgrade: id, level: state.nexusLevels[id] });

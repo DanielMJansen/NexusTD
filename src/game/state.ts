@@ -360,7 +360,7 @@ export interface RunState {
   /** Tamanho do mundo (pode ser maior que a tela). */
   map: { width: number; height: number };
   /** Pontos extras a defender (estado da run). */
-  guards: { name: string; x: number; y: number; hp: number; maxHp: number; vital: boolean; lastHitAt: number }[];
+  guards: { name: string; x: number; y: number; hp: number; maxHp: number; vital: boolean; twin?: boolean; lastHitAt: number }[];
   /** Escolta: parada atual do Nexus. */
   escortStop: number;
   /** Lago congelado: cansaço e buracos por célula (fases com gelo). */
@@ -489,7 +489,8 @@ export function createRun(setup: RunSetup): RunState {
     time: 0,
     nexus: { hp: maxHp, maxHp, x: geometry.nexus.x, y: geometry.nexus.y },
     map: { width: geometry.width, height: geometry.height },
-    guards: (STAGES[setup.stage ?? FIRST_STAGE].guards ?? []).map((g) => ({ ...g, maxHp: g.hp, lastHitAt: -Infinity })),
+    // pontos gêmeos (segundo Nexus) nascem com a vida máxima do Nexus principal
+    guards: (STAGES[setup.stage ?? FIRST_STAGE].guards ?? []).map((g) => ({ ...g, hp: g.twin ? maxHp : g.hp, maxHp: g.twin ? maxHp : g.hp, lastHitAt: -Infinity })),
     escortStop: 0,
     ice: null,
     avalanche: null,

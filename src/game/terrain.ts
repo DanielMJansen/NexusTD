@@ -9,8 +9,15 @@ export function inMud(state: RunState, p: Point): boolean {
 }
 
 /** Multiplicador da velocidade de ataque de uma criatura parada nesse ponto. */
+/** Ponto dentro de um oásis (Deserto)? */
+export function inOasis(state: RunState, p: Point): boolean {
+  const terrain = STAGES[state.stage].terrain;
+  return terrain?.kind === 'sand' && terrain.oases.some((o) => Math.hypot(p.x - o.x, (p.y - o.y) * 1.4) <= o.r);
+}
+
 export function terrainAttackFactor(state: RunState, p: Point): number {
   const terrain = STAGES[state.stage].terrain;
+  if (terrain?.kind === 'sand') return inOasis(state, p) ? 1 + terrain.creatureAttackSpeed : 1;
   return terrain?.kind === 'mud' && inMud(state, p) ? 1 - terrain.creatureAttackSlow : 1;
 }
 

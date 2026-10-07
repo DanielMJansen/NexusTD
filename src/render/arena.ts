@@ -1,3 +1,4 @@
+import { drawDesertLife, paintDesertStatic } from './arenaDesert';
 import { drawTundraLife, paintTundraStatic } from './arenaTundra';
 import { NEXUS_MODELS, type NexusModelId, type NexusPalette } from '../data/nexusSkins';
 import type { StageDef } from '../data/stages';
@@ -120,12 +121,14 @@ export function drawBackground(
     c.setTransform(cw / world.width, 0, 0, ch / world.height, 0, 0);
     if (stage.biome === 'swamp') paintSwampStatic(c, stage, world, nexus);
     else if (stage.biome === 'tundra') paintTundraStatic(c, stage, world, nexus);
+    else if (stage.biome === 'desert') paintDesertStatic(c, stage, world, nexus);
     else paintStatic(c, stage, world, nexus);
   }
   ctx.drawImage(cache, 0, 0, world.width, world.height);
 
   if (stage.biome === 'swamp') drawSwampLife(ctx, time, stage.terrain?.kind === 'mud' ? stage.terrain : undefined, world);
   if (stage.biome === 'tundra') drawTundraLife(ctx, time, world);
+  if (stage.biome === 'desert') drawDesertLife(ctx, time, world);
   drawRuneCircle(ctx, time, nexus);
   if (stage.biome === 'graveyard') for (const candle of graveyardLayout(stage, world, nexus).candles) drawCandle(ctx, candle.x, candle.y, time + candle.phase);
 }
@@ -525,7 +528,13 @@ export function drawNexusModel(
   ctx.fill();
 
   const top =
-    look.model === 'lotus' ? drawLotus(ctx, x, y, time, p, hurt, float) : look.model === 'glacier' ? drawGlacier(ctx, x, y, time, p, hurt, float) : drawCrystal(ctx, x, y, time, p, hurt, float);
+    look.model === 'lotus'
+      ? drawLotus(ctx, x, y, time, p, hurt, float)
+      : look.model === 'glacier'
+        ? drawGlacier(ctx, x, y, time, p, hurt, float)
+        : look.model === 'obelisk'
+          ? drawObelisk(ctx, x, y, time, p, hurt, float)
+          : drawCrystal(ctx, x, y, time, p, hurt, float);
   ctx.restore();
   return top;
 }
@@ -765,6 +774,88 @@ function drawGlacier(ctx: CanvasRenderingContext2D, x: number, y: number, time: 
   return top;
 }
 
+/** Obelisco Solar: agulha de arenito com hieróglifos e um sol de ouro girando no topo. */
+function drawObelisk(ctx: CanvasRenderingContext2D, x: number, y: number, time: number, p: NexusPalette, hurt: number, float: number): number {
+  // base em degraus
+  ctx.fillStyle = '#c8a070';
+  ctx.strokeStyle = '#6a4a20';
+  ctx.lineWidth = 1.2;
+  for (const [w, h, dy] of [
+    [26, 6, 12],
+    [20, 5, 7],
+  ] as const) {
+    ctx.beginPath();
+    ctx.rect(x - w / 2, y + dy - h, w, h);
+    ctx.fill();
+    ctx.stroke();
+  }
+  // agulha de arenito
+  const top = y - 50;
+  const body = ctx.createLinearGradient(x - 8, 0, x + 8, 0);
+  body.addColorStop(0, '#f0d498');
+  body.addColorStop(1, '#b8844a');
+  ctx.fillStyle = body;
+  ctx.beginPath();
+  ctx.moveTo(x - 7, y + 2);
+  ctx.lineTo(x - 4.5, top + 8);
+  ctx.lineTo(x, top);
+  ctx.lineTo(x + 4.5, top + 8);
+  ctx.lineTo(x + 7, y + 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  // hieróglifos que brilham com a cor do Nexus
+  ctx.strokeStyle = hurt > 0 ? '#ff4a5a' : p.mid;
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    const gy = y - 6 - i * 9;
+    ctx.beginPath();
+    if (i % 2) {
+      ctx.arc(x, gy, 1.8, 0, TAU);
+    } else {
+      ctx.moveTo(x - 2.5, gy);
+      ctx.lineTo(x + 2.5, gy);
+      ctx.moveTo(x, gy - 2.5);
+      ctx.lineTo(x, gy + 2.5);
+    }
+    ctx.stroke();
+  }
+  if (hurt > 0) {
+    ctx.fillStyle = `rgba(255, 255, 255, ${hurt * 0.5})`;
+    ctx.fillRect(x - 7, top, 14, y - top);
+  }
+  // sol de ouro flutuando no topo, com raios girando
+  const sy = top - 12 + float * 0.6;
+  const glow = ctx.createRadialGradient(x, sy, 2, x, sy, 22);
+  glow.addColorStop(0, p.glow + 'cc');
+  glow.addColorStop(1, p.glow + '00');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(x, sy, 22, 0, TAU);
+  ctx.fill();
+  ctx.save();
+  ctx.translate(x, sy);
+  ctx.rotate(time * 0.8);
+  ctx.fillStyle = p.accent;
+  for (let i = 0; i < 8; i++) {
+    ctx.rotate(TAU / 8);
+    ctx.beginPath();
+    ctx.moveTo(-1.6, -7);
+    ctx.lineTo(0, -13);
+    ctx.lineTo(1.6, -7);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+  ctx.fillStyle = p.light;
+  ctx.strokeStyle = p.dark;
+  ctx.beginPath();
+  ctx.arc(x, sy, 6.5, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  return sy - 14;
+}
+
 const thumbnails = new Map<string, HTMLCanvasElement>();
 
 /** Miniatura do mapa da fase (cenário + Nexus do mapa), pintada uma vez e reaproveitada. */
@@ -785,7 +876,10 @@ export function paintStageThumbnail(target: HTMLCanvasElement, stage: StageDef):
     const nexus = world.nexus;
     if (stage.biome === 'swamp') paintSwampStatic(c, stage, world, nexus);
     else if (stage.biome === 'tundra') paintTundraStatic(c, stage, world, nexus);
+    else if (stage.biome === 'desert') paintDesertStatic(c, stage, world, nexus);
     else paintStatic(c, stage, world, nexus);
+    // segundo Nexus (pontos vitais gêmeos)
+    for (const g of stage.guards ?? []) if (g.twin) drawNexusModel(c, g.x, g.y, 0, { model: stage.nexusModel, palette: NEXUS_MODELS[stage.nexusModel].palette });
     drawNexusModel(c, nexus.x, nexus.y, 0, { model: stage.nexusModel, palette: NEXUS_MODELS[stage.nexusModel].palette });
     thumbnails.set(key, image);
   }

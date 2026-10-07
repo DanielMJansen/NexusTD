@@ -1,3 +1,5 @@
+import { STAGES } from '../data/stages';
+import { inOasis } from './terrain';
 import { HERO_PLACEMENT } from '../data/config';
 import {
   HERO_CONTACT_RANGE,
@@ -49,6 +51,9 @@ export function updateHeroVitals(state: RunState, dt: number): void {
   hero.shieldTimer = Math.max(0, (hero.shieldTimer ?? 0) - dt);
 
   healHero(state, state.heroStats.regen * dt);
+  // oásis (Deserto): o herói recupera vida dentro dele
+  const terrain = STAGES[state.stage].terrain;
+  if (terrain?.kind === 'sand' && inOasis(state, hero)) healHero(state, terrain.heroRegen * dt);
   let incoming = 0;
   for (const enemy of state.enemies) {
     if (enemy.dead || enemy.allyTimer > 0 || enemy.hexTimer > 0 || enemy.submerged || distance(enemy, hero) > enemy.def.radius + HERO_CONTACT_RANGE) continue;

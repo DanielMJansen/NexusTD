@@ -1,3 +1,4 @@
+import { syncTwins } from './objectives';
 import { ASCENDED_LEVEL } from '../data/evolution';
 import { endWeather } from './mapEvents';
 import { scriptedWave, stageWaveCount } from '../data/stages';
@@ -23,6 +24,7 @@ export function offerChoices(state: RunState): void {
   state.phase = 'choosing';
   state.choiceReason = 'waveCleared';
   state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + NEXUS.healBetweenWaves + state.talents.nexusHeal);
+  syncTwins(state, { heal: NEXUS.healBetweenWaves + state.talents.nexusHeal });
   rollWaveChoices(state);
   state.events.push({ type: 'choicesOffered', reason: 'waveCleared', wave: state.wave });
 }
@@ -182,10 +184,12 @@ export function applyChoice(state: RunState, choice: Choice): void {
     case 'nexusMaxHp':
       state.nexus.maxHp += value;
       state.nexus.hp += value;
+      syncTwins(state, { grow: value });
       break;
     case 'nexusHeart':
       state.nexus.maxHp += value;
       state.nexus.hp = state.nexus.maxHp;
+      syncTwins(state, { grow: value, fill: true });
       break;
     case 'pulseCooldown':
       state.talents.pulseCooldown += value;
