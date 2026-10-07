@@ -3233,29 +3233,31 @@ body:not([data-mode='run']) .panel.screen {
 
 .hub-crew {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
   gap: 2px;
+  min-width: 0;
+  padding-bottom: 14px;
+}
+
+.crew-member {
+  position: relative;
+  display: block;
+  flex: 0 1 44px;
   min-width: 0;
 }
 
-.hub-crew > div {
-  display: flex;
-  justify-content: center;
-  max-width: 100%;
-}
-
-.hub-crew > span {
+.hub-hero .crew-member .team-mini {
+  display: block;
   width: 100%;
-  padding-top: 2px;
-  border-top: 1px solid var(--line-strong);
-  font: 600 11px var(--font-label);
-  color: var(--muted);
 }
 
-.hub-crew > span b {
-  color: #e8dcff;
-  font-weight: 700;
+/* selo da raça no canto inferior direito do retrato */
+.race-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -6px;
+  width: 17px;
+  height: 17px;
 }
 
 .menu-page .hub-buttons .hub-locked {
@@ -4140,4 +4142,34 @@ b.awakened {
 
 .relic-card button {
   margin-top: auto;
+}
+
+/* ilustração animada dos tutoriais das telas */
+.intro-demo {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: 150px;
+  margin: 4px auto 6px;
+  border: 1px solid color-mix(in srgb, var(--card-color, #b48cff) 45%, transparent);
+  border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 70%, color-mix(in srgb, var(--card-color, #b48cff) 16%, #0e0818), #0a0612);
+}
+
+/* selo NOVO nas telas recém-liberadas do menu */
+.new-badge {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  padding: 1px 7px;
+  border-radius: 8px;
+  background: #f0c35a;
+  color: #2a1a04;
+  font: 800 10px var(--font-label);
+  letter-spacing: 1px;
+  box-shadow: 0 0 10px #f0c35a88;
+}
+
+.menu-page .hub-buttons button {
+  position: relative;
 }

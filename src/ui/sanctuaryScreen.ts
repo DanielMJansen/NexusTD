@@ -25,6 +25,7 @@ export function showSanctuaryIntro(onClose: () => void, closeLabel = 'Entendi'):
       title: 'Santuário',
       subtitle: 'Fortaleça suas criaturas para sempre e desperte as melhores.',
       color: '#6af0d0',
+      demo: 'sanctuary',
       tips: [
         { icon: '❖', title: 'Fragmentos', text: `Caem a partir da Fase 2, das raças que você usa na run: ondas vencidas + ${SANCTUARY.perBoss} por chefe.` },
         { icon: '★', title: 'Níveis', text: `Cada nível dá +${pct(SANCTUARY.damagePerLevel)} de dano e +${pct(SANCTUARY.attackSpeedPerLevel)} de velocidade de ataque à criatura, em toda run (até o nível ${SANCTUARY.maxLevel}).` },

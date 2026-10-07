@@ -1,7 +1,7 @@
 import { showAdmin } from './ui/adminScreen';
 import { ADMIN_HASH } from './game/admin';
 import { GIFTS } from './data/gifts';
-import { showStageIntro } from './ui/stageIntro';
+import { showIntro, showStageIntro } from './ui/stageIntro';
 import { RenderQuality } from './render/quality';
 import { Camera, drawMinimap } from './render/camera';
 import { buyNexusColor, selectNexusLook } from './game/nexusSkins';
@@ -71,6 +71,8 @@ import { showPause } from './ui/pause';
 import { showRunEnd } from './ui/runEnd';
 import { showSettings } from './ui/settingsScreen';
 import { showRelics } from './ui/relicsScreen';
+import { FEATURES, type FeatureId } from './data/features';
+import { isFeatureUnlocked, markFeatureSeen } from './game/features';
 import { SidePanel } from './ui/sidePanel';
 import { needsStarter, showStarterPick } from './ui/starterPick';
 import { showTalents } from './ui/talentsScreen';
@@ -601,30 +603,45 @@ export class App {
         this.openHeroes();
       },
       onCollection: () => this.openCollection(),
-      onTalents: () => this.openTalents(),
-      onAchievements: () => showAchievements(this.profile, () => this.openMenu()),
-      onCodex: () => showCodex(this.profile, () => this.openMenu()),
+      onTalents: () => this.openFeature('talents', () => this.openTalents()),
+      onAchievements: () => this.openFeature('achievements', () => showAchievements(this.profile, () => this.openMenu())),
+      onCodex: () => this.openFeature('codex', () => showCodex(this.profile, () => this.openMenu())),
       onStages: () => this.openStages(),
-      onNexus: () => this.openNexusSkins(),
+      onNexus: () => this.openFeature('nexus', () => this.openNexusSkins()),
       onSelectLoadout: (index) => {
         if (index === this.profile.activeLoadout || !selectLoadout(this.profile, index)) return;
         saveProfile(this.profile);
         this.sound.play('place');
         this.openMenu();
       },
-      onSanctuary: () => this.openSanctuary(),
-      onAltar: () => this.openAltar(),
+      onSanctuary: () => this.openFeature('sanctuary', () => this.openSanctuary()),
+      onAltar: () => this.openFeature('altar', () => this.openAltar()),
       onRelics: () =>
-        showRelics(
-          this.profile,
-          () => saveProfile(this.profile),
-          () => this.openMenu(),
+        this.openFeature('relics', () =>
+          showRelics(
+            this.profile,
+            () => saveProfile(this.profile),
+            () => this.openMenu(),
+          ),
         ),
       onSettings: () => this.openSettings(),
     });
   }
 
   // ---------- telas de meta-progressão ----------
+
+  /** Abre uma tela que libera com o progresso; na 1ª visita, antes mostra o que ela faz (com ilustração). */
+  private openFeature(id: FeatureId, open: () => void): void {
+    if (!isFeatureUnlocked(this.profile, id)) return;
+    // o Santuário tem o próprio quadro de tutorial (openSanctuary)
+    if (id === 'sanctuary' || !markFeatureSeen(this.profile, id)) {
+      open();
+      return;
+    }
+    saveProfile(this.profile);
+    const def = FEATURES[id];
+    showIntro({ kicker: 'Liberado!', title: def.name, subtitle: def.intro.subtitle, color: def.intro.color, tips: def.intro.tips, demo: id }, open, `▶ Abrir ${def.name}`);
+  }
 
   private openTalents(): void {
     showTalents(this.profile, {

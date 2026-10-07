@@ -7,6 +7,8 @@ export interface IntroContent {
   subtitle: string;
   color: string;
   tips: StageTip[];
+  /** Mini ilustração animada (id em `render/featureDemos`). */
+  demo?: string;
 }
 
 /** Quadro de tutorial (dicas com ícone): fases, Santuário e o que mais precisar de explicação. */
@@ -19,6 +21,7 @@ export function showIntro(content: IntroContent, onClose: () => void, closeLabel
       <small class="intro-kicker">${content.kicker}</small>
       <h2>${content.title}</h2>
       <p class="subtitle">${content.subtitle}</p>
+      ${content.demo ? `<canvas class="intro-demo" data-demo="${content.demo}"></canvas>` : ''}
       <ul class="intro-tips">${tips}</ul>
       <button class="play-button" data-action="close">${closeLabel}</button>
     </div>`,

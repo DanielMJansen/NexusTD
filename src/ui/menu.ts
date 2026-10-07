@@ -1,22 +1,24 @@
+import { FEATURES, type FeatureId } from '../data/features';
+import { isFeatureNew, isFeatureUnlocked } from '../game/features';
 import { RELIC_IDS } from '../data/relics';
-import { isAltarUnlocked } from '../game/altar';
 import { FIRST_STAGE, stageWaveCount, STAGES } from '../data/stages';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
 import { GAME_TITLE } from '../data/config';
 import { CREATURE_IDS, CREATURES } from '../data/creatures';
 import { ENEMIES } from '../data/enemies';
 import { HEROES } from '../data/heroes';
-import { activeRelics, hasSanctuary, heroSkin, isStageUnlocked, relicSlots, TEAM_SIZE, type Profile, runSetup } from '../game/profile';
+import { activeRelics, heroSkin, relicSlots, TEAM_SIZE, type Profile, runSetup } from '../game/profile';
 import type { SavedRunSummary } from '../save/runSave';
 import { CODEX_ENEMIES } from './codexScreen';
 import { showOverlay } from './overlay';
 import { paintStageThumbnail } from '../render/arena';
 
-/** Relíquias: bloqueadas até vencer a Tundra (mostra a condição). */
-function relicsButton(profile: Profile, handlers: MenuHandlers): string {
-  if (!isStageUnlocked(profile, 'desert')) return '<button class="hub-locked" disabled>🔒 Relíquias <small>libera ao vencer a Tundra</small></button>';
-  if (!handlers.onRelics) return '<button class="hub-locked" disabled>Relíquias <small>em breve</small></button>';
-  return `<button data-action="relics">Relíquias <small>${activeRelics(profile).length} de ${relicSlots(profile)} equipadas · ${profile.relics.length} de ${RELIC_IDS.length}</small></button>`;
+/** Botão de uma tela que libera com o progresso: cadeado com a condição, selo NOVO até a 1ª visita. */
+function featureButton(profile: Profile, id: FeatureId, detail = ''): string {
+  const def = FEATURES[id];
+  if (!isFeatureUnlocked(profile, id)) return `<button class="hub-locked" disabled>🔒 ${def.name} <small>${def.lockedHint}</small></button>`;
+  const badge = isFeatureNew(profile, id) ? '<span class="new-badge">NOVO</span>' : '';
+  return `<button data-action="${id}">${badge}${def.name}${detail ? ` <small>${detail}</small>` : ''}</button>`;
 }
 
 export interface MenuHandlers {
@@ -55,12 +57,11 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       </button>`;
   // herói em moldura dourada com o nome; criaturas vizinhas da mesma raça agrupadas sob o nome da raça
   const hero = `<div class="hub-hero-pick" title="Herói: ${HEROES[profile.selectedHero].name}"><small>Herói</small><canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas><span>${HEROES[profile.selectedHero].name}</span></div>`;
-  const creatures = profile.team.map((id) => `<canvas class="team-mini" data-sprite="${id}" title="${CREATURES[id].name} · ${CREATURES[id].race}"></canvas>`).join('');
-  // raças da equipe num resumo só (ordem de aparição)
-  const races = new Map<string, number>();
-  for (const id of profile.team) races.set(CREATURES[id].race, (races.get(CREATURES[id].race) ?? 0) + 1);
-  const raceLine = [...races].map(([race, n]) => `${race} <b>×${n}</b>`).join(' · ');
-  const team = `${hero}<div class="hub-crew"><div>${creatures}</div><span>${raceLine}</span></div>`;
+  // cada criatura com o selo da raça no canto (nome e raça no hover)
+  const creatures = profile.team
+    .map((id) => `<span class="crew-member" title="${CREATURES[id].name} · ${CREATURES[id].race}"><canvas class="team-mini" data-sprite="${id}"></canvas><canvas class="race-badge" data-race="${CREATURES[id].race}"></canvas></span>`)
+    .join('');
+  const team = `${hero}<div class="hub-crew">${creatures}</div>`;
 
   showOverlay(
     `<div class="menu-page">
@@ -76,16 +77,16 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       </div>
       </section>
       <section class="hub-buttons">
-        ${relicsButton(profile, handlers)}
         <button data-action="heroes">Herói <small>${HEROES[profile.selectedHero].name}</small></button>
         <button data-action="team">Equipes <small>${profile.loadouts[profile.activeLoadout]?.name ?? ''} · ${profile.team.length} de ${TEAM_SIZE}</small></button>
         <button data-action="collection">Coleção <small>${CREATURE_IDS.filter((id) => profile.ownedCreatures.includes(id)).length} de ${CREATURE_IDS.length}</small></button>
-        <button data-action="talents">Talentos</button>
-        <button data-action="nexus">Nexus <small>modelo e cor</small></button>
-        ${isAltarUnlocked(profile) ? '<button data-action="altar">Altar de Variantes</button>' : ''}
-        ${hasSanctuary(profile) ? `<button data-action="sanctuary">Santuário <small>${Object.values(profile.fragments).reduce((a, b) => a + b, 0)} ❖ para gastar</small></button>` : ''}
-        <button data-action="achievements">Conquistas <small>${profile.achievements.length} de ${ACHIEVEMENT_IDS.length}</small></button>
-        <button data-action="codex">Códex <small>${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length} de ${CODEX_ENEMIES.length} vistos</small></button>
+        ${featureButton(profile, 'talents', `${profile.essence} ✦`)}
+        ${featureButton(profile, 'achievements', `${profile.achievements.length} de ${ACHIEVEMENT_IDS.length}`)}
+        ${featureButton(profile, 'codex', `${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length} de ${CODEX_ENEMIES.length} vistos`)}
+        ${featureButton(profile, 'sanctuary', `${Object.values(profile.fragments).reduce((a, b) => a + b, 0)} ❖ para gastar`)}
+        ${featureButton(profile, 'nexus', 'modelo e cor')}
+        ${featureButton(profile, 'altar')}
+        ${featureButton(profile, 'relics', `${activeRelics(profile).length} de ${relicSlots(profile)} equipadas · ${profile.relics.length} de ${RELIC_IDS.length}`)}
         <button data-action="settings">⚙ Configurações</button>
         ${handlers.onAdmin ? '<button data-action="admin">🛠 Admin</button>' : ''}
       </section>

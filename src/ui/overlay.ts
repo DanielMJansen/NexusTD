@@ -4,6 +4,8 @@ import { VARIANTS, type VariantTier } from '../data/altar';
 import { findSkin } from '../data/skins';
 import { drawPortrait } from '../render/portrait';
 import type { SpriteId } from '../render/sprites';
+import { paintRaceBadge } from '../render/raceIcons';
+import { drawFeatureDemo } from '../render/featureDemos';
 
 /** Ações dos botões do overlay, indexadas por `data-action`; recebem o `data-value` do botão. */
 export type OverlayActions = Record<string, (value: string) => void>;
@@ -14,6 +16,8 @@ let actions: OverlayActions = {};
 let portraits: HTMLCanvasElement[] = [];
 /** Prévias do Nexus (`data-nexus` = cor ou "original"; `data-model` = modelo). */
 let nexusPreviews: HTMLCanvasElement[] = [];
+/** Ilustrações animadas dos tutoriais (`data-demo`). */
+let demos: HTMLCanvasElement[] = [];
 /** Variante escolhida de cada criatura (Coleção): vale para todo retrato sem `data-variant` próprio. */
 let chosenVariants: Partial<Record<string, VariantTier>> = {};
 
@@ -40,6 +44,9 @@ export function showOverlay(html: string, newActions: OverlayActions, options: {
   overlay.classList.add('visible');
   portraits = [...overlay.querySelectorAll<HTMLCanvasElement>('canvas[data-sprite]')];
   nexusPreviews = [...overlay.querySelectorAll<HTMLCanvasElement>('canvas[data-nexus]')];
+  demos = [...overlay.querySelectorAll<HTMLCanvasElement>('canvas[data-demo]')];
+  // selos de raça: pintados uma vez
+  for (const badge of overlay.querySelectorAll<HTMLCanvasElement>('canvas[data-race]')) paintRaceBadge(badge, badge.dataset.race!);
   return overlay;
 }
 
@@ -47,6 +54,7 @@ export function hideOverlay(): void {
   actions = {};
   portraits = [];
   nexusPreviews = [];
+  demos = [];
   overlay.classList.remove('visible');
   overlay.innerHTML = '';
 }
@@ -65,6 +73,7 @@ function variantFilter(canvas: HTMLCanvasElement): string | undefined {
 
 /** Redesenha os retratos (`data-sprite`, e opcionais `data-level`, `data-branch`, `data-skin`, `data-silhouette`). */
 export function animateOverlay(time: number): void {
+  for (const canvas of demos) drawFeatureDemo(canvas, canvas.dataset.demo!, time);
   for (const canvas of nexusPreviews) {
     const model = (canvas.dataset.model ?? 'crystal') as NexusModelId;
     const color = findNexusColor(canvas.dataset.nexus ?? '');
