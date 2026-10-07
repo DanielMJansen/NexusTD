@@ -115,3 +115,4 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Equipes: arrastar uma vaga sobre outra muda a posição; ◀ ▶ movem uma posição; ✕ tira da equipe; a ordem vale para os atalhos 1–8 na run e é salva na equipe ativa.
 - [ ] Auras no chão: Alfa (velocidade) e bênçãos (Clériga, Encantadora, Guardião, Unicórnio Guardião...) mostram área preenchida e borda com tracejado girando; auras que ferem (Lança Celeste, Juiz) ficam laranja com ondas saindo do centro e faíscas.
 - [ ] Formas Supremas: cada criatura despertada em ★5 vira a forma suprema da vertente com visual próprio (Admin › Criaturas › Despertar e evoluir até ★5 na run para conferir); a Coleção mostra a linha "✦ Forma Suprema" em todas as vertentes.
+- [ ] Variante escolhida (Coleção) aparece em todos os retratos: menu, Equipes, Santuário, Coleção, Heróis/Equipes salvas e cartas da run; "Normal" volta à original.

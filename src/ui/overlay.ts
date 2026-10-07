@@ -14,6 +14,13 @@ let actions: OverlayActions = {};
 let portraits: HTMLCanvasElement[] = [];
 /** Prévias do Nexus (`data-nexus` = cor ou "original"; `data-model` = modelo). */
 let nexusPreviews: HTMLCanvasElement[] = [];
+/** Variante escolhida de cada criatura (Coleção): vale para todo retrato sem `data-variant` próprio. */
+let chosenVariants: Partial<Record<string, VariantTier>> = {};
+
+/** O app informa as variantes escolhidas do perfil (retratos de qualquer tela mostram a variante). */
+export function setChosenVariants(variants: Partial<Record<string, VariantTier>>): void {
+  chosenVariants = variants;
+}
 
 overlay.addEventListener('click', (event) => {
   const button = (event.target as Element).closest<HTMLButtonElement>('button[data-action]');
@@ -48,6 +55,14 @@ export function isOverlayVisible(): boolean {
   return overlay.classList.contains('visible');
 }
 
+/** Filtro da variante de um retrato: explícita, "none" (original) ou a escolhida no perfil. */
+function variantFilter(canvas: HTMLCanvasElement): string | undefined {
+  const own = canvas.dataset.variant;
+  if (own === 'none') return undefined;
+  const tier = (own as VariantTier | undefined) ?? chosenVariants[canvas.dataset.sprite ?? ''];
+  return tier ? VARIANTS[tier]?.filter : undefined;
+}
+
 /** Redesenha os retratos (`data-sprite`, e opcionais `data-level`, `data-branch`, `data-skin`, `data-silhouette`). */
 export function animateOverlay(time: number): void {
   for (const canvas of nexusPreviews) {
@@ -61,7 +76,8 @@ export function animateOverlay(time: number): void {
       level: Number(canvas.dataset.level ?? 1),
       branch: Number(canvas.dataset.branch ?? 0),
       palette: findSkin(canvas.dataset.skin ?? '')?.palette,
-      filter: canvas.dataset.variant ? VARIANTS[canvas.dataset.variant as VariantTier]?.filter : undefined,
+      // variante: a do próprio retrato (`data-variant`; "none" = original) ou a escolhida para a criatura
+      filter: variantFilter(canvas),
     }),
   );
 }

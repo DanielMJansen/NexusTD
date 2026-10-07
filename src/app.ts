@@ -65,7 +65,7 @@ import { showStages } from './ui/stagesScreen';
 import { showSanctuary, showSanctuaryIntro } from './ui/sanctuaryScreen';
 import { updateHud, updateMenuHud } from './ui/hud';
 import { showMenu } from './ui/menu';
-import { animateOverlay, hideOverlay } from './ui/overlay';
+import { animateOverlay, hideOverlay, setChosenVariants } from './ui/overlay';
 import { showPause } from './ui/pause';
 import { showRunEnd } from './ui/runEnd';
 import { showSettings } from './ui/settingsScreen';
@@ -439,6 +439,7 @@ export class App {
     this.panel.update(this.run, this.interaction, time);
     this.nexusPanel.update(this.run, this.mode === 'run' && this.interaction.nexusOpen);
     this.creaturePopup.update(this.run, this.isPlaying() && !this.tutorial.freezes);
+    setChosenVariants(this.profile.selectedVariants);
     animateOverlay(time);
     requestAnimationFrame((t) => this.frame(t));
   }
