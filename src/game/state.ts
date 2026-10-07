@@ -42,6 +42,9 @@ export interface Enemy extends Point {
   enraged: boolean;
   slowTimer: number;
   slowMultiplier: number;
+  /** Agarrado (Garras dos lobisomens): não desliza no gelo e anda mais devagar. */
+  gripTimer: number;
+  gripSlow: number;
   /** Defasagem aleatória da animação e do zigue-zague. */
   animationOffset: number;
   /** Momento (state.time) do último golpe sofrido; só para o visual. */

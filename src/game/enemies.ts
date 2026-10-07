@@ -287,10 +287,12 @@ export function updateEnemies(state: RunState, dt: number): void {
       continue;
     }
     enemy.slowTimer -= dt;
+    // agarrado pelas Garras: sem deslizar no gelo e mais lento
+    const gripped = (enemy.gripTimer ?? 0) > 0;
     const charge = enemy.charging > 0 ? findTrait(enemy, 'charge') : undefined;
     const enrage = enemy.enraged ? findTrait(enemy, 'enrage') : undefined;
     const speedFactor =
-      (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace * nexusSlowFactor(state, enemy) * (1 - enemy.weakenSlow) * iceSpeed(state, enemy) * (enemy.diving ? 1.5 : 1);
+      (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace * nexusSlowFactor(state, enemy) * (1 - enemy.weakenSlow) * (gripped ? 1 - enemy.gripSlow : iceSpeed(state, enemy)) * (enemy.diving ? 1.5 : 1);
     // alvo a defender mais próximo (Nexus ou ponto extra)
     const target = defendTarget(state, enemy);
     const dx = target.at.x - enemy.x;

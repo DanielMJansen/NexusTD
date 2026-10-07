@@ -470,6 +470,10 @@ export function heroSheetHtml(run: RunState): string {
 export function racePassiveHtml(race: string, className = 'cc-ability race-passive'): string {
   const def = RACE_PASSIVES[race];
   if (!def) return '';
-  const text = def.passive.kind === 'evolveDiscount' ? `evolui ${pctText(def.passive.value)} mais barato` : '';
+  const p = def.passive;
+  const text =
+    p.kind === 'evolveDiscount'
+      ? `evolui ${pctText(p.value)} mais barato`
+      : `golpes ignoram armadura e agarram o alvo por ${formatNumber(p.duration)} s: ele fica ${pctText(p.slow)} mais lento e não desliza no gelo`;
   return `<p class="${className}"><b>${def.name}</b> (raça ${race}): ${text}.</p>`;
 }

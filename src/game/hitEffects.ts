@@ -1,3 +1,4 @@
+import { raceGrip } from '../data/races';
 import { SYNERGY_RAISE_DURATION } from '../data/synergies';
 
 import type { HitEffect } from '../data/creatures';
@@ -48,6 +49,11 @@ export function applyHitEffects(state: RunState, creature: Creature, enemy: Enem
   const likely = 1 + (syn.effectChance[creature.def.race] ?? 0);
   const dur = (d: number) => d * lasting + extraDuration;
   const boss = enemy.def.isBoss;
+  const grip = raceGrip(creature.def.race);
+  if (grip) {
+    enemy.gripTimer = Math.max(enemy.gripTimer ?? 0, grip.duration);
+    enemy.gripSlow = grip.slow;
+  }
   for (const effect of creatureEffects(creature)) {
     switch (effect.kind) {
       case 'poison': {
@@ -186,6 +192,7 @@ export function updateStatusTimers(enemy: Enemy, dt: number): void {
   if (enemy.vulnTimer > 0 && (enemy.vulnTimer -= dt) <= 0) enemy.vulnAmount = 0;
   if (enemy.corrodeTimer > 0 && (enemy.corrodeTimer -= dt) <= 0) enemy.corrodeAmount = 0;
   if (enemy.hexTimer > 0 && (enemy.hexTimer -= dt) <= 0) enemy.hexVuln = 0;
+  if ((enemy.gripTimer ?? 0) > 0) enemy.gripTimer -= dt;
   if (enemy.weakenTimer > 0 && (enemy.weakenTimer -= dt) <= 0) {
     enemy.weakenSlow = 0;
     enemy.weakenDamage = 0;

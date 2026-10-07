@@ -1,3 +1,4 @@
+import { raceGrip } from '../data/races';
 import { onIce } from './ice';
 import { weatherRangeFactor } from './mapEvents';
 import { HERO_PLACEMENT } from '../data/config';
@@ -30,6 +31,8 @@ function effectiveArmor(state: RunState, enemy: Enemy, source: Creature | undefi
   let armor = enemyArmor(enemy);
   if (source) {
     if (creatureAbility(source).kind === 'pierceArmor') return 0;
+    // Garras dos lobisomens rasgam a armadura
+    if (raceGrip(source.def.race)) return 0;
     const { race, bonus } = state.modifiers.raceBonus;
     if (bonus.kind === 'armorPierce' && source.def.race === race) armor -= bonus.value;
     armor -= state.modifiers.synergy.armorIgnore[source.def.race] ?? 0;

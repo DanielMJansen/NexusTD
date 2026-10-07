@@ -156,6 +156,8 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
     elite,
     slowTimer: 0,
     slowMultiplier: 1,
+    gripTimer: 0,
+    gripSlow: 0,
     animationOffset: random() * 6,
     lastHitAt: -Infinity,
     held: false,

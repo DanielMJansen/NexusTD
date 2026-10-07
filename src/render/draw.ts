@@ -212,6 +212,17 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     }
     ctx.globalAlpha = 1;
   }
+  if ((enemy.gripTimer ?? 0) > 0) {
+    // Garras: arranhões vermelhos
+    ctx.strokeStyle = '#ff5a4acc';
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    for (const dx of [-3, 0, 3]) {
+      ctx.moveTo(enemy.x + dx * scale - 2, enemy.y - 12 * scale);
+      ctx.lineTo(enemy.x + dx * scale + 2, enemy.y - 4 * scale);
+    }
+    ctx.stroke();
+  }
   if (enemy.stunTimer > 0 && enemy.stunLook === 'stun') drawStunStars(ctx, enemy.x, enemy.y - 24 * scale, time);
   if (enemy.stunTimer > 0 && enemy.stunLook === 'root') drawRoots(ctx, enemy.x, enemy.y + 12 * scale, scale);
   if (enemy.markTimer > 0) drawMark(ctx, enemy.x, enemy.y - 6 * scale, 10 * scale, time);
