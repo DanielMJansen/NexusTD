@@ -11,6 +11,7 @@ Jogo de **navegador para computador** (paisagem 16:9, mouse e teclado): Tower De
 - Em `npm run dev`, o app fica em `window.nexus` no console (ex.: `nexus.run.gold = 999`) para testes.
 - Regressão manual: `docs/checklist-regressao.md`.
 - `npm run docs:values` gera `docs/valores.md` (números atuais lidos de `src/data`); rode após mudar balanceamento.
+- `npm run calib -- [raça]` roda o bot de calibragem (`scripts/calib.ts`; variáveis STAGE, TAL, N, SYN, ENDLESS, AWAKE/AWAKEN no topo do arquivo).
 
 ## Arquitetura (`src/`)
 - `data/` — tudo que é conteúdo e balanceamento, como dados: `config` (arena, Nexus, economia, loja, recompensas), `creatures` (criaturas, habilidades e efeitos de golpe como uniões discriminadas, duas vertentes no nível 3, descrição/lore), `evolution`, `heroes` (um por raça: ataque, Pulso, bônus de raça), `enemies` (habilidades como uniões discriminadas), `waves` (20 ondas, escalonamento, elites, Sem Fim), `heroUpgrades`, `nexusUpgrades` (melhorias do Nexus e loot), `upgrades` (melhorias da run), `talents` (árvore), `achievements`, `skins`.
