@@ -1,3 +1,4 @@
+import { RenderQuality } from './render/quality';
 import { Camera, drawMinimap } from './render/camera';
 import { buyNexusColor, selectNexusLook } from './game/nexusSkins';
 import { showNexusSkins } from './ui/nexusScreen';
@@ -77,6 +78,8 @@ export class App {
   private settings: Settings = loadSettings();
   private run: RunState;
   private mode: Mode = 'entry';
+  private quality = new RenderQuality();
+  private fpsMeter = document.querySelector<HTMLElement>('#fps-meter')!;
   private camera = new Camera();
   private minimap = document.querySelector<HTMLCanvasElement>('#minimap')!;
   /** Para onde a tela de heróis volta (menu ou equipes). */
@@ -389,7 +392,15 @@ export class App {
       }
     }
 
-    fitArenaCanvas(this.canvas, this.ctx);
+    // qualidade gráfica: resolução interna da arena (automática reduz se o quadro ficar pesado)
+    const nativeWidth = this.canvas.clientWidth * (window.devicePixelRatio || 1);
+    const renderScale = this.quality.update(this.settings.quality, elapsed, nativeWidth);
+    fitArenaCanvas(this.canvas, this.ctx, renderScale);
+    if (this.settings.showFps) {
+      const text = `${this.quality.fps} fps · ${this.canvas.width}×${this.canvas.height}`;
+      if (this.fpsMeter.textContent !== text) this.fpsMeter.textContent = text;
+    }
+    if (this.fpsMeter.hidden === this.settings.showFps) this.fpsMeter.hidden = !this.settings.showFps;
     const view = interactionView(this.interaction, this.run);
     const hero = this.run.hero;
     view.heroRange =

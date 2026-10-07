@@ -35,6 +35,7 @@ export class SidePanel {
   private pulseName = this.pulseButton.querySelector<HTMLElement>('.pulse-label b')!;
   private pulseTooltip = this.pulseButton.querySelector<HTMLElement>('.pulse-tooltip')!;
   private pulseKey = '';
+  private lastPortraits = 0;
 
   constructor(private readonly handlers: SidePanelHandlers) {
     this.pulseButton.addEventListener('click', () => {
@@ -122,6 +123,9 @@ export class SidePanel {
     if (changed || this.heroId !== run.hero.def.id) this.setTeam(run.team, run.hero.def);
     const full = run.creatures.length >= run.creatureLimit;
     const now = performance.now();
+    // retratos animados a ~15 quadros por segundo (economiza desenho a cada quadro)
+    const redraw = now - this.lastPortraits > 66;
+    if (redraw) this.lastPortraits = now;
     for (const [id, card] of this.cards) {
       const cost = creatureCost(run, id);
       const affordable = cost <= run.gold;
@@ -132,7 +136,7 @@ export class SidePanel {
       card.root.classList.toggle('denied', interaction.denied?.id === id && now - interaction.denied.at < 400);
       setHtml(card.cost, full ? '<span class="card-full">Sem vaga</span>' : gold(cost));
       card.cost.classList.toggle('too-expensive', !affordable);
-      drawPortrait(card.portrait, id, time + id.length);
+      if (redraw) drawPortrait(card.portrait, id, time + id.length);
     }
 
     const { remaining, cooldown } = run.pulse;

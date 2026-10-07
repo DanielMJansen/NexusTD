@@ -134,11 +134,7 @@ export function drawBackground(
 export function drawAtmosphere(ctx: CanvasRenderingContext2D, time: number, bright = false): void {
   if (bright) {
     // fases claras: só uma vinheta leve e azulada
-    const v = ctx.createRadialGradient(center.x, center.y, H * 0.45, center.x, center.y, W * 0.7);
-    v.addColorStop(0, '#00000000');
-    v.addColorStop(1, '#1a2a4a55');
-    ctx.fillStyle = v;
-    ctx.fillRect(0, 0, W, H);
+    drawCachedVignette(ctx, '#1a2a4a55', 0.45, 0.7);
     return;
   }
   for (const f of fog) {
@@ -149,11 +145,35 @@ export function drawAtmosphere(ctx: CanvasRenderingContext2D, time: number, brig
     ctx.fillStyle = g;
     ctx.fillRect(x - f.r, f.y - f.r, f.r * 2, f.r * 2);
   }
-  const v = ctx.createRadialGradient(center.x, center.y, H * 0.35, center.x, center.y, W * 0.62);
-  v.addColorStop(0, '#00000000');
-  v.addColorStop(1, '#05020bcc');
-  ctx.fillStyle = v;
-  ctx.fillRect(0, 0, W, H);
+  drawCachedVignette(ctx, '#05020bcc', 0.35, 0.62);
+}
+
+let vignette: { canvas: HTMLCanvasElement; key: string } | null = null;
+
+/** Vinheta escura (ou clara) desenhada uma vez por tamanho de tela e só colada a cada quadro. */
+function drawCachedVignette(ctx: CanvasRenderingContext2D, color: string, inner: number, outer: number): void {
+  const w = ctx.canvas.width;
+  const h = ctx.canvas.height;
+  const key = `${w}x${h}:${color}`;
+  if (!vignette || vignette.key !== key) {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const c = canvas.getContext('2d')!;
+    const sx = w / W;
+    const sy = h / H;
+    c.setTransform(sx, 0, 0, sy, 0, 0);
+    const v = c.createRadialGradient(center.x, center.y, H * inner, center.x, center.y, W * outer);
+    v.addColorStop(0, '#00000000');
+    v.addColorStop(1, color);
+    c.fillStyle = v;
+    c.fillRect(0, 0, W, H);
+    vignette = { canvas, key };
+  }
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(vignette.canvas, 0, 0);
+  ctx.restore();
 }
 
 function paintStatic(ctx: CanvasRenderingContext2D, stage: StageDef, world: { width: number; height: number }, nexus: Pt): void {

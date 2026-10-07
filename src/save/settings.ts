@@ -2,6 +2,9 @@
 
 export type GameSpeed = 1 | 2 | 4;
 
+/** Qualidade gráfica: resolução interna da arena (automática ajusta sozinha pelo desempenho). */
+export type Quality = 'auto' | 'high' | 'medium' | 'low';
+
 export interface Settings {
   musicVolume: number; // 0..1
   sfxVolume: number; // 0..1
@@ -11,6 +14,9 @@ export interface Settings {
   gameSpeed: GameSpeed;
   /** Tutorial guiado já concluído ou pulado. */
   tutorialDone: boolean;
+  quality: Quality;
+  /** Medidor de quadros por segundo no canto da tela. */
+  showFps: boolean;
 }
 
 export const SETTINGS_KEY = 'nexus-settings-v1';
@@ -22,6 +28,8 @@ const DEFAULT_SETTINGS: Settings = {
   damageNumbers: true,
   gameSpeed: 1,
   tutorialDone: false,
+  quality: 'auto',
+  showFps: false,
 };
 
 const clamp01 = (value: unknown, fallback: number): number =>
@@ -37,6 +45,8 @@ export function sanitizeSettings(data: unknown): Settings {
     damageNumbers: raw.damageNumbers !== false,
     gameSpeed: raw.gameSpeed === 2 || raw.gameSpeed === 4 ? raw.gameSpeed : 1,
     tutorialDone: raw.tutorialDone === true,
+    quality: raw.quality === 'high' || raw.quality === 'medium' || raw.quality === 'low' ? raw.quality : 'auto',
+    showFps: raw.showFps === true,
   };
 }
 

@@ -12,7 +12,7 @@ export interface SettingsHandlers {
 const percent = (v: number) => Math.round(v * 100);
 
 /** Checkboxes desta tela e o campo booleano que cada um altera. */
-const TOGGLES = ['muted', 'damageNumbers'] as const;
+const TOGGLES = ['muted', 'damageNumbers', 'showFps'] as const;
 
 /** Tela de configurações: som, jogo, tutorial e backup/apagar progresso. */
 export function showSettings(settings: Settings, handlers: SettingsHandlers): void {
@@ -37,6 +37,22 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
       ${toggle('muted', 'Silenciar tudo')}
       <h3>Jogo</h3>
       ${toggle('damageNumbers', 'Mostrar números de dano')}
+      <h3>Desempenho</h3>
+      <div class="quality-row">
+        <span>Qualidade gráfica</span>
+        <div class="segmented">${(
+          [
+            ['auto', 'Automática'],
+            ['high', 'Alta'],
+            ['medium', 'Média'],
+            ['low', 'Baixa'],
+          ] as const
+        )
+          .map(([value, label]) => `<button class="${settings.quality === value ? 'active' : ''}" data-action="quality" data-value="${value}">${label}</button>`)
+          .join('')}</div>
+      </div>
+      <p class="hint">Automática reduz a resolução da arena sozinha se o jogo ficar pesado. Baixa ajuda bastante em computadores mais simples ou telas muito grandes.</p>
+      ${toggle('showFps', 'Mostrar FPS (quadros por segundo)')}
       <div class="row-buttons">
         <button data-action="tutorial"${settings.tutorialDone ? '' : ' disabled'}>${
           settings.tutorialDone ? '↺ Rever tutorial na próxima run' : 'Tutorial na próxima run ✓'
@@ -58,6 +74,10 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
       export: () => handlers.onExport(),
       import: () => handlers.onImport(),
       reset: () => handlers.onResetSave(),
+      quality: (value) => {
+        handlers.onChange({ quality: value as Settings['quality'] });
+        showSettings({ ...settings, quality: value as Settings['quality'] }, handlers);
+      },
       tutorial: () => {
         handlers.onChange({ tutorialDone: false });
         showSettings({ ...settings, tutorialDone: false }, handlers);
