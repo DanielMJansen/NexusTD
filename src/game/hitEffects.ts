@@ -145,7 +145,7 @@ export function onEnemyKilled(state: RunState, enemy: Enemy, source?: Creature):
   if (enemy.markTimer > 0 && enemy.markExplode) explode(state, enemy, enemy.markExplode.radius, enemy.maxHp * enemy.markExplode.ratio);
   // petrificado que morre se despedaça, ferindo os vizinhos
   if (enemy.stunTimer > 0 && enemy.stunLook === 'stone' && !enemy.def.isBoss) explode(state, enemy, 30, enemy.maxHp * 0.25);
-  if (state.modifiers.synergy.raise > 0 && !enemy.summonedAlly && !enemy.def.isBoss && random() < state.modifiers.synergy.raise) {
+  if (state.modifiers.synergy.raise > 0 && !enemy.summonedAlly && !enemy.killedByAlly && !enemy.def.isBoss && random() < state.modifiers.synergy.raise) {
     raiseSkeleton(state, enemy, SYNERGY_RAISE_DURATION);
   }
   if (!source) return;
@@ -163,12 +163,18 @@ export function onEnemyKilled(state: RunState, enemy: Enemy, source?: Creature):
   }
 }
 
+/** Máximo de esqueletos aliados ao mesmo tempo. */
+const MAX_SKELETONS = 12;
+
 /** Ergue um esqueleto aliado temporário (some ao fim, sem recompensa). */
 export function raiseSkeleton(state: RunState, at: { x: number; y: number }, duration: number): void {
+  // teto de esqueletos ao mesmo tempo (evita reação em cadeia e queda de desempenho)
+  if (state.enemies.filter((e) => e.summonedAlly && e.allyTimer > 0).length >= MAX_SKELETONS) return;
   const ally = spawnEnemyAt(state, 'boneWarrior', at, 6);
   ally.allyTimer = duration;
   ally.summonedAlly = true;
-  state.events.push({ type: 'possessed', x: ally.x, y: ally.y });
+  ally.raisedAt = state.time;
+  state.events.push({ type: 'skeletonRaised', x: ally.x, y: ally.y });
 }
 
 /** Timers de marca, vulnerabilidade, corrosão e enfraquecimento. */
@@ -221,7 +227,9 @@ export function updateAlly(state: RunState, ally: Enemy, dt: number): void {
     ally.y += ((target.y - ally.y) / best) * step;
   } else {
     // dano de contato contra o inimigo (mínimo razoável para inimigos fracos)
+    target.killedByAlly = true;
     damageEnemy(state, target, Math.max(8, ally.heroDps) * dt, undefined, { ignoreArmor: true, overTime: true });
+    if (!target.dead) target.killedByAlly = false;
   }
   ally.x = Math.min(state.map.width + 20, Math.max(-20, ally.x));
   ally.y = Math.min(state.map.height + 20, Math.max(-20, ally.y));

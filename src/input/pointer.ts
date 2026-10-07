@@ -115,12 +115,13 @@ export function attachPointer({ canvas, camera, interaction, getRun, isActive }:
     interaction.holding = true;
   });
 
-  addEventListener('pointerup', () => {
+  addEventListener('pointerup', (event) => {
     interaction.holding = false;
     if (!interaction.draggingCard) return;
     interaction.draggingCard = false;
-    // Soltou o arrasto dentro da arena: posiciona. Fora dela, a carta continua escolhida (modo clique).
-    if (interaction.pointerInArena && isActive()) tryPlace();
+    // Soltou o arrasto sobre a arena (não sobre o HUD, como a própria carta): posiciona.
+    // Clicou e soltou na carta: ela fica escolhida e um novo clique na arena posiciona.
+    if (interaction.pointerInArena && event.target === canvas && isActive()) tryPlace();
   });
 
   addEventListener('pointercancel', () => {

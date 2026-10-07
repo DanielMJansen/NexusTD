@@ -57,6 +57,10 @@ export interface Enemy extends Point {
   /** Mergulho do Wyrm: submerso agora e tempo até trocar. */
   diving?: boolean;
   diveTime?: number;
+  /** Quando foi erguido (esqueleto aliado subindo da terra). */
+  raisedAt?: number;
+  /** Morto por um aliado (não ergue outro esqueleto pela sinergia). */
+  killedByAlly?: boolean;
   /** Trilha seguida (índice da entrada da fase) e próximo ponto dela; sem trilha, vai direto ao Nexus. */
   path?: number;
   waypoint?: number;

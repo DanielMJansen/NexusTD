@@ -138,9 +138,11 @@ export function halo(ctx: Ctx, x: number, y: number, r: number, color: string, a
   ctx.globalAlpha = previous;
 }
 
-/** Brilho e filtro aplicados de uma vez ao sprite inteiro. */
+/** Brilho, filtro e tinta aplicados de uma vez ao sprite inteiro. */
 export interface LayerLook {
   filter?: string;
+  /** Cor pintada por cima só onde há sprite (barato; substitui filtros de cor). Ex.: clarão branco, aliado verde. */
+  tint?: string;
   shadowColor?: string;
   shadowBlur?: number;
 }
@@ -154,7 +156,7 @@ let layer: HTMLCanvasElement | null = null;
  * (cx, cy, half): quadrado que contém o sprite, nas coordenadas atuais do contexto.
  */
 export function drawLayered(ctx: Ctx, cx: number, cy: number, half: number, look: LayerLook, draw: (c: Ctx) => void): void {
-  if (!look.filter && !look.shadowBlur) {
+  if (!look.filter && !look.shadowBlur && !look.tint) {
     draw(ctx);
     return;
   }
@@ -169,6 +171,14 @@ export function drawLayered(ctx: Ctx, cx: number, cy: number, half: number, look
   lc.setTransform(s, 0, 0, s, -(cx - half) * s, -(cy - half) * s);
   lc.globalAlpha = 1;
   draw(lc);
+  if (look.tint) {
+    // tinta só onde o sprite tem pixels
+    lc.setTransform(1, 0, 0, 1, 0, 0);
+    lc.globalCompositeOperation = 'source-atop';
+    lc.fillStyle = look.tint;
+    lc.fillRect(0, 0, size, size);
+    lc.globalCompositeOperation = 'source-over';
+  }
   ctx.save();
   if (look.filter) ctx.filter = look.filter;
   if (look.shadowBlur) {

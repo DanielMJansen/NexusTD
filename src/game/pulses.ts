@@ -1,3 +1,4 @@
+import { raisableCorpses } from './raise';
 import { HERO_PLACEMENT } from '../data/config';
 import type { PulseEffect } from '../data/heroes';
 import { PULSE_DAMAGE_PER_LEVEL } from '../data/heroUpgrades';
@@ -184,7 +185,7 @@ export function firePulse(state: RunState, aim?: Point): boolean {
     case 'raise': {
       // ergue onde inimigos caíram há pouco; sem corpos, ergue alguns ao redor do herói
       hit = hitWhere(state, inRadius, damage);
-      const corpses = state.recentDeaths.filter((d) => state.time - d.at <= 6).slice(-more(effect.count));
+      const corpses = raisableCorpses(state);
       if (corpses.length) for (const c of corpses) raiseSkeleton(state, c, effect.duration);
       else for (let i = 0; i < more(effect.fallback); i++) raiseSkeleton(state, hero, effect.duration);
       state.recentDeaths = state.recentDeaths.filter((d) => !corpses.includes(d));

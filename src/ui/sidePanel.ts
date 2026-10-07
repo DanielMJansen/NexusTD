@@ -1,3 +1,4 @@
+import { raisableCorpses } from '../game/raise';
 import { SYNERGIES } from '../data/synergies';
 import { raceClassCount, racesInField } from '../game/synergies';
 import { CREATURES, type CreatureId } from '../data/creatures';
@@ -138,7 +139,9 @@ export class SidePanel {
     const ready = remaining <= 0 && run.phase === 'playing';
     this.pulseFill.style.transform = `scaleX(${1 - remaining / cooldown})`;
     this.pulseButton.classList.toggle('ready', ready);
-    const status = remaining > 0 ? `recarregando ${Math.ceil(remaining)} s` : 'pronto';
+    const corpses = run.hero.def.pulse.effect.kind === 'raise' ? raisableCorpses(run).length : -1;
+    const raiseText = corpses < 0 ? '' : corpses ? ` · ☠ ${corpses} corpo${corpses > 1 ? 's' : ''}` : ' · sem corpos (ergue ao redor)';
+    const status = (remaining > 0 ? `recarregando ${Math.ceil(remaining)} s` : 'pronto') + raiseText;
     // tooltip do Pulso com os valores atuais (nível do herói, melhorias e talentos)
     // (só refaz o texto quando algum valor muda)
     const live = { power: pulsePower(run), size: 1 + run.heroStats.pulseSize, radius: run.pulse.radius, cooldown: run.pulse.cooldown };

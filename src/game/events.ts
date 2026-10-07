@@ -18,6 +18,7 @@ export type GameEvent =
   | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web' | 'curse' | 'acid' | 'snowball'; from: Point; to: Point }
   | { type: 'enemyLeap'; x: number; y: number }
   | { type: 'pulseReady'; x: number; y: number }
+  | { type: 'skeletonRaised'; x: number; y: number }
   | { type: 'synergyUp'; race: string; tier: number }
   | { type: 'iceCracked'; x: number; y: number }
   | { type: 'enemyFell'; x: number; y: number }

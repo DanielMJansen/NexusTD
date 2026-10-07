@@ -1,3 +1,4 @@
+import { CORPSE_LIFE, raisableCorpses } from '../game/raise';
 import { avalanchePosition } from '../game/mapEvents';
 import { ARENA, INTERACT } from '../data/config';
 import { resolveNexus } from './nexusLook';
@@ -15,7 +16,7 @@ import { drawAtmosphere, drawBackground, drawNexus } from './arena';
 import type { Effects } from './effects';
 import { drawLoot, drawNexusGround, drawNexusOverlay } from './nexusLoot';
 import { drawShadow, drawSprite } from './sprites';
-import { drawLayered, type LayerLook } from './spriteKit';
+import { drawLayered, halo, type LayerLook } from './spriteKit';
 
 const TAU = Math.PI * 2;
 /** Pontos extras a defender: Nexus em cores douradas. */
@@ -63,6 +64,7 @@ export function drawFrame(
 
   drawIce(ctx, state, time);
   drawAvalancheWarning(ctx, state, time);
+  drawRaisableCorpses(ctx, state, time);
   drawNexusGround(ctx, state, !!interaction.nexusOpen, time);
   for (const pool of state.pools) drawPool(ctx, pool, time);
   for (const strike of state.pulseFx.strikes) drawStrikeWarning(ctx, strike, time);
@@ -152,20 +154,19 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     look.shadowColor = '#7fd8ff';
     look.shadowBlur = 12;
   }
+  // tintas baratas (sem filtro de canvas): aliado verde, pedra cinza, clarão de golpe branco
   if (enemy.allyTimer > 0) {
-    // aliado temporário: brilho verde-espectral
-    look.shadowColor = '#7affb0';
-    look.shadowBlur = 10;
+    look.tint = 'rgba(110, 255, 170, 0.38)';
+    halo(ctx, enemy.x, enemy.y - 4 * scale, 18 * scale, '#7affb0', 0.5);
   }
-  const filters: string[] = [];
-  if (enemy.stone || (enemy.stunTimer > 0 && enemy.stunLook === 'stone')) filters.push('grayscale(0.85) brightness(0.9)');
-  if (enemy.allyTimer > 0) filters.push('hue-rotate(90deg) saturate(0.7)');
-  if (state.time - enemy.lastHitAt < HIT_FLASH) filters.push('brightness(2.4) saturate(0.4)');
-  if (filters.length) look.filter = filters.join(' ');
+  if (enemy.stone || (enemy.stunTimer > 0 && enemy.stunLook === 'stone')) look.tint = 'rgba(150, 150, 160, 0.7)';
+  if (state.time - enemy.lastHitAt < HIT_FLASH) look.tint = 'rgba(255, 255, 255, 0.65)';
+  // esqueleto erguido: sobe da terra no primeiro meio segundo
+  const rising = enemy.summonedAlly && enemy.raisedAt !== undefined ? Math.min(1, (state.time - enemy.raisedAt) / 0.5) : 1;
   // ataque: tranco curto na direção do golpe e pose de ataque do sprite
   const lunge = Math.max(0, 1 - (state.time - enemy.lastAttackAt) / 0.3);
   const ex = enemy.x + Math.cos(enemy.attackAngle) * lunge * 5;
-  const ey = enemy.y + Math.sin(enemy.attackAngle) * lunge * 5 - lift;
+  const ey = enemy.y + Math.sin(enemy.attackAngle) * lunge * 5 - lift + (1 - rising) * 16 * scale;
   drawLayered(ctx, ex, ey - 6 * scale, 40 * scale, look, (c) => {
     if (enemy.hexTimer > 0) drawFrog(c, enemy.x, enemy.y, scale, time + enemy.animationOffset);
     else {
@@ -1046,4 +1047,29 @@ function drawFrozenBlock(ctx: CanvasRenderingContext2D, x: number, y: number): v
   ctx.moveTo(x - 9, y - 10);
   ctx.lineTo(x - 5, y - 16);
   ctx.stroke();
+}
+
+/** Senhor dos Mortos: caveirinhas nos corpos que o próximo Pulso vai erguer (somem com o tempo). */
+function drawRaisableCorpses(ctx: CanvasRenderingContext2D, state: RunState, time: number): void {
+  const corpses = raisableCorpses(state);
+  if (!corpses.length) return;
+  const ready = state.pulse.remaining <= 0;
+  for (const c of corpses) {
+    const left = 1 - (state.time - c.at) / CORPSE_LIFE;
+    ctx.globalAlpha = Math.min(1, left * 2) * (ready ? 0.9 : 0.5);
+    const bob = Math.sin(time * 4 + c.x) * 1.2;
+    ctx.fillStyle = 'rgba(122, 255, 176, 0.25)';
+    ctx.beginPath();
+    ctx.ellipse(c.x, c.y + 6, 8, 3, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#e8f0e4';
+    ctx.beginPath();
+    ctx.arc(c.x, c.y - 2 + bob, 3.6, 0, TAU);
+    ctx.fill();
+    ctx.fillRect(c.x - 2, c.y + 0.5 + bob, 4, 2.2);
+    ctx.fillStyle = '#1a2a20';
+    ctx.fillRect(c.x - 2.2, c.y - 3 + bob, 1.6, 1.6);
+    ctx.fillRect(c.x + 0.6, c.y - 3 + bob, 1.6, 1.6);
+  }
+  ctx.globalAlpha = 1;
 }

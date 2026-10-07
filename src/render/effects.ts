@@ -236,6 +236,10 @@ export class Effects {
       case 'synergyUp':
         this.banner(`Sinergia: ${event.race}`, event.tier === 2 ? 'nível máximo (3 classes)' : 'ativa (2 classes)', '#ffd25a', 1.6);
         break;
+      case 'skeletonRaised':
+        this.burst(event.x, event.y + 8, 10, '#6a5a3a', 50, 0.5, 2.4, false, -30, 140);
+        this.burst(event.x, event.y, 6, '#7affb0', 40, 0.5, 1.8, true, -50);
+        break;
       case 'pulseReady':
         this.ring(event.x, event.y + 6, 34, '#e2c8ff', 0.6, 3);
         this.burst(event.x, event.y - 10, 10, '#e2c8ff', 50, 0.6, 2, true, -40);
@@ -635,7 +639,7 @@ export class Effects {
       ctx.translate(c.x, c.y);
       ctx.rotate((1 - fade) * 0.5);
       const size = def.scale * (0.6 + fade * 0.4);
-      drawLayered(ctx, 0, (1 - fade) * 4 - 6 * size, 40 * size, { filter: 'brightness(1.8) saturate(0.3)' }, (g) =>
+      drawLayered(ctx, 0, (1 - fade) * 4 - 6 * size, 40 * size, { tint: 'rgba(255, 255, 255, 0.55)' }, (g) =>
         drawSprite(g, c.enemy, 0, (1 - fade) * 4, size, { time }),
       );
       ctx.restore();
