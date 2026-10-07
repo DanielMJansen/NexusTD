@@ -42,6 +42,8 @@ export interface Profile {
   seenEnemies: EnemyId[];
   /** Fases cujo tutorial (quadro de mecânicas) já foi visto. */
   seenStageIntros: StageId[];
+  /** Tutoriais de telas já vistos (ex.: 'sanctuary'). */
+  seenTutorials: string[];
   /** Presentes resgatados por código (conteúdo exclusivo). */
   gifts: GiftId[];
   /** Onda mais alta alcançada (inclui o Sem Fim). */
@@ -85,6 +87,7 @@ export function createProfile(): Profile {
     stats: { runs: 0, wins: 0, kills: 0 },
     seenEnemies: [],
     seenStageIntros: [],
+    seenTutorials: [],
     gifts: [],
     bestWave: 0,
     selectedStage: FIRST_STAGE,

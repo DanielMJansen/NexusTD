@@ -61,7 +61,7 @@ import { showHeroLevelUp } from './ui/heroLevelUp';
 import { chooseHeroUpgrade } from './game/hero';
 import { showHeroes, type HeroScreenOptions } from './ui/heroesScreen';
 import { showStages } from './ui/stagesScreen';
-import { showSanctuary } from './ui/sanctuaryScreen';
+import { showSanctuary, showSanctuaryIntro } from './ui/sanctuaryScreen';
 import { updateHud, updateMenuHud } from './ui/hud';
 import { showMenu } from './ui/menu';
 import { animateOverlay, hideOverlay } from './ui/overlay';
@@ -610,6 +610,13 @@ export class App {
 
   /** highlight: criatura recém-fortalecida (a tela fica no mesmo lugar). */
   private openSanctuary(highlight?: CreatureId): void {
+    // primeira visita: tutorial antes da tela
+    if (!this.profile.seenTutorials.includes('sanctuary')) {
+      this.profile.seenTutorials.push('sanctuary');
+      saveProfile(this.profile);
+      showSanctuaryIntro(() => this.openSanctuary(highlight), '▶ Entrar no Santuário');
+      return;
+    }
     showSanctuary(
       this.profile,
       {
@@ -617,6 +624,7 @@ export class App {
           if (!upgradeSanctuary(this.profile, id)) return;
           this.afterPurchase(true, () => this.openSanctuary(id));
         },
+        onHelp: () => showSanctuaryIntro(() => this.openSanctuary(), '← Voltar'),
         onBack: () => this.openMenu(),
       },
       highlight,

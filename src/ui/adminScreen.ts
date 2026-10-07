@@ -156,6 +156,7 @@ function changeFor(action: string): ((p: Profile) => void) | null {
     case 'intros':
       return (p) => {
         p.seenStageIntros = [];
+        p.seenTutorials = [];
       };
     default:
       return null;

@@ -135,6 +135,7 @@ function sanitize(data: unknown): Profile {
   profile.seenEnemies = ENEMY_IDS.filter((id) => seen.includes(id));
   const intros = Array.isArray(raw.seenStageIntros) ? raw.seenStageIntros : [];
   profile.seenStageIntros = STAGE_IDS.filter((id) => intros.includes(id));
+  profile.seenTutorials = Array.isArray(raw.seenTutorials) ? raw.seenTutorials.filter((t): t is string => typeof t === 'string') : [];
   profile.crystals = Math.max(0, Math.floor(toNumber(raw.crystals)));
   profile.bestWave = Math.floor(toNumber(raw.bestWave));
   // fases (campos novos: padrão sem recordes; a Fase 1 herda as vitórias e o recorde antigos)
