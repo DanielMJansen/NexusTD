@@ -3,7 +3,6 @@ import {
   halo,
   circle,
   ellipse,
-  eye,
   formA,
   formB,
   glowingEye,
@@ -200,52 +199,143 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
 
 /** Basilisco: lagarto-serpente de crista. A: Basilisco Rei (crista coroada); B: Cuspidor (baba ácida verde). */
 export function drawBasilisk(ctx: Ctx, p: Pose): void {
+  // Basilisco: serpente gigante enrolada, pescoço erguido em S e olhar mortal.
+  // A: Basilisco Rei (coroa de cristas douradas); B: Cuspidor (ácido verde).
   const king = formA(p);
   const spitter = formB(p);
-  const body = king ? '#4a7a3a' : spitter ? '#5a8a2a' : '#5a6a3a';
-  const dark = king ? '#1e3a14' : spitter ? '#2a4a10' : '#2a321a';
-  const stride = p.moving ? Math.sin(p.time * 8) : 0;
-  // cauda e corpo baixo
+  const body = king ? '#3a6a3a' : spitter ? '#4a7a2a' : '#3a5a3a';
+  const dark = king ? '#0e2a14' : spitter ? '#1a3a0c' : '#122414';
+  const belly = '#c8c890';
+  const sway = Math.sin(p.time * 1.6) * 1.5;
+  const strike = p.attack;
+  // um pouco maior que as outras criaturas: imponente
+  ctx.scale(1.12, 1.12);
+
+  // espirais do corpo no chão (de trás para a frente)
+  for (const [y, rx, ry] of [
+    [6, 15, 5],
+    [10, 13, 4.5],
+  ] as const) {
+    shape(ctx, radial(ctx, -2, y - 2, rx, body, dark), () => ellipse(ctx, 0, y, rx, ry), 1.1);
+    ctx.strokeStyle = dark + 'aa';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    for (let i = -3; i <= 3; i++) {
+      ctx.moveTo(i * 4 - 1.5, y - ry * 0.6);
+      ctx.lineTo(i * 4, y - ry * 0.2);
+      ctx.lineTo(i * 4 + 1.5, y - ry * 0.6);
+    }
+    ctx.stroke();
+  }
+  // ponta da cauda saindo da espiral
   shape(ctx, dark, () => {
-    ctx.moveTo(-6, 4);
-    ctx.quadraticCurveTo(-16, 6, -19, 0);
-    ctx.quadraticCurveTo(-14, 4, -6, 9);
+    ctx.moveTo(-14, 8);
+    ctx.quadraticCurveTo(-21, 5 + sway, -23, 0 + sway);
+    ctx.quadraticCurveTo(-19, 6, -13, 11);
     ctx.closePath();
-  });
-  for (const [x, ph] of [[-6, 0], [4, Math.PI]] as const) {
-    shape(ctx, dark, () => ctx.roundRect(x + Math.sin(p.time * 8 + ph) * stride, 8, 3.5, 6, 1.2), 0.8);
+  }, 0.9);
+
+  // pescoço grosso erguido em S (avança no bote)
+  const hx = 9 + strike * 6;
+  const hy = -17 + sway - strike * 2;
+  const neck = (width: number, color: string) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-3, 5);
+    ctx.bezierCurveTo(-11, -4, 8 + sway, -6, hx - 4, hy + 3);
+    ctx.stroke();
+  };
+  neck(9.5, '#0a1a0c');
+  neck(7.5, body);
+  ctx.save();
+  ctx.translate(1.2, 0.8);
+  neck(2.6, belly);
+  ctx.restore();
+  // espinhos ao longo da nuca
+  for (let k = 1; k <= 4; k++) {
+    const u = k / 5;
+    const x = (1 - u) ** 3 * -3 + 3 * (1 - u) ** 2 * u * -11 + 3 * (1 - u) * u * u * (8 + sway) + u ** 3 * (hx - 4);
+    const y = (1 - u) ** 3 * 5 + 3 * (1 - u) ** 2 * u * -4 + 3 * (1 - u) * u * u * -6 + u ** 3 * (hy + 3);
+    shape(ctx, king ? GOLD : '#7a2a2a', () => poly(ctx, [x - 3.6, y - 1, x - 6.5, y - 5, x - 2, y - 3.6]), 0.6);
   }
-  shape(ctx, radial(ctx, 0, 3, 11, body, dark), () => ellipse(ctx, 0, 3, 11, 7));
-  shape(ctx, '#c8d0a0', () => ellipse(ctx, 2, 6, 6, 3), 0.6);
-  // crista nas costas
-  for (let i = 0; i < 4; i++) {
-    shape(ctx, king ? GOLD : '#c84a3a', () => poly(ctx, [-8 + i * 4, -3, -6 + i * 4, -8 - (i % 2) * 2, -4 + i * 4, -3]), 0.6);
+
+  // crista em leque atrás da cabeça (espinhos com membrana)
+  ctx.save();
+  ctx.translate(hx - 3, hy - 1);
+  for (let i = 0; i < 5; i++) {
+    const a = -2.5 + i * 0.32 + Math.sin(p.time * 2 + i) * 0.04;
+    shape(ctx, king ? '#c8901a' : '#6a1a1a', () => poly(ctx, [Math.cos(a) * 3, Math.sin(a) * 3, Math.cos(a) * 13, Math.sin(a) * 13, Math.cos(a + 0.2) * 4, Math.sin(a + 0.2) * 4]), 0.6);
   }
-  // cabeça e boca (abre no ataque)
-  const open = p.attack * 3;
-  shape(ctx, radial(ctx, 11, -3, 6, body, dark), () => ellipse(ctx, 11, -3, 6, 4.5));
-  shape(ctx, dark, () => ellipse(ctx, 13, 1 + open * 0.5, 5, 1.6 + open * 0.4), 0.8);
-  eye(ctx, 11, -5, 1.6, '#ffd23a', 0.4);
+  ctx.restore();
+  // cabeça em cunha
+  ctx.save();
+  ctx.translate(hx, hy);
+  ctx.rotate(0.12 - strike * 0.2);
+  const open = 0.1 + strike * 0.75;
+  // mandíbula de baixo com presas
+  ctx.save();
+  ctx.translate(-3, 2);
+  ctx.rotate(open);
+  shape(ctx, dark, () => {
+    ctx.moveTo(0, 0);
+    ctx.lineTo(12, 0.6);
+    ctx.quadraticCurveTo(13, 2.6, 10, 3);
+    ctx.lineTo(0, 2.6);
+    ctx.closePath();
+  }, 0.9);
+  shape(ctx, '#f4f0dc', () => poly(ctx, [8.5, 0.4, 9.5, -2.6, 10.4, 0.5]), 0.4);
+  ctx.restore();
+  if (open > 0.3) shape(ctx, '#5a0a14', () => poly(ctx, [-2, 2, 10, 2, 9, 2 + open * 7, -2, 2.5 + open * 3]), 0);
+  // crânio largo e achatado
+  shape(ctx, radial(ctx, 1, -2, 10, body, dark), () => {
+    ctx.moveTo(-6, 3);
+    ctx.quadraticCurveTo(-7, -5, 0, -6.5);
+    ctx.quadraticCurveTo(9, -6, 14, -1.5);
+    ctx.quadraticCurveTo(14.5, 1.5, 11, 2.6);
+    ctx.lineTo(-6, 3);
+    ctx.closePath();
+  }, 1.1);
+  // presas de cima, longas
+  for (const x of [7.5, 10.5]) shape(ctx, '#f4f0dc', () => poly(ctx, [x - 0.7, 2.3, x, 6 + strike * 2, x + 0.7, 2.3]), 0.4);
+  // escamas grandes do topo e sobrancelha óssea
+  shape(ctx, dark, () => poly(ctx, [-1, -6, 7, -6.6, 9, -4, 1, -3.6]), 0.6);
+  // olho mortal: amarelo brilhante com pupila em fenda
+  halo(ctx, 4, -3.4, 6 + strike * 4, '#ffe14a', 0.6 + strike * 0.3);
+  shape(ctx, '#ffd23a', () => ellipse(ctx, 4, -3.4, 2.2, 1.6), 0.6);
+  ctx.fillStyle = '#0a0a06';
+  ctx.fillRect(3.7, -4.9, 0.6, 3);
+  // narina
+  ctx.fillStyle = '#0a1a0c';
+  ctx.beginPath();
+  ellipse(ctx, 12.5, -1.2, 0.7, 0.45);
+  ctx.fill();
   if (king) {
-    shape(ctx, vertical(ctx, -12, -6, '#ffe07a', '#c8901a'), () => poly(ctx, [7, -7, 7.5, -12, 9.5, -9, 11, -13, 12.5, -9, 14.5, -12, 14.5, -7]), 0.6);
+    // coroa de cristas douradas atrás dos olhos
+    shape(ctx, vertical(ctx, -14, -5, '#ffe07a', '#c8901a'), () => poly(ctx, [-5, -4, -6, -12, -3, -7, -1, -14, 1, -7, 4, -12, 3, -5.5]), 0.6);
   }
+  if (spitter && strike > 0.2) halo(ctx, 13, 3, 7, '#9aff3a', strike);
+  ctx.restore();
+
   if (spitter) {
+    // gotas de ácido escorrendo das presas
     ctx.fillStyle = '#9aff3a';
     for (let i = 0; i < 2; i++) {
       const ph = (p.time * 1.4 + i / 2) % 1;
       ctx.beginPath();
-      ellipse(ctx, 15 + i, 2 + ph * 8, 0.9, 1.4);
+      ellipse(ctx, hx + 8 + i, hy + 6 + ph * 9, 0.9, 1.4);
       ctx.fill();
     }
   }
-  if (p.supreme && formA(p)) {
-    // cristas e chifres de pedra
-    for (let i = 0; i < 4; i++) shape(ctx, vertical(ctx, -22, -8, '#c8c0b0', '#6a6258'), () => poly(ctx, [-8 + i * 4, -8, -6 + i * 4, -20 + (i % 2) * 3, -4 + i * 4, -8]), 0.7);
+  if (p.supreme && king) {
+    // Imperador Basilisco: chifres de pedra ao longo das espirais
+    for (let i = 0; i < 4; i++) shape(ctx, vertical(ctx, -6, 6, '#c8c0b0', '#6a6258'), () => poly(ctx, [-10 + i * 6, 3, -8 + i * 6, -6 + (i % 2) * 3, -6 + i * 6, 3]), 0.7);
   }
-  if (p.supreme && formB(p)) {
-    // glândulas ácidas brilhando e poça sob o corpo
-    shape(ctx, '#9aff3a55', () => ellipse(ctx, 0, 13, 16, 3.5), 0);
-    for (const [x, y] of [[-6, -2], [0, 0], [6, -3]] as const) halo(ctx, x, y, 4, '#9aff3a', 0.7 + Math.sin(p.time * 4 + x) * 0.2);
+  if (p.supreme && spitter) {
+    // Pântano Ácido: glândulas brilhando e poça sob as espirais
+    shape(ctx, '#9aff3a55', () => ellipse(ctx, 0, 13, 18, 3.5), 0);
+    for (const [x, y] of [[-8, 5], [0, 7], [8, 5]] as const) halo(ctx, x, y, 4, '#9aff3a', 0.7 + Math.sin(p.time * 4 + x) * 0.2);
   }
 }
 

@@ -153,7 +153,8 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 ### F15. Fase 4 — Deserto Dourado + Relíquias `[ ]` — PROPOSTA
 - Cenário de areia e sol. Regra de mapa: **tempestade de areia** (inimigos ficam ocultos até chegar perto) e **oásis** que curam o herói.
 - Modo diferente (decidido em 07/10/2026, no lugar da escolta): **dois Nexus** para defender ao mesmo tempo (ex.: dois oásis); a run acaba se qualquer um cair. A escolta foi descartada.
-- Destrava **Relíquias**: chefes deixam relíquias (itens permanentes com efeito); o herói equipa 1 a 3 antes da run.
+- Destrava **Relíquias** (decidido em 07/10/2026): itens permanentes que o herói equipa antes da run. Liberadas ao chegar no Deserto (vencer a Tundra); chefes de **todas as fases** passam a deixá-las: o 1º abate de cada chefe garante uma, depois a **chance cresce com a dificuldade** (chefe do meio da run < chefe final; fases mais avançadas > iniciais; Sem Fim conta). Vagas: 1 ao liberar, 2 ao vencer o Deserto, 3 ao chegar na onda 30 do Sem Fim do Deserto.
+- Tempestade de areia (decidido): inimigos longe do herói e das criaturas ficam **ocultos e não podem ser alvo** até chegar perto.
 - Nexus temático: **Obelisco Solar**.
 
 ### F16. Fase 5 — Cidadela Celeste + Ascensão e Desafio diário `[ ]` — PROPOSTA
