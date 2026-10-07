@@ -11,7 +11,7 @@ const PAD = { side: 12, top: 26, bottom: 46 };
 
 /**
  * Câmera: qual pedaço do mundo aparece na tela. A vista tem o tamanho de ARENA dividido pelo zoom
- * (roda do mouse: de "mapa inteiro" até MAX_ZOOM). Sempre centrada no herói, com uma mola curta;
+ * (roda do mouse: de "mapa inteiro" até MAX_ZOOM). Sempre centrada no herói (no Nexus enquanto ele está morto), com uma mola curta;
  * se a vista for maior que o mapa, centraliza o mapa.
  */
 export class Camera {
@@ -68,8 +68,10 @@ export class Camera {
       this.x = cx - this.viewWidth() / 2;
       this.y = cy - this.viewHeight() / 2;
     }
-    const tx = state.hero.x - this.viewWidth() / 2;
-    const ty = state.hero.y - this.viewHeight() / 2;
+    // herói morto: a câmera vai para o Nexus (onde ele renasce)
+    const focus = state.hero.dead ? state.nexus : state.hero;
+    const tx = focus.x - this.viewWidth() / 2;
+    const ty = focus.y - this.viewHeight() / 2;
     // mola criticamente amortecida (sem tranco e sem passar do ponto); passo limitado contra quadros longos
     const step = Math.min(dt, 1 / 30);
     const damping = 2 * Math.sqrt(STIFFNESS);
