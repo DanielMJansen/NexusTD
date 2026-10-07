@@ -3,27 +3,16 @@
 export type VariantTier = 'rare' | 'epic' | 'legendary';
 export const VARIANT_TIERS: VariantTier[] = ['rare', 'epic', 'legendary'];
 
+/** Raridade da variante (nome e cor do selo). O visual de cada criatura vem do tema (`variantThemes`). */
 export interface VariantLook {
   name: string;
   color: string;
-  /** Filtro de cor aplicado ao sprite inteiro (uma vez, na camada). */
-  filter: string;
-  /** Brilho ao redor do sprite (Épica e Lendária). */
-  glow?: string;
-  /** Faíscas ao redor (Lendária). */
-  sparkles?: boolean;
 }
 
 export const VARIANTS: Record<VariantTier, VariantLook> = {
-  rare: { name: 'Rara', color: '#6ab8ff', filter: 'hue-rotate(150deg) saturate(1.25)' },
-  epic: { name: 'Épica', color: '#c08aff', filter: 'hue-rotate(250deg) saturate(1.5) brightness(1.05)', glow: '#c08aff' },
-  legendary: {
-    name: 'Lendária',
-    color: '#ffd25a',
-    filter: 'sepia(0.55) saturate(2.4) hue-rotate(-12deg) brightness(1.12)',
-    glow: '#ffd25a',
-    sparkles: true,
-  },
+  rare: { name: 'Rara', color: '#6ab8ff' },
+  epic: { name: 'Épica', color: '#c08aff' },
+  legendary: { name: 'Lendária', color: '#ffd25a' },
 };
 
 export type AltarOutcome =

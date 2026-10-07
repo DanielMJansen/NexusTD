@@ -2,7 +2,7 @@ import { CORPSE_LIFE, raisableCorpses } from '../game/raise';
 import { avalanchePosition } from '../game/mapEvents';
 import { ARENA, INTERACT } from '../data/config';
 import { resolveNexus } from './nexusLook';
-import { VARIANTS } from '../data/altar';
+import { drawVariantAura, drawVariantParticles, variantLayerLook } from './variantLook';
 
 import { STAGES } from '../data/stages';
 import { WAVES } from '../data/waves';
@@ -404,12 +404,12 @@ function drawCreatureBody(ctx: CanvasRenderingContext2D, state: RunState, creatu
     ctx.arc(creature.x, creature.y + 4, 26, 0, TAU);
     ctx.fill();
   }
-  const variant = creature.variant ? VARIANTS[creature.variant] : null;
+  const variant = creature.variant ?? null;
   const spriteScale = levelInfo(creature).scale;
   // brilho (fúria, variante): halo em cache atrás do sprite; a forma evoluída já tem a aura acima
   if (frenzy) halo(ctx, creature.x, creature.y + hover - 6 * spriteScale, 28 * spriteScale, '#ff2a40', 0.7);
-  else if (variant?.glow) halo(ctx, creature.x, creature.y + hover - 6 * spriteScale, (24 + Math.sin(time * 3 + creature.x) * 2) * spriteScale, variant.glow, 0.6);
-  const look: LayerLook = variant ? { filter: variant.filter } : {};
+  else if (variant) drawVariantAura(ctx, creature.def.id, variant, creature.x, creature.y + hover - 6 * spriteScale, spriteScale, time);
+  const look: LayerLook = variant ? variantLayerLook(creature.def.id, variant, time + creature.x * 0.01) : {};
   drawLayered(ctx, creature.x, creature.y + hover - 6 * spriteScale, 40 * spriteScale, look, (c) =>
     drawSprite(c, creature.def.id, creature.x, creature.y + hover, spriteScale, {
       time: time + creature.x * 0.01,
@@ -420,7 +420,7 @@ function drawCreatureBody(ctx: CanvasRenderingContext2D, state: RunState, creatu
       supreme: isSupreme(creature),
     }),
   );
-  if (variant?.sparkles) drawVariantSparkles(ctx, creature.x, creature.y - 8 * spriteScale, time + creature.x);
+  if (variant) drawVariantParticles(ctx, creature.def.id, variant, creature.x, creature.y + hover - 6 * spriteScale, spriteScale, time);
   const form = ascendedForm(creature);
   if (form) drawBranchEmblem(ctx, creature.x + 13, creature.y + 12, form.icon, form.color);
   if (state.haste.remaining > 0) drawSparkles(ctx, creature.x, creature.y - 10, time + creature.x);
@@ -1047,22 +1047,6 @@ function drawCurse(ctx: CanvasRenderingContext2D, x: number, y: number, alpha: n
 }
 
 /** Variante Lendária: faíscas douradas girando ao redor da criatura. */
-function drawVariantSparkles(ctx: CanvasRenderingContext2D, x: number, y: number, time: number): void {
-  for (let k = 0; k < 4; k++) {
-    const a = time * 1.6 + (k * TAU) / 4;
-    const twinkle = 0.5 + 0.5 * Math.sin(time * 6 + k * 2);
-    ctx.fillStyle = `rgba(255, 228, 140, ${0.4 + 0.6 * twinkle})`;
-    const px = x + Math.cos(a) * 15;
-    const py = y + Math.sin(a) * 9;
-    ctx.beginPath();
-    ctx.moveTo(px, py - 2.4);
-    ctx.lineTo(px + 0.8, py);
-    ctx.lineTo(px, py + 2.4);
-    ctx.lineTo(px - 0.8, py);
-    ctx.closePath();
-    ctx.fill();
-  }
-}
 
 /** Fogueira: bacia de pedra; acesa, chama e círculo de calor; apagada, anel de progresso do herói. */
 function drawInteractable(

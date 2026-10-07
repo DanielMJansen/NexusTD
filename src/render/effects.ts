@@ -1,3 +1,6 @@
+import type { VariantTier } from '../data/altar';
+import { variantTheme, type VariantTheme } from '../data/variantThemes';
+import { themeTone } from './variantLook';
 import { RELICS } from '../data/relics';
 import { MUTATIONS } from '../data/mutations';
 import { ARENA } from '../data/config';
@@ -44,6 +47,8 @@ interface Shot {
   source: CreatureId | 'hero' | EnemyShotKind;
   /** Cor do corte (golpes do herói). */
   color?: string;
+  /** Cores do tema da variante (Épica/Lendária): projétil, rastro e impacto recoloridos. */
+  theme?: readonly string[];
   from: Point;
   to: Point;
   duration: number;
@@ -141,6 +146,25 @@ export class Effects {
   /** Números de dano flutuando (opção nas Configurações). */
   showDamageNumbers = true;
 
+  /** Variantes da run (ataques das Épicas e Lendárias saem nas cores do tema). */
+  private variants: Partial<Record<CreatureId, VariantTier>> = {};
+  /** Tema em uso enquanto um impacto/rastro de variante cria partículas. */
+  private tone: readonly string[] | null = null;
+
+  setVariants(variants: Partial<Record<CreatureId, VariantTier>>): void {
+    this.variants = variants;
+  }
+
+  /** Tema dos ataques de uma criatura (só Épica e Lendária). */
+  private attackTheme(id: CreatureId): VariantTheme | null {
+    const tier = this.variants[id];
+    return tier && tier !== 'rare' ? variantTheme(id, tier) : null;
+  }
+
+  private toned(color: string): string {
+    return this.tone ? themeTone(color, this.tone) : color;
+  }
+
   clear(): void {
     this.shots = [];
     this.particles = [];
@@ -160,7 +184,8 @@ export class Effects {
       case 'shot': {
         const melee = MELEE[event.source];
         const duration = melee ? 0.16 : event.source === 'cauldron' ? 0.4 : event.source === 'batSwarm' ? 0.32 : 0.22;
-        this.shots.push({ ...event, duration, remaining: duration, trailTimer: 0, color: melee });
+        const theme = this.attackTheme(event.source);
+        this.shots.push({ ...event, duration, remaining: duration, trailTimer: 0, color: melee && theme ? theme.accent : melee, theme: theme?.colors });
         break;
       }
       case 'heroAttack': {
@@ -374,7 +399,7 @@ export class Effects {
         break;
       }
       case 'beam':
-        this.beams.push({ ...event, color: CREATURES[event.source].color, life: 0.22, maxLife: 0.22 });
+        this.beams.push({ ...event, color: this.attackTheme(event.source)?.accent ?? CREATURES[event.source].color, life: 0.22, maxLife: 0.22 });
         break;
       case 'explosion':
         this.ring(event.x, event.y, event.radius, '#ff8a3a', 0.4, 4);
@@ -637,11 +662,13 @@ export class Effects {
     for (const shot of this.shots) {
       shot.remaining -= dt;
       shot.trailTimer -= dt;
+      this.tone = shot.theme ?? null;
       if (shot.trailTimer <= 0) {
         shot.trailTimer = 0.016;
         this.trail(shot);
       }
       if (shot.remaining <= 0) this.impact(shot);
+      this.tone = null;
     }
     this.shots = this.shots.filter((s) => s.remaining > 0);
 
@@ -726,7 +753,13 @@ export class Effects {
     ctx.globalAlpha = 1;
     ctx.lineWidth = 1;
 
-    for (const shot of this.shots) drawShot(ctx, shot);
+    for (const shot of this.shots) {
+      if (shot.theme && !shot.color) {
+        // projétil de variante: desenhado numa camada recolorida com o tema
+        const p = shotPosition(shot);
+        drawLayered(ctx, p.x, p.y, 40, { recolor: { colors: shot.theme, strength: 1 } }, (c) => drawShot(c, shot));
+      } else drawShot(ctx, shot);
+    }
 
     for (const p of this.particles) {
       const fade = p.life / p.maxLife;
@@ -794,7 +827,7 @@ export class Effects {
   }
 
   private ring(x: number, y: number, radius: number, color: string, life: number, width: number): void {
-    this.rings.push({ x, y, radius, color, life, maxLife: life, width });
+    this.rings.push({ x, y, radius, color: this.toned(color), life, maxLife: life, width });
   }
 
   private banner(text: string, subtitle: string, color: string, life: number): void {
@@ -824,7 +857,7 @@ export class Effects {
         life: random(life * 0.6, life),
         maxLife: life,
         size,
-        color,
+        color: this.toned(color),
         gravity,
         glow,
       });

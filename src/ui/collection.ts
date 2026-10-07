@@ -1,3 +1,4 @@
+import { variantTheme } from '../data/variantThemes';
 import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
 import { VARIANTS, type VariantTier } from '../data/altar';
 import { ALL_CREATURE_IDS, CREATURES, isGiftCreature, type CreatureDef, type CreatureId } from '../data/creatures';
@@ -28,7 +29,7 @@ function variantRow(profile: Profile, id: CreatureId): string {
   const current = profile.selectedVariants[id] ?? '';
   const button = (tier: VariantTier | '', label: string, color: string) =>
     `<button class="variant-chip${current === tier ? ' selected' : ''}" style="--chip-color:${color}" data-action="variant" data-value="${id}:${tier}">${label}</button>`;
-  return `<div class="variant-row"><span>Variante:</span>${button('', 'Normal', '#9a8ab8')}${owned.map((t) => button(t, VARIANTS[t].name, VARIANTS[t].color)).join('')}</div>`;
+  return `<div class="variant-row"><span>Variante:</span>${button('', 'Normal', '#9a8ab8')}${owned.map((t) => button(t, `${VARIANTS[t].name} · ${variantTheme(id, t).name}`, VARIANTS[t].color)).join('')}</div>`;
 }
 
 /** Rodapé do card: na equipe/coleção ou o botão de desbloquear. */

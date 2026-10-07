@@ -1,3 +1,6 @@
+import type { VariantTier } from '../data/altar';
+import { CREATURES, type CreatureId } from '../data/creatures';
+import { drawVariantAura, drawVariantParticles, variantLayerLook } from './variantLook';
 import { drawNexusModel, type NexusAppearance } from './arena';
 import type { SkinPalette } from '../data/skins';
 import { drawLayered } from './spriteKit';
@@ -10,7 +13,9 @@ export interface PortraitOptions {
   /** Vertente da forma evoluída (0 ou 1). */
   branch?: number;
   palette?: SkinPalette;
-  /** Filtro de cor da variante do Altar. */
+  /** Variante do Altar (recolorido, aura e partículas do tema). */
+  variant?: VariantTier;
+  /** Filtro de cor avulso (ilustrações). */
   filter?: string;
 }
 
@@ -47,7 +52,11 @@ export function drawPortrait(canvas: HTMLCanvasElement, id: SpriteId, time: numb
   const x = size / 2 - scale;
   const y = canvas.clientHeight / 2 + 6 * scale;
   // variante: filtro aplicado uma vez ao sprite inteiro (camada), não a cada traço
-  drawLayered(ctx, x, y - 6 * scale, 30 * scale, { filter: options.silhouette ? undefined : options.filter }, (c) =>
+  const variant = options.silhouette ? undefined : options.variant;
+  const creature = variant && id in CREATURES ? (id as CreatureId) : undefined;
+  if (creature) drawVariantAura(ctx, creature, variant!, x, y - 8 * scale, scale, time);
+  const look = creature ? variantLayerLook(creature, variant!, time) : { filter: options.silhouette ? undefined : options.filter };
+  drawLayered(ctx, x, y - 6 * scale, 30 * scale, look, (c) =>
     drawSprite(c, id, x, y, scale, {
       time,
       level: options.level ?? 1,
@@ -55,5 +64,6 @@ export function drawPortrait(canvas: HTMLCanvasElement, id: SpriteId, time: numb
       palette: options.palette ?? {},
     }),
   );
+  if (creature) drawVariantParticles(ctx, creature, variant!, x, y - 8 * scale, scale, time);
   ctx.restore();
 }

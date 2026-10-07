@@ -822,6 +822,7 @@ export class App {
       return;
     }
     this.effects.clear();
+    this.effects.setVariants(run.variants);
     resetInteraction(this.interaction);
     this.run = run;
     this.camera.snap(run);
@@ -847,6 +848,7 @@ export class App {
     this.music.play('run');
     this.music.setIntensity(0);
     this.run = startRun(runSetup(this.profile));
+    this.effects.setVariants(this.run.variants);
     this.camera.snap(this.run, true);
     const stage = this.run.stage;
     if (!this.profile.seenStageIntros.includes(stage)) {

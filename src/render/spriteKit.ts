@@ -147,10 +147,17 @@ export interface LayerLook {
   tint?: string;
   shadowColor?: string;
   shadowBlur?: number;
+  /**
+   * Recolorido de variante: degradê (do alto para baixo) no modo "cor", que troca matiz e saturação
+   * e mantém luz e sombra do desenho; `shimmer` (tempo) passa uma faixa de brilho pelo corpo.
+   */
+  recolor?: { colors: readonly string[]; strength: number; light?: number; dark?: number; shimmer?: number };
 }
 
 /** Várias camadas em rodízio: reusar a mesma logo depois de colá-la força a GPU a sincronizar. */
 const layers: HTMLCanvasElement[] = [];
+/** Cópias da forma do sprite (máscara do recolorido), também em rodízio. */
+const masks: HTMLCanvasElement[] = [];
 let nextLayer = 0;
 const LAYER_POOL = 12;
 
@@ -161,7 +168,7 @@ const LAYER_POOL = 12;
  * (cx, cy, half): quadrado que contém o sprite, nas coordenadas atuais do contexto.
  */
 export function drawLayered(ctx: Ctx, cx: number, cy: number, half: number, look: LayerLook, draw: (c: Ctx) => void): void {
-  if (!look.filter && !look.shadowBlur && !look.tint) {
+  if (!look.filter && !look.shadowBlur && !look.tint && !look.recolor) {
     draw(ctx);
     return;
   }
@@ -177,6 +184,7 @@ export function drawLayered(ctx: Ctx, cx: number, cy: number, half: number, look
   lc.setTransform(s, 0, 0, s, -(cx - half) * s, -(cy - half) * s);
   lc.globalAlpha = 1;
   draw(lc);
+  if (look.recolor) recolorLayer(lc, layer, size, look.recolor);
   if (look.tint) {
     // tinta só onde o sprite tem pixels
     lc.setTransform(1, 0, 0, 1, 0, 0);
@@ -193,6 +201,46 @@ export function drawLayered(ctx: Ctx, cx: number, cy: number, half: number, look
   }
   ctx.drawImage(layer, 0, 0, size, size, cx - half, cy - half, half * 2, half * 2);
   ctx.restore();
+}
+
+/** Recolore a camada (ver `LayerLook.recolor`). */
+function recolorLayer(lc: Ctx, layer: HTMLCanvasElement, size: number, recolor: NonNullable<LayerLook['recolor']>): void {
+  const mask = (masks[nextLayer] ??= document.createElement('canvas'));
+  if (mask.width < size || mask.height < size) mask.width = mask.height = Math.max(size, mask.width);
+  const mc = mask.getContext('2d')!;
+  mc.setTransform(1, 0, 0, 1, 0, 0);
+  mc.clearRect(0, 0, size, size);
+  mc.drawImage(layer, 0, 0, size, size, 0, 0, size, size);
+  lc.setTransform(1, 0, 0, 1, 0, 0);
+  // degradê no modo "cor" (pinta também fora do sprite; a máscara recorta depois)
+  const gradient = lc.createLinearGradient(0, size * 0.2, 0, size * 0.85);
+  recolor.colors.forEach((c, i) => gradient.addColorStop(recolor.colors.length > 1 ? i / (recolor.colors.length - 1) : 0, c));
+  lc.globalCompositeOperation = 'color';
+  lc.globalAlpha = recolor.strength;
+  lc.fillStyle = gradient;
+  lc.fillRect(0, 0, size, size);
+  // temas de luz/sombra: modo "sobreposição" clareia (ou escurece) sem apagar o contorno
+  if (recolor.light || recolor.dark) {
+    lc.globalCompositeOperation = 'overlay';
+    lc.globalAlpha = Math.min(1, (recolor.light ?? recolor.dark ?? 0) * 2);
+    lc.fillStyle = recolor.light ? '#ffffff' : '#000000';
+    lc.fillRect(0, 0, size, size);
+  }
+  lc.globalAlpha = 1;
+  lc.globalCompositeOperation = 'destination-in';
+  lc.drawImage(mask, 0, 0, size, size, 0, 0, size, size);
+  if (recolor.shimmer !== undefined) {
+    // Lendária: faixa de luz diagonal atravessando o corpo a cada ~2,5 s
+    const t = ((recolor.shimmer % 2.5) / 2.5) * 1.8 - 0.4;
+    const band = lc.createLinearGradient(size * (t - 0.15), 0, size * (t + 0.15), size * 0.5);
+    band.addColorStop(0, 'rgba(255,255,255,0)');
+    band.addColorStop(0.5, 'rgba(255,255,255,0.4)');
+    band.addColorStop(1, 'rgba(255,255,255,0)');
+    lc.globalCompositeOperation = 'source-atop';
+    lc.fillStyle = band;
+    lc.fillRect(0, 0, size, size);
+  }
+  lc.globalCompositeOperation = 'source-over';
 }
 
 export function blush(ctx: Ctx, x: number, y: number): void {

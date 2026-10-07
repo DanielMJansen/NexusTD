@@ -1,5 +1,4 @@
 import { boundKeyLabel } from '../input/bindings';
-import { VARIANTS } from '../data/altar';
 import { raisableCorpses } from '../game/raise';
 import { SYNERGIES } from '../data/synergies';
 import { raceClassCount, racesInField } from '../game/synergies';
@@ -142,7 +141,7 @@ export class SidePanel {
       if (redraw) {
         // variante do Altar escolhida para esta criatura (mesma cor do campo)
         const variant = run.variants[id];
-        drawPortrait(card.portrait, id, time + id.length, variant ? { filter: VARIANTS[variant].filter } : {});
+        drawPortrait(card.portrait, id, time + id.length, { variant });
       }
     }
 

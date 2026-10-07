@@ -1,6 +1,6 @@
 import { findNexusColor, NEXUS_MODELS, type NexusModelId } from '../data/nexusSkins';
 import { drawNexusPreview } from '../render/portrait';
-import { VARIANTS, type VariantTier } from '../data/altar';
+import { VARIANT_TIERS, type VariantTier } from '../data/altar';
 import { findSkin } from '../data/skins';
 import { drawPortrait } from '../render/portrait';
 import type { SpriteId } from '../render/sprites';
@@ -63,12 +63,12 @@ export function isOverlayVisible(): boolean {
   return overlay.classList.contains('visible');
 }
 
-/** Filtro da variante de um retrato: explícita, "none" (original) ou a escolhida no perfil. */
-function variantFilter(canvas: HTMLCanvasElement): string | undefined {
+/** Variante de um retrato: explícita, "none" (original) ou a escolhida no perfil. */
+function portraitVariant(canvas: HTMLCanvasElement): VariantTier | undefined {
   const own = canvas.dataset.variant;
   if (own === 'none') return undefined;
   const tier = (own as VariantTier | undefined) ?? chosenVariants[canvas.dataset.sprite ?? ''];
-  return tier ? VARIANTS[tier]?.filter : undefined;
+  return tier && VARIANT_TIERS.includes(tier) ? tier : undefined;
 }
 
 /** Redesenha os retratos (`data-sprite`, e opcionais `data-level`, `data-branch`, `data-skin`, `data-silhouette`). */
@@ -86,7 +86,7 @@ export function animateOverlay(time: number): void {
       branch: Number(canvas.dataset.branch ?? 0),
       palette: findSkin(canvas.dataset.skin ?? '')?.palette,
       // variante: a do próprio retrato (`data-variant`; "none" = original) ou a escolhida para a criatura
-      filter: variantFilter(canvas),
+      variant: portraitVariant(canvas),
     }),
   );
 }

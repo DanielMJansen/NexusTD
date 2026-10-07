@@ -1,3 +1,4 @@
+import { variantTheme } from '../data/variantThemes';
 import { ALTAR_NEXUS_CHANCE, findNexusColor } from '../data/nexusSkins';
 import { ALTAR, VARIANTS } from '../data/altar';
 import { CREATURES } from '../data/creatures';
@@ -33,7 +34,7 @@ function resultHtml(result: AltarResult): string {
       const extra = result.duplicate ? `<small>Todas as suas criaturas já têm essa variante: virou ${fragments(result.amount, result.race)}.</small>` : '<small>Escolha-a na Coleção, no card da criatura.</small>';
       return `<div class="altar-result variant" style="--tier-color:${look.color}">
         <canvas data-sprite="${result.creature}" data-variant="${result.tier}"></canvas>
-        <div><b>Variante ${look.name}!</b> ${name}<br>${extra}</div>
+        <div><b>Variante ${look.name} · ${variantTheme(result.creature, result.tier).name}!</b> ${name}<br>${extra}</div>
       </div>`;
     }
   }

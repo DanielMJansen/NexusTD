@@ -6,6 +6,8 @@ import { drawNexusModel } from './arena';
 import { circle, drawLayered, GOLD, halo, type Ctx } from './spriteKit';
 import { drawSprite, type SpriteId } from './sprites';
 import { fitSmallCanvas } from './viewport';
+import { variantTheme } from '../data/variantThemes';
+import { drawVariantAura, drawVariantParticles, variantLayerLook } from './variantLook';
 
 /** Cena de referência: 300 × 120, centralizada no canvas. */
 const W = 300;
@@ -144,13 +146,15 @@ const DEMOS: Record<string, (ctx: Ctx, t: number) => void> = {
   altar(ctx, t) {
     const tier = VARIANT_TIERS[Math.floor(t / 1.6) % (VARIANT_TIERS.length + 1) - 1];
     const look = tier ? VARIANTS[tier] : undefined;
+    const theme = tier ? variantTheme('fireDragon', tier) : undefined;
     ctx.fillStyle = '#3a2a4a';
     ctx.beginPath();
     ctx.ellipse(150, 96, 46, 10, 0, 0, Math.PI * 2);
     ctx.fill();
-    if (look) halo(ctx, 150, 60, 36, look.color, 0.5);
-    sprite(ctx, 'fireDragon', 150, 84, 2, t, { filter: look?.filter });
-    label(ctx, look?.name ?? 'Original', 150, 114, look?.color ?? '#e8dcff');
+    if (tier) drawVariantAura(ctx, 'fireDragon', tier, 150, 66, 2, t);
+    drawLayered(ctx, 150, 72, 60, tier ? variantLayerLook('fireDragon', tier, t) : {}, (c) => drawSprite(c, 'fireDragon', 150, 84, 2, { time: t, level: 1, branch: 0, palette: {} }));
+    if (tier) drawVariantParticles(ctx, 'fireDragon', tier, 150, 66, 2, t);
+    label(ctx, look && theme ? `${look.name} · ${theme.name}` : 'Original', 150, 114, look?.color ?? '#e8dcff');
   },
   // Relíquias girando em volta do herói
   relics(ctx, t) {
