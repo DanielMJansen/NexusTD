@@ -173,7 +173,7 @@ Objetivo: deixar o código seguro e pronto para ser **distribuído** em sites co
 
 **PUB-A. Consolidar (fácil)**
 1. **Repositório privado** `[ ]` (hoje é público: qualquer um clona e hospeda o jogo). Publicar a versão web por **Cloudflare Pages** ou **Netlify**, que aceitam repositório privado de graça. O link do GitHub Pages deixa de funcionar. *Ação do Daniel: conta na Cloudflare/Netlify e trocar a visibilidade no GitHub.*
-2. **Admin só em desenvolvimento** `[ ]`: painel, botão e hash do código de admin entram só no `npm run dev` (`import.meta.env.DEV`); o build público não os contém.
+2. **Admin só em desenvolvimento** `[ ]` — **fazer só no lançamento** (decidido em 07/10/2026; até lá o admin fica ativo): painel, botão e hash do código de admin passam a entrar só no `npm run dev` (`import.meta.env.DEV`).
 3. **Fontes no próprio jogo** `[ ]`: Cinzel, Cinzel Decorative e Crimson Pro em `public/fonts` (licença OFL permite), sem chamar o Google. Funciona offline (necessário na Steam), carrega mais rápido e não envia o IP do jogador a terceiros (LGPD/GDPR).
 4. **Política de conteúdo (CSP)** `[ ]` no `index.html`: só arquivos do próprio site (os portais pedem exceções para o SDK deles; ver PUB-B).
 5. **Higiene do GitHub** `[ ]`: 2FA na conta, proteção da `main`, Dependabot (`.github/dependabot.yml`), varredura de segredos e workflow com `permissions` mínimas.
@@ -198,7 +198,30 @@ Objetivo: deixar o código seguro e pronto para ser **distribuído** em sites co
 - Conversa com advogado de propriedade intelectual: arte e código feitos com IA têm proteção autoral incerta (não impede vender).
 - Página de privacidade simples quando houver anúncios (o portal cuida do consentimento, mas a página é pedida).
 
-**Ordem sugerida:** PUB-A → PUB-B (CrazyGames) → PUB-C. Decisões pendentes: nome definitivo, portal, anúncio recompensado (sim/não e qual recompensa), Electron ou Tauri.
+**PUB-E. Contas, save na nuvem e rankings** (PROPOSTA; para a versão de testes 1.0)
+- **Por quê:** save só local se perde ao limpar o navegador ou trocar de computador, e ranking exige saber quem é quem.
+- **Serviço (sem manter servidor próprio):** **Supabase** (banco Postgres + login + regras de acesso por linha; plano grátis serve para testes, ~US$ 25/mês depois) como primeira opção. Alternativas: Firebase, ou PlayFab (feito para jogos, já tem ranking).
+- **Login:** e-mail com link mágico e Google. O **modo convidado continua** (save local, como hoje); ao criar conta, o save local sobe para a nuvem ("vincular"). Apelido público para o ranking, com filtro de palavrões.
+- **Save na nuvem:** tabela `saves` (usuário, dados JSON, versão, data). Salva ao fim de cada run e ao gastar na meta-progressão. Conflito entre aparelhos: vale o mais novo, guardando o anterior como cópia. O `sanitize` atual continua validando tudo que chega.
+- **Por plataforma** (camada `src/platform/`): web → contas próprias; CrazyGames → conta e save do próprio portal (login de terceiros dentro do portal costuma ser vetado); Steam → conta Steam, Steam Cloud e os **rankings da própria Steam**. O backend próprio serve à versão web e a um ranking unificado, se desejado.
+- **Rankings** (exemplos): onda mais alta no Sem Fim por fase, vitória mais rápida por fase, **Desafio diário** (F16: mesma semente para todos).
+- **Trapaça:** o cliente nunca é confiável. Dois níveis:
+  1. *Básico:* o servidor recusa valores impossíveis (onda acima do possível, tempo curto demais), limita envios e permite banir.
+  2. *Forte:* **replay verificado** — a run usa semente e registra as ações do jogador; o servidor reexecuta a simulação (o mesmo código TypeScript) e confere o resultado. Possível porque a simulação já é separada da interface e todo sorteio passa por `random.ts`. Falta: gerador com semente e passo de tempo fixo na simulação.
+- **Segurança do backend:** regras por linha (cada um só lê e grava o próprio save); só a chave pública no cliente (a chave de serviço nunca sai do servidor); envio de placar por função no servidor, não direto na tabela; limite de requisições.
+- **LGPD:** política de privacidade e termos de uso, coletar o mínimo (e-mail e apelido), botão para **apagar a conta e os dados** e para exportar o save (já existe).
+
+**PUB-F. Versão de testes 1.0 (beta aberta)** — o que precisa estar pronto
+- Número de versão visível (menu) e **notas da versão** (o que mudou).
+- Canal para relatos: link para formulário ou Discord; botão "Relatar problema" que copia versão + dados técnicos.
+- **Relatório de erros automático** (ex.: Sentry, grátis no início), com aviso na política de privacidade.
+- **Estatísticas de uso sem cookies** (Cloudflare Web Analytics ou Plausible): quantos jogam, até que fase chegam, onde desistem.
+- Migração de save testada (versões antigas → nova), aviso "beta: o progresso pode ser reiniciado" se for o caso.
+- Item 2 do PUB-A (tirar o admin) **só no lançamento**: até lá o admin continua ativo.
+
+**Hospedagem (Cloudflare Pages / Netlify), como funciona:** conecta-se ao repositório do GitHub (pode ser privado). O fluxo continua o mesmo: commit e push na `main` → o serviço roda `npm run build` e publica a pasta `dist` em ~1 minuto. Ganhos: link de **prévia para cada branch** (testar antes de publicar), **voltar para qualquer versão anterior com um clique**, domínio próprio com HTTPS grátis. O versionamento continua no Git; o workflow `deploy.yml` deixa de ser necessário. Configuração única: comando `npm run build`, pasta `dist`, Node 24. A base do Vite já é relativa (`./`), então nada muda no código. Plano grátis: Cloudflare sem limite de tráfego (500 builds/mês); Netlify 100 GB/mês.
+
+**Ordem sugerida (quando a 1.0 estiver pronta):** PUB-A → PUB-E (contas e save na nuvem) → PUB-F (beta aberta) → PUB-B (portal com anúncios) → PUB-C (Steam). Decisões pendentes: nome definitivo, portal, anúncio recompensado (sim/não e qual recompensa), Electron ou Tauri, serviço de contas (Supabase?), quais rankings.
 
 ### Em paralelo (encaixar entre fases)
 - **Balanceamento das raças** `[~]` (07/10/2026): rodada feita nas 3 fases (ver Registro do GDD); Humanos com a passiva **Disciplina**. Pendente: Lobisomem na Tundra (0/30) e Bruxa no Pântano (24/30).
