@@ -6,7 +6,7 @@
 ## Economia e Nexus
 - Nexus: 100 de vida, +10 de cura entre ondas. Ouro inicial 30; renda +1 a cada 2 s; limite de criaturas 5; venda 60%.
 - Essência por run: 3 por onda + 1 a cada 5 abates + 30 ao vencer.
-- Evolução: nível 2 custa 1,5× o custo daquela cópia (dano ×1,5, alcance ×1,1); nível 3 custa 3× o custo daquela cópia (dano ×2,2, alcance ×1,2); nível 4 custa 10× o custo daquela cópia (dano ×2,53, alcance ×1,2); nível 5 custa 18× o custo daquela cópia (dano ×2,91, alcance ×1,2). No nível 3 o jogador escolhe a vertente.
+- Evolução: nível 2 custa 1,5× o custo daquela cópia (dano ×1,5, alcance ×1,1); nível 3 custa 3× o custo daquela cópia (dano ×2,2, alcance ×1,2); nível 4 custa 10× o custo daquela cópia (dano ×2,53, alcance ×1,2); nível 5 custa 24× o custo daquela cópia (dano ×2,91, alcance ×1,2). No nível 3 o jogador escolhe a vertente.
 
 | Melhoria do Nexus | Custos | Níveis |
 |---|---|---|

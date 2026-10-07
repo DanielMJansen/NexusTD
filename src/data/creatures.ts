@@ -219,8 +219,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'none' },
     unlock: { kind: 'start' },
     ascended: [
-      { name: 'Patrulheiro', description: 'Dispara em dois alvos de uma vez.', ability: { kind: 'multishot', targets: 2 }, color: '#ffd25a', icon: '➶', supreme: { name: 'Mestre Arqueiro', description: 'Dispara em 4 alvos de uma vez, com flechas mais fortes.', ability: { kind: 'multishot', targets: 4 }, stats: { damage: 1.2 } } },
-      { name: 'Atirador de Elite', description: 'Mais alcance e golpes críticos devastadores, atirando mais devagar.', ability: { kind: 'crit', chance: 0.35, multiplier: 3.5 }, stats: { range: 1.3, cooldown: 1.15 }, color: '#ff7a5a', icon: '◎', supreme: { name: 'Olho do Falcão', description: 'Metade dos tiros é crítica (dano ×5), de muito longe.', ability: { kind: 'crit', chance: 0.5, multiplier: 5 }, stats: { range: 1.95, cooldown: 1.15 } } },
+      { name: 'Patrulheiro', description: 'Dispara em dois alvos de uma vez.', ability: { kind: 'multishot', targets: 2 }, color: '#ffd25a', icon: '➶', supreme: { name: 'Mestre Arqueiro', description: 'Dispara em 3 alvos de uma vez.', ability: { kind: 'multishot', targets: 3 } } },
+      { name: 'Atirador de Elite', description: 'Mais alcance e golpes críticos devastadores, atirando mais devagar.', ability: { kind: 'crit', chance: 0.35, multiplier: 3.5 }, stats: { range: 1.3, cooldown: 1.15 }, color: '#ff7a5a', icon: '◎', supreme: { name: 'Olho do Falcão', description: 'Críticos frequentes e fortes (×3,5), de muito longe.', ability: { kind: 'crit', chance: 0.4, multiplier: 3.5 }, stats: { range: 1.5, cooldown: 1.15 } } },
     ],
   },
   guard: {
@@ -240,8 +240,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'block', radius: 30, capacity: 2 },
     unlock: { kind: 'essence', cost: 30 },
     ascended: [
-      { name: 'Paladino', description: 'Segura até 4 inimigos ao redor.', ability: { kind: 'block', radius: 36, capacity: 4 }, color: '#ffd25a', icon: '⛨', supreme: { name: 'Bastião', description: 'O escudo-torre segura até 7 inimigos num raio maior.', ability: { kind: 'block', radius: 46, capacity: 7 }, stats: { damage: 1.5 } } },
-      { name: 'Martelo Sagrado', description: 'Troca o bloqueio por golpes pesados que atordoam.', ability: { kind: 'stun', chance: 0.35, duration: 1.2 }, stats: { damage: 1.4 }, color: '#9ad8ff', icon: '⚒', supreme: { name: 'Juiz de Ferro', description: 'Cada martelada racha o chão ao redor e atordoa.', ability: { kind: 'nova', radius: 45 }, effects: [{ kind: 'stun', chance: 0.4, duration: 1.4 }], stats: { damage: 1.4 } } },
+      { name: 'Paladino', description: 'Segura até 4 inimigos ao redor.', ability: { kind: 'block', radius: 36, capacity: 4 }, color: '#ffd25a', icon: '⛨', supreme: { name: 'Bastião', description: 'O escudo-torre segura até 6 inimigos num raio maior.', ability: { kind: 'block', radius: 40, capacity: 6 }, stats: { damage: 1.25 } } },
+      { name: 'Martelo Sagrado', description: 'Troca o bloqueio por golpes pesados que atordoam.', ability: { kind: 'stun', chance: 0.35, duration: 1.2 }, stats: { damage: 1.4 }, color: '#9ad8ff', icon: '⚒', supreme: { name: 'Juiz de Ferro', description: 'Cada martelada racha o chão ao redor e pode atordoar.', ability: { kind: 'nova', radius: 38 }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 1.2 } } },
     ],
   },
   cleric: {
@@ -260,8 +260,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'bless', radius: 100, damage: 0.25 },
     unlock: { kind: 'essence', cost: 70 },
     ascended: [
-      { name: 'Sacerdotisa', description: 'Bênção maior e mais forte, que também protege contra teia e atordoamento.', ability: { kind: 'bless', radius: 100, damage: 0.25, protect: true }, color: '#ffd25a', icon: '✚', supreme: { name: 'Santa', description: 'Bênção enorme: mais dano e mais velocidade para todos ao redor.', ability: { kind: 'bless', radius: 140, damage: 0.35, attackSpeed: 0.15, protect: true } } },
-      { name: 'Inquisidora', description: 'Troca a bênção por raios de luz pesados que atordoam.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 2.6, range: 1.15 }, color: '#ff7a3a', icon: '☀', supreme: { name: 'Grã-Inquisidora', description: 'O livro em chamas dispara um raio que atravessa a fila e atordoa.', ability: { kind: 'pierce', width: 18, beams: 1 }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 2.6, range: 1.15 } } },
+      { name: 'Sacerdotisa', description: 'Bênção maior e mais forte, que também protege contra teia e atordoamento.', ability: { kind: 'bless', radius: 100, damage: 0.25, protect: true }, color: '#ffd25a', icon: '✚', supreme: { name: 'Santa', description: 'Bênção maior: mais dano e mais velocidade para todos ao redor.', ability: { kind: 'bless', radius: 120, damage: 0.3, attackSpeed: 0.1, protect: true } } },
+      { name: 'Inquisidora', description: 'Troca a bênção por raios de luz pesados que atordoam.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 2.6, range: 1.15 }, color: '#ff7a3a', icon: '☀', supreme: { name: 'Grã-Inquisidora', description: 'O livro em chamas dispara um raio que atravessa a fila e pode atordoar.', ability: { kind: 'pierce', width: 14, beams: 1 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], stats: { damage: 2.2, range: 1.15 } } },
     ],
   },
   duelist: {
@@ -281,8 +281,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'frenzy', hitsToTrigger: 6, duration: 3, damageMultiplier: 1.5, attackSpeedMultiplier: 2 },
     unlock: { kind: 'essence', cost: 40 },
     ascended: [
-      { name: 'Conde Vampiro', description: 'Frenesi mais frequente, longo e forte.', ability: { kind: 'frenzy', hitsToTrigger: 4, duration: 4, damageMultiplier: 1.8, attackSpeedMultiplier: 2 }, color: '#ffd25a', icon: '♛', supreme: { name: 'Príncipe da Noite', description: 'Frenesi quase permanente: dispara a cada 2 golpes e dura muito.', ability: { kind: 'frenzy', hitsToTrigger: 2, duration: 6, damageMultiplier: 2, attackSpeedMultiplier: 2.2 } } },
-      { name: 'Lâmina Carmesim', description: 'Golpes críticos frequentes e mais rápidos, sem frenesi.', ability: { kind: 'crit', chance: 0.4, multiplier: 2.5 }, stats: { cooldown: 0.85 }, color: '#ff3a50', icon: '⚔', supreme: { name: 'Dança das Lâminas', description: 'Metade dos golpes é crítica (×3), e os golpes ficam ainda mais rápidos.', ability: { kind: 'crit', chance: 0.55, multiplier: 3 }, stats: { cooldown: 0.7 } } },
+      { name: 'Conde Vampiro', description: 'Frenesi mais frequente, longo e forte.', ability: { kind: 'frenzy', hitsToTrigger: 4, duration: 4, damageMultiplier: 1.8, attackSpeedMultiplier: 2 }, color: '#ffd25a', icon: '♛', supreme: { name: 'Príncipe da Noite', description: 'Frenesi frequente e longo: dispara a cada 3 golpes.', ability: { kind: 'frenzy', hitsToTrigger: 3, duration: 5, damageMultiplier: 1.9, attackSpeedMultiplier: 2 } } },
+      { name: 'Lâmina Carmesim', description: 'Golpes críticos frequentes e mais rápidos, sem frenesi.', ability: { kind: 'crit', chance: 0.4, multiplier: 2.5 }, stats: { cooldown: 0.85 }, color: '#ff3a50', icon: '⚔', supreme: { name: 'Dança das Lâminas', description: 'Metade dos golpes é crítica, e os golpes ficam ainda mais rápidos.', ability: { kind: 'crit', chance: 0.5, multiplier: 2.8 }, stats: { cooldown: 0.78 } } },
     ],
   },
   sanguine: {
@@ -301,8 +301,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'lifesteal', healPerKill: 2 },
     unlock: { kind: 'essence', cost: 50 },
     ascended: [
-      { name: 'Lorde de Sangue', description: 'Cada abate cura 4 de vida do herói.', ability: { kind: 'lifesteal', healPerKill: 4 }, color: '#ffd25a', icon: '♥', supreme: { name: 'Soberano Escarlate', description: 'Cada abate cura 8 de vida do herói e rende 1 de ouro.', ability: { kind: 'lifesteal', healPerKill: 8 }, effects: [{ kind: 'goldOnKill', gold: 1, when: 'any' }], stats: { damage: 1.3 } } },
-      { name: 'Mago de Sangue', description: 'Orbes de sangue que saltam entre inimigos.', ability: { kind: 'chain', jumps: 3, radius: 60, falloff: 0.8 }, stats: { damage: 1.5 }, color: '#c03ae0', icon: '❂', supreme: { name: 'Arcano Rubro', description: 'Orbes de sangue saltam entre até 6 inimigos.', ability: { kind: 'chain', jumps: 6, radius: 70, falloff: 0.9 }, stats: { damage: 1.8 } } },
+      { name: 'Lorde de Sangue', description: 'Cada abate cura 4 de vida do herói.', ability: { kind: 'lifesteal', healPerKill: 4 }, color: '#ffd25a', icon: '♥', supreme: { name: 'Soberano Escarlate', description: 'Cada abate cura 6 de vida do herói e rende 1 de ouro.', ability: { kind: 'lifesteal', healPerKill: 6 }, effects: [{ kind: 'goldOnKill', gold: 1, when: 'any' }], stats: { damage: 1.15 } } },
+      { name: 'Mago de Sangue', description: 'Orbes de sangue que saltam entre inimigos.', ability: { kind: 'chain', jumps: 3, radius: 60, falloff: 0.8 }, stats: { damage: 1.5 }, color: '#c03ae0', icon: '❂', supreme: { name: 'Arcano Rubro', description: 'Orbes de sangue saltam entre até 5 inimigos.', ability: { kind: 'chain', jumps: 5, radius: 65, falloff: 0.85 }, stats: { damage: 1.65 } } },
     ],
   },
   batSwarm: {
@@ -322,8 +322,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'splash', radius: 32, damageRatio: 1 },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Nuvem Sangrenta', description: 'Área maior; as mordidas fazem sangrar.', ability: { kind: 'splash', radius: 45, damageRatio: 1 }, effects: [{ kind: 'poison', dps: 6, duration: 3 }], color: '#ff3a50', icon: '♨', supreme: { name: 'Eclipse', description: 'Nuvem enorme que faz sangrar muito.', ability: { kind: 'splash', radius: 70, damageRatio: 1 }, effects: [{ kind: 'poison', dps: 12, duration: 3 }] } },
-      { name: 'Revoada Faminta', description: 'Cada abate deixa o enxame mais rápido até o fim da onda.', ability: { kind: 'splash', radius: 32, damageRatio: 1 }, effects: [{ kind: 'killHaste', perKill: 0.05, max: 0.75 }], color: '#c86aff', icon: '➹', supreme: { name: 'Fome Eterna', description: 'Cada abate acelera muito mais o enxame (até o fim da onda).', ability: { kind: 'splash', radius: 36, damageRatio: 1 }, effects: [{ kind: 'killHaste', perKill: 0.08, max: 1.5 }] } },
+      { name: 'Nuvem Sangrenta', description: 'Área maior; as mordidas fazem sangrar.', ability: { kind: 'splash', radius: 45, damageRatio: 1 }, effects: [{ kind: 'poison', dps: 6, duration: 3 }], color: '#ff3a50', icon: '♨', supreme: { name: 'Eclipse', description: 'Nuvem enorme que faz sangrar muito.', ability: { kind: 'splash', radius: 58, damageRatio: 1 }, effects: [{ kind: 'poison', dps: 9, duration: 3 }] } },
+      { name: 'Revoada Faminta', description: 'Cada abate deixa o enxame mais rápido até o fim da onda.', ability: { kind: 'splash', radius: 32, damageRatio: 1 }, effects: [{ kind: 'killHaste', perKill: 0.05, max: 0.75 }], color: '#c86aff', icon: '➹', supreme: { name: 'Fome Eterna', description: 'Cada abate acelera muito mais o enxame (até o fim da onda).', ability: { kind: 'splash', radius: 34, damageRatio: 1 }, effects: [{ kind: 'killHaste', perKill: 0.065, max: 1.1 }] } },
     ],
   },
   fireDragon: {
@@ -343,8 +343,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'splash', radius: 40, damageRatio: 0.6 },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Dragão Ancião', description: 'Explosão de fogo maior e mais forte.', ability: { kind: 'splash', radius: 60, damageRatio: 0.8 }, color: '#ffd25a', icon: '✹', supreme: { name: 'Dragão Primordial', description: 'Explosão enorme que acerta a área com dano total.', ability: { kind: 'splash', radius: 80, damageRatio: 1 }, stats: { damage: 1.15 } } },
-      { name: 'Wyrm Infernal', description: 'Deixa o chão em chamas onde o golpe cai.', ability: { kind: 'pool', radius: 34, duration: 3, dps: 20 }, color: '#ff5a1a', icon: '♨', supreme: { name: 'Wyrm do Apocalipse', description: 'O chão vira um mar de fogo maior, mais forte e mais duradouro.', ability: { kind: 'pool', radius: 46, duration: 5, dps: 26 } } },
+      { name: 'Dragão Ancião', description: 'Explosão de fogo maior e mais forte.', ability: { kind: 'splash', radius: 60, damageRatio: 0.8 }, color: '#ffd25a', icon: '✹', supreme: { name: 'Dragão Primordial', description: 'Explosão enorme que acerta a área quase com dano total.', ability: { kind: 'splash', radius: 70, damageRatio: 0.9 } } },
+      { name: 'Wyrm Infernal', description: 'Deixa o chão em chamas onde o golpe cai.', ability: { kind: 'pool', radius: 34, duration: 3, dps: 20 }, color: '#ff5a1a', icon: '♨', supreme: { name: 'Wyrm do Apocalipse', description: 'O chão vira um mar de fogo maior e mais duradouro.', ability: { kind: 'pool', radius: 40, duration: 4, dps: 24 } } },
     ],
   },
   iceDragon: {
@@ -363,8 +363,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'slow', speedMultiplier: 0.5, duration: 1.5 },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Dragão Glacial', description: 'Lentidão mais forte e mais longa.', ability: { kind: 'slow', speedMultiplier: 0.35, duration: 2.5 }, color: '#ffd25a', icon: '❄', supreme: { name: 'Dragão Boreal', description: 'Lentidão extrema e longa: o alvo quase para.', ability: { kind: 'slow', speedMultiplier: 0.25, duration: 4 }, stats: { damage: 1.2 } } },
-      { name: 'Dragão Congelante', description: 'Chance de congelar o alvo no lugar.', ability: { kind: 'stun', chance: 0.3, duration: 1.4 }, stats: { damage: 1.3 }, color: '#bff0ff', icon: '✧', supreme: { name: 'Zero Absoluto', description: 'Congela com muito mais frequência e por mais tempo.', ability: { kind: 'stun', chance: 0.45, duration: 2 }, stats: { damage: 1.5 } } },
+      { name: 'Dragão Glacial', description: 'Lentidão mais forte e mais longa.', ability: { kind: 'slow', speedMultiplier: 0.35, duration: 2.5 }, color: '#ffd25a', icon: '❄', supreme: { name: 'Dragão Boreal', description: 'Lentidão extrema e longa.', ability: { kind: 'slow', speedMultiplier: 0.3, duration: 3 }, stats: { damage: 1.1 } } },
+      { name: 'Dragão Congelante', description: 'Chance de congelar o alvo no lugar.', ability: { kind: 'stun', chance: 0.3, duration: 1.4 }, stats: { damage: 1.3 }, color: '#bff0ff', icon: '✧', supreme: { name: 'Zero Absoluto', description: 'Congela com mais frequência e por mais tempo.', ability: { kind: 'stun', chance: 0.38, duration: 1.7 }, stats: { damage: 1.35 } } },
     ],
   },
   storm: {
@@ -384,8 +384,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Dragão do Trovão', description: 'O raio salta para até 6 inimigos.', ability: { kind: 'chain', jumps: 6, radius: 75, falloff: 0.88 }, color: '#ffe060', icon: 'ϟ', supreme: { name: 'Senhor dos Raios', description: 'O raio salta para até 10 inimigos sem perder força.', ability: { kind: 'chain', jumps: 10, radius: 85, falloff: 1 } } },
-      { name: 'Olho da Tormenta', description: 'O raio atordoa quem atinge.', ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], color: '#5ad0ff', icon: '◉', supreme: { name: 'Furacão', description: 'O raio salta mais e atordoa com frequência.', ability: { kind: 'chain', jumps: 5, radius: 75, falloff: 0.9 }, effects: [{ kind: 'stun', chance: 0.45, duration: 1.2 }] } },
+      { name: 'Dragão do Trovão', description: 'O raio salta para até 6 inimigos.', ability: { kind: 'chain', jumps: 6, radius: 75, falloff: 0.88 }, color: '#ffe060', icon: 'ϟ', supreme: { name: 'Senhor dos Raios', description: 'O raio salta para até 8 inimigos quase sem perder força.', ability: { kind: 'chain', jumps: 8, radius: 80, falloff: 0.95 } } },
+      { name: 'Olho da Tormenta', description: 'O raio atordoa quem atinge.', ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], color: '#5ad0ff', icon: '◉', supreme: { name: 'Furacão', description: 'O raio salta mais e atordoa com frequência.', ability: { kind: 'chain', jumps: 4, radius: 72, falloff: 0.88 }, effects: [{ kind: 'stun', chance: 0.38, duration: 1 }] } },
     ],
   },
   hunter: {
