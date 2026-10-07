@@ -252,6 +252,9 @@ export function drawBatSwarm(ctx: Ctx, p: Pose): void {
 /** Possessor: sombra roxa com mãos longas. A: Marionetista (fios nas mãos); B: Devorador (boca enorme, vermelho). */
 export function drawPossessor(ctx: Ctx, p: Pose): void {
   const devour = formB(p);
+  // Formas Supremas: Mestre das Almas (A, fios de alma com almas presas) e Abismo (B, portal no peito)
+  const souls = p.supreme && !devour;
+  const abyss = p.supreme && devour;
   const color = devour ? '#5a1430' : '#4a2a80';
   const edge = devour ? '#ff3a5a00' : '#9a6aff00';
   ctx.translate(0, Math.sin(p.time * 2.2) * 2 - 6);
@@ -308,6 +311,36 @@ export function drawPossessor(ctx: Ctx, p: Pose): void {
     glowingEye(ctx, -1.5, -15, 1.6, '#d8a8ff');
     glowingEye(ctx, 3.5, -15, 1.6, '#d8a8ff');
   }
+  if (souls) {
+    // fios de alma das mãos até almas pequenas flutuando
+    for (let i = 0; i < 3; i++) {
+      const a = p.time * 1.4 + (i * TAU) / 3;
+      const sx = Math.cos(a) * 16;
+      const sy = -4 + Math.sin(a) * 8;
+      line(ctx, '#d8a8ff88', 0.6, () => {
+        ctx.moveTo(8, -6);
+        ctx.lineTo(sx, sy);
+      }, false);
+      halo(ctx, sx, sy, 4, '#d8a8ff', 0.8);
+      shape(ctx, '#f4e8ff', () => ellipse(ctx, sx, sy, 1.4, 1.8), 0.4);
+    }
+  }
+  if (abyss) {
+    // portal girando no peito
+    ctx.save();
+    ctx.translate(0, -6);
+    halo(ctx, 0, 0, 10, '#ff3a5a', 0.6);
+    shape(ctx, '#05020a', () => circle(ctx, 0, 0, 5), 0.6);
+    ctx.rotate(p.time * 3);
+    ctx.strokeStyle = '#ff6a8a';
+    ctx.lineWidth = 0.9;
+    for (let k = 0; k < 3; k++) {
+      ctx.beginPath();
+      ctx.arc(0, 0, 2 + k * 1.2, (k * TAU) / 3, (k * TAU) / 3 + 2.2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
 }
 
 /** Herbalista: bruxa de vestido de folhas e cajado de galho. A: Jardim Venenoso (flores roxas); B: Guardiã do Bosque (galhos-chifres e casca). */
@@ -315,6 +348,27 @@ export function drawHerbalist(ctx: Ctx, p: Pose): void {
   const sway = Math.sin(p.time * 2.3) * 1.1;
   const poison = formA(p);
   const grove = formB(p);
+  // Formas Supremas: Floresta Viva (A, coroa de flores carnívoras) e Coração da Mata (B, ent de galhos atrás)
+  const living = p.supreme && poison;
+  const heart = p.supreme && grove;
+  if (heart) {
+    // árvore viva atrás: tronco, galhos e dois olhos de luz
+    shape(ctx, vertical(ctx, -34, 14, '#6a4a2a', '#2a1a0c'), () => {
+      ctx.moveTo(-6, 14);
+      ctx.lineTo(-4, -18);
+      ctx.lineTo(-14, -30);
+      ctx.lineTo(-3, -24);
+      ctx.lineTo(0, -36);
+      ctx.lineTo(3, -24);
+      ctx.lineTo(14, -30);
+      ctx.lineTo(4, -18);
+      ctx.lineTo(6, 14);
+      ctx.closePath();
+    }, 0.9);
+    for (const [x, y] of [[-12, -30], [12, -30], [0, -36]] as const) shape(ctx, '#5ad85a', () => circle(ctx, x, y, 3.2), 0.5);
+    glowingEye(ctx, -2, -12, 0.9, '#c8ff6a');
+    glowingEye(ctx, 2, -12, 0.9, '#c8ff6a');
+  }
   const dress = grove ? '#6a4a2a' : '#3a8a4a';
   const dressDark = grove ? '#2a1a0c' : '#1a4a24';
   shape(ctx, vertical(ctx, -9, 14, dress, dressDark), () =>
@@ -380,6 +434,15 @@ export function drawHerbalist(ctx: Ctx, p: Pose): void {
         ctx.lineTo(1 + side * 9, hy - 12);
       });
       shape(ctx, '#7ad85a', () => ellipse(ctx, 1 + side * 9.5, hy - 12.5, 1.6, 1, 0.4), 0.4);
+    }
+  }
+  if (living) {
+    // coroa de flores carnívoras com dentes
+    for (const [x, y, s] of [[-5, -25, 1], [1, -28, 1.2], [6, -24, 0.9]] as const) {
+      const open = 0.5 + Math.sin(p.time * 4 + x) * 0.3;
+      shape(ctx, '#d02a4a', () => ellipse(ctx, x, y - open * s, 3 * s, 2 * s), 0.6);
+      shape(ctx, '#d02a4a', () => ellipse(ctx, x, y + open * s, 3 * s, 2 * s), 0.6);
+      shape(ctx, '#ffffff', () => poly(ctx, [x - 1.5 * s, y - 0.4, x, y + 0.8, x + 1.5 * s, y - 0.4]), 0);
     }
   }
 }

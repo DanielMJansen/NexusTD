@@ -114,3 +114,4 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Santuário: 1ª visita abre o tutorial (Entrar no Santuário); "? Como funciona" reabre; cards com pontinhos de nível e ✦ no 5; desperta com moldura animada e selo; Admin › Rever tutoriais mostra de novo.
 - [ ] Equipes: arrastar uma vaga sobre outra muda a posição; ◀ ▶ movem uma posição; ✕ tira da equipe; a ordem vale para os atalhos 1–8 na run e é salva na equipe ativa.
 - [ ] Auras no chão: Alfa (velocidade) e bênçãos (Clériga, Encantadora, Guardião, Unicórnio Guardião...) mostram área preenchida e borda com tracejado girando; auras que ferem (Lança Celeste, Juiz) ficam laranja com ondas saindo do centro e faíscas.
+- [ ] Formas Supremas: cada criatura despertada em ★5 vira a forma suprema da vertente com visual próprio (Admin › Criaturas › Despertar e evoluir até ★5 na run para conferir); a Coleção mostra a linha "✦ Forma Suprema" em todas as vertentes.

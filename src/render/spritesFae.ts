@@ -1,5 +1,6 @@
 // Raça Fada: Encantadora, Travessa, Lumina e a heroína Rainha Fada.
 import {
+  halo,
   circle,
   ellipse,
   eye,
@@ -82,8 +83,17 @@ function faeBody(ctx: Ctx, p: Pose, dress: string, dressDark: string, hair: stri
 export function drawEnchantress(ctx: Ctx, p: Pose): void {
   const bloom = formA(p);
   const warrior = formB(p);
+  // Formas Supremas: Primavera Eterna (A, asas de pétalas e flores caindo) e Valquíria Feérica (B, armadura de cristal)
+  const spring = p.supreme && bloom;
+  const valkyrie = p.supreme && warrior;
   ctx.translate(0, -1 + Math.sin(p.time * 3) * 1.5);
-  faeWings(ctx, p.time, warrior ? '#ffd8a0' : '#ffc8f0', bloom ? 1.75 : 1.35);
+  if (spring) {
+    for (let i = 0; i < 4; i++) {
+      const t = (p.time * 0.5 + i / 4) % 1;
+      shape(ctx, i % 2 ? '#ff8ad0' : '#ffd0f4', () => ellipse(ctx, -12 + i * 8 + Math.sin(t * 6) * 2, -20 + t * 34, 1.4, 0.9, t * 6), 0);
+    }
+  }
+  faeWings(ctx, p.time, valkyrie ? '#bfe8ff' : warrior ? '#ffd8a0' : spring ? '#ff9ad8' : '#ffc8f0', spring ? 2.1 : valkyrie ? 1.6 : bloom ? 1.75 : 1.35);
   const hy = faeBody(ctx, p, warrior ? '#c8cede' : '#ff8ad0', warrior ? '#6a7290' : '#b03a8a', '#ffe08a', '#c03a9a');
   if (warrior) {
     // peitoral e lança de luz
@@ -98,6 +108,12 @@ export function drawEnchantress(ctx: Ctx, p: Pose): void {
     shape(ctx, '#fff6c0', () => poly(ctx, [-2, -16, 0, -22, 2, -16]), 0.6);
     ctx.restore();
     shape(ctx, '#c8cede', () => poly(ctx, [-4, hy - 4, 0, hy - 9, 5, hy - 4]), 0.8);
+    if (valkyrie) {
+      // armadura de cristal e elmo alado
+      shape(ctx, vertical(ctx, -10, 1, '#e8f8ff', '#6ab8e8'), () => poly(ctx, [-5, -9, 5, -9, 6, -3, 0, 1, -6, -3]), 0.8);
+      for (const side of [-1, 1]) shape(ctx, '#ffffff', () => poly(ctx, [1 + side * 3, hy - 6, 1 + side * 8, hy - 10, 1 + side * 5, hy - 4]), 0.6);
+      halo(ctx, 0, -4, 9, '#bfe8ff', 0.4);
+    }
     return;
   }
   // varinha com flor que brilha ao lançar
@@ -128,6 +144,13 @@ export function drawEnchantress(ctx: Ctx, p: Pose): void {
 export function drawTrickster(ctx: Ctx, p: Pose): void {
   const jester = formA(p);
   const thief = formB(p);
+  // Formas Supremas: Grande Ilusionista (A, cartola e cartas girando) e Rainha dos Ladrões (B, capa de moedas e coroa)
+  const illusionist = p.supreme && jester;
+  const queen = p.supreme && thief;
+  if (queen) {
+    shape(ctx, vertical(ctx, -10, 12, '#6a1a2a', '#2a0610'), () => poly(ctx, [-3, -8, -12, 12, 8, 12, 3, -8]), 0.8);
+    for (let i = 0; i < 6; i++) shape(ctx, GOLD, () => circle(ctx, -8 + i * 3, 9 - (i % 2) * 3, 1.1), 0.3);
+  }
   ctx.translate(0, -1 + Math.sin(p.time * 4) * 2);
   ctx.rotate(Math.sin(p.time * 2) * 0.08);
   faeWings(ctx, p.time * 1.3, thief ? '#c8c0a0' : '#b8ffb0', 1.2);
@@ -165,12 +188,54 @@ export function drawTrickster(ctx: Ctx, p: Pose): void {
       ctx.fill();
     }
   }
+  if (illusionist) {
+    // cartola por cima do gorro e cartas girando
+    shape(ctx, '#1a1022', () => ctx.roundRect(-4, hy - 18, 9, 9, 1), 0.8);
+    shape(ctx, '#1a1022', () => ctx.roundRect(-6, hy - 10, 13, 2, 1), 0.8);
+    shape(ctx, '#c03a9a', () => ctx.rect(-4, hy - 12, 9, 1.6), 0);
+    for (let i = 0; i < 3; i++) {
+      const a = p.time * 2 + (i * TAU) / 3;
+      ctx.save();
+      ctx.translate(Math.cos(a) * 14, -6 + Math.sin(a) * 6);
+      ctx.rotate(a);
+      shape(ctx, '#ffffff', () => ctx.roundRect(-2, -3, 4, 6, 0.6), 0.5);
+      shape(ctx, i % 2 ? '#d02a4a' : '#1a1022', () => circle(ctx, 0, 0, 0.9), 0);
+      ctx.restore();
+    }
+  }
+  if (queen) {
+    // coroa dourada
+    shape(ctx, GOLD, () => poly(ctx, [-4, hy - 4, -4, hy - 9, -1.5, hy - 6, 1, hy - 10, 3.5, hy - 6, 6, hy - 9, 6, hy - 4]), 0.6);
+  }
 }
 
 /** Lumina: fada-luz dentro de um brilho. A: Farol (lanterna dourada); B: Estrela Cadente (tiara de estrela e rastro). */
 export function drawLumina(ctx: Ctx, p: Pose): void {
   const beacon = formA(p);
   const star = formB(p);
+  // Formas Supremas: Sol Interior (A, sol com raios girando) e Supernova (B, núcleo pulsando e anéis)
+  const sun = p.supreme && beacon;
+  const nova = p.supreme && star;
+  if (sun) {
+    ctx.save();
+    ctx.translate(0, -6);
+    ctx.rotate(p.time * 0.6);
+    for (let i = 0; i < 10; i++) {
+      ctx.rotate(TAU / 10);
+      shape(ctx, '#ffe9a8', () => poly(ctx, [-1.6, -15, 0, -24, 1.6, -15]), 0);
+    }
+    ctx.restore();
+  }
+  if (nova) {
+    for (let i = 0; i < 2; i++) {
+      const t = (p.time * 0.8 + i / 2) % 1;
+      ctx.strokeStyle = `rgba(191, 232, 255, ${(1 - t) * 0.8})`;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      circle(ctx, 0, -6, 8 + t * 18);
+      ctx.stroke();
+    }
+  }
   ctx.translate(0, -2 + Math.sin(p.time * 2.5) * 2);
   // halo de luz
   const glow = ctx.createRadialGradient(0, -6, 2, 0, -6, 18 + p.attack * 4);
@@ -218,6 +283,10 @@ export function drawLumina(ctx: Ctx, p: Pose): void {
       ctx.closePath();
     }, 0.5);
     ctx.restore();
+  }
+  if (sun) halo(ctx, 0, -6, 16, '#fff6c0', 0.7);
+  if (nova) {
+    halo(ctx, 0, -6, 10 + Math.sin(p.time * 6) * 2, '#bfe8ff', 0.9);
   }
 }
 

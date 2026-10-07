@@ -1,5 +1,7 @@
 // Raça Demônios: Diabrete, Súcubo, Infernal e o herói Arquidemônio.
 import {
+  TAU,
+  halo,
   circle,
   ellipse,
   eye,
@@ -108,10 +110,41 @@ export function drawImp(ctx: Ctx, p: Pose): void {
     shape(ctx, '#8a6a3a', () => circle(ctx, -7, 4, 3), 0.7);
     shape(ctx, GOLD, () => circle(ctx, -7, 1, 1.1), 0.4);
   }
+  if (p.supreme && formA(p)) {
+    // chifres em chamas
+    for (const x of [-3, 4]) {
+      for (let i = 0; i < 2; i++) {
+        const h = 4 + Math.sin(p.time * 10 + x + i) * 1.5;
+        shape(ctx, i ? '#ffd040' : '#ff5a1a', () => poly(ctx, [x - 1.4, -21, x, -21 - h - 3, x + 1.4, -21]), 0);
+      }
+    }
+    halo(ctx, 0, -20, 8, '#ff8a2a', 0.5);
+  }
+  if (p.supreme && formB(p)) {
+    // bolsas de ouro penduradas
+    for (const x of [-7, 7]) {
+      shape(ctx, '#8a6a3a', () => circle(ctx, x, 6, 3), 0.7);
+      shape(ctx, '#f0c35a', () => circle(ctx, x, 3, 1.2), 0.4);
+    }
+  }
 }
 
 /** Súcubo: demônia roxa com asas e chicote. A: Sedutora (aura de corações); B: Tormento (correntes e chicote de espinhos). */
 export function drawSuccubus(ctx: Ctx, p: Pose): void {
+  // Formas Supremas: Rainha Súcubo (A, chicote de chamas) e Agonia (B, correntes sombrias)
+  if (p.supreme && formB(p)) {
+    for (let i = 0; i < 3; i++) {
+      const a = p.time * 0.8 + (i * TAU) / 3;
+      ctx.strokeStyle = '#2a0a1a';
+      ctx.lineWidth = 1.4;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(0, -4);
+      ctx.quadraticCurveTo(Math.cos(a) * 10, -4 + Math.sin(a) * 4, Math.cos(a) * 18, 4 + Math.sin(a) * 6);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
   const lure = formA(p);
   const torment = formB(p);
   const skinColor = '#b86ad8';
@@ -162,6 +195,18 @@ export function drawSuccubus(ctx: Ctx, p: Pose): void {
       ctx.fill();
     }
     ctx.globalAlpha = 1;
+  }
+  if (p.supreme && formA(p)) {
+    // chicote de chamas
+    ctx.save();
+    ctx.translate(7, -2);
+    const crack = p.attack;
+    line(ctx, '#ff5a1a', 1.4, () => {
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(8, -6 - crack * 4, 14, 4, 20 + crack * 6, -2);
+    }, false);
+    halo(ctx, 20 + crack * 6, -2, 4, '#ffd040', 0.8);
+    ctx.restore();
   }
 }
 
@@ -214,6 +259,18 @@ export function drawInfernal(ctx: Ctx, p: Pose): void {
   glowingEye(ctx, 2.5, hy, 1.4, '#ffd23a');
   if (lord) {
     shape(ctx, vertical(ctx, hy - 14, hy - 6, '#ffe07a', '#c8901a'), () => poly(ctx, [-4, hy - 6, -3, hy - 11, 0, hy - 8, 3, hy - 11, 4, hy - 6]), 0.6);
+  }
+  if (p.supreme && formA(p)) {
+    // coroa de fogo
+    for (let i = 0; i < 5; i++) {
+      const h = 6 + Math.sin(p.time * 9 + i) * 2;
+      shape(ctx, i % 2 ? '#ffd040' : '#ff5a1a', () => poly(ctx, [-6 + i * 3, -24, -4.5 + i * 3, -24 - h, -3 + i * 3, -24]), 0);
+    }
+    halo(ctx, 0, -26, 10, '#ffb040', 0.5);
+  }
+  if (p.supreme && formB(p)) {
+    // corpo incandescente
+    halo(ctx, 0, -6, 20, '#ff3a1a', 0.45 + Math.sin(p.time * 5) * 0.15);
   }
 }
 

@@ -1,6 +1,7 @@
 // Raça Necromante: Guerreiro Esqueleto, Ceifador, Drenador e o herói Senhor dos Mortos.
 // O esqueleto aliado erguido (inimigo 'boneWarrior') usa o desenho do Guerreiro Esqueleto.
 import {
+  halo,
   circle,
   ellipse,
   formA,
@@ -31,6 +32,17 @@ function skullHead(ctx: Ctx, x: number, y: number, r: number, eyes: string): voi
 
 /** Guerreiro Esqueleto: ossos, escudo redondo e espada. A: Cavaleiro da Morte (armadura negra com chifres); B: Legião de Ossos (estandarte de ossos). */
 export function drawSkeletonWarrior(ctx: Ctx, p: Pose, ally = false): void {
+  // Formas Supremas: Lorde da Morte (A, armadura negra e chamas verdes) e Exército dos Mortos (B, estandarte de ossos)
+  if (p.supreme && formB(p) && !ally) {
+    line(ctx, '#3a2a1a', 1.4, () => {
+      ctx.moveTo(-9, 14);
+      ctx.lineTo(-9, -26);
+    }, false);
+    shape(ctx, '#2a1a3a', () => poly(ctx, [-9, -26, 4, -24, 0, -19, 4, -14, -9, -14]), 0.8);
+    shape(ctx, '#ece4cc', () => circle(ctx, -3, -20, 2.4), 0.5);
+    shape(ctx, '#140a1e', () => circle(ctx, -3.8, -20.4, 0.6), 0);
+    shape(ctx, '#140a1e', () => circle(ctx, -2.2, -20.4, 0.6), 0);
+  }
   const knight = formA(p);
   const legion = formB(p);
   const step = p.moving ? Math.sin(p.time * 9) : 0;
@@ -84,6 +96,14 @@ export function drawSkeletonWarrior(ctx: Ctx, p: Pose, ally = false): void {
     });
     shape(ctx, vertical(ctx, -24, -12, '#6a2a8a', '#2a0a3a'), () => poly(ctx, [-9, -24, 1, -22, -2, -18, 1, -14, -9, -13]), 0.8);
     skullHead(ctx, -4.5, -18.5, 2, '#c86aff');
+  }
+  if (p.supreme && formA(p) && !ally) {
+    // peitoral negro e chamas verdes na cabeça
+    shape(ctx, vertical(ctx, -9, 3, '#3a3a48', '#0a0a12'), () => ctx.roundRect(-5, -9, 10, 11, 2), 0.8);
+    for (let i = 0; i < 4; i++) {
+      const h = 6 + Math.sin(p.time * 10 + i * 1.6) * 2;
+      shape(ctx, i % 2 ? '#7affb0' : '#3ad87a', () => poly(ctx, [-4 + i * 2.6, -20, -3 + i * 2.6, -20 - h, -1.6 + i * 2.6, -20]), 0);
+    }
   }
 }
 
@@ -155,10 +175,48 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
       shape(ctx, '#9affc8aa', () => circle(ctx, -9 + Math.cos(a) * 7, -6 + Math.sin(a) * 4, 1.4), 0);
     }
   }
+  if (p.supreme && formA(p)) {
+    // A Morte: capuz vazio (só escuridão) e foice gigante
+    shape(ctx, '#05020a', () => ellipse(ctx, 1.5, -16, 4.5, 5), 0);
+    glowingEye(ctx, 0, -16.5, 0.9, '#c86aff');
+    glowingEye(ctx, 3.4, -16.5, 0.9, '#c86aff');
+    ctx.save();
+    ctx.translate(-8, 2);
+    ctx.rotate(-0.25 + p.attack * 0.9);
+    line(ctx, '#2a1a14', 1.8, () => {
+      ctx.moveTo(0, 12);
+      ctx.lineTo(0, -32);
+    }, false);
+    shape(ctx, vertical(ctx, -36, -24, '#e8e8f8', '#6a6a8a'), () => {
+      ctx.moveTo(0, -32);
+      ctx.quadraticCurveTo(14, -36, 22, -24);
+      ctx.quadraticCurveTo(12, -29, 0, -28);
+      ctx.closePath();
+    }, 0.8);
+    ctx.restore();
+  }
+  if (p.supreme && formB(p)) {
+    // lanterna de almas na mão
+    line(ctx, '#3a2a1a', 0.8, () => {
+      ctx.moveTo(-8, -2);
+      ctx.lineTo(-9, 3);
+    }, false);
+    shape(ctx, '#2a2a36', () => ctx.roundRect(-12, 3, 6, 8, 1.5), 0.7);
+    halo(ctx, -9, 7, 7, '#7affb0', 0.7 + Math.sin(p.time * 4) * 0.2);
+    for (let i = 0; i < 2; i++) shape(ctx, '#c8ffe0', () => circle(ctx, -10 + i * 2, 6 + Math.sin(p.time * 3 + i * 2) * 1.5, 0.9), 0);
+  }
 }
 
 /** Drenador: cultista curvado com garras de energia. A: Sanguessuga (gavinhas vermelhas); B: Corruptor (corrupção verde-ácida). */
 export function drawDrainer(ctx: Ctx, p: Pose): void {
+  // Formas Supremas: Praga (A, nuvem de moscas) e Ruína (B, chão apodrecendo)
+  if (p.supreme && formB(p)) {
+    shape(ctx, '#3a4a1a88', () => ellipse(ctx, 0, 13, 18, 4.5), 0);
+    for (let i = 0; i < 5; i++) {
+      const t = (p.time * 0.6 + i / 5) % 1;
+      shape(ctx, '#9aff3a', () => circle(ctx, -12 + i * 6, 13 - t * 6, 1 * (1 - t) + 0.3), 0);
+    }
+  }
   const leech = formA(p);
   const corrupt = formB(p);
   const energy = leech ? '#ff3a5a' : corrupt ? '#9aff3a' : '#b86aff';
@@ -210,6 +268,16 @@ export function drawDrainer(ctx: Ctx, p: Pose): void {
       const ph = (p.time + i / 2) % 1;
       ctx.beginPath();
       circle(ctx, -4 + i * 7, -2 + ph * 14, 1);
+      ctx.fill();
+    }
+  }
+  if (p.supreme && formA(p)) {
+    // nuvem de moscas zumbindo
+    ctx.fillStyle = '#140a14';
+    for (let i = 0; i < 9; i++) {
+      const a = p.time * (2 + (i % 3)) + i * 0.7;
+      ctx.beginPath();
+      circle(ctx, Math.cos(a) * (12 + (i % 4) * 2), -8 + Math.sin(a * 1.3) * 8, 0.8);
       ctx.fill();
     }
   }

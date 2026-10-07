@@ -81,6 +81,20 @@ export function drawWall(ctx: Ctx, p: Pose): void {
       ctx.closePath();
     }, 0.6);
   }
+  // Formas Supremas: Montanha Viva (A, musgo e pinheiros no alto) e Terremoto (B, pedras orbitando à frente)
+  if (p.supreme && formA(p)) {
+    shape(ctx, '#3a8a3a', () => ellipse(ctx, 0, -17, 12, 3), 0.6);
+    for (const [x, h] of [[-7, 9], [0, 12], [7, 8]] as const) {
+      shape(ctx, '#2a6a3a', () => poly(ctx, [x - 3.5, -17, x, -17 - h, x + 3.5, -17]), 0.7);
+      shape(ctx, '#5a3a1a', () => ctx.rect(x - 0.6, -17, 1.2, 2), 0);
+    }
+  }
+  if (p.supreme && formB(p)) {
+    for (let i = 0; i < 4; i++) {
+      const a = p.time * 1.2 + (i * TAU) / 4;
+      shape(ctx, '#8a8a9a', () => ctx.roundRect(Math.cos(a) * 18 - 2.5, -6 + Math.sin(a) * 7 - 2.5, 5, 5, 1.2), 0.7);
+    }
+  }
 }
 
 /** Facetas de cristal: losango com brilho. */
@@ -96,6 +110,16 @@ function crystal(ctx: Ctx, x: number, y: number, w: number, h: number, color: st
 
 /** Cristal: golem de cristais violeta. A: Prisma (cabeça-prisma com arco-íris); B: Amplificador (anéis de cristal girando). */
 export function drawCrystalGolem(ctx: Ctx, p: Pose): void {
+  // Formas Supremas: Caleidoscópio (A, cristais coloridos girando) e Ressonância (B, diapasão de cristal vibrando)
+  if (p.supreme && formA(p)) {
+    const colors = ['#ff7a9a', '#ffe66a', '#7ae8a0', '#7ac8ff', '#b08aff'];
+    colors.forEach((color, i) => {
+      const a = p.time * 1.5 + (i * TAU) / colors.length;
+      const x = Math.cos(a) * 17;
+      const y = -8 + Math.sin(a) * 7;
+      shape(ctx, color, () => poly(ctx, [x, y - 3.5, x + 2, y, x, y + 3.5, x - 2, y]), 0.5);
+    });
+  }
   const prism = formA(p);
   const amp = formB(p);
   const color = amp ? '#3a8ad8' : '#8a4ad8';
@@ -138,6 +162,32 @@ export function drawCrystalGolem(ctx: Ctx, p: Pose): void {
       ctx.ellipse(0, -2, 15 + i * 3, 4 + i, p.time * (i ? -1.5 : 1.2), 0, TAU);
       ctx.stroke();
       ctx.restore();
+    }
+  }
+  if (p.supreme && formB(p)) {
+    // diapasão de cristal acima, com ondas de vibração
+    shape(ctx, vertical(ctx, -36, -22, '#e8f8ff', '#5ab0ff'), () => {
+      ctx.moveTo(-4, -36);
+      ctx.lineTo(-2.4, -36);
+      ctx.lineTo(-2.4, -27);
+      ctx.lineTo(2.4, -27);
+      ctx.lineTo(2.4, -36);
+      ctx.lineTo(4, -36);
+      ctx.lineTo(4, -25);
+      ctx.lineTo(1, -25);
+      ctx.lineTo(1, -21);
+      ctx.lineTo(-1, -21);
+      ctx.lineTo(-1, -25);
+      ctx.lineTo(-4, -25);
+      ctx.closePath();
+    }, 0.6);
+    for (let i = 0; i < 2; i++) {
+      const t = (p.time * 1.5 + i / 2) % 1;
+      ctx.strokeStyle = 'rgba(122, 200, 255, ' + (1 - t) * 0.8 + ')';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, -31, 6 + t * 10, -2.6, -0.5);
+      ctx.stroke();
     }
   }
 }
@@ -203,6 +253,28 @@ export function drawMagmaGolem(ctx: Ctx, p: Pose): void {
       ellipse(ctx, -6 + i * 6, 2 + ph * 12, 1.2, 1.8);
       ctx.fill();
     }
+  }
+  if (p.supreme && formA(p)) {
+    // erupção: fumaça e brasas saindo da cratera da cabeça
+    for (let i = 0; i < 4; i++) {
+      const t = (p.time * 0.7 + i / 4) % 1;
+      ctx.fillStyle = 'rgba(70, 60, 70, ' + (1 - t) * 0.6 + ')';
+      ctx.beginPath();
+      circle(ctx, Math.sin(t * 5 + i) * 3, -26 - t * 16, 3 + t * 5);
+      ctx.fill();
+    }
+    for (let i = 0; i < 3; i++) {
+      const t = (p.time * 1.3 + i / 3) % 1;
+      shape(ctx, '#ffb040', () => circle(ctx, -4 + i * 4 + t * (i - 1) * 6, -25 - Math.sin(t * Math.PI) * 14, 1.2), 0);
+    }
+  }
+  if (p.supreme && formB(p)) {
+    // corpo derretendo: gotas de lava escorrendo
+    for (let i = 0; i < 4; i++) {
+      const t = (p.time * 0.9 + i / 4) % 1;
+      shape(ctx, '#ff7a1a', () => ellipse(ctx, -7 + i * 4.5, 4 + t * 10, 1.2, 1.8 + t), 0.4);
+    }
+    shape(ctx, '#ff5a1a88', () => ellipse(ctx, 0, 14, 12, 2.5), 0);
   }
 }
 

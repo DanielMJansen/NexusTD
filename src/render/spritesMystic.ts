@@ -8,6 +8,7 @@ import {
   eye,
   glowingEye,
   GOLD,
+  halo,
   line,
   OUTLINE,
   poly,
@@ -55,8 +56,16 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
   const swipe = p.attack;
   // Caçador Feral: pelo ruivo, cicatrizes e olhos vermelhos
   const feral = formB(p);
-  const fur = feral ? '#b8582a' : '#8a6a4a';
-  const furDark = feral ? '#6a2a14' : '#5a4030';
+  // Formas Supremas: Lua Sangrenta (A, pelagem prateada e lua vermelha) e Fera Primal (B, maior, olhos em brasa)
+  const blood = p.supreme && !feral;
+  const primal = p.supreme && feral;
+  const fur = blood ? '#c8ccd8' : feral ? '#b8582a' : '#8a6a4a';
+  const furDark = blood ? '#5a6078' : feral ? '#6a2a14' : '#5a4030';
+  if (blood) {
+    halo(ctx, -6, -24, 14, '#ff3a3a', 0.5);
+    shape(ctx, radial(ctx, -7, -25, 8, '#ff8a7a', '#a01a1a'), () => circle(ctx, -6, -24, 7), 0.6);
+  }
+  if (primal) ctx.scale(1.15, 1.15);
 
   // cauda e pernas
   shape(ctx, furDark, () => {
@@ -97,6 +106,19 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
     ctx.stroke();
     for (let i = 0; i < 4; i++) shape(ctx, furDark, () => poly(ctx, [-8 + i * 2.5, -8 + crouch, -6.5 + i * 2.5, -14 + crouch - (i % 2) * 2, -5 + i * 2.5, -8 + crouch]), 0.8);
   }
+  if (primal) {
+    // cicatrizes em brasa e olhos incandescentes
+    ctx.save();
+    ctx.globalAlpha *= 0.6 + Math.sin(p.time * 5) * 0.3;
+    line(ctx, '#ffb040', 0.9, () => {
+      for (const dx of [0, 2, 4]) {
+        ctx.moveTo(-2 + dx, -6 + crouch);
+        ctx.lineTo(1 + dx, 0 + crouch);
+      }
+    }, false);
+    ctx.restore();
+    halo(ctx, 6.5, -16.5 + crouch, 5, '#ff6a1a', 0.8);
+  }
   if (formA(p)) {
     // marca da lua na testa
     ctx.save();
@@ -116,8 +138,25 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
   const bite = p.attack;
   // Fera Devastadora: pelo quase negro, juba cinza-escura e coleira de espinhos
   const beast = formB(p);
+  // Formas Supremas: Rei Lobo (A, juba branca e coroa de ossos) e Destruidor (B, garras gigantes, chão rachado)
+  const king = p.supreme && !beast;
+  const wrecker = p.supreme && beast;
   const fur = beast ? '#3a3238' : '#5a4a3a';
   const furDark = beast ? '#141014' : '#2e241c';
+  if (wrecker) {
+    // chão rachado sob as patas
+    line(ctx, '#1a1018', 1.2, () => {
+      ctx.moveTo(-14, 14);
+      ctx.lineTo(-6, 12);
+      ctx.lineTo(-1, 15);
+      ctx.lineTo(7, 12);
+      ctx.lineTo(14, 15);
+      ctx.moveTo(-6, 12);
+      ctx.lineTo(-8, 16);
+      ctx.moveTo(7, 12);
+      ctx.lineTo(9, 16);
+    }, false);
+  }
 
   shape(ctx, furDark, () => {
     ctx.moveTo(-7, 4);
@@ -151,7 +190,31 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
     shape(ctx, '#4a2a1a', () => ctx.roundRect(-8, -3, 16, 3, 1.2), 0.8);
     for (let i = 0; i < 5; i++) shape(ctx, '#c8ccd8', () => poly(ctx, [-6.5 + i * 3.2, -3, -5 + i * 3.2, -7, -3.5 + i * 3.2, -3]), 0.6);
   }
+  if (king) {
+    // juba branca volumosa por trás da cabeça
+    shape(ctx, '#f0ece4', () => {
+      for (let i = 0; i < 9; i++) {
+        const a = -3 + i * 0.42;
+        const r = 13 + (i % 2) * 3;
+        if (i === 0) ctx.moveTo(3 + Math.cos(a) * 6, -16 + Math.sin(a) * 6);
+        ctx.lineTo(3 + Math.cos(a + 0.2) * r, -16 + Math.sin(a + 0.2) * r);
+        ctx.lineTo(3 + Math.cos(a + 0.42) * 6, -16 + Math.sin(a + 0.42) * 6);
+      }
+      ctx.closePath();
+    }, 0.8);
+  }
   wolfHead(ctx, -16, fur, furDark, beast ? '#ff3a1a' : '#ff9a3a', howl, bite);
+  if (king) {
+    // coroa de ossos
+    for (let i = 0; i < 5; i++) shape(ctx, '#f4ecd8', () => poly(ctx, [-3 + i * 2.6, -27, -2 + i * 2.6, -33 - (i % 2) * 2, -1 + i * 2.6, -27]), 0.6);
+    shape(ctx, '#f4ecd8', () => ctx.roundRect(-3.5, -28, 14, 2.2, 1), 0.6);
+  }
+  if (wrecker) {
+    // garras gigantes nas duas patas
+    for (const [x, y] of [[-9, 4], [9, 6]] as const) {
+      for (const dx of [-2.2, 0, 2.2]) shape(ctx, '#e8e0d0', () => poly(ctx, [x + dx - 0.9, y, x + dx + 0.4, y + 7 + bite * 2, x + dx + 0.9, y]), 0.6);
+    }
+  }
   if (formA(p)) {
     ctx.strokeStyle = '#d0302a';
     ctx.lineWidth = 1.2;
@@ -168,11 +231,17 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
 export function drawHowler(ctx: Ctx, p: Pose): void {
   const lunar = formA(p);
   const war = formB(p);
+  // Formas Supremas: Uivo do Eclipse (A, lua negra com coroa de luz) e Trompa da Matilha (B, trompa de chifre e penas)
+  const eclipse = p.supreme && lunar;
+  const horn = p.supreme && war;
   const fur = lunar ? '#c8d0e0' : war ? '#7a5a3a' : '#8a8aa0';
   const furDark = lunar ? '#7a84a0' : war ? '#3a2614' : '#4a4a60';
   // uiva no ataque e, de vez em quando, sozinho
   const howl = Math.max(p.attack, Math.max(0, Math.sin(p.time * 0.9) - 0.8) * 5);
-  if (lunar) {
+  if (eclipse) {
+    halo(ctx, -9, -24, 13, '#e8d8ff', 0.6);
+    shape(ctx, '#0a0612', () => circle(ctx, -9, -24, 6.5), 0.8);
+  } else if (lunar) {
     ctx.save();
     ctx.shadowColor = '#bfe8ff';
     ctx.shadowBlur = 12;
@@ -213,6 +282,23 @@ export function drawHowler(ctx: Ctx, p: Pose): void {
     }, 0.8);
   }
   wolfHead(ctx, -15, fur, furDark, war ? '#ff3a1a' : lunar ? '#9fdcff' : '#ffd23a', Math.min(1, howl), 0);
+  if (horn) {
+    // trompa de chifre presa ao ombro e penas na cabeça
+    shape(ctx, vertical(ctx, -10, 2, '#f4ecd8', '#a88a5a'), () => {
+      ctx.moveTo(4, -2);
+      ctx.quadraticCurveTo(12, -4, 15, -11);
+      ctx.lineTo(17, -9);
+      ctx.quadraticCurveTo(14, -1, 5, 1);
+      ctx.closePath();
+    }, 0.8);
+    for (const [x, a] of [[-2, -0.4], [1, -0.1]] as const) {
+      ctx.save();
+      ctx.translate(x, -27);
+      ctx.rotate(a);
+      shape(ctx, '#d0302a', () => ellipse(ctx, 0, -3, 1.4, 4), 0.5);
+      ctx.restore();
+    }
+  }
   if (howl > 0.3) {
     // ondas do uivo
     ctx.strokeStyle = war ? '#ff8a5a88' : '#cfe0ff88';
@@ -281,7 +367,14 @@ export function drawHaunt(ctx: Ctx, p: Pose): void {
   ctx.globalAlpha *= 0.92;
   // Aparição Gélida: lençol azul-gelo, estilhaços de gelo girando
   const frost = formB(p);
-  ghostBody(ctx, p.time, -24, frost ? '#e0f0ff' : '#e8fffa', frost ? '#5a9aff60' : '#8ce8d840');
+  // Formas Supremas: Ira Eterna (A, chamas azuis e correntes quebradas) e Inverno Fantasma (B, névoa congelante)
+  const wrath = p.supreme && !frost;
+  const winter = p.supreme && frost;
+  if (winter) for (let i = 0; i < 4; i++) {
+    const a = p.time * 0.7 + (i * TAU) / 4;
+    halo(ctx, Math.cos(a) * 15, 4 + Math.sin(a) * 5, 7, '#e8fbff', 0.45);
+  }
+  ghostBody(ctx, p.time, -24, wrath ? '#c8d8ff' : frost ? '#e0f0ff' : '#e8fffa', wrath ? '#3a5aff60' : frost ? '#5a9aff60' : '#8ce8d840');
   if (frost) {
     ctx.save();
     ctx.shadowColor = '#9fdcff';
@@ -317,15 +410,34 @@ export function drawHaunt(ctx: Ctx, p: Pose): void {
     }
   }
   if (formA(p)) {
-    // chamas espectrais na cabeça
+    // chamas espectrais na cabeça (azuis e altas na Ira Eterna)
     ctx.save();
-    ctx.shadowColor = '#5ae8c8';
+    ctx.shadowColor = wrath ? '#5a8aff' : '#5ae8c8';
     ctx.shadowBlur = 10;
-    for (let i = 0; i < 3; i++) {
-      const h = 5 + Math.sin(p.time * 9 + i * 2) * 2;
-      shape(ctx, '#5ae8c8', () => poly(ctx, [-4 + i * 4, -22, -2 + i * 4, -22 - h, 0 + i * 4, -22]), 0);
+    for (let i = 0; i < (wrath ? 5 : 3); i++) {
+      const h = (wrath ? 9 : 5) + Math.sin(p.time * 9 + i * 2) * 2;
+      const x0 = wrath ? -7 + i * 3.5 : -4 + i * 4;
+      shape(ctx, wrath ? '#7aa8ff' : '#5ae8c8', () => poly(ctx, [x0, -22, x0 + 2, -22 - h, x0 + 4, -22]), 0);
     }
     ctx.restore();
+  }
+  if (wrath) {
+    // correntes quebradas penduradas
+    for (const x of [-8, 9]) {
+      for (let k = 0; k < 3; k++) {
+        ctx.strokeStyle = '#8a90a8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ellipse(ctx, x, -2 + k * 3.2 + Math.sin(p.time * 3 + x) * 0.6, 1.2, 1.8);
+        ctx.stroke();
+      }
+    }
+  }
+  if (winter) {
+    // coroa de gelo maior
+    for (const [x, h] of [[-6, 6], [-2, 9], [2, 11], [6, 9], [10, 6]] as const) {
+      shape(ctx, vertical(ctx, -22 - h, -21, '#ffffff', '#8ad0ff'), () => poly(ctx, [x - 1.4, -21, x, -21 - h, x + 1.4, -21]), 0.6);
+    }
   }
 }
 
@@ -334,7 +446,33 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
   const scream = p.attack;
   ctx.translate(0, float);
   const dread = formB(p);
+  // Formas Supremas: Lamento Final (A, cabelo erguido) e Pesadelo (B, máscara de caveira e sombras)
+  const lament = p.supreme && !dread;
+  const nightmare = p.supreme && dread;
   const eyes = dread ? '#ff2a4a' : '#6a9aff';
+  if (lament) {
+    // cabelo erguido como chamas pálidas
+    for (let i = 0; i < 6; i++) {
+      const x = -7 + i * 2.8;
+      const h = 12 + Math.sin(p.time * 6 + i) * 3 + scream * 4;
+      shape(ctx, '#f0f4ffcc', () => {
+        ctx.moveTo(x - 1.6, -21);
+        ctx.quadraticCurveTo(x - 3, -21 - h * 0.6, x + Math.sin(p.time * 4 + i) * 2, -21 - h);
+        ctx.quadraticCurveTo(x + 1, -21 - h * 0.5, x + 1.6, -21);
+        ctx.closePath();
+      }, 0.5);
+    }
+  }
+  if (nightmare) {
+    // tentáculos de sombra no chão
+    for (let i = 0; i < 4; i++) {
+      const x = -12 + i * 8;
+      line(ctx, '#1a0a2a', 1.6, () => {
+        ctx.moveTo(x, 14);
+        ctx.quadraticCurveTo(x + Math.sin(p.time * 3 + i) * 4, 6, x + 2, -2 + Math.sin(p.time * 2 + i) * 2);
+      }, false);
+    }
+  }
   // cabelo longo esvoaçando para trás
   shape(ctx, vertical(ctx, -24, 10, dread ? '#3a2050' : '#f0f4ff', dread ? '#1a0a2a80' : '#9ab0e080'), () => {
     ctx.moveTo(-2, -24);
@@ -385,7 +523,17 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
     }
     ctx.globalAlpha = 1;
   }
-  shape(ctx, '#1a1438', () => ellipse(ctx, 2.5, -10.5, 1.8, 1.4 + scream * 2.5), 0);
+  shape(ctx, '#1a1438', () => ellipse(ctx, 2.5, -10.5, lament ? 3 : 1.8, (lament ? 2.6 : 1.4) + scream * (lament ? 4 : 2.5)), 0);
+  if (nightmare) {
+    // máscara de caveira sobre o rosto
+    shape(ctx, '#e8e4dc', () => ellipse(ctx, 1.5, -14.5, 6, 6.8), 0.9);
+    shape(ctx, '#0a0410', () => ellipse(ctx, -0.6, -15.5, 1.9, 2.2), 0);
+    shape(ctx, '#0a0410', () => ellipse(ctx, 3.8, -15.5, 1.9, 2.2), 0);
+    glowingEye(ctx, -0.6, -15.5, 0.8, '#ff2a4a');
+    glowingEye(ctx, 3.8, -15.5, 0.8, '#ff2a4a');
+    shape(ctx, '#0a0410', () => poly(ctx, [1.6, -13, 0.6, -11, 2.6, -11]), 0);
+    for (let k = 0; k < 4; k++) shape(ctx, '#0a0410', () => ctx.rect(-1.4 + k * 1.6, -9.6, 0.6, 1.4), 0);
+  }
   if (formA(p)) {
     shape(ctx, '#e0e8f8', () => poly(ctx, [-4, -21.5, -3, -26, -0.5, -23, 1.5, -27.5, 3.5, -23, 6, -26, 6.5, -21.5]), 0.8);
     shape(ctx, '#6a9aff', () => circle(ctx, 1.5, -23.8, 1), 0.5);
@@ -464,7 +612,17 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
   const cast = p.attack;
   // Feiticeira do Caos: vestido verde-escuro, orbe e runas roxas
   const chaos = formB(p);
+  // Formas Supremas: Bruxa Suprema (A, chapéu com olhos e caldeirão flutuando) e Caos Absoluto (B, cabelo em chamas verdes)
+  const supremeWitch = p.supreme && !chaos;
+  const absoluteChaos = p.supreme && chaos;
   const magic = chaos ? '#c86aff' : '#7ad85a';
+  if (absoluteChaos) {
+    // cabelo em chamas verdes atrás
+    for (let i = 0; i < 5; i++) {
+      const h = 9 + Math.sin(p.time * 9 + i * 1.4) * 3;
+      shape(ctx, i % 2 ? '#8aff6a' : '#3ad85a', () => poly(ctx, [-9 + i * 2, -14, -10 + i * 2 - 2, -14 - h, -7 + i * 2, -14]), 0);
+    }
+  }
   // vestido roxo
   shape(ctx, vertical(ctx, -9, 14, chaos ? '#1e5a3a' : '#6a3aa0', chaos ? '#0a2416' : '#2e1450'), () =>
     poly(ctx, [-5, -9, 5, -9, 10, 14, 4, 12, 0, 14, -4, 12, -10, 14]),
@@ -536,12 +694,35 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
     shape(ctx, '#7a2a2a', () => ctx.roundRect(-16, by, 7, 9, 1), 0.8);
     shape(ctx, '#f4ecd8', () => ctx.rect(-15, by + 1, 5, 7), 0.4);
   }
+  if (supremeWitch) {
+    // olhos no chapéu e caldeirão pequeno flutuando ao lado
+    for (const [x, y] of [[-1, -27], [3, -31]] as const) {
+      shape(ctx, '#fff6c0', () => ellipse(ctx, x, y, 1.6, 1.1), 0.4);
+      shape(ctx, '#1a0a1a', () => circle(ctx, x + 0.3, y, 0.6), 0);
+    }
+    const cy = -2 + Math.sin(p.time * 2.5) * 2;
+    shape(ctx, '#2a2632', () => {
+      ctx.moveTo(-18, cy);
+      ctx.quadraticCurveTo(-19, cy + 6, -14, cy + 6);
+      ctx.quadraticCurveTo(-9, cy + 6, -10, cy);
+      ctx.closePath();
+    }, 0.7);
+    shape(ctx, '#8aff6a', () => ellipse(ctx, -14, cy, 4, 1.2), 0);
+    halo(ctx, -14, cy - 2, 6, '#7ad85a', 0.5);
+  }
+  if (absoluteChaos) {
+    // rachaduras de energia no cajado
+    halo(ctx, 10, -13, 9, '#c86aff', 0.5 + cast * 0.4);
+  }
 }
 
 export function drawCauldron(ctx: Ctx, p: Pose): void {
   const stir = Math.sin(p.time * 2.5);
   // Caldeirão Alquímico: bronze dourado, ouro líquido e moedas subindo
   const alchemy = formB(p);
+  // Formas Supremas: Caldeirão do Fim (A, caldeirão de ossos roxo) e Pedra Filosofal (B, pedra vermelha flutuando)
+  const doom = p.supreme && !alchemy;
+  const stone = p.supreme && alchemy;
   if (formA(p)) {
     // chamas roxas por baixo
     ctx.save();
@@ -556,7 +737,7 @@ export function drawCauldron(ctx: Ctx, p: Pose): void {
   // pernas
   for (const x of [-8, 0, 8]) shape(ctx, '#1a1622', () => poly(ctx, [x - 1.5, 8, x + 1.5, 8, x + 1, 14, x - 1, 14]), 0.8);
   // caldeirão de ferro
-  shape(ctx, radial(ctx, -2, 0, 14, alchemy ? '#e0b050' : '#4a4458', alchemy ? '#6a4810' : '#141018'), () => {
+  shape(ctx, radial(ctx, -2, 0, 14, alchemy ? '#e0b050' : doom ? '#e8e0d0' : '#4a4458', alchemy ? '#6a4810' : doom ? '#6a5a50' : '#141018'), () => {
     ctx.moveTo(-12, -6);
     ctx.quadraticCurveTo(-14, 10, 0, 10);
     ctx.quadraticCurveTo(14, 10, 12, -6);
@@ -576,7 +757,7 @@ export function drawCauldron(ctx: Ctx, p: Pose): void {
     ctx.stroke();
   }
   // poção borbulhando
-  shape(ctx, radial(ctx, 0, -6, 11, alchemy ? '#fff4c0' : '#c8ffd8', alchemy ? '#e0a020' : '#3ab878'), () => ellipse(ctx, 0, -6, 11, 2.6), 0);
+  shape(ctx, radial(ctx, 0, -6, 11, alchemy ? '#fff4c0' : doom ? '#e0a8ff' : '#c8ffd8', alchemy ? '#e0a020' : doom ? '#6a1aa0' : '#3ab878'), () => ellipse(ctx, 0, -6, 11, 2.6), 0);
   ctx.fillStyle = alchemy ? '#ffe070' : '#d8ffe8';
   for (let i = 0; i < 4; i++) {
     const phase = (p.time * 1.6 + i * 0.25) % 1;
@@ -607,6 +788,25 @@ export function drawCauldron(ctx: Ctx, p: Pose): void {
     ctx.lineTo(0, -14);
   });
   ctx.restore();
+  if (doom) {
+    // caveiras penduradas na borda
+    for (const x of [-9, 9]) {
+      shape(ctx, '#f4ecd8', () => circle(ctx, x, -3, 2.2), 0.6);
+      shape(ctx, '#1a0a1a', () => circle(ctx, x - 0.7, -3.3, 0.5), 0);
+      shape(ctx, '#1a0a1a', () => circle(ctx, x + 0.7, -3.3, 0.5), 0);
+    }
+    halo(ctx, 0, -8, 14, '#b36bff', 0.4);
+  }
+  if (stone) {
+    // pedra filosofal flutuando acima
+    const sy = -20 + Math.sin(p.time * 2) * 2;
+    halo(ctx, 0, sy, 8, '#ff3a3a', 0.6);
+    ctx.save();
+    ctx.translate(0, sy);
+    ctx.rotate(p.time);
+    shape(ctx, vertical(ctx, -4, 4, '#ff8a8a', '#a01020'), () => poly(ctx, [0, -4, 3.4, 0, 0, 4, -3.4, 0]), 0.6);
+    ctx.restore();
+  }
 }
 
 /** Heroína Bruxa: vestido preto, cabelo ruivo, cajado com orbe. */

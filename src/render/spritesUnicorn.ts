@@ -1,6 +1,6 @@
 // Raça Unicórnio (exclusiva, por código de presente): Potro Estelar, Unicórnio Guardião,
 // Pégaso de Guerra e o herói Alicórnio. Corpo de cavalo compartilhado, crina e cauda de arco-íris.
-import { ellipse, formA, formB, GOLD, halo, line, poly, radial, shape, skin, vertical, type Ctx, type Pose } from './spriteKit';
+import { circle, ellipse, formA, formB, GOLD, halo, line, poly, radial, shape, skin, vertical, type Ctx, type Pose } from './spriteKit';
 
 const RAINBOW = ['#ff7a9a', '#ffb45a', '#ffe66a', '#7ae8a0', '#7ac8ff', '#b08aff'];
 
@@ -168,6 +168,27 @@ export function drawStarFoal(ctx: Ctx, p: Pose): void {
     halo(ctx, hx + 2, y, 8, '#bfe8ff', 0.7);
     shape(ctx, '#ffffff', () => poly(ctx, [hx + 2, y - 3.5, hx + 3, y - 1, hx + 5.5, y, hx + 3, y + 1, hx + 2, y + 3.5, hx + 1, y + 1, hx - 1.5, y, hx + 1, y - 1]), 0.5);
   }
+  if (p.supreme && prism) {
+    // Arco-Íris Vivo: arco de cores sobre o corpo
+    RAINBOW.forEach((color, i) => {
+      ctx.save();
+      ctx.globalAlpha *= 0.55;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(0, -4, 16 + i * 1.6, Math.PI * 1.05, Math.PI * 1.95);
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+  if (p.supreme && guide) {
+    // Constelação: estrelas cintilando na pelagem
+    for (const [x, y] of [[-6, -3], [-2, 1], [3, -4], [7, 0], [-9, 2]] as const) {
+      const tw = 0.5 + Math.sin(p.time * 4 + x) * 0.5;
+      halo(ctx, x, y, 2.5, '#bfe8ff', tw);
+      shape(ctx, '#ffffff', () => circle(ctx, x, y, 0.6), 0);
+    }
+  }
 }
 
 /** Unicórnio Guardião: maior, com peitoral prateado e a aura de proteção. */
@@ -212,6 +233,18 @@ export function drawGuardianUnicorn(ctx: Ctx, p: Pose): void {
       halo(ctx, x + 1, -6, 4, '#fff6c0', 0.6);
     }
   }
+  if (p.supreme && sanctuary) {
+    // Templo Vivo: pilares de luz ao redor
+    for (const x of [-18, 18]) {
+      shape(ctx, vertical(ctx, -26, 14, '#fff6dcaa', '#ffd25a22'), () => ctx.rect(x - 2, -26, 4, 40), 0);
+      shape(ctx, '#ffe9a8', () => ctx.rect(x - 3, -27, 6, 2), 0.4);
+    }
+  }
+  if (p.supreme && lance) {
+    // Juízo de Luz: chifre gigante brilhando e raio vertical
+    halo(ctx, hx + 2, hy - 14, 14, '#fff6c0', 0.7 + p.attack * 0.3);
+    shape(ctx, vertical(ctx, hy - 26, hy - 3, '#ffffff', '#ffd25a'), () => poly(ctx, [hx - 1, hy - 3.6, hx + 3, hy - 26, hx + 3.2, hy - 3.2]), 0.6);
+  }
 }
 
 /** Pégaso de Guerra: asas abertas e armadura de investida. */
@@ -251,6 +284,24 @@ export function drawWarPegasus(ctx: Ctx, p: Pose): void {
     }
   }
   if (p.attack > 0.2) halo(ctx, hx + 6, hy + 4, 10, storm ? '#9ad8ff' : '#ffffff', p.attack * 0.6);
+  if (p.supreme && storm) {
+    // Tempestade Alada: nuvem sobre as asas e raios constantes
+    for (const [x, y, r] of [[-6, -26, 4], [-1, -28, 5], [4, -26, 4]] as const) shape(ctx, '#5a6a8a', () => circle(ctx, x, y, r), 0.6);
+    if (Math.sin(p.time * 12) > 0) {
+      line(ctx, '#fff6a0', 1.2, () => {
+        ctx.moveTo(-1, -23);
+        ctx.lineTo(-3, -17);
+        ctx.lineTo(0, -16);
+        ctx.lineTo(-2, -10);
+      }, false);
+    }
+  }
+  if (p.supreme && royal) {
+    // Pégaso Imperial: armadura dourada no corpo
+    shape(ctx, vertical(ctx, -8, 4, '#fff2b0', '#c8901a'), () => ctx.roundRect(-9, -7, 16, 8, 3), 0.7);
+    shape(ctx, '#e0243a', () => circle(ctx, -1, -3, 1.4), 0.4);
+    halo(ctx, 0, -6, 18, '#ffd25a', 0.25);
+  }
 }
 
 /** Herói Alicórnio: unicórnio alado com coroa; crina de arco-íris. */

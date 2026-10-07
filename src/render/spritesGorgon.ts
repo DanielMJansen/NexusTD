@@ -1,5 +1,6 @@
 // Raça Górgona: Arqueira Serpente, Medusa, Basilisco e a heroína Rainha Górgona.
 import {
+  halo,
   circle,
   ellipse,
   eye,
@@ -58,6 +59,20 @@ function snakeHair(ctx: Ctx, hy: number, t: number, color: string, count = 5): v
 
 /** Domadora de Serpentes: naga com flauta e uma cobra que dá o bote. A: Víbora (roxa, veneno forte); B: Naja (capuz de naja, cospe em leque). */
 export function drawSerpentArcher(ctx: Ctx, p: Pose): void {
+  // Formas Supremas: Rainha das Víboras (A, serpente enorme enrolada) e Hidra Menor (B, três serpentes na mão)
+  if (p.supreme && formA(p)) {
+    const sway = Math.sin(p.time * 2) * 2;
+    line(ctx, '#3a1a5a', 6, () => {
+      ctx.moveTo(-14, 13);
+      ctx.bezierCurveTo(-22, 2, -6, -4, -14, -16 + sway);
+    });
+    line(ctx, '#8a4ac8', 4, () => {
+      ctx.moveTo(-14, 13);
+      ctx.bezierCurveTo(-22, 2, -6, -4, -14, -16 + sway);
+    }, false);
+    shape(ctx, '#8a4ac8', () => ellipse(ctx, -12, -19 + sway, 4.5, 3, 0.4), 0.7);
+    glowingEye(ctx, -10.5, -20 + sway, 0.9, '#ffe060');
+  }
   const viper = formA(p);
   const cobra = formB(p);
   const scale = viper ? '#8a4ad8' : cobra ? '#c8a03a' : '#4ab86a';
@@ -106,6 +121,19 @@ export function drawSerpentArcher(ctx: Ctx, p: Pose): void {
     ctx.lineTo(headX + 6.5, headY + 1.4);
     ctx.stroke();
   }
+  if (p.supreme && formB(p)) {
+    for (let i = 0; i < 3; i++) {
+      const a = -0.6 + i * 0.5 + Math.sin(p.time * 4 + i) * 0.1;
+      const x = 9 + Math.cos(a) * 9;
+      const y = -4 + Math.sin(a) * 9;
+      line(ctx, '#c8a83a', 2, () => {
+        ctx.moveTo(8, -2);
+        ctx.quadraticCurveTo(10 + i * 2, -6, x, y);
+      });
+      shape(ctx, '#f0c35a', () => ellipse(ctx, x, y, 2.6, 1.8, a), 0.6);
+      glowingEye(ctx, x + 0.6, y - 0.4, 0.5, '#3a1a1a');
+    }
+  }
 }
 
 /** Medusa: serpentes no cabelo e olhar que brilha. A: Olhar Pétreo (olhos dourados intensos); B: Górgona Ancestral (coroa antiga, olhos vermelhos). */
@@ -145,6 +173,27 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
     for (let i = 0; i < 2; i++) {
       const a = p.time * 1.5 + i * Math.PI;
       shape(ctx, '#9a9a9a', () => ctx.roundRect(Math.cos(a) * 13 - 1.5, -4 + Math.sin(a) * 4, 3, 4, 0.8), 0.5);
+    }
+  }
+  if (p.supreme && formA(p)) {
+    // cabelo de serpentes erguido e olhar brilhando
+    for (let i = 0; i < 6; i++) {
+      const x = -7 + i * 2.8;
+      const h = 9 + Math.sin(p.time * 5 + i) * 2;
+      line(ctx, '#3a9a6a', 1.6, () => {
+        ctx.moveTo(x, -20);
+        ctx.quadraticCurveTo(x - 2 + Math.sin(p.time * 3 + i) * 2, -20 - h * 0.6, x + 1, -20 - h);
+      });
+      shape(ctx, '#5ad88a', () => circle(ctx, x + 1, -20 - h, 1.3), 0.4);
+    }
+    halo(ctx, 2, -15, 8, '#e8ff6a', 0.5 + p.attack * 0.4);
+  }
+  if (p.supreme && formB(p)) {
+    // coroa de cobras douradas
+    for (let i = 0; i < 5; i++) {
+      const x = -5 + i * 3;
+      shape(ctx, '#f0c35a', () => poly(ctx, [x - 1.2, -21, x, -28 - (i % 2) * 2, x + 1.2, -21]), 0.6);
+      shape(ctx, '#ff3a3a', () => circle(ctx, x, -27.5 - (i % 2) * 2, 0.6), 0);
     }
   }
 }
@@ -188,6 +237,15 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
       ellipse(ctx, 15 + i, 2 + ph * 8, 0.9, 1.4);
       ctx.fill();
     }
+  }
+  if (p.supreme && formA(p)) {
+    // cristas e chifres de pedra
+    for (let i = 0; i < 4; i++) shape(ctx, vertical(ctx, -22, -8, '#c8c0b0', '#6a6258'), () => poly(ctx, [-8 + i * 4, -8, -6 + i * 4, -20 + (i % 2) * 3, -4 + i * 4, -8]), 0.7);
+  }
+  if (p.supreme && formB(p)) {
+    // glândulas ácidas brilhando e poça sob o corpo
+    shape(ctx, '#9aff3a55', () => ellipse(ctx, 0, 13, 16, 3.5), 0);
+    for (const [x, y] of [[-6, -2], [0, 0], [6, -3]] as const) halo(ctx, x, y, 4, '#9aff3a', 0.7 + Math.sin(p.time * 4 + x) * 0.2);
   }
 }
 

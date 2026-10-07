@@ -1,5 +1,6 @@
 // Raça Anjo: Querubim, Valquíria, Guardião e o herói Arcanjo.
 import {
+  halo as glow,
   circle,
   ellipse,
   eye,
@@ -55,6 +56,20 @@ function halo(ctx: Ctx, x: number, y: number, r: number, color = '#ffe48a'): voi
 
 /** Querubim: anjinho com arco de luz. A: Serafim (três pares de asas douradas); B: Arauto (trombeta). */
 export function drawCherub(ctx: Ctx, p: Pose): void {
+  // Formas Supremas: Seis Asas (A, quatro asas extras com olhos) e Trombeta do Juízo (B, trombeta dourada)
+  if (p.supreme && formA(p)) {
+    for (const [dy, s] of [[-12, 1.1], [4, 0.9]] as const) {
+      for (const side of [-1, 1]) {
+        ctx.save();
+        ctx.translate(side * 3, dy);
+        ctx.scale(side, 1);
+        ctx.rotate(-0.3 + Math.sin(p.time * 6 + dy) * 0.15);
+        shape(ctx, '#fff8e8', () => ellipse(ctx, 9 * s, 0, 9 * s, 3.5 * s), 0.6);
+        shape(ctx, '#3a6ad8', () => circle(ctx, 10 * s, 0, 1.1), 0.3);
+        ctx.restore();
+      }
+    }
+  }
   const seraph = formA(p);
   const herald = formB(p);
   ctx.translate(0, -4 + Math.sin(p.time * 3) * 1.6);
@@ -83,6 +98,14 @@ export function drawCherub(ctx: Ctx, p: Pose): void {
   } else {
     // arco de luz
     line(ctx, seraph ? GOLD : '#fff6c0', 1.4, () => ctx.arc(5, 0, 7, -1.2, 1.2));
+  }
+  if (p.supreme && formB(p)) {
+    ctx.save();
+    ctx.translate(6, -8);
+    ctx.rotate(-0.3 - p.attack * 0.3);
+    shape(ctx, vertical(ctx, -2, 2, '#fff2b0', '#c8901a'), () => poly(ctx, [0, -0.8, 12, -3.5, 12, 3.5, 0, 0.8]), 0.6);
+    glow(ctx, 12, 0, 6, '#ffe9a8', 0.5 + p.attack * 0.5);
+    ctx.restore();
   }
 }
 
@@ -130,6 +153,29 @@ export function drawValkyrie(ctx: Ctx, p: Pose): void {
   eye(ctx, 4.4, hy + 0.8, 1.5, '#3a6ad8', 0.4);
   if (slayer) {
     shape(ctx, vertical(ctx, hy - 13, hy - 8, '#fff0a0', '#c8901a'), () => poly(ctx, [-2, hy - 8, -2.5, hy - 12, 0, hy - 10, 1, hy - 13, 2, hy - 10, 4.5, hy - 12, 4, hy - 8]), 0.5);
+  }
+  if (p.supreme && formA(p)) {
+    // elmo alado e espada de luz
+    for (const side of [-1, 1]) shape(ctx, '#ffffff', () => poly(ctx, [1 + side * 4, -22, 1 + side * 11, -28, 1 + side * 8, -20]), 0.6);
+    glow(ctx, 10, -10, 9, '#fff6c0', 0.6);
+    ctx.save();
+    ctx.translate(9, -2);
+    ctx.rotate(-0.7 + p.attack);
+    shape(ctx, vertical(ctx, -22, 0, '#ffffff', '#ffe9a8'), () => poly(ctx, [-1.4, 0, 0, -22, 1.4, 0]), 0.6);
+    ctx.restore();
+  }
+  if (p.supreme && formB(p)) {
+    // lança gigante dourada
+    ctx.save();
+    ctx.translate(-6, 6);
+    ctx.rotate(-0.9 + p.attack * 0.4);
+    line(ctx, '#c8901a', 2, () => {
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -38);
+    });
+    shape(ctx, vertical(ctx, -48, -36, '#ffffff', '#ffd25a'), () => poly(ctx, [-3, -37, 0, -48, 3, -37]), 0.6);
+    glow(ctx, 0, -42, 7, '#fff6c0', 0.6);
+    ctx.restore();
   }
 }
 
@@ -191,6 +237,38 @@ export function drawGuardianAngel(ctx: Ctx, p: Pose): void {
   eye(ctx, 1, hy + 0.8, 1.5, judge ? '#5a5a7a' : '#3a8ad8', 0.4);
   eye(ctx, 4.4, hy + 0.8, 1.5, judge ? '#5a5a7a' : '#3a8ad8', 0.4);
   halo(ctx, 1, hy - 9, 5.5, judge ? '#bfe8ff' : '#ffe48a');
+  if (p.supreme && formA(p)) {
+    // escudo de luz enorme à frente
+    glow(ctx, 8, -4, 16, '#fff6c0', 0.5);
+    shape(ctx, vertical(ctx, -18, 10, '#ffffffcc', '#ffd25a88'), () => {
+      ctx.moveTo(1, -16);
+      ctx.lineTo(15, -16);
+      ctx.lineTo(15, 0);
+      ctx.quadraticCurveTo(15, 8, 8, 11);
+      ctx.quadraticCurveTo(1, 8, 1, 0);
+      ctx.closePath();
+    }, 0.8);
+  }
+  if (p.supreme && formB(p)) {
+    // balança dourada flutuando acima
+    const y = -36 + Math.sin(p.time * 2) * 1.5;
+    const tilt = Math.sin(p.time * 1.5) * 2;
+    line(ctx, '#c8901a', 1, () => {
+      ctx.moveTo(0, y - 4);
+      ctx.lineTo(0, y + 2);
+      ctx.moveTo(-8, y + tilt);
+      ctx.lineTo(8, y - tilt);
+    }, false);
+    for (const side of [-1, 1]) {
+      const yy = y - side * tilt;
+      line(ctx, '#c8901a', 0.6, () => {
+        ctx.moveTo(side * 8, yy);
+        ctx.lineTo(side * 8, yy + 5);
+      }, false);
+      shape(ctx, '#ffd25a', () => ellipse(ctx, side * 8, yy + 5.5, 3, 1), 0.5);
+    }
+    glow(ctx, 0, y, 10, '#ffe9a8', 0.4);
+  }
 }
 
 /** Herói Arcanjo: grandes asas, armadura dourada e espada de luz. */
