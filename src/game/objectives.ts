@@ -6,8 +6,18 @@ import { distance, type Enemy, type Point, type RunState } from './state';
 export type DefendTarget = { kind: 'nexus'; at: Point } | { kind: 'guard'; index: number; at: Point };
 
 /** Alvo mais próximo a defender: o Nexus ou um ponto extra ainda de pé. */
-export function defendTarget(state: RunState, from: Point): DefendTarget {
+export function defendTarget(state: RunState, from: Point, weakest = false): DefendTarget {
   let best: DefendTarget = { kind: 'nexus', at: state.nexus };
+  if (weakest) {
+    // Djinn: o ponto com a menor fração de vida
+    let low = state.nexus.hp / state.nexus.maxHp;
+    state.guards.forEach((g, index) => {
+      if (g.hp <= 0 || g.hp / g.maxHp >= low) return;
+      low = g.hp / g.maxHp;
+      best = { kind: 'guard', index, at: g };
+    });
+    return best;
+  }
   let bestDistance = distance(from, state.nexus);
   state.guards.forEach((g, index) => {
     if (g.hp <= 0) return;
@@ -77,4 +87,7 @@ export function advanceEscort(state: RunState, enemyFree = true): void {
 }
 
 /** Inimigo com alvo mais próximo que o Nexus (usado por quem já saiu da trilha). */
-export const enemyDefendPoint = (state: RunState, enemy: Enemy): Point => defendTarget(state, enemy).at;
+/** Djinn (teleporte): vai atrás do ponto mais ferido, não do mais perto. */
+export const seeksWeakest = (enemy: Enemy): boolean => enemy.def.traits.some((t) => t.kind === 'blink');
+
+export const enemyDefendPoint = (state: RunState, enemy: Enemy): Point => defendTarget(state, enemy, seeksWeakest(enemy)).at;

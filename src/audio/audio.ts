@@ -139,6 +139,7 @@ export class SoundPlayer {
         this.play(event.kind === 'arrow' ? 'enemyArrow' : event.kind === 'bolt' ? 'enemyBolt' : 'web');
         break;
       case 'enemySummoned':
+      case 'enemyRevived':
         this.play('summon');
         break;
       case 'stomp':

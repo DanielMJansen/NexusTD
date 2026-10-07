@@ -8,7 +8,7 @@ import { spawnEnemyAt } from './spawning';
 import { inMud } from './terrain';
 import { breakIce, iceSpeed, onIce } from './ice';
 import { enemyGoal, joinNearestPath } from './paths';
-import { damageGuard, defendTarget } from './objectives';
+import { damageGuard, defendTarget, seeksWeakest } from './objectives';
 import { distance, type Enemy, type RunState } from './state';
 
 // Inimigos: habilidades (tiro, teia, invocação, investida, cura, pisão, escudo, fúria) e movimento.
@@ -114,17 +114,22 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
           pace = 0;
           enemy.burrowTime! -= dt;
           if (enemy.burrowTime! <= 0) {
-            // reaparece perto do Nexus, na mesma direção, já em investida
-            const angle = Math.atan2(enemy.y - state.nexus.y, enemy.x - state.nexus.x);
-            enemy.x = state.nexus.x + Math.cos(angle) * trait.landAt;
-            enemy.y = state.nexus.y + Math.sin(angle) * trait.landAt;
+            // reaparece perto do alvo (Nexus ou Obelisco), na mesma direção, já em investida
+            const goal = defendTarget(state, enemy).at;
+            const angle = Math.atan2(enemy.y - goal.y, enemy.x - goal.x);
+            enemy.x = goal.x + Math.cos(angle) * trait.landAt;
+            enemy.y = goal.y + Math.sin(angle) * trait.landAt;
             const charge = findTrait(enemy, 'charge');
             if (charge) enemy.charging = charge.duration;
-            state.events.push({ type: 'enemyBurrow', x: enemy.x, y: enemy.y, surfacing: true });
+            // bote: atordoa as criaturas em volta
+            if (trait.radius && trait.stun) {
+              for (const c of state.creatures) if (distance(c, enemy) <= trait.radius) c.stunTimer = Math.max(c.stunTimer, trait.stun);
+            }
+            state.events.push({ type: 'enemyBurrow', x: enemy.x, y: enemy.y, surfacing: true, radius: trait.radius });
           }
           break;
         }
-        if (!ready || !onScreen(state, enemy) || distance(enemy, state.nexus) < trait.landAt + 30) break;
+        if (!ready || !onScreen(state, enemy) || distance(enemy, defendTarget(state, enemy).at) < trait.landAt + 30) break;
         enemy.burrowTime = trait.hide;
         enemy.timers[i] = trait.cooldown;
         state.events.push({ type: 'enemyBurrow', x: enemy.x, y: enemy.y, surfacing: false });
@@ -138,19 +143,33 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
           .sort((a, b) => distance(a, enemy) - distance(b, enemy))
           .slice(0, trait.targets);
         if (!targets.length) break;
+        const sting = trait.look === 'sting';
         for (const c of targets) {
           c.stunTimer = trait.duration;
-          c.frozen = true;
+          c.frozen = !sting;
           markAttack(enemy, state.time, c);
-          if (trait.range > 50) state.events.push({ type: 'enemyShot', kind: 'snowball', from: { x: enemy.x, y: enemy.y - 10 }, to: { x: c.x, y: c.y - 6 } });
-          state.events.push({ type: 'creatureFrozen', x: c.x, y: c.y });
+          if (trait.range > 50) state.events.push({ type: 'enemyShot', kind: sting ? 'sting' : 'snowball', from: { x: enemy.x, y: enemy.y - 10 }, to: { x: c.x, y: c.y - 6 } });
+          if (!sting) state.events.push({ type: 'creatureFrozen', x: c.x, y: c.y });
         }
         enemy.timers[i] = trait.cooldown;
         break;
       }
+      case 'blink': {
+        // Djinn: some e reaparece mais perto do ponto mais ferido
+        if (!ready || !onScreen(state, enemy)) break;
+        const goal = defendTarget(state, enemy, true).at;
+        const d = distance(enemy, goal);
+        const step = Math.min(trait.distance, d - NEXUS.contactRadius - 20);
+        if (step < 30) break;
+        const from = { x: enemy.x, y: enemy.y };
+        enemy.x += ((goal.x - enemy.x) / d) * step;
+        enemy.y += ((goal.y - enemy.y) / d) * step;
+        state.events.push({ type: 'enemyBlink', from, to: { x: enemy.x, y: enemy.y } });
+        enemy.timers[i] = trait.cooldown;
+        break;
+      }
       case 'regen':
-        enemy.fireHitTimer = Math.max(0, (enemy.fireHitTimer ?? 0) - dt);
-        if (enemy.fireHitTimer <= 0 && enemy.hp < enemy.maxHp) enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * trait.perSecond * dt);
+        if ((enemy.fireHitTimer ?? 0) <= 0 && enemy.hp < enemy.maxHp) enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * trait.perSecond * dt);
         break;
       case 'dive': {
         // só mergulha sobre o gelo; ao emergir racha o gelo e congela quem estiver perto
@@ -249,6 +268,8 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
       case 'drain':
       case 'submerge':
       case 'lure':
+      case 'revive':
+      case 'steal':
         break;
     }
   });
@@ -263,9 +284,16 @@ export function updateEnemies(state: RunState, dt: number): void {
     const enemy = state.enemies[n]!;
     if (enemy.dead) continue;
     updateStatusTimers(enemy, dt);
+    enemy.fireHitTimer = Math.max(0, (enemy.fireHitTimer ?? 0) - dt);
+    // caído (Múmia/Faraó): intocável até levantar
+    if ((enemy.reviveTime ?? 0) > 0) {
+      enemy.reviveTime! -= dt;
+      enemy.submerged = true;
+      if (enemy.reviveTime! <= 0) state.events.push({ type: 'enemyRevived', x: enemy.x, y: enemy.y, boss: enemy.def.isBoss, rising: true });
+      continue;
+    }
     // Regenerantes (Sem Fim): fogo corta por alguns segundos
     if ((enemy.mutRegen ?? 0) > 0 && enemy.allyTimer <= 0) {
-      enemy.fireHitTimer = Math.max(0, (enemy.fireHitTimer ?? 0) - dt);
       if (enemy.fireHitTimer <= 0 && enemy.hp < enemy.maxHp) enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * enemy.mutRegen! * dt);
     }
     if (enemy.allyTimer > 0) {
@@ -300,7 +328,7 @@ export function updateEnemies(state: RunState, dt: number): void {
     const speedFactor =
       (enemy.slowTimer > 0 ? enemy.slowMultiplier : 1) * (charge?.speedMultiplier ?? 1) * (enrage?.speedMultiplier ?? 1) * pace * nexusSlowFactor(state, enemy) * (1 - enemy.weakenSlow) * (gripped ? 1 - enemy.gripSlow : iceSpeed(state, enemy)) * (enemy.diving ? 1.5 : 1);
     // alvo a defender mais próximo (Nexus ou ponto extra)
-    const target = defendTarget(state, enemy);
+    const target = defendTarget(state, enemy, seeksWeakest(enemy));
     const dx = target.at.x - enemy.x;
     const dy = target.at.y - enemy.y;
     const length = Math.hypot(dx, dy);
@@ -330,6 +358,13 @@ export function updateEnemies(state: RunState, dt: number): void {
           markAttack(enemy, state.time, target.at);
           const drain = findTrait(enemy, 'drain');
           if (drain) enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * drain.amount);
+          const steal = findTrait(enemy, 'steal');
+          if (steal && state.gold > 0) {
+            const taken = Math.min(state.gold, steal.gold);
+            state.gold -= taken;
+            enemy.stolen = (enemy.stolen ?? 0) + taken;
+            state.events.push({ type: 'goldStolen', x: target.at.x, y: target.at.y - 20, gold: taken });
+          }
         }
       }
       continue;
@@ -347,6 +382,22 @@ export function updateEnemies(state: RunState, dt: number): void {
     enemy.x += ((gx / gl) * speed - (gy / gl) * lateral) * dt;
     enemy.y += ((gy / gl) * speed + (gx / gl) * lateral) * dt;
   }
+}
+
+/**
+ * Múmia/Faraó: ao zerar a vida, cai e levanta uma vez (intocável enquanto caído).
+ * Retorna true se vai levantar (não morre agora).
+ */
+export function tryRevive(state: RunState, enemy: Enemy): boolean {
+  const revive = findTrait(enemy, 'revive');
+  if (!revive || enemy.revived || enemy.allyTimer > 0) return false;
+  if (revive.fireStops && (enemy.fireHitTimer ?? 0) > 0) return false;
+  enemy.revived = true;
+  enemy.reviveTime = revive.delay;
+  enemy.hp = enemy.maxHp * revive.hp;
+  enemy.poisonTimer = 0;
+  state.events.push({ type: 'enemyRevived', x: enemy.x, y: enemy.y, boss: enemy.def.isBoss, rising: false });
+  return true;
 }
 
 /** Rei Sapo cospe as criaturas engolidas (levou dano suficiente ou morreu). */

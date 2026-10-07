@@ -1,5 +1,5 @@
 // Bot de calibragem: joga runs reais com a simulação (sem DOM) e mede vitórias, onda e Sem Fim por raça.
-// Uso: npm run calib -- [filtro de raça]. Variáveis: STAGE=graveyard|swamp|tundra, TAL=none|2500|max, N=30,
+// Uso: npm run calib -- [filtro de raça]. Variáveis: STAGE=graveyard|swamp|tundra|desert, TAL=none|2500|max, N=30,
 // SYN=1 (sinergias), ENDLESS=1 (segue no Sem Fim), HERO=<id>, TEAM=a,b,c (time próprio), AWAKE=1 (equipe
 // desperta) ou AWAKEN=a,b (despertas escolhidas; o bot compra estrelas até ★5).
 import type { CreatureId } from '../src/data/creatures';
@@ -72,11 +72,42 @@ function best(hand: Choice[]): number {
   return idx;
 }
 
+/**
+ * Com dois Obeliscos (Deserto), o herói corre até o inimigo mais perto de qualquer um deles;
+ * nas outras fases fica parado no Nexus (como nas calibragens antigas).
+ */
+function heroDirection(run: RunState): { x: number; y: number } {
+  const twins = run.guards.filter((g) => g.twin && g.hp > 0);
+  if (!twins.length || run.hero.dead) return { x: 0, y: 0 };
+  const anchors = [run.nexus, ...twins];
+  let target: { x: number; y: number } | undefined;
+  let bestD = 260;
+  for (const e of run.enemies) {
+    if (e.dead || e.allyTimer > 0) continue;
+    const d = Math.min(...anchors.map((a) => Math.hypot(a.x - e.x, a.y - e.y)));
+    if (d < bestD) {
+      bestD = d;
+      target = e;
+    }
+  }
+  if (!target) {
+    // sem ameaça: volta para o ponto mais ferido
+    target = anchors.reduce((a, b) => ((b.hp ?? 0) / (b.maxHp ?? 1) < (a.hp ?? 0) / (a.maxHp ?? 1) ? b : a));
+  }
+  const dx = target.x - run.hero.x;
+  const dy = target.y - run.hero.y;
+  const len = Math.hypot(dx, dy);
+  return len < 24 ? { x: 0, y: 0 } : { x: dx / len, y: dy / len };
+}
+
 function act(run: RunState, team: CreatureId[]): void {
   if (run.phase !== 'playing') return;
   for (let tries = 0; tries < 3 && team.length; tries++) {
     const id = team[run.creatures.length % team.length]!;
-    const spot = SPOTS.map((s) => ({ x: run.nexus.x + s.x, y: run.nexus.y + s.y })).find((s) => !run.creatures.some((c) => Math.hypot(c.x - s.x, c.y - s.y) < 20));
+    // Deserto: alterna entre o Nexus e os Obeliscos gêmeos
+    const anchors = [run.nexus, ...run.guards.filter((g) => g.twin && g.hp > 0)];
+    const anchor = anchors[run.creatures.length % anchors.length]!;
+    const spot = SPOTS.map((s) => ({ x: anchor.x + s.x, y: anchor.y + s.y })).find((s) => !run.creatures.some((c) => Math.hypot(c.x - s.x, c.y - s.y) < 20));
     if (spot && canPlaceCreature(run, id, spot)) placeCreature(run, id, spot);
     else break;
   }
@@ -108,7 +139,7 @@ function trial(label: string, team: CreatureId[], hero: HeroId): void {
       while (run.chestChoices.length) chooseChest(run, best(run.chestChoices));
       act(run, team);
       if (run.pulse.remaining === 0 && run.enemies.length > 3) firePulse(run);
-      updateRun(run, 1 / 30, { direction: { x: 0, y: 0 } });
+      updateRun(run, 1 / 30, { direction: heroDirection(run) });
       t += 1 / 30;
       for (const e of run.events.splice(0)) {
         if (e.type === 'choicesOffered') {

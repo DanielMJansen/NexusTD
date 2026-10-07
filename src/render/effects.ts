@@ -37,7 +37,7 @@ const MELEE: Partial<Record<CreatureId, string>> = {
 };
 
 /** Tiros de inimigos: flecha, raio do Lich e teia. */
-type EnemyShotKind = 'enemyArrow' | 'enemyBolt' | 'web' | 'curse' | 'acid' | 'snowball';
+type EnemyShotKind = 'enemyArrow' | 'enemyBolt' | 'web' | 'curse' | 'acid' | 'snowball' | 'sting';
 
 interface Shot {
   source: CreatureId | 'hero' | EnemyShotKind;
@@ -274,7 +274,24 @@ export class Effects {
       case 'creatureReleased':
         this.burst(event.x, event.y, 16, '#9aba4a', 80, 0.5, 2.4, false, -20, 120);
         break;
+      case 'enemyRevived':
+        if (event.rising) {
+          this.ring(event.x, event.y, event.boss ? 70 : 32, '#f0c35a', 0.7, 3);
+          this.burst(event.x, event.y, event.boss ? 30 : 14, '#e8d8a8', 80, 0.7, 2.6, false, -40, 120);
+          this.text(event.x, event.y - (event.boss ? 50 : 26), event.boss ? 'O Faraó se ergue!' : 'Levantou!', '#f0c35a', event.boss ? 13 : 10);
+          if (event.boss) this.shake = Math.max(this.shake, 6);
+        } else this.burst(event.x, event.y, 12, '#d8c8a0', 50, 0.6, 2.2, false, -20, 120);
+        break;
+      case 'goldStolen':
+        this.text(event.x, event.y, `−${event.gold} ◉`, '#ff9a5a', 10);
+        break;
+      case 'enemyBlink':
+        this.burst(event.from.x, event.from.y, 12, '#7ad0ff', 70, 0.5, 2.2, true);
+        this.ring(event.to.x, event.to.y, 22, '#7ad0ff', 0.45, 2.5);
+        this.burst(event.to.x, event.to.y, 10, '#c8f0ff', 50, 0.5, 2, true);
+        break;
       case 'enemyBurrow':
+        if (event.radius) this.ring(event.x, event.y + 6, event.radius, '#e8c070', 0.6, 3);
         this.ring(event.x, event.y + 8, event.surfacing ? 40 : 26, '#a89060', 0.6, 3);
         this.burst(event.x, event.y + 8, event.surfacing ? 22 : 12, '#5a4a2a', 90, 0.6, 3, false, -30, 160);
         if (event.surfacing) this.shake = Math.max(this.shake, 5);
@@ -1117,6 +1134,19 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
       ctx.beginPath();
       ctx.arc(x, y, 1.3, 0, TAU);
       ctx.fill();
+      break;
+    case 'sting':
+      // ferroada do Escorpião: gota de veneno âmbar com rastro
+      ctx.fillStyle = '#ffb02a';
+      ctx.beginPath();
+      ctx.ellipse(x, y, 4, 2.4, angle, 0, TAU);
+      ctx.fill();
+      ctx.fillStyle = '#7a3a0a';
+      for (let k = 1; k <= 3; k++) {
+        ctx.beginPath();
+        ctx.arc(x - Math.cos(angle) * k * 4, y - Math.sin(angle) * k * 4, 2 - k * 0.45, 0, TAU);
+        ctx.fill();
+      }
       break;
     case 'snowball':
       // bola de neve do Yeti (sobe em arco)

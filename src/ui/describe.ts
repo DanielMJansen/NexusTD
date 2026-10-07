@@ -188,8 +188,10 @@ export function enemyTraitText(t: EnemyTrait): string {
     case 'swallow':
       return `Engolir: a cada ${formatNumber(t.cooldown)} s, engole a criatura mais próxima (alcance ${t.range}), que fica fora de combate por ${formatNumber(t.duration)} s ou até ele levar ${Math.round(t.breakDamage * 100)}% da vida em dano.`;
     case 'burrow':
+      if (t.radius && t.stun) return `Bote: a cada ${formatNumber(t.cooldown)} s, some sob a areia por ${formatNumber(t.hide)} s e emerge perto do Obelisco, atordoando as criaturas num raio de ${t.radius} por ${formatNumber(t.stun)} s.`;
       return `Mergulho: a cada ${formatNumber(t.cooldown)} s, some na lama por ${formatNumber(t.hide)} s e reaparece perto do Nexus em investida.`;
     case 'freeze':
+      if (t.look === 'sting') return `Ferrão: a cada ${formatNumber(t.cooldown)} s, atordoa ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}) por ${formatNumber(t.duration)} s.`;
       return t.range > 50
         ? `Bola de neve: a cada ${formatNumber(t.cooldown)} s, congela ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}) por ${formatNumber(t.duration)} s.`
         : `Toque gélido: a cada ${formatNumber(t.cooldown)} s, congela a criatura que tocar por ${formatNumber(t.duration)} s.`;
@@ -199,6 +201,12 @@ export function enemyTraitText(t: EnemyTrait): string {
       return `Mergulho: nada sob o gelo (intocável) e emerge rachando o gelo e congelando as criaturas num raio de ${t.radius} por ${formatNumber(t.freeze)} s.`;
     case 'heads':
       return `Cabeças: nasce com ${t.start}; cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro após ${formatNumber(t.regrow)} s (até ${t.max}), a não ser que a Hidra morra antes.`;
+    case 'revive':
+      return `Imortal: ao cair, levanta uma vez com ${Math.round(t.hp * 100)}% da vida após ${formatNumber(t.delay)} s${t.fireStops ? ', a não ser que tenha levado dano de fogo há pouco' : ''}.`;
+    case 'steal':
+      return `Saque: cada golpe num Nexus rouba ${t.gold} de ouro; matá-lo devolve tudo.`;
+    case 'blink':
+      return `Teleporte: a cada ${formatNumber(t.cooldown)} s, salta ${t.distance} em direção ao Nexus mais ferido.`;
   }
 }
 

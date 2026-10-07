@@ -82,6 +82,11 @@ export interface Enemy extends Point {
   leapTime?: number;
   /** Mergulho do Crocodilo Ancião (segundos restantes até reaparecer). */
   burrowTime?: number;
+  /** Múmia/Faraó: já levantou uma vez; segundos caído antes de levantar. */
+  revived?: boolean;
+  reviveTime?: number;
+  /** Saqueador: ouro roubado (devolvido ao morrer). */
+  stolen?: number;
   /** Hidra: cabeças vivas, cortadas à espera de renascer e o tempo até renascerem. */
   heads?: number;
   cutHeads?: number;

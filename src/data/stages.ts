@@ -453,17 +453,17 @@ export const STAGES: Record<StageId, StageDef> = {
     nexusModel: 'obelisk',
     // provisório (parte 1): inimigos de fases anteriores até chegarem os do deserto
     composition: [
-      { enemy: 'spider', fromWave: 1, weight: 6, perWave: -0.15, minWeight: 2 },
-      { enemy: 'gargoyle', fromWave: 2, weight: 3, perWave: 0.02 },
-      { enemy: 'headless', fromWave: 4, weight: 2.5, perWave: 0.03 },
-      { enemy: 'kobold', fromWave: 5, weight: 2, perWave: 0.02 },
-      { enemy: 'ogre', fromWave: 7, weight: 1.6, perWave: 0.04 },
+      { enemy: 'scarab', fromWave: 1, weight: 7, perWave: -0.18, minWeight: 2.5 },
+      { enemy: 'raider', fromWave: 2, weight: 3, perWave: 0.02 },
+      { enemy: 'mummy', fromWave: 3, weight: 3, perWave: 0.02 },
+      { enemy: 'djinn', fromWave: 5, weight: 2.2, perWave: 0.03 },
+      { enemy: 'sandSerpent', fromWave: 7, weight: 1.8, perWave: 0.04 },
     ],
     bosses: [
-      { wave: 10, enemy: 'ogreKing' },
-      { wave: 20, enemy: 'lich' },
+      { wave: 10, enemy: 'scorpionKing' },
+      { wave: 20, enemy: 'pharaoh' },
     ],
-    endlessBosses: ['ogreKing', 'lich'],
+    endlessBosses: ['scorpionKing', 'pharaoh'],
     // deserto largo: Obelisco oeste (o Nexus principal) e Obelisco leste, cada um num oásis
     map: { width: 1280, height: 720, nexus: { x: 420, y: 380 } },
     guards: [{ name: 'Obelisco Leste', x: 860, y: 380, hp: 100, vital: true, twin: true }],

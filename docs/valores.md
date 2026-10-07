@@ -167,12 +167,20 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 | Kobold Escavador | 28 | 26 | 0 | 5 | 6 | 4 | 3 | Mergulho: a cada 14 s, some na lama por 2 s e reaparece perto do Nexus em investida. |
 | Yeti Ancião (chefe) | 440 | 13 | 3 | 25 | 35 | 40 | 50 | Bola de neve: a cada 5,5 s, congela a criatura mais próxima (alcance 150) por 2,2 s. Pisão: a cada 12 s, atordoa as criaturas num raio de 70 por 1 s. |
 | Wyrm de Gelo (chefe) | 1150 | 12 | 3 | 70 | 40 | 100 | 120 | Mergulho: nada sob o gelo (intocável) e emerge rachando o gelo e congelando as criaturas num raio de 80 por 1,8 s. Tiro: com o herói a até 120, avança devagar e atira (10 de dano a cada 2 s). |
+| Escaravelho | 12 | 60 | 1 | 3 | 5 | 1 | 2 | — |
+| Múmia | 80 | 17 | 1 | 10 | 10 | 7 | 7 | Imortal: ao cair, levanta uma vez com 50% da vida após 2,5 s, a não ser que tenha levado dano de fogo há pouco. |
+| Serpente das Areias | 45 | 30 | 0 | 8 | 9 | 6 | 5 | Bote: a cada 12 s, some sob a areia por 2,5 s e emerge perto do Obelisco, atordoando as criaturas num raio de 55 por 1,2 s. |
+| Saqueador | 30 | 48 | 0 | 5 | 8 | 5 | 4 | Saque: cada golpe num Nexus rouba 4 de ouro; matá-lo devolve tudo. |
+| Djinn | 38 | 32 | 0 | 9 | 6 | 6 | 5 | Teleporte: a cada 8 s, salta 110 em direção ao Nexus mais ferido. |
+| Escorpião Colossal (chefe) | 500 | 14 | 5 | 30 | 35 | 40 | 50 | Ferrão: a cada 5 s, atordoa a criatura mais próxima (alcance 140) por 1,6 s. Investida: a cada 9 s, corre 3× mais rápido por 1,2 s. |
+| Faraó Imortal (chefe) | 1000 | 12 | 3 | 70 | 40 | 100 | 120 | Invocação: a cada 11 s, ergue 2 Múmias. Praga: a cada 7 s, amaldiçoa até 3 criaturas (alcance 150): atacam 50% mais devagar por 4 s. Imortal: ao cair, levanta uma vez com 50% da vida após 3 s. |
 
 ## Ondas
 - 20 ondas; quantidade = 4 + 3 × onda; chefes por fase abaixo.
 - **Fase 1 · Cemitério**: vida dos inimigos ×0,75, dano ×0,85, Essência ×1; chefes: onda 7 Rei Ogro, onda 14 Rainha Aranha, onda 20 Lich; inimigos: Zumbi (onda 1+), Morcego (onda 2+), Esqueleto Arqueiro (onda 3+), Ogro (onda 4+), Lodo (onda 5+), Aranha (onda 6+), Gárgula (onda 8+), Cavaleiro Sem Cabeça (onda 9+), Banshee Sombria (onda 11+), Necromante (onda 12+).
 - **Fase 2 · Pântano**: vida dos inimigos ×0,9, dano ×1, Essência ×1,25; chefes: onda 7 Rei Sapo, onda 14 Crocodilo Ancião, onda 20 Hidra; inimigos: Sanguessuga (onda 1+), Sapo-Boi (onda 1+), Fogo-fátuo (onda 3+), Bruxa do Brejo (onda 5+), Crocodilo (onda 6+), Lodo (onda 9+); lama: 8 poças, criaturas −25% vel. de ataque, herói −40% velocidade.
 - **Fase 3 · Tundra Gelada**: vida dos inimigos ×1,1, dano ×1, Essência ×1,5; chefes: onda 6 Yeti Ancião, onda 18 Wyrm de Gelo; inimigos: Lobo Gélido (onda 1+), Golem de Neve (onda 2+), Espírito do Gelo (onda 4+), Kobold Escavador (onda 5+), Troll da Geleira (onda 7+); gelo: inimigos ×1,3 de velocidade, racha com 7 de desgaste, buraco por 18 s; nevasca a cada 60 s por 12 s (alcance ×0,7).
+- **Fase 4 · Deserto Dourado**: vida dos inimigos ×1,25, dano ×1,05, Essência ×1,75; chefes: onda 10 Escorpião Colossal, onda 20 Faraó Imortal; inimigos: Escaravelho (onda 1+), Saqueador (onda 2+), Múmia (onda 3+), Djinn (onda 5+), Serpente das Areias (onda 7+); nevasca a cada 70 s por 14 s (alcance ×1).
 - Força (o = onda − 1): vida × (1 + 0,18·o + 0,02·o²); velocidade +2% por onda (máx. +40%); dano +6% por onda.
 - Elites a partir da onda 8: chance 5% (+1%/onda, máx. 25%); vida ×2,5, dano ×1,5, recompensa ×2.
 - Sem Fim: chefe a cada 5 ondas; por onda além da 20, vida ×1,08 e dano ×1,05 a mais (exponencial); elites até 35%.

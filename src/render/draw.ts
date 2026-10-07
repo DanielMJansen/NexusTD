@@ -128,6 +128,20 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     ctx.restore();
     return;
   }
+  if ((enemy.reviveTime ?? 0) > 0) {
+    // caído: monte de areia e ataduras com um brilho dourado que cresce até levantar
+    const rise = 1 - enemy.reviveTime! / 3;
+    ctx.fillStyle = '#c8a868';
+    ctx.beginPath();
+    ctx.ellipse(enemy.x, enemy.y + 8 * scale, 12 * scale, 4.5 * scale, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#e8dcc0';
+    ctx.beginPath();
+    ctx.ellipse(enemy.x, enemy.y + 6 * scale, 9 * scale, 3 * scale, 0.1, 0, TAU);
+    ctx.fill();
+    halo(ctx, enemy.x, enemy.y + 4 * scale, (14 + rise * 10) * scale, '#f0c35a', 0.3 + rise * 0.4 + Math.sin(time * 8) * 0.1);
+    return;
+  }
   if (enemy.submerged) {
     drawSubmerged(ctx, enemy.x, enemy.y + 6 * scale, scale, time + enemy.animationOffset);
     return;

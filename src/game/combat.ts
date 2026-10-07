@@ -9,7 +9,7 @@ import { terrainAttackFactor, terrainHeroFactor } from './terrain';
 const isLure = (enemy: Enemy) => enemy.def.traits.some((t) => t.kind === 'lure');
 import { heroTransform } from './pulses';
 import { WAVES } from '../data/waves';
-import { cutHead, enemyArmor, releaseSwallowed, shieldFactor } from './enemies';
+import { cutHead, enemyArmor, releaseSwallowed, shieldFactor, tryRevive } from './enemies';
 import { grantXp, healHero, heroRange } from './hero';
 import { dropLoot } from './loot';
 import { spawnEnemyAt } from './spawning';
@@ -71,7 +71,7 @@ export function damageEnemy(
   const execute = state.modifiers.executeBelow;
   if (execute > 0 && enemy.hp > 0 && !enemy.def.isBoss && enemy.hp <= enemy.maxHp * execute) enemy.hp = 0;
   if (!options.overTime) enemy.lastHitAt = state.time;
-  if (enemy.hp <= 0 && !enemy.dead && !cutHead(state, enemy)) {
+  if (enemy.hp <= 0 && !enemy.dead && !cutHead(state, enemy) && !tryRevive(state, enemy)) {
     enemy.dead = true;
     if (enemy.def.traits.some((t) => t.kind === 'swallow')) releaseSwallowed(state, enemy);
     state.kills++;
@@ -89,6 +89,12 @@ export function damageEnemy(
       color: enemy.def.color,
       elite: enemy.elite,
     });
+    if (enemy.stolen) {
+      // Saqueador: devolve o ouro roubado
+      state.gold += enemy.stolen;
+      state.events.push({ type: 'bountyGold', x: enemy.x, y: enemy.y, gold: enemy.stolen });
+      enemy.stolen = 0;
+    }
     if (!enemy.summonedAlly) dropLoot(state, enemy);
     onEnemyKilled(state, enemy, source);
     for (const trait of enemy.def.traits) {

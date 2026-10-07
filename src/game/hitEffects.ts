@@ -29,9 +29,9 @@ export function sourceDamageMultiplier(state: RunState, creature: Creature, enem
   const strong = findEffect(creature, 'vsStrong');
   if (strong && (enemy.elite || enemy.def.isBoss)) multiplier *= 1 + strong.bonus;
   // fogo contra gelo: +25% e corta a regeneração por 3 s
-  if (creature.def.element === 'fire' && enemy.def.frost) {
-    multiplier *= 1.25;
+  if (creature.def.element === 'fire') {
     enemy.fireHitTimer = 3;
+    if (enemy.def.frost || enemy.def.fireWeak) multiplier *= 1.25;
   }
   const stacking = findEffect(creature, 'killDamage');
   if (stacking) multiplier *= 1 + Math.min(stacking.max, stacking.perKill * creature.killStacks);

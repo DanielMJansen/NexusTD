@@ -1,3 +1,4 @@
+import { drawDjinn, drawMummy, drawPharaoh, drawRaider, drawSandSerpent, drawScarab, drawScorpionKing } from './spritesDesert';
 import { drawFrostWolf, drawFrostWyrm, drawGlacierTroll, drawIceSpirit, drawKobold, drawSnowball, drawSnowGolem, drawYeti } from './spritesTundra';
 import type { CreatureId } from '../data/creatures';
 import type { EnemyId } from '../data/enemies';
@@ -318,6 +319,27 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'frostWyrm':
       drawFrostWyrm(ctx, p);
+      break;
+    case 'scarab':
+      drawScarab(ctx, p);
+      break;
+    case 'mummy':
+      drawMummy(ctx, p);
+      break;
+    case 'sandSerpent':
+      drawSandSerpent(ctx, p);
+      break;
+    case 'raider':
+      drawRaider(ctx, p);
+      break;
+    case 'djinn':
+      drawDjinn(ctx, p);
+      break;
+    case 'scorpionKing':
+      drawScorpionKing(ctx, p);
+      break;
+    case 'pharaoh':
+      drawPharaoh(ctx, p);
       break;
   }
   ctx.restore();

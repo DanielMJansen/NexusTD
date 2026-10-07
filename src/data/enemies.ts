@@ -29,7 +29,14 @@ export type EnemyId =
   | 'glacierTroll'
   | 'kobold'
   | 'yetiElder'
-  | 'frostWyrm';
+  | 'frostWyrm'
+  | 'scarab'
+  | 'mummy'
+  | 'sandSerpent'
+  | 'raider'
+  | 'djinn'
+  | 'scorpionKing'
+  | 'pharaoh';
 
 /** Habilidades e passivas dos inimigos (cada uma tem seu próprio tempo de recarga). */
 export type EnemyTrait =
@@ -51,10 +58,10 @@ export type EnemyTrait =
   | { kind: 'lure' }
   /** Engole a criatura mais próxima: fora de combate por `duration` s ou até levar `breakDamage` da vida máxima. */
   | { kind: 'swallow'; range: number; cooldown: number; duration: number; breakDamage: number }
-  /** Mergulha (intocável por `hide` s) e reaparece a `landAt` do Nexus, já em investida. */
-  | { kind: 'burrow'; cooldown: number; hide: number; landAt: number }
-  /** Congela criaturas (toque ou bola de neve): ficam paradas por `duration` s. */
-  | { kind: 'freeze'; range: number; cooldown: number; duration: number; targets: number }
+  /** Mergulha (intocável por `hide` s) e reaparece a `landAt` do alvo, já em investida; com `radius`/`stun`, atordoa criaturas ao emergir. */
+  | { kind: 'burrow'; cooldown: number; hide: number; landAt: number; radius?: number; stun?: number }
+  /** Congela criaturas (toque ou bola de neve; com look 'sting', ferroada que atordoa): ficam paradas por `duration` s. */
+  | { kind: 'freeze'; range: number; cooldown: number; duration: number; targets: number; look?: 'ice' | 'sting' }
   /** Regenera `perSecond` da vida máxima por segundo, a não ser que tenha levado dano de fogo há pouco. */
   | { kind: 'regen'; perSecond: number }
   /** Mergulha sob o gelo (intocável e mais rápido) e emerge rachando o gelo e congelando criaturas próximas. */
@@ -71,6 +78,12 @@ export type EnemyTrait =
   | { kind: 'stomp'; radius: number; stun: number; cooldown: number }
   /** Escudo: reduz o dano recebido por alguns segundos. */
   | { kind: 'shield'; cooldown: number; duration: number; reduction: number }
+  /** Levanta uma vez ao morrer, com `hp` da vida máxima, após `delay` s caído (intocável); com `fireStops`, fogo recente impede. */
+  | { kind: 'revive'; hp: number; delay: number; fireStops: boolean }
+  /** Saqueia: cada golpe num Nexus rouba `gold` de ouro, devolvido quando ele morre. */
+  | { kind: 'steal'; gold: number }
+  /** Teleporte: salta `distance` em direção ao alvo mais ferido (Nexus ou Obelisco). */
+  | { kind: 'blink'; cooldown: number; distance: number }
   /** Segunda fase abaixo de uma fração da vida: mais rápido e recargas menores. */
   | { kind: 'enrage'; below: number; speedMultiplier: number; cooldownMultiplier: number };
 
@@ -106,6 +119,8 @@ export interface EnemyDef {
   minion?: boolean;
   /** Inimigo de gelo: leva +25% de dano de criaturas de fogo. */
   frost?: boolean;
+  /** Inflamável (Múmia): leva +25% de dano de criaturas de fogo. */
+  fireWeak?: boolean;
 }
 
 const base = {
@@ -666,6 +681,133 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     traits: [
       { kind: 'dive', surface: 7, dive: 3, radius: 80, freeze: 1.8 },
       { kind: 'ranged', range: 120, damage: 10, cooldown: 2 },
+    ],
+  },
+  // ---------- Deserto (Fase 4) ----------
+  scarab: {
+    ...base,
+    id: 'scarab',
+    name: 'Escaravelho',
+    description: 'Pequeno, blindado e rápido; vem em enxame.',
+    hp: 12,
+    speed: 60,
+    radius: 6,
+    scale: 0.8,
+    color: '#3ab8a0',
+    nexusDamage: 3,
+    heroDps: 5,
+    gold: 1,
+    xp: 2,
+    armor: 1,
+    pack: { chance: 0.6, angleOffsets: [0.07, -0.07, 0.14] },
+  },
+  mummy: {
+    ...base,
+    id: 'mummy',
+    name: 'Múmia',
+    description: 'Lenta e resistente; levanta de novo uma vez depois de cair, a não ser que tenha queimado. Fogo fere mais.',
+    hp: 80,
+    speed: 17,
+    radius: 10,
+    scale: 1.2,
+    color: '#d8c8a0',
+    nexusDamage: 10,
+    heroDps: 10,
+    gold: 7,
+    xp: 7,
+    armor: 1,
+    fireWeak: true,
+    traits: [{ kind: 'revive', hp: 0.5, delay: 2.5, fireStops: true }],
+  },
+  sandSerpent: {
+    ...base,
+    id: 'sandSerpent',
+    name: 'Serpente das Areias',
+    description: 'Nada sob a areia, intocável, e dá o bote perto do Obelisco, atordoando as criaturas em volta.',
+    hp: 45,
+    speed: 30,
+    radius: 9,
+    scale: 1.1,
+    color: '#d0a050',
+    nexusDamage: 8,
+    heroDps: 9,
+    gold: 6,
+    xp: 5,
+    traits: [{ kind: 'burrow', cooldown: 12, hide: 2.5, landAt: 110, radius: 55, stun: 1.2 }],
+  },
+  raider: {
+    ...base,
+    id: 'raider',
+    name: 'Saqueador',
+    description: 'Corre até um Obelisco e rouba ouro a cada golpe; matá-lo devolve o que levou.',
+    hp: 30,
+    speed: 48,
+    radius: 7,
+    color: '#b8402a',
+    nexusDamage: 5,
+    heroDps: 8,
+    gold: 5,
+    xp: 4,
+    traits: [{ kind: 'steal', gold: 4 }],
+  },
+  djinn: {
+    ...base,
+    id: 'djinn',
+    name: 'Djinn',
+    description: 'Voa e se teleporta em direção ao Obelisco mais ferido.',
+    hp: 38,
+    speed: 32,
+    radius: 8,
+    color: '#4ab0ff',
+    nexusDamage: 9,
+    heroDps: 6,
+    gold: 6,
+    xp: 5,
+    flying: true,
+    zigzag: { lateralSpeed: 14, frequency: 2 },
+    traits: [{ kind: 'blink', cooldown: 8, distance: 110 }],
+  },
+  scorpionKing: {
+    ...base,
+    id: 'scorpionKing',
+    name: 'Escorpião Colossal',
+    description: 'Chefe. Carapaça grossa; o ferrão atordoa criaturas à distância e às vezes dispara em investida.',
+    hp: 500,
+    speed: 14,
+    radius: 18,
+    scale: 2.2,
+    color: '#d08a2a',
+    nexusDamage: 30,
+    heroDps: 35,
+    gold: 40,
+    xp: 50,
+    armor: 5,
+    isBoss: true,
+    traits: [
+      { kind: 'freeze', range: 140, cooldown: 5, duration: 1.6, targets: 1, look: 'sting' },
+      { kind: 'charge', cooldown: 9, duration: 1.2, speedMultiplier: 3 },
+    ],
+  },
+  pharaoh: {
+    ...base,
+    id: 'pharaoh',
+    name: 'Faraó Imortal',
+    description: 'Chefe final. Ergue Múmias, amaldiçoa as criaturas e, derrotado, levanta uma vez com metade da vida.',
+    hp: 1000,
+    speed: 12,
+    radius: 18,
+    scale: 2.2,
+    color: '#f0c35a',
+    nexusDamage: 70,
+    heroDps: 40,
+    gold: 100,
+    xp: 120,
+    armor: 3,
+    isBoss: true,
+    traits: [
+      { kind: 'summon', enemy: 'mummy', count: 2, cooldown: 11 },
+      { kind: 'web', range: 150, cooldown: 7, duration: 4, slow: 0.5, targets: 3, look: 'curse' },
+      { kind: 'revive', hp: 0.5, delay: 3, fireStops: false },
     ],
   },
 };

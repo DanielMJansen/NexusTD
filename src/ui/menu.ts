@@ -9,6 +9,7 @@ import { hasSanctuary, heroSkin, TEAM_SIZE, type Profile, runSetup } from '../ga
 import type { SavedRunSummary } from '../save/runSave';
 import { CODEX_ENEMIES } from './codexScreen';
 import { showOverlay } from './overlay';
+import { paintStageThumbnail } from '../render/arena';
 
 export interface MenuHandlers {
   onPlay(): void;
@@ -35,8 +36,13 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
   const stage = STAGES[runSetup(profile).stage ?? FIRST_STAGE];
   const finalBoss = stage.bosses.at(-1);
   const goal = finalBoss
-    ? `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${stageWaveCount(stage.id)} ondas e vença o chefe final, <b>${ENEMIES[finalBoss.enemy].name}</b>.`
-    : `Fase ${stage.number} · ${stage.name}: proteja o Nexus por ${stageWaveCount(stage.id)} ondas.`;
+    ? `${stageWaveCount(stage.id)} ondas · chefe final: <b>${ENEMIES[finalBoss.enemy].name}</b>`
+    : `${stageWaveCount(stage.id)} ondas`;
+  // fase escolhida em destaque: miniatura do mapa, nome e objetivo (clicar troca de fase)
+  const stageCard = `<button class="hub-stage" data-action="stages" style="--stage: ${stage.color}" title="Trocar de fase">
+        <canvas class="hub-stage-map" width="240" height="135"></canvas>
+        <span class="hub-stage-info"><small>Fase ${stage.number} escolhida</small><b>${stage.name}</b><span>${goal}</span><em>Trocar fase ›</em></span>
+      </button>`;
   const hero = `<canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas>`;
   const team = hero + profile.team.map((id) => `<canvas class="team-mini" data-sprite="${id}"></canvas>`).join('');
 
@@ -45,7 +51,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       <section class="hub-hero">
       <h1>${GAME_TITLE}</h1>
       <p class="subtitle">Um herói. Um exército de monstros.</p>
-      <p class="hub-goal">${goal}</p>
+      ${stageCard}
       <div class="hub-team">${team}</div>
       ${profile.loadouts.length > 1 ? `<div class="hub-loadouts">${profile.loadouts.map((l, i) => `<button class="${i === profile.activeLoadout ? 'active' : ''}" data-action="loadout" data-value="${i}" title="${HEROES[l.hero].name} + ${l.team.length} criatura(s)">${l.name}</button>`).join('')}</div>` : ''}
       <div class="hub-play">
@@ -86,4 +92,6 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       admin: () => handlers.onAdmin?.(),
     },
   );
+  const map = document.querySelector<HTMLCanvasElement>('.hub-stage-map');
+  if (map) paintStageThumbnail(map, stage);
 }

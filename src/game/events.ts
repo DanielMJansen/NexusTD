@@ -17,7 +17,7 @@ export type GameEvent =
   | { type: 'heroAttack'; hero: HeroId; from: Point; to: Point; cone: number | null; range: number }
   | { type: 'enemyKilled'; enemy: EnemyId; x: number; y: number; gold: number; color: string; elite: boolean }
   /** Tiro de inimigo: flecha/raio no herói ou teia numa criatura. */
-  | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web' | 'curse' | 'acid' | 'snowball'; from: Point; to: Point }
+  | { type: 'enemyShot'; kind: 'arrow' | 'bolt' | 'web' | 'curse' | 'acid' | 'snowball' | 'sting'; from: Point; to: Point }
   | { type: 'enemyLeap'; x: number; y: number }
   | { type: 'pulseReady'; x: number; y: number }
   | { type: 'skeletonRaised'; x: number; y: number }
@@ -37,7 +37,10 @@ export type GameEvent =
   | { type: 'interactableActivated'; kind: 'brazier'; x: number; y: number }
   | { type: 'creatureSwallowed'; x: number; y: number }
   | { type: 'creatureReleased'; x: number; y: number }
-  | { type: 'enemyBurrow'; x: number; y: number; surfacing: boolean }
+  | { type: 'enemyBurrow'; x: number; y: number; surfacing: boolean; radius?: number }
+  | { type: 'enemyRevived'; x: number; y: number; boss: boolean; rising: boolean }
+  | { type: 'goldStolen'; x: number; y: number; gold: number }
+  | { type: 'enemyBlink'; from: Point; to: Point }
   | { type: 'headCut'; x: number; y: number; heads: number }
   | { type: 'headsRegrown'; x: number; y: number; heads: number }
   | { type: 'enemySummoned'; x: number; y: number; color: string }

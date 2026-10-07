@@ -3129,14 +3129,82 @@ body:not([data-mode='run']) .panel.screen {
   text-shadow: 0 0 18px #b36bffcc, 0 0 50px #7a3cff88;
 }
 
-.hub-goal {
-  margin: 0;
+/* fase escolhida: cartão com a cor da fase e a miniatura do mapa */
+.hub-stage {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 8px 14px 8px 8px;
+  border: 1px solid var(--stage);
+  border-radius: 12px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--stage) 22%, #110b1e), #110b1ecc);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--stage) 30%, transparent);
+  text-align: left;
+}
+
+.hub-stage:hover {
+  box-shadow: 0 0 22px color-mix(in srgb, var(--stage) 55%, transparent);
+}
+
+.hub-stage-map {
+  width: 144px;
+  height: 81px;
+  flex: none;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--stage) 60%, #000);
+}
+
+.hub-stage-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hub-stage-info small {
+  color: var(--stage);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hub-stage-info > b {
+  font: 700 24px var(--font-title);
+  color: #f6ecff;
+}
+
+.hub-stage-info span {
+  font-family: var(--font-body, inherit);
   color: var(--muted);
+  font-size: 14px;
+}
+
+.hub-stage-info em {
+  color: var(--stage);
+  font-size: 12px;
+  font-style: normal;
+}
+
+/* equipe numa linha só: herói maior e as criaturas encolhem para caber */
+.hub-hero .hub-team {
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .hub-hero .team-mini {
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
+  flex: 0 1 46px;
+  min-width: 0;
+  aspect-ratio: 1;
+  height: auto;
+}
+
+.hub-hero .team-mini:first-child {
+  width: 58px;
+  flex: none;
+  margin-right: 8px;
 }
 
 .hub-play {
