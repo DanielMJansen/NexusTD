@@ -3681,3 +3681,15 @@ b.awakened {
   color: #ff9ae0;
   letter-spacing: 2px;
 }
+
+/* caminho até o Despertar (Santuário) */
+.awaken-path {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+.awaken-path em {
+  font-style: normal;
+  opacity: 0.8;
+}

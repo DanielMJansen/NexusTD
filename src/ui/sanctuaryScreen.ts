@@ -64,6 +64,7 @@ export function showSanctuary(profile: Profile, handlers: SanctuaryHandlers, hig
               <b>${def.name}</b>
               <span class="sanctuary-stars">${stars}</span>
               <small>${bonusText(level, profile.awakened.includes(id))}</small>
+              ${profile.awakened.includes(id) ? '' : `<small class="awaken-path">✦ Despertar: Santuário ${level}/${SANCTUARY.maxLevel} · ${fragments(SANCTUARY.awakenCost)} · ${crystals(SANCTUARY.awakenCrystals)} <em>(você tem ${crystals(profile.crystals)})</em></small>`}
               <div class="cc-footer">${footerHtml(profile, id)}</div>
             </div>
           </div>`;
