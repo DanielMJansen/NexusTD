@@ -105,4 +105,4 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Cartas de melhoria (ondas e baús) mostram "Agora X → Y" e "(máx.)" quando batem no teto (crítico 75%, desconto de evolução 75%, recarga do Pulso 65%).
 - [ ] Humanos: passiva Disciplina (evoluem 40% mais barato) aparece na Coleção e no tooltip da carta; o custo de evoluir no quadro da criatura já vem com o desconto.
 - [ ] Herói para no nível 30 (barra de XP cheia com "Nível máximo"); a Precisão não aparece mais com 100% de crítico.
-- [ ] Lobisomem: passiva Garras na Coleção e no tooltip; inimigo atingido por lobisomem mostra arranhões vermelhos, fica mais lento e não desliza no gelo.
+- [ ] Lobisomem: passiva Caçada na Coleção e no tooltip; inimigo atingido mostra arranhões vermelhos, fica mais lento e não desliza no gelo; sem alvo no alcance, o lobisomem salta até um inimigo (arco de ida e volta) a cada 10 s.

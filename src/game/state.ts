@@ -124,6 +124,10 @@ export interface Enemy extends Point {
 export interface Creature extends Point {
   def: CreatureDef;
   attackTimer: number;
+  /** Salto do lobisomem (Caçada): recarga, momento e ponto do último salto. */
+  leapTimer?: number;
+  leapAt?: number;
+  leapTo?: Point;
   /** Golpes acumulados para o frenesi. */
   hitCount: number;
   frenzyTimer: number;

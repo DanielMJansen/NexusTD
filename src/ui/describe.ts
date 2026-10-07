@@ -474,6 +474,6 @@ export function racePassiveHtml(race: string, className = 'cc-ability race-passi
   const text =
     p.kind === 'evolveDiscount'
       ? `evolui ${pctText(p.value)} mais barato`
-      : `golpes ignoram armadura e agarram o alvo por ${formatNumber(p.duration)} s: ele fica ${pctText(p.slow)} mais lento e não desliza no gelo`;
+      : `golpes ignoram armadura e agarram o alvo por ${formatNumber(p.duration)} s: ele fica ${pctText(p.slow)} mais lento e não desliza no gelo${p.leap ? `. Sem inimigo no alcance, salta até um a ${p.leap.range} de distância, golpeia com ${formatNumber(p.leap.damage)}× de dano e volta (a cada ${formatNumber(p.leap.cooldown)} s)` : ''}`;
   return `<p class="${className}"><b>${def.name}</b> (raça ${race}): ${text}.</p>`;
 }

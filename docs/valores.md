@@ -30,8 +30,8 @@ Loot: moeda 8% (valor 1,5× o ouro do inimigo); baú comum 0,2%, elite 6%, chefe
 | Dragão | Fogo | 30 | 12 | 110 | 1,4 s | Área: atinge inimigos num raio de 40 ao redor do alvo com 60% do dano. | 80 ✦ |
 | Dragão | Gelo | 25 | 4 | 100 | 1 s | Lentidão: o alvo fica 50% mais lento por 1,5 s. | 80 ✦ |
 | Dragão | Tempestade | 30 | 9 | 105 | 1,1 s | Garras em cadeia: o golpe salta para até 3 inimigos próximos (85% do dano a cada salto). | 80 ✦ |
-| Lobisomem | Caçador | 25 | 12 | 75 | 0,6 s | Garras em cadeia: o golpe salta para até 3 inimigos próximos (80% do dano a cada salto). | 60 ✦ |
-| Lobisomem | Alfa | 30 | 12 | 65 | 0,6 s | Aura: criaturas num raio de 80 atacam 25% mais rápido. | 70 ✦ |
+| Lobisomem | Caçador | 25 | 12 | 75 | 0,6 s | Garras em cadeia: o golpe salta para até 2 inimigos próximos (80% do dano a cada salto). | 60 ✦ |
+| Lobisomem | Alfa | 30 | 10 | 65 | 0,6 s | Aura: criaturas num raio de 80 atacam 25% mais rápido. | 70 ✦ |
 | Lobisomem | Uivador | 30 | 8 | 70 | 3 s | Golpe em área: atinge todos num raio de 70 ao redor dela. 60% de chance de assustar: o inimigo foge do Nexus por 1,5 s (chefes resistem). | 70 ✦ |
 | Fantasma | Assombração | 25 | 10 | 100 | 0,6 s | Ignora armadura e causa +50% de dano em inimigos com armadura. | 60 ✦ |
 | Fantasma | Banshee | 30 | 6 | 80 | 1,2 s | Grito em leque: atinge todos à frente e os empurra 16 para longe do Nexus (chefes resistem). O mesmo inimigo só sofre o efeito de novo após 2 s. | 70 ✦ |

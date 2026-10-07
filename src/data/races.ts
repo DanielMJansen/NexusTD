@@ -3,8 +3,11 @@
 export type RacePassive =
   /** Evoluir custa menos ouro (fração). */
   | { kind: 'evolveDiscount'; value: number }
-  /** Golpes agarram o alvo: não desliza no gelo e fica mais lento (fração) por alguns segundos. */
-  | { kind: 'grip'; slow: number; duration: number };
+  /**
+   * Golpes ignoram armadura e agarram o alvo (não desliza no gelo, fica mais lento por alguns segundos).
+   * leap: sem alvo no alcance, salta até um inimigo a até `range`, golpeia (dano × `damage`) e volta; recarga em segundos.
+   */
+  | { kind: 'grip'; slow: number; duration: number; leap?: { range: number; cooldown: number; damage: number } };
 
 export interface RacePassiveDef {
   name: string;
@@ -14,8 +17,8 @@ export interface RacePassiveDef {
 export const RACE_PASSIVES: Partial<Record<string, RacePassiveDef>> = {
   // Disciplina: a raça inicial evolui mais barato e chega antes ao nível 3
   Humano: { name: 'Disciplina', passive: { kind: 'evolveDiscount', value: 0.4 } },
-  // Garras: o alvo não escapa (nem deslizando no gelo da Tundra)
-  Lobisomem: { name: 'Garras', passive: { kind: 'grip', slow: 0.25, duration: 1.2 } },
+  // Caçada: garras que rasgam e prendem, e o salto que alcança quem fica longe (chefes que atiram de longe)
+  Lobisomem: { name: 'Caçada', passive: { kind: 'grip', slow: 0.25, duration: 1.2, leap: { range: 190, cooldown: 10, damage: 1 } } },
 };
 
 /** Desconto de evolução da passiva da raça (0 se não tiver). */

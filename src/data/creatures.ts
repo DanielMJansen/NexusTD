@@ -384,7 +384,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     range: 75,
     cooldown: 0.6,
     color: '#c8a070',
-    ability: { kind: 'chain', jumps: 3, radius: 60, falloff: 0.8 },
+    ability: { kind: 'chain', jumps: 2, radius: 60, falloff: 0.8 },
     unlock: { kind: 'essence', cost: 60 },
     ascended: [
       { name: 'Caçador Lunar', description: 'Garras saltam para até 4 inimigos.', ability: { kind: 'chain', jumps: 4, radius: 65, falloff: 0.8 }, color: '#ffd25a', icon: '☾' },
@@ -400,7 +400,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     lore: 'Um uivo dele e a matilha inteira acorda.',
     icon: '🌕',
     baseCost: 30,
-    damage: 12,
+    damage: 10,
     range: 65,
     cooldown: 0.6,
     color: '#9a8a7a',

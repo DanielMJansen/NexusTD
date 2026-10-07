@@ -301,7 +301,26 @@ function drawSubmerged(ctx: CanvasRenderingContext2D, x: number, y: number, scal
   }
 }
 
+/** Duração do salto da Caçada (ida e volta), só visual. */
+const LEAP_TIME = 0.5;
+
 function drawCreature(ctx: CanvasRenderingContext2D, state: RunState, creature: Creature, time: number): void {
+  const since = creature.leapAt === undefined ? Infinity : state.time - creature.leapAt;
+  if (since >= LEAP_TIME || !creature.leapTo) {
+    drawCreatureBody(ctx, state, creature, time);
+    return;
+  }
+  // salto: vai até o alvo e volta num arco
+  const f = Math.sin((since / LEAP_TIME) * Math.PI);
+  const dx = (creature.leapTo.x - creature.x) * 0.85 * f;
+  const dy = (creature.leapTo.y - creature.y) * 0.85 * f - 22 * f;
+  ctx.save();
+  ctx.translate(dx, dy);
+  drawCreatureBody(ctx, state, creature, time);
+  ctx.restore();
+}
+
+function drawCreatureBody(ctx: CanvasRenderingContext2D, state: RunState, creature: Creature, time: number): void {
   if ((creature.swallowTimer ?? 0) > 0) {
     // engolida pelo Rei Sapo: só o contorno tracejado de onde ela estava
     ctx.strokeStyle = '#bada9a99';

@@ -351,6 +351,7 @@ export const STAGES: Record<StageId, StageDef> = {
       { icon: '❄', title: 'Nevasca', text: 'De tempos em tempos vem uma nevasca (com aviso antes): o alcance das criaturas cai, menos perto das fogueiras acesas. A nevasca apaga as fogueiras; pare o herói perto de uma para reacendê-la.' },
       { icon: '🔥', title: 'Fogo contra gelo', text: 'Criaturas de fogo (Dragão de Fogo, Diabrete, Infernal, Golem de Magma) causam mais dano aqui e impedem que os inimigos regenerem. Alguns inimigos de gelo congelam criaturas por alguns segundos.' },
       { icon: '🏔', title: 'Avalanche', text: 'Em algumas ondas, uma avalanche desce por uma trilha (com aviso): esmaga os inimigos comuns e congela as criaturas no caminho.' },
+      { icon: '⚔', title: 'Corpo a corpo sofre', text: 'No gelo os inimigos passam deslizando, e o Wyrm de Gelo ataca de longe. Criaturas de corpo a corpo rendem menos aqui: misture criaturas à distância ou avance as de perto pelas trilhas. Os lobisomens saltam até quem está longe.' },
     ],
     biome: 'tundra',
     color: '#8ad0ff',

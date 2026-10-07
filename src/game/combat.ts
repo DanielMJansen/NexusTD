@@ -307,6 +307,7 @@ export function updateCreatures(state: RunState, dt: number): void {
   for (const creature of state.creatures) {
     creature.frenzyTimer -= dt;
     creature.webTimer = Math.max(0, creature.webTimer - dt);
+    if ((creature.leapTimer ?? 0) > 0) creature.leapTimer! -= dt;
     if ((creature.swallowTimer ?? 0) > 0) {
       // engolida pelo Rei Sapo: fora de combate
       creature.swallowTimer! -= dt;
@@ -328,9 +329,20 @@ export function updateCreatures(state: RunState, dt: number): void {
     // sinergia dos Dragões: mais área (nova, explosão, cadeia)
     const area = 1 + (def.race === 'Dragão' ? modifiers.synergy.area : 0);
     const reach = ability.kind === 'nova' ? Math.min(range, ability.radius * area) : range;
-    const targets = pickTargets(state, creature, reach, ability.kind === 'multishot' ? ability.targets : 1);
-    const target = targets[0];
-    if (!target) continue;
+    let targets = pickTargets(state, creature, reach, ability.kind === 'multishot' ? ability.targets : 1);
+    // Caçada (lobisomens): sem alvo no alcance, salta até um inimigo mais longe e golpeia mais forte
+    let leapDamage = 1;
+    if (!targets.length) {
+      const leap = raceGrip(def.race)?.leap;
+      if (!leap || (creature.leapTimer ?? 0) > 0) continue;
+      targets = pickTargets(state, creature, leap.range, 1);
+      if (!targets.length) continue;
+      leapDamage = leap.damage;
+      creature.leapTimer = leap.cooldown;
+      creature.leapAt = state.time;
+      creature.leapTo = { x: targets[0]!.x, y: targets[0]!.y };
+    }
+    const target = targets[0]!;
 
     const inFrenzy = ability.kind === 'frenzy' && creature.frenzyTimer > 0;
     // crítico: chance das melhorias + da vertente (Atirador de Elite, Lâmina Carmesim) e dano crítico de auras
@@ -338,7 +350,7 @@ export function updateCreatures(state: RunState, dt: number): void {
     const raceCrit = bonus.kind === 'critChance' && def.race === race ? bonus.value : 0;
     const crit = random() < modifiers.critChance + (critBonus?.chance ?? 0) + raceCrit + (modifiers.synergy.critChance[def.race] ?? 0);
     const critMultiplier = (critBonus ? critBonus.multiplier : 2) + creature.blessCrit + (modifiers.synergy.critDamage[def.race] ?? 0);
-    const damage = creatureDamage(creature, modifiers) * (inFrenzy ? ability.damageMultiplier : 1) * (crit ? critMultiplier : 1);
+    const damage = creatureDamage(creature, modifiers) * (inFrenzy ? ability.damageMultiplier : 1) * (crit ? critMultiplier : 1) * leapDamage;
     const raceSpeed = bonus.kind === 'attackSpeed' && def.race === race ? bonus.value : 0;
     const speed =
       modifiers.attackSpeed *
@@ -351,7 +363,7 @@ export function updateCreatures(state: RunState, dt: number): void {
     // inimigos atingidos pelo golpe principal (recebem os efeitos de golpe)
     let victims: Enemy[] = targets;
     let showShots = true;
-    if (ability.kind === 'nova') {
+    if (ability.kind === 'nova' && leapDamage === 1) {
       victims = state.enemies.filter((e) => isHostile(e) && distance(e, creature) <= reach);
       showShots = false;
       state.events.push({ type: 'nova', source: def.id, x: creature.x, y: creature.y, radius: reach });
