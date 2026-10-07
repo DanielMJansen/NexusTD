@@ -3619,3 +3619,55 @@ b.awakened {
 .supreme-line {
   color: #7ae8ff;
 }
+
+/* painel de administrador */
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0d0818aa;
+}
+
+.admin-row > span:first-child {
+  flex: 1 1 220px;
+}
+
+.admin-row input[type='number'] {
+  width: 120px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #07040d;
+  color: var(--fg);
+}
+
+.admin-row button {
+  padding: 3px 10px;
+  font-size: 13px;
+}
+
+.admin-toggle.on {
+  border-color: #4fd88a;
+  background: #4fd88a33;
+  color: #c8ffe0;
+}
+
+.admin-step button {
+  padding: 1px 8px;
+}
+
+.admin-chips {
+  display: flex;
+  gap: 4px;
+}

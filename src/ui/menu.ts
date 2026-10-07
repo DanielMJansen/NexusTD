@@ -25,6 +25,8 @@ export interface MenuHandlers {
   onSanctuary(): void;
   onAltar(): void;
   onSettings(): void;
+  /** Só no modo administrador. */
+  onAdmin?: () => void;
 }
 
 /** Menu principal: atalhos para jogar e para as telas de meta-progressão. */
@@ -63,6 +65,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
         <button data-action="achievements">Conquistas <small>${profile.achievements.length} de ${ACHIEVEMENT_IDS.length}</small></button>
         <button data-action="codex">Códex <small>${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length} de ${CODEX_ENEMIES.length} vistos</small></button>
         <button data-action="settings">⚙ Configurações</button>
+        ${handlers.onAdmin ? '<button data-action="admin">🛠 Admin</button>' : ''}
       </section>
     </div>`,
     {
@@ -80,6 +83,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       achievements: () => handlers.onAchievements(),
       codex: () => handlers.onCodex(),
       settings: () => handlers.onSettings(),
+      admin: () => handlers.onAdmin?.(),
     },
   );
 }

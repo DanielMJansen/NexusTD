@@ -1,3 +1,5 @@
+import { showAdmin } from './ui/adminScreen';
+import { ADMIN_HASH } from './game/admin';
 import { GIFTS } from './data/gifts';
 import { showStageIntro } from './ui/stageIntro';
 import { RenderQuality } from './render/quality';
@@ -35,6 +37,7 @@ import {
   unlockCreature,
   type Profile,
   redeemGiftCode,
+  sha256,
 } from './game/profile';
 import { buyExtraSlot, reroll } from './game/shop';
 import { createRun, type RunState } from './game/state';
@@ -48,7 +51,7 @@ import { Effects } from './render/effects';
 import { fitArenaCanvas } from './render/viewport';
 import { downloadBackup, importBackup, pickBackupFile } from './save/backup';
 import { clearRun, loadRun, savedRunSummary, saveRun } from './save/runSave';
-import { deleteProfile, loadProfile, saveProfile } from './save/save';
+import { deleteProfile, loadProfile, profileFromData, saveProfile } from './save/save';
 import { loadSettings, saveSettings, type Settings } from './save/settings';
 import { showAchievements } from './ui/achievementsScreen';
 import { showCodex } from './ui/codexScreen';
@@ -236,6 +239,10 @@ export class App {
       onImport: () => void this.importSave(),
       onResetSave: () => this.resetSave(),
       onRedeem: async (code) => {
+        if ((await sha256(code.trim().toUpperCase())) === ADMIN_HASH) {
+          this.updateSettings({ admin: true });
+          return '🛠 Modo administrador ativado: botão Admin no menu.';
+        }
         const gift = await redeemGiftCode(this.profile, code);
         if (!gift) return 'Código inválido.';
         saveProfile(this.profile);
@@ -531,6 +538,20 @@ export class App {
     });
   }
 
+  /** Painel de administrador: cada mudança passa pela limpeza do save (equipe e herói válidos) e é salva. */
+  private openAdmin(): void {
+    showAdmin(this.profile, {
+      onApply: (change) => {
+        change(this.profile);
+        this.profile = profileFromData(JSON.parse(JSON.stringify(this.profile)), 4);
+        saveProfile(this.profile);
+        updateMenuHud(this.profile);
+        this.openAdmin();
+      },
+      onBack: () => this.openMenu(),
+    });
+  }
+
   private openMenu(): void {
     this.tutorial.stop();
     this.frozen = false;
@@ -552,6 +573,7 @@ export class App {
       return;
     }
     showMenu(this.profile, savedRunSummary(), {
+      onAdmin: this.settings.admin ? () => this.openAdmin() : undefined,
       onPlay: () => this.startRun(),
       onContinue: () => this.continueRun(),
       onTeam: () => this.openTeam(),

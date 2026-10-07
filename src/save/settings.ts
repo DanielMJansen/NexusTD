@@ -17,6 +17,8 @@ export interface Settings {
   quality: Quality;
   /** Medidor de quadros por segundo no canto da tela. */
   showFps: boolean;
+  /** Modo administrador (liberado por código): botão 🛠 Admin no menu. */
+  admin: boolean;
 }
 
 export const SETTINGS_KEY = 'nexus-settings-v1';
@@ -30,6 +32,7 @@ const DEFAULT_SETTINGS: Settings = {
   tutorialDone: false,
   quality: 'auto',
   showFps: false,
+  admin: false,
 };
 
 const clamp01 = (value: unknown, fallback: number): number =>
@@ -47,6 +50,7 @@ export function sanitizeSettings(data: unknown): Settings {
     tutorialDone: raw.tutorialDone === true,
     quality: raw.quality === 'high' || raw.quality === 'medium' || raw.quality === 'low' ? raw.quality : 'auto',
     showFps: raw.showFps === true,
+    admin: raw.admin === true,
   };
 }
 

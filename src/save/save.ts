@@ -136,8 +136,6 @@ function sanitize(data: unknown): Profile {
   const intros = Array.isArray(raw.seenStageIntros) ? raw.seenStageIntros : [];
   profile.seenStageIntros = STAGE_IDS.filter((id) => intros.includes(id));
   profile.crystals = Math.max(0, Math.floor(toNumber(raw.crystals)));
-  // despertadas: só criaturas da coleção já no nível máximo do Santuário
-  profile.awakened = validCreatures(raw.awakened).filter((id) => profile.ownedCreatures.includes(id) && (profile.sanctuary[id] ?? 0) >= SANCTUARY.maxLevel);
   profile.bestWave = Math.floor(toNumber(raw.bestWave));
   // fases (campos novos: padrão sem recordes; a Fase 1 herda as vitórias e o recorde antigos)
   const records = (raw.stageRecords ?? {}) as Record<string, Record<string, unknown> | undefined>;
@@ -160,6 +158,8 @@ function sanitize(data: unknown): Profile {
     const level = Math.min(SANCTUARY.maxLevel, Math.floor(toNumber(sanctuary[id])));
     if (level > 0) profile.sanctuary[id] = level;
   }
+  // despertadas: só criaturas da coleção já no nível máximo do Santuário (depois de ler o Santuário)
+  profile.awakened = validCreatures(raw.awakened).filter((id) => profile.ownedCreatures.includes(id) && (profile.sanctuary[id] ?? 0) >= SANCTUARY.maxLevel);
   // Altar (campos novos: padrão vazio)
   const variants = (raw.variants ?? {}) as Record<string, unknown>;
   const chosen = (raw.selectedVariants ?? {}) as Record<string, unknown>;
