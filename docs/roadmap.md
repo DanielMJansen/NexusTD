@@ -23,7 +23,7 @@ Regras e valores do jogo ficam no [GDD](GDD.md); números exatos em [valores.md]
 - **Moedas novas** entram junto com as fases (Fragmentos a partir de uma fase intermediária).
 - **Referências**: usar jogos do gênero como base e melhorar a partir deles (ex.: Soulstone Survivors para o HUD; Kingdom Rush/Bloons para vertentes; Slay the Spire/Hades para Ascensão).
 - **Steam fica para depois**, quando houver conteúdo suficiente. Até lá: web (GitHub Pages; itch.io quando fizer sentido).
-- Nome: **Nexus TD** (adotado em 07/10/2026; pode mudar antes de lojas).
+- Nome: **Nexus TD** (definitivo para a 1ª versão, decidido em 07/10/2026).
 
 ## 3. Próximas etapas
 
