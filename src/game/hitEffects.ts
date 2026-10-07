@@ -1,3 +1,4 @@
+import { SYNERGY_RAISE_DURATION } from '../data/synergies';
 
 import type { HitEffect } from '../data/creatures';
 import { damageEnemy } from './combat';
@@ -16,8 +17,10 @@ const findEffect = <K extends HitEffect['kind']>(creature: Creature, kind: K) =>
   creatureEffects(creature).find((e): e is Extract<HitEffect, { kind: K }> => e.kind === kind);
 
 /** Multiplicador de dano de uma criatura contra este inimigo (contra fortes, abates acumulados). */
-export function sourceDamageMultiplier(creature: Creature, enemy: Enemy): number {
+export function sourceDamageMultiplier(state: RunState, creature: Creature, enemy: Enemy): number {
   let multiplier = 1;
+  // sinergia dos Anjos: mais dano contra chefes
+  if (enemy.def.isBoss) multiplier *= 1 + (state.modifiers.synergy.vsBoss[creature.def.race] ?? 0);
   const strong = findEffect(creature, 'vsStrong');
   if (strong && (enemy.elite || enemy.def.isBoss)) multiplier *= 1 + strong.bonus;
   // fogo contra gelo: +25% e corta a regeneração por 3 s
@@ -39,42 +42,47 @@ export const vulnerability = (enemy: Enemy): number =>
 /** Aplica os efeitos de golpe da criatura num inimigo atingido. `scale` = força do golpe (nível, melhorias). */
 export function applyHitEffects(state: RunState, creature: Creature, enemy: Enemy, scale: number, extraDuration = 0): void {
   if (enemy.dead) return;
+  // sinergias: bruxas (duração) e górgonas (chance)
+  const syn = state.modifiers.synergy;
+  const lasting = 1 + (syn.effectDuration[creature.def.race] ?? 0);
+  const likely = 1 + (syn.effectChance[creature.def.race] ?? 0);
+  const dur = (d: number) => d * lasting + extraDuration;
   const boss = enemy.def.isBoss;
   for (const effect of creatureEffects(creature)) {
     switch (effect.kind) {
       case 'poison': {
         const dps = effect.dps * scale;
         enemy.poisonDps = Math.max(dps, enemy.poisonTimer > 0 ? enemy.poisonDps : 0);
-        enemy.poisonTimer = Math.max(enemy.poisonTimer, effect.duration + extraDuration);
+        enemy.poisonTimer = Math.max(enemy.poisonTimer, dur(effect.duration));
         break;
       }
       case 'stun':
-        if (!boss && random() < effect.chance) {
-          enemy.stunTimer = Math.max(enemy.stunTimer, effect.duration + extraDuration);
+        if (!boss && random() < effect.chance * likely) {
+          enemy.stunTimer = Math.max(enemy.stunTimer, dur(effect.duration));
           enemy.stunLook = effect.look ?? 'stun';
         }
         break;
       case 'fear':
-        if (!boss && random() < effect.chance) {
-          enemy.fearTimer = Math.max(enemy.fearTimer, effect.duration + extraDuration);
+        if (!boss && random() < effect.chance * likely) {
+          enemy.fearTimer = Math.max(enemy.fearTimer, dur(effect.duration));
           enemy.fearLook = effect.look ?? 'fear';
         }
         break;
       case 'mark':
-        enemy.markTimer = Math.max(enemy.markTimer, effect.duration + extraDuration);
+        enemy.markTimer = Math.max(enemy.markTimer, dur(effect.duration));
         enemy.markAmount = Math.max(enemy.markAmount, effect.amount);
         if (effect.explode) enemy.markExplode = effect.explode;
         break;
       case 'vulnerable':
-        enemy.vulnTimer = Math.max(enemy.vulnTimer, effect.duration + extraDuration);
+        enemy.vulnTimer = Math.max(enemy.vulnTimer, dur(effect.duration));
         enemy.vulnAmount = Math.max(enemy.vulnAmount, effect.amount);
         break;
       case 'corrode':
-        enemy.corrodeTimer = Math.max(enemy.corrodeTimer, effect.duration + extraDuration);
+        enemy.corrodeTimer = Math.max(enemy.corrodeTimer, dur(effect.duration));
         enemy.corrodeAmount = Math.max(enemy.corrodeAmount, effect.armor);
         break;
       case 'weaken':
-        enemy.weakenTimer = Math.max(enemy.weakenTimer, effect.duration + extraDuration);
+        enemy.weakenTimer = Math.max(enemy.weakenTimer, dur(effect.duration));
         enemy.weakenSlow = Math.max(enemy.weakenSlow, effect.slow);
         enemy.weakenDamage = Math.max(enemy.weakenDamage, effect.damage);
         break;
@@ -90,13 +98,13 @@ export function applyHitEffects(state: RunState, creature: Creature, enemy: Enem
       }
       case 'possess':
         if (!boss && enemy.allyTimer <= 0) {
-          enemy.allyTimer = effect.duration + extraDuration;
+          enemy.allyTimer = dur(effect.duration);
           enemy.allyExplode = effect.explode ?? null;
           state.events.push({ type: 'possessed', x: enemy.x, y: enemy.y });
         }
         break;
       case 'steal':
-        if (random() < effect.chance) {
+        if (random() < effect.chance * likely) {
           state.gold += effect.gold;
           state.events.push({ type: 'bountyGold', x: enemy.x, y: enemy.y, gold: effect.gold });
         }
@@ -137,6 +145,9 @@ export function onEnemyKilled(state: RunState, enemy: Enemy, source?: Creature):
   if (enemy.markTimer > 0 && enemy.markExplode) explode(state, enemy, enemy.markExplode.radius, enemy.maxHp * enemy.markExplode.ratio);
   // petrificado que morre se despedaça, ferindo os vizinhos
   if (enemy.stunTimer > 0 && enemy.stunLook === 'stone' && !enemy.def.isBoss) explode(state, enemy, 30, enemy.maxHp * 0.25);
+  if (state.modifiers.synergy.raise > 0 && !enemy.summonedAlly && !enemy.def.isBoss && random() < state.modifiers.synergy.raise) {
+    raiseSkeleton(state, enemy, SYNERGY_RAISE_DURATION);
+  }
   if (!source) return;
   source.killStacks++;
   for (const effect of creatureEffects(source)) {

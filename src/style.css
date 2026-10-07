@@ -3313,3 +3313,35 @@ body:not([data-mode='run']) .team-slots {
     box-shadow: 0 0 26px #d4a8ffcc, 0 0 6px #fff8 inset;
   }
 }
+
+/* sinergias de raça (barra das criaturas) */
+#hud-synergies {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+
+#hud-synergies:empty {
+  display: none;
+}
+
+.synergy {
+  --syn-color: var(--accent);
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font: 600 10.5px var(--font-label);
+  color: var(--muted);
+  cursor: help;
+}
+
+.synergy.active {
+  color: var(--fg);
+  border-color: var(--syn-color);
+  background: color-mix(in srgb, var(--syn-color) 20%, transparent);
+}
+
+.synergy.tier2 {
+  box-shadow: 0 0 8px color-mix(in srgb, var(--syn-color) 60%, transparent);
+}

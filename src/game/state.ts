@@ -233,7 +233,43 @@ export interface Modifiers {
   raceDamage: Record<string, number>;
   /** Inimigos comuns abaixo desta fração de vida morrem na hora (0 = inativo). */
   executeBelow: number;
+  /** Bônus das Sinergias de raça ativas (recalculado a cada quadro). */
+  synergy: SynergyBonus;
 }
+
+/** Bônus somados das Sinergias ativas (zeros = nenhuma). */
+export interface SynergyBonus {
+  damage: number;
+  heroLifesteal: number;
+  area: number;
+  /** Por raça. */
+  attackSpeed: Record<string, number>;
+  armorIgnore: Record<string, number>;
+  effectDuration: Record<string, number>;
+  effectChance: Record<string, number>;
+  critChance: Record<string, number>;
+  critDamage: Record<string, number>;
+  vsBoss: Record<string, number>;
+  range: number;
+  nexusArmor: number;
+  raise: number;
+}
+
+export const noSynergy = (): SynergyBonus => ({
+  damage: 0,
+  heroLifesteal: 0,
+  area: 0,
+  attackSpeed: {},
+  armorIgnore: {},
+  effectDuration: {},
+  effectChance: {},
+  critChance: {},
+  critDamage: {},
+  vsBoss: {},
+  range: 0,
+  nexusArmor: 0,
+  raise: 0,
+});
 
 export type Choice = { kind: 'upgrade'; upgrade: OfferedUpgrade };
 
@@ -268,6 +304,8 @@ export type Phase = 'playing' | 'choosing' | 'ended';
 export interface RunSetup {
   /** Fase da run (padrão: a primeira). */
   stage?: StageId;
+  /** Sinergias de raça destravadas (padrão: não). */
+  synergies?: boolean;
   /** Níveis do Santuário das criaturas (padrão: nenhum). */
   sanctuary?: Partial<Record<CreatureId, number>>;
   /** Variantes cosméticas escolhidas no Altar (só visual). */
@@ -307,6 +345,9 @@ export interface RunState {
   gold: number;
   /** Fase da run (inimigos, chefes e cenário). */
   stage: StageId;
+  /** Sinergias de raça: destravadas e nível atual por raça (0, 1 ou 2). */
+  synergiesOn: boolean;
+  synergyTiers: Record<string, number>;
   /** Níveis do Santuário das criaturas (fixos na run). */
   sanctuary: Partial<Record<CreatureId, number>>;
   /** Criaturas invocadas por raça (repartem os Fragmentos). */
@@ -424,6 +465,8 @@ export function createRun(setup: RunSetup): RunState {
     weather: { active: false, timer: STAGES[setup.stage ?? FIRST_STAGE].weather?.every ?? 0, warned: false, forced: false },
     gold: ECONOMY.startGold + t.startGold,
     stage: setup.stage ?? FIRST_STAGE,
+    synergiesOn: setup.synergies ?? false,
+    synergyTiers: {},
     sanctuary: { ...(setup.sanctuary ?? {}) },
     racePlacements: {},
     variants: { ...(setup.variants ?? {}) },
@@ -473,6 +516,7 @@ export function createRun(setup: RunSetup): RunState {
       critChance: 0,
       raceDamage: {},
       executeBelow: 0,
+      synergy: noSynergy(),
     },
     pulse: {
       cooldown: heroDef.pulse.cooldown * Math.max(0.35, 1 - t.pulseCooldown),

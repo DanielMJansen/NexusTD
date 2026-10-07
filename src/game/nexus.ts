@@ -62,7 +62,7 @@ export function damageNexus(state: RunState, amount: number): void {
     return;
   }
   const reduction = nexusLevel(state, 'armor')?.reduction ?? 0;
-  const damage = Math.max(1, Math.round(amount * (1 - reduction)));
+  const damage = Math.max(1, Math.round(amount * (1 - reduction) * (1 - state.modifiers.synergy.nexusArmor)));
   state.nexus.hp -= damage;
   state.lowestNexusRatio = Math.min(state.lowestNexusRatio, Math.max(0, state.nexus.hp) / state.nexus.maxHp);
   state.events.push({ type: 'nexusHit', damage });

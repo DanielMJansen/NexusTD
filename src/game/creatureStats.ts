@@ -44,13 +44,14 @@ export const creatureDamage = (creature: Creature, modifiers: Modifiers): number
   modifiers.damage *
   (1 + creature.blessDamage) *
   (1 + SANCTUARY.damagePerLevel * (creature.sanctuary ?? 0)) *
+  (1 + modifiers.synergy.damage) *
   (1 + raceBonusValue(creature, modifiers, 'damage') + (modifiers.raceDamage[creature.def.race] ?? 0));
 
 /** Ataques por segundo com melhorias, bônus de raça, auras e abates acumulados (sem frenesi). */
 export function creatureAttacksPerSecond(creature: Creature, modifiers: Modifiers): number {
   const { race, bonus } = modifiers.raceBonus;
   const raceSpeed = bonus.kind === 'attackSpeed' && creature.def.race === race ? bonus.value : 0;
-  return (modifiers.attackSpeed * (1 + raceSpeed + creature.auraBonus + killHaste(creature))) / creatureCooldown(creature);
+  return (modifiers.attackSpeed * (1 + raceSpeed + (modifiers.synergy.attackSpeed[creature.def.race] ?? 0) + creature.auraBonus + killHaste(creature))) / creatureCooldown(creature);
 }
 
 export const creatureRange = (creature: Creature, modifiers: Modifiers): number =>
@@ -58,5 +59,6 @@ export const creatureRange = (creature: Creature, modifiers: Modifiers): number 
   levelInfo(creature).range *
   (ascendedForm(creature)?.stats?.range ?? 1) *
   modifiers.range *
+  (1 + modifiers.synergy.range) *
   (1 + creature.blessRange) *
   (1 + raceBonusValue(creature, modifiers, 'range'));

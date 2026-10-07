@@ -233,6 +233,9 @@ export class Effects {
       case 'avalancheEnded':
         this.shake = Math.max(this.shake, 4);
         break;
+      case 'synergyUp':
+        this.banner(`Sinergia: ${event.race}`, event.tier === 2 ? 'nível máximo (3 classes)' : 'ativa (2 classes)', '#ffd25a', 1.6);
+        break;
       case 'pulseReady':
         this.ring(event.x, event.y + 6, 34, '#e2c8ff', 0.6, 3);
         this.burst(event.x, event.y - 10, 10, '#e2c8ff', 50, 0.6, 2, true, -40);

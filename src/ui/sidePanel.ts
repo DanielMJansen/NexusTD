@@ -1,3 +1,5 @@
+import { SYNERGIES } from '../data/synergies';
+import { raceClassCount, racesInField } from '../game/synergies';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { creatureCost } from '../game/economy';
 import { pulsePower } from '../game/pulses';
@@ -86,7 +88,35 @@ export class SidePanel {
     });
   }
 
+  private synergies = document.querySelector<HTMLElement>('#hud-synergies')!;
+
+  /** Faixa das Sinergias: raças da equipe com classes em campo, nível e bônus (com dica do próximo). */
+  private updateSynergies(run: RunState): void {
+    if (!run.synergiesOn) {
+      setHtml(this.synergies, '');
+      return;
+    }
+    const field = racesInField(run);
+    const races = [...new Set(run.team.map((id) => CREATURES[id].race))].filter((race) => SYNERGIES[race]);
+    const html = races
+      .map((race) => {
+        const def = SYNERGIES[race]!;
+        const count = field[race] ?? 0;
+        const total = raceClassCount(race);
+        const tier = run.synergyTiers[race] ?? 0;
+        const value = tier ? def.values[tier - 1]! : def.values[0];
+        const extra = def.critDamage ? def.critDamage[Math.max(0, tier - 1)] : undefined;
+        const title = tier
+          ? `${race} (${count}/${total}): ${def.text(value, extra)}${tier < 2 ? ` · com 3 classes: ${def.text(def.values[1], def.critDamage?.[1])}` : ''}`
+          : `${race} (${count}/${total}): com 2 classes, ${def.text(def.values[0], def.critDamage?.[0])}`;
+        return `<span class="synergy${tier ? ' active tier' + tier : ''}" title="${title}" style="--syn-color:${CREATURES[run.team.find((id) => CREATURES[id].race === race)!].color}">${race} ${count}/${total}</span>`;
+      })
+      .join('');
+    setHtml(this.synergies, html);
+  }
+
   update(run: RunState, interaction: Interaction, time: number): void {
+    this.updateSynergies(run);
     const changed = run.team.length !== this.team.length || run.team.some((id, i) => id !== this.team[i]);
     if (changed || this.heroId !== run.hero.def.id) this.setTeam(run.team, run.hero.def);
     const full = run.creatures.length >= run.creatureLimit;

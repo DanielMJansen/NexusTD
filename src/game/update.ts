@@ -1,3 +1,4 @@
+import { updateSynergies } from './synergies';
 import { updateIce } from './ice';
 import { vitalGuardLost } from './objectives';
 import { updateMapEvents } from './mapEvents';
@@ -74,6 +75,7 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   updatePulses(state, dt, input.aim);
   // deslizando (Travessia), o herói não anda nem ataca por conta própria
   if (!state.pulseFx.glide) updateHero(state, dt, input.direction);
+  updateSynergies(state);
   applyBlocks(state);
   updateEnemies(state, dt);
   updateNexus(state, dt);

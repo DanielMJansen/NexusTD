@@ -70,6 +70,8 @@ function deserialize(raw: Record<string, unknown>): RunState {
     ...raw,
     events: [],
     waveKills: typeof raw.waveKills === 'number' ? raw.waveKills : 0,
+    synergiesOn: raw.synergiesOn === true,
+    synergyTiers: (raw.synergyTiers as Record<string, number> | undefined) ?? {},
     spawnIntervalOverride: typeof raw.spawnIntervalOverride === 'number' ? raw.spawnIntervalOverride : null,
     interactables: (raw.interactables as RunState['interactables'] | undefined) ?? [],
     guards: ((raw.guards as RunState['guards'] | undefined) ?? []).map((g) => ({ ...g, lastHitAt: -Infinity })),

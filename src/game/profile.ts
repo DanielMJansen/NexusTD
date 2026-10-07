@@ -280,6 +280,7 @@ export function runSetup(profile: Profile): RunSetup {
   return {
     stage: isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE,
     sanctuary: { ...profile.sanctuary },
+    synergies: isStageUnlocked(profile, 'tundra'),
     variants: { ...profile.selectedVariants },
     nexusLook: { ...nexusLookFor(profile, isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE) },
     talents: talentBonuses(profile.talents),

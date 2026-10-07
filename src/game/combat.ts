@@ -32,6 +32,7 @@ function effectiveArmor(state: RunState, enemy: Enemy, source: Creature | undefi
     if (creatureAbility(source).kind === 'pierceArmor') return 0;
     const { race, bonus } = state.modifiers.raceBonus;
     if (bonus.kind === 'armorPierce' && source.def.race === race) armor -= bonus.value;
+    armor -= state.modifiers.synergy.armorIgnore[source.def.race] ?? 0;
   }
   return Math.max(0, armor);
 }
@@ -48,7 +49,7 @@ export function damageEnemy(
   const ability = source ? creatureAbility(source) : null;
   if (ability?.kind === 'pierceArmor' && enemyArmor(enemy) > 0) amount *= 1 + ability.bonusVsArmored;
   // marca/vulnerável (todas as fontes) e bônus da criatura (contra fortes, abates acumulados)
-  amount *= vulnerability(enemy) * (source ? sourceDamageMultiplier(source, enemy) : 1);
+  amount *= vulnerability(enemy) * (source ? sourceDamageMultiplier(state, source, enemy) : 1);
   const raceBonus = state.modifiers.raceBonus;
   if (source && raceBonus.bonus.kind === 'vsStrong' && source.def.race === raceBonus.race && (enemy.elite || enemy.def.isBoss)) {
     amount *= 1 + raceBonus.bonus.value;
@@ -191,7 +192,7 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
     attack.damage * state.modifiers.damage * (1 + state.talents.heroDamage + state.heroStats.damage) * (crit ? 2 : 1) * (1 + (fury?.damage ?? 0));
   for (const victim of victims) damageEnemy(state, victim, damage, undefined, { ignoreArmor: attack.pierceArmor, crit });
   if (attack.healPerHit > 0) healHero(state, attack.healPerHit * victims.length);
-  const lifesteal = state.heroStats.lifesteal + (fury?.lifesteal ?? 0);
+  const lifesteal = state.heroStats.lifesteal + (fury?.lifesteal ?? 0) + state.modifiers.synergy.heroLifesteal;
   if (lifesteal > 0) healHero(state, damage * victims.length * lifesteal);
 
   hero.attackTimer = attack.cooldown / (state.modifiers.attackSpeed + state.heroStats.attackSpeed) / (1 + (fury?.attackSpeed ?? 0));
@@ -321,7 +322,9 @@ export function updateCreatures(state: RunState, dt: number): void {
     const { def } = creature;
     const ability = creatureAbility(creature);
     const range = creatureRange(creature, modifiers) * weatherRangeFactor(state, creature);
-    const reach = ability.kind === 'nova' ? Math.min(range, ability.radius) : range;
+    // sinergia dos Dragões: mais área (nova, explosão, cadeia)
+    const area = 1 + (def.race === 'Dragão' ? modifiers.synergy.area : 0);
+    const reach = ability.kind === 'nova' ? Math.min(range, ability.radius * area) : range;
     const targets = pickTargets(state, creature, reach, ability.kind === 'multishot' ? ability.targets : 1);
     const target = targets[0];
     if (!target) continue;
@@ -330,13 +333,13 @@ export function updateCreatures(state: RunState, dt: number): void {
     // crítico: chance das melhorias + da vertente (Atirador de Elite, Lâmina Carmesim) e dano crítico de auras
     const critBonus = ability.kind === 'crit' ? ability : null;
     const raceCrit = bonus.kind === 'critChance' && def.race === race ? bonus.value : 0;
-    const crit = random() < modifiers.critChance + (critBonus?.chance ?? 0) + raceCrit;
-    const critMultiplier = (critBonus ? critBonus.multiplier : 2) + creature.blessCrit;
+    const crit = random() < modifiers.critChance + (critBonus?.chance ?? 0) + raceCrit + (modifiers.synergy.critChance[def.race] ?? 0);
+    const critMultiplier = (critBonus ? critBonus.multiplier : 2) + creature.blessCrit + (modifiers.synergy.critDamage[def.race] ?? 0);
     const damage = creatureDamage(creature, modifiers) * (inFrenzy ? ability.damageMultiplier : 1) * (crit ? critMultiplier : 1);
     const raceSpeed = bonus.kind === 'attackSpeed' && def.race === race ? bonus.value : 0;
     const speed =
       modifiers.attackSpeed *
-      (1 + raceSpeed + creature.auraBonus + killHaste(creature) + (state.haste.remaining > 0 ? state.haste.amount : 0)) *
+      (1 + raceSpeed + (modifiers.synergy.attackSpeed[def.race] ?? 0) + creature.auraBonus + killHaste(creature) + (state.haste.remaining > 0 ? state.haste.amount : 0)) *
       (inFrenzy ? ability.attackSpeedMultiplier : 1);
     creature.attackTimer = creatureCooldown(creature) / speed;
     creature.lastAttackAt = state.time;
@@ -372,7 +375,7 @@ export function updateCreatures(state: RunState, dt: number): void {
     switch (ability.kind) {
       case 'splash':
         for (const other of state.enemies) {
-          if (other !== target && isHostile(other) && distance(other, target) < ability.radius) {
+          if (other !== target && isHostile(other) && distance(other, target) < ability.radius * area) {
             damageEnemy(state, other, damage * ability.damageRatio, creature);
             applyHitEffects(state, creature, other, scale * ability.damageRatio, extra);
           }
@@ -395,7 +398,7 @@ export function updateCreatures(state: RunState, dt: number): void {
         let chainDamage = damage;
         for (let i = 0; i < ability.jumps; i++) {
           const next = state.enemies
-            .filter((e) => isHostile(e) && !hit.has(e) && distance(e, from) <= ability.radius)
+            .filter((e) => isHostile(e) && !hit.has(e) && distance(e, from) <= ability.radius * area)
             .sort((a, b) => distance(a, from) - distance(b, from))[0];
           if (!next) break;
           chainDamage *= ability.falloff;
