@@ -248,13 +248,15 @@ export class Effects {
         this.text(event.x, event.y - 34, 'Pulso pronto!', '#e2c8ff', 10);
         break;
       case 'weatherWarning':
-        this.banner('Nevasca chegando', `em ${event.seconds} s · fique perto das fogueiras`, '#bfe4ff', 2.2);
+        if (event.kind === 'sandstorm') this.banner('Tempestade de areia chegando', `em ${event.seconds} s · espalhe as criaturas pelas trilhas`, '#ffd08a', 2.2);
+        else this.banner('Nevasca chegando', `em ${event.seconds} s · fique perto das fogueiras`, '#bfe4ff', 2.2);
         break;
       case 'weatherStarted':
-        this.banner(event.forced ? 'Nevasca Eterna' : 'Nevasca!', 'Alcance −30% longe das fogueiras · reacenda com o herói', '#e8f4ff', 2.4);
+        if (event.kind === 'sandstorm') this.banner(event.forced ? 'Tempestade Eterna' : 'Tempestade de areia!', 'Inimigos longe do herói e das criaturas ficam ocultos', '#ffe0a8', 2.4);
+        else this.banner(event.forced ? 'Nevasca Eterna' : 'Nevasca!', 'Alcance −30% longe das fogueiras · reacenda com o herói', '#e8f4ff', 2.4);
         break;
       case 'weatherEnded':
-        this.banner('A nevasca passou', '', '#bfe4ff', 1.4);
+        this.banner(event.kind === 'sandstorm' ? 'A tempestade passou' : 'A nevasca passou', '', event.kind === 'sandstorm' ? '#ffd08a' : '#bfe4ff', 1.4);
         break;
       case 'interactableActivated':
         this.ring(event.x, event.y - 10, 30, '#ffb85a', 0.6, 3);

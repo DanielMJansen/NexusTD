@@ -15,6 +15,9 @@ import { distance, type Creature, type Enemy, type RunState } from './state';
 /** Inimigo que pode ser alvo e levar dano (não morto, não aliado, não submerso na lama). */
 export const isHostile = (enemy: Enemy): boolean => !enemy.dead && enemy.allyTimer <= 0 && !enemy.submerged;
 
+/** Pode ser mirado (vivo, hostil e não oculto pela tempestade de areia)? */
+export const isTargetable = (enemy: Enemy): boolean => isHostile(enemy) && !enemy.hidden;
+
 const findEffect = <K extends HitEffect['kind']>(creature: Creature, kind: K) =>
   creatureEffects(creature).find((e): e is Extract<HitEffect, { kind: K }> => e.kind === kind);
 

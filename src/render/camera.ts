@@ -123,7 +123,8 @@ export function drawMinimap(canvas: HTMLCanvasElement, state: RunState, camera: 
     ctx.arc(p.x * sx, p.y * sy, r, 0, Math.PI * 2);
     ctx.fill();
   };
-  for (const e of state.enemies) if (!e.dead) dot(e, e.def.isBoss ? '#ff4a5a' : '#ff8a6a', e.def.isBoss ? 3 : 1.6);
+  // ocultos pela tempestade de areia também somem do minimapa
+  for (const e of state.enemies) if (!e.dead && !e.hidden) dot(e, e.def.isBoss ? '#ff4a5a' : '#ff8a6a', e.def.isBoss ? 3 : 1.6);
   for (const c of state.creatures) dot(c, '#7af0b0', 2);
   dot(state.nexus, '#c8a8ff', 4);
   for (const g of state.guards) if (g.hp > 0) dot(g, '#ffd25a', 3.4);

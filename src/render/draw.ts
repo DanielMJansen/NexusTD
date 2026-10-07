@@ -103,7 +103,10 @@ export function drawFrame(
   drawAvalanche(ctx, state, time);
   effects.drawWorld(ctx, time);
   ctx.restore();
-  if (state.weather.active) drawBlizzard(ctx, time);
+  if (state.weather.active) {
+    if (STAGES[state.stage].weather?.kind === 'sandstorm') drawSandstorm(ctx, time);
+    else drawBlizzard(ctx, time);
+  }
 
   drawAtmosphere(ctx, time, STAGES[state.stage].biome === 'tundra');
   effects.drawBanners(ctx);
@@ -114,6 +117,17 @@ const attackStrength = (state: RunState, lastAttackAt: number) =>
 
 function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy, time: number): void {
   const scale = enemy.def.scale * (enemy.elite ? WAVES.elites.scale : 1);
+  if (enemy.hidden) {
+    // oculto pela tempestade de areia: só um vulto
+    ctx.save();
+    ctx.globalAlpha = 0.14 + Math.sin(time * 3 + enemy.animationOffset) * 0.05;
+    ctx.fillStyle = '#5a3a1a';
+    ctx.beginPath();
+    ctx.ellipse(enemy.x, enemy.y - 4 * scale, 8 * scale, 11 * scale, 0, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
   if (enemy.submerged) {
     drawSubmerged(ctx, enemy.x, enemy.y + 6 * scale, scale, time + enemy.animationOffset);
     return;
@@ -1118,6 +1132,24 @@ function drawBlizzard(ctx: CanvasRenderingContext2D, time: number): void {
     ctx.beginPath();
     ctx.arc(fx, fy, 0.8 + (i % 3) * 0.5, 0, TAU);
     ctx.fill();
+  }
+  ctx.restore();
+}
+
+/** Tempestade de areia: névoa alaranjada e rajadas de areia na horizontal (presas à tela). */
+function drawSandstorm(ctx: CanvasRenderingContext2D, time: number): void {
+  ctx.save();
+  ctx.fillStyle = 'rgba(214, 160, 90, 0.32)';
+  ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+  ctx.strokeStyle = 'rgba(255, 230, 180, 0.55)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 70; i++) {
+    const x = (i * 97.3 + time * (220 + (i % 6) * 40)) % (ARENA.width + 80) - 40;
+    const y = (i * 37.7) % ARENA.height + Math.sin(time * 2 + i) * 4;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 10 + (i % 4) * 5, y + 1);
+    ctx.stroke();
   }
   ctx.restore();
 }

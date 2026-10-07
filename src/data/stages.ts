@@ -70,14 +70,19 @@ export interface Interactable {
 }
 
 /** Clima periódico da fase (nevasca: alcance das criaturas cai, fogueiras apagam). */
+export type WeatherKind = 'blizzard' | 'sandstorm';
+
+/** Clima periódico: nevasca (alcance menor longe das fogueiras) ou tempestade de areia (inimigos longe ficam ocultos). */
 export interface WeatherRule {
-  kind: 'blizzard';
+  kind: WeatherKind;
   /** Segundos entre um clima e outro, duração e aviso antes de começar. */
   every: number;
   duration: number;
   warning: number;
   /** Multiplicador de alcance das criaturas fora das fogueiras acesas. */
   rangeMultiplier: number;
+  /** Tempestade de areia: inimigos (menos chefes) mais longe que isso do herói e de toda criatura ficam ocultos e não podem ser alvo. */
+  revealRadius?: number;
 }
 
 /** Decoração do cenário (só visual): muro com portões, rio. */
@@ -437,6 +442,7 @@ export const STAGES: Record<StageId, StageDef> = {
     intro: [
       { icon: '☀', title: 'Dois Obeliscos', text: 'Há dois Nexus, um em cada oásis. Os inimigos atacam o mais próximo, e se qualquer um cair a run acaba. Divida as criaturas e mova o herói entre os dois lados.' },
       { icon: '🌴', title: 'Oásis', text: 'Parado num oásis, o herói recupera vida. Criaturas invocadas dentro dele atacam mais rápido.' },
+      { icon: '🌪', title: 'Tempestade de areia', text: 'De tempos em tempos (com aviso) a areia cobre tudo: inimigos longe do herói e das criaturas ficam ocultos e não podem ser alvo até chegar perto. Espalhe criaturas pelas trilhas e use o herói para revelar.' },
       { icon: '🗺', title: 'Mapa aberto', text: 'Inimigos chegam pelo norte, pelo sul e pelas duas pontas da estrada de caravana. Use o zoom (roda do mouse) para ver o mapa inteiro.' },
     ],
     biome: 'desert',
@@ -468,6 +474,7 @@ export const STAGES: Record<StageId, StageDef> = {
       { name: 'Estrada leste', path: [{ x: 1304, y: 360 }, { x: 1190, y: 350 }, { x: 1080, y: 370 }, { x: 950, y: 380 }] },
     ],
     terrain: { kind: 'sand', oases: [{ x: 420, y: 380, r: 75 }, { x: 860, y: 380, r: 75 }], heroRegen: 4, creatureAttackSpeed: 0.15 },
+    weather: { kind: 'sandstorm', every: 70, duration: 14, warning: 5, rangeMultiplier: 1, revealRadius: 85 },
     requires: 'tundra',
   },
 };

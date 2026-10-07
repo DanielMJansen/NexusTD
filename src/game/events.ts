@@ -1,3 +1,4 @@
+import type { WeatherKind } from '../data/stages';
 import type { MutationId } from '../data/mutations';
 import type { WaveKind } from '../data/stages';
 import type { CreatureId } from '../data/creatures';
@@ -30,9 +31,9 @@ export type GameEvent =
   | { type: 'guardHit'; x: number; y: number; damage: number }
   | { type: 'guardDestroyed'; name: string; x: number; y: number }
   | { type: 'caravanMoved'; from: Point; to: Point }
-  | { type: 'weatherWarning'; kind: 'blizzard'; seconds: number }
-  | { type: 'weatherStarted'; kind: 'blizzard'; forced: boolean }
-  | { type: 'weatherEnded'; kind: 'blizzard' }
+  | { type: 'weatherWarning'; kind: WeatherKind; seconds: number }
+  | { type: 'weatherStarted'; kind: WeatherKind; forced: boolean }
+  | { type: 'weatherEnded'; kind: WeatherKind }
   | { type: 'interactableActivated'; kind: 'brazier'; x: number; y: number }
   | { type: 'creatureSwallowed'; x: number; y: number }
   | { type: 'creatureReleased'; x: number; y: number }

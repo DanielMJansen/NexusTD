@@ -14,6 +14,11 @@ const mutationList = document.querySelector<HTMLElement>('#hud-mutation-list')!;
 const gold = document.querySelector<HTMLElement>('#hud-gold')!;
 const nexusText = document.querySelector<HTMLElement>('#hud-nexus')!;
 const nexusBar = document.querySelector<HTMLElement>('#hud-nexus-bar')!;
+const nexusLabel = document.querySelector<HTMLElement>('#hud-nexus-label')!;
+const twinChip = document.querySelector<HTMLElement>('#hud-twin-chip')!;
+const twinLabel = document.querySelector<HTMLElement>('#hud-twin-label')!;
+const twinText = document.querySelector<HTMLElement>('#hud-twin')!;
+const twinBar = document.querySelector<HTMLElement>('#hud-twin-bar')!;
 const creatures = document.querySelector<HTMLElement>('#hud-creatures')!;
 const enemies = document.querySelector<HTMLElement>('#hud-enemies')!;
 const heroLevel = document.querySelector<HTMLElement>('#hud-hero-level')!;
@@ -38,6 +43,18 @@ export function updateHud(run: RunState): void {
   setText(nexusText, `${hp}/${run.nexus.maxHp}`);
   nexusBar.style.width = `${ratio * 100}%`;
   nexusBar.classList.toggle('low', ratio < 0.3);
+  // segundo Nexus (Deserto): bloco próprio no HUD
+  const twin = run.guards.find((g) => g.twin);
+  if (twinChip.hidden === !!twin) twinChip.hidden = !twin;
+  setText(nexusLabel, twin ? 'Obelisco Oeste' : 'Vida do Nexus');
+  if (twin) {
+    const twinHp = Math.max(0, Math.trunc(twin.hp));
+    const twinRatio = twinHp / twin.maxHp;
+    setText(twinLabel, twin.name);
+    setText(twinText, `${twinHp}/${twin.maxHp}`);
+    twinBar.style.width = `${twinRatio * 100}%`;
+    twinBar.classList.toggle('low', twinRatio < 0.3);
+  }
   setText(creatures, `${run.creatures.length} de ${run.creatureLimit}`);
   // restantes = vivos (sem aliados) + ainda por entrar; total = restantes + abatidos (inclui divisões e invocados)
   const remaining = run.enemies.filter((e) => !e.dead && e.allyTimer <= 0).length + run.spawnQueue.length;

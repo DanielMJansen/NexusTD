@@ -150,7 +150,7 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 | Demônio | +3% de chance de crítico e +6% de dano crítico | +6% e +15% |
 | Anjo | +8% de dano contra chefes | +18% |
 
-### F15. Fase 4 — Deserto Dourado + Relíquias `[~]` — parte 1 feita (mapa, dois Obeliscos, oásis); a seguir: tempestade, inimigos/chefes, roteiro e calibragem, Relíquias
+### F15. Fase 4 — Deserto Dourado + Relíquias `[~]` — partes 1–2 feitas (mapa, dois Obeliscos, oásis, tempestade de areia); a seguir: inimigos/chefes, roteiro e calibragem, Relíquias
 - Cenário de areia e sol. Regra de mapa: **tempestade de areia** (inimigos ficam ocultos até chegar perto) e **oásis** que curam o herói.
 - Modo diferente (decidido em 07/10/2026, no lugar da escolta): **dois Nexus** para defender ao mesmo tempo (ex.: dois oásis); a run acaba se qualquer um cair. A escolta foi descartada.
 - Destrava **Relíquias** (decidido em 07/10/2026): itens permanentes que o herói equipa antes da run. Liberadas ao chegar no Deserto (vencer a Tundra); chefes de **todas as fases** passam a deixá-las: o 1º abate de cada chefe garante uma, depois a **chance cresce com a dificuldade** (chefe do meio da run < chefe final; fases mais avançadas > iniciais; Sem Fim conta). Vagas: 1 ao liberar, 2 ao vencer o Deserto, 3 ao chegar na onda 30 do Sem Fim do Deserto.

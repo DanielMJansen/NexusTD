@@ -90,7 +90,7 @@ export function updateNexus(state: RunState, dt: number): void {
   let target: Enemy | null = null;
   let best = bolt.range;
   for (const enemy of state.enemies) {
-    if (enemy.dead || enemy.allyTimer > 0) continue;
+    if (enemy.dead || enemy.allyTimer > 0 || enemy.hidden) continue;
     const d = distance(enemy, state.nexus);
     if (d < best) {
       best = d;

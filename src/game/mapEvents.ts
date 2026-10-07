@@ -9,7 +9,7 @@ export function startWeather(state: RunState, forced: boolean): void {
   const rule = STAGES[state.stage].weather;
   if (!rule) return;
   state.weather = { active: true, timer: rule.duration, warned: false, forced };
-  for (const o of state.interactables) if (o.kind === 'brazier') o.lit = false;
+  if (rule.kind === 'blizzard') for (const o of state.interactables) if (o.kind === 'brazier') o.lit = false;
   state.events.push({ type: 'weatherStarted', kind: rule.kind, forced });
 }
 
@@ -65,8 +65,25 @@ function updateAvalanche(state: RunState, dt: number, crush: (index: number) => 
   }
 }
 
+/** Tempestade de areia: inimigos (menos chefes) longe do herói e de toda criatura ficam ocultos. */
+function updateSandHidden(state: RunState): void {
+  const rule = STAGES[state.stage].weather;
+  const storm = rule?.kind === 'sandstorm' && state.weather.active;
+  const reveal = rule?.revealRadius ?? 0;
+  for (const enemy of state.enemies) {
+    if (!storm || enemy.def.isBoss || enemy.allyTimer > 0) {
+      enemy.hidden = false;
+      continue;
+    }
+    const hero = state.hero;
+    const seen = (!hero.dead && distance(hero, enemy) <= reveal) || state.creatures.some((c) => distance(c, enemy) <= reveal);
+    enemy.hidden = !seen;
+  }
+}
+
 export function updateMapEvents(state: RunState, dt: number, crush: (index: number) => void = () => {}): void {
   updateAvalanche(state, dt, crush);
+  updateSandHidden(state);
   const rule = STAGES[state.stage].weather;
   if (rule && !state.weather.forced) {
     state.weather.timer -= dt;
@@ -97,7 +114,7 @@ export function updateMapEvents(state: RunState, dt: number, crush: (index: numb
 /** Alcance da criatura sob o clima: menor na nevasca, a não ser perto de uma fogueira acesa. */
 export function weatherRangeFactor(state: RunState, creature: Creature): number {
   const rule = STAGES[state.stage].weather;
-  if (!rule || !state.weather.active) return 1;
+  if (!rule || !state.weather.active || rule.kind !== 'blizzard') return 1;
   const warm = state.interactables.some((o) => o.kind === 'brazier' && o.lit && distance(o, creature) <= o.radius);
   return warm ? 1 : rule.rangeMultiplier;
 }

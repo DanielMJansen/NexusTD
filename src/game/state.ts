@@ -43,6 +43,8 @@ export interface Enemy extends Point {
   enraged: boolean;
   slowTimer: number;
   slowMultiplier: number;
+  /** Oculto pela tempestade de areia: não é desenhado nem pode ser alvo. */
+  hidden?: boolean;
   /** Mutações do Sem Fim: armadura extra, regeneração, escudo de um golpe e filho de divisão. */
   bonusArmor?: number;
   mutRegen?: number;

@@ -3,7 +3,7 @@ import { onIce } from './ice';
 import { weatherRangeFactor } from './mapEvents';
 import { HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureCooldown, creatureDamage, creatureRange, killHaste } from './creatureStats';
-import { applyHitEffects, isHostile, onEnemyKilled, sourceDamageMultiplier, vulnerability } from './hitEffects';
+import { applyHitEffects, isHostile, isTargetable, onEnemyKilled, sourceDamageMultiplier, vulnerability } from './hitEffects';
 import { terrainAttackFactor, terrainHeroFactor } from './terrain';
 
 const isLure = (enemy: Enemy) => enemy.def.traits.some((t) => t.kind === 'lure');
@@ -174,7 +174,7 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
   const range = heroRange(state);
   let best = range;
   for (const enemy of state.enemies) {
-    if (!isHostile(enemy)) continue;
+    if (!isTargetable(enemy)) continue;
     const d = distance(enemy, hero);
     if (d < best) {
       best = d;
@@ -295,7 +295,7 @@ export function updateDamageOverTime(state: RunState, dt: number): void {
 function pickTargets(state: RunState, creature: Creature, range: number, count: number): Enemy[] {
   const strongest = creature.def.targeting === 'strongest';
   return state.enemies
-    .filter((enemy) => isHostile(enemy) && distance(enemy, creature) <= range)
+    .filter((enemy) => isTargetable(enemy) && distance(enemy, creature) <= range)
     .sort((a, b) =>
       // Fogo-fátuo (isca) sempre primeiro
       Number(isLure(b)) - Number(isLure(a)) ||

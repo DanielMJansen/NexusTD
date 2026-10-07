@@ -108,7 +108,8 @@ body {
   overflow: hidden;
 }
 
-#hud-nexus-bar {
+#hud-nexus-bar,
+#hud-twin-bar {
   position: absolute;
   inset: 0 auto 0 0;
   background: linear-gradient(#7af0b0, #2fae6a);
@@ -116,12 +117,14 @@ body {
   transition: width 0.2s;
 }
 
-#hud-nexus-bar.low {
+#hud-nexus-bar.low,
+#hud-twin-bar.low {
   background: linear-gradient(#ff8a8a, #c62c3a);
   box-shadow: 0 0 10px #e0444e88;
 }
 
-#hud-nexus {
+#hud-nexus,
+#hud-twin {
   position: absolute;
   inset: 0;
   display: grid;
@@ -3889,4 +3892,8 @@ b.awakened {
 .team-slot.drop-target {
   outline: 2px dashed var(--card-color);
   outline-offset: 2px;
+}
+
+#hud-twin-chip[hidden] {
+  display: none;
 }
