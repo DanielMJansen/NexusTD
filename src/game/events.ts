@@ -1,3 +1,4 @@
+import type { RelicId } from '../data/relics';
 import type { WeatherKind } from '../data/stages';
 import type { MutationId } from '../data/mutations';
 import type { WaveKind } from '../data/stages';
@@ -39,6 +40,8 @@ export type GameEvent =
   | { type: 'creatureReleased'; x: number; y: number }
   | { type: 'enemyBurrow'; x: number; y: number; surfacing: boolean; radius?: number }
   | { type: 'enemyRevived'; x: number; y: number; boss: boolean; rising: boolean }
+  | { type: 'relicFound'; relic: RelicId; x: number; y: number }
+  | { type: 'ankhSaved' }
   | { type: 'goldStolen'; x: number; y: number; gold: number }
   | { type: 'enemyBlink'; from: Point; to: Point }
   | { type: 'headCut'; x: number; y: number; heads: number }

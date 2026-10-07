@@ -75,6 +75,10 @@ function deserialize(raw: Record<string, unknown>): RunState {
     spawnIntervalOverride: typeof raw.spawnIntervalOverride === 'number' ? raw.spawnIntervalOverride : null,
     interactables: (raw.interactables as RunState['interactables'] | undefined) ?? [],
     guards: ((raw.guards as RunState['guards'] | undefined) ?? []).map((g) => ({ ...g, lastHitAt: -Infinity })),
+    // Relíquias (runs salvas antes delas não têm estes campos)
+    relicsFound: (raw.relicsFound as RunState['relicsFound'] | undefined) ?? [],
+    relicBosses: (raw.relicBosses as RunState['relicBosses'] | undefined) ?? [],
+    ankh: (raw.ankh as RunState['ankh'] | undefined) ?? null,
     escortStop: typeof raw.escortStop === 'number' ? raw.escortStop : 0,
     ice: (raw.ice as RunState['ice'] | undefined) ?? null,
     avalanche: (raw.avalanche as RunState['avalanche'] | undefined) ?? null,

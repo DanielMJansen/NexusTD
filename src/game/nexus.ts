@@ -45,15 +45,19 @@ export const nexusInvestment = (state: RunState): number =>
   NEXUS_UPGRADES.reduce((sum, u) => sum + u.costs.slice(0, state.nexusLevels[u.id]).reduce((a, b) => a + b, 0), 0);
 
 /** Golpe de um inimigo no Nexus: Égide, Escudo e Muralha, nessa ordem. */
-export function damageNexus(state: RunState, amount: number): void {
+/**
+ * Defesas do Nexus contra um golpe (Guarda, Escudo, Blindagem, sinergia). Vale também para os
+ * Obeliscos gêmeos. Retorna o dano que passa (0 = bloqueado).
+ */
+export function mitigateNexusHit(state: RunState, amount: number): number {
   if (state.wardReady) {
     state.wardReady = false;
     state.events.push({ type: 'wardBlocked' });
-    return;
+    return 0;
   }
   if (state.nexusShield.active > 0) {
     state.events.push({ type: 'nexusShieldBlocked' });
-    return;
+    return 0;
   }
   const shield = nexusLevel(state, 'shield');
   if (shield && state.nexusShield.cooldown <= 0) {
@@ -61,10 +65,15 @@ export function damageNexus(state: RunState, amount: number): void {
     state.nexusShield.active = shield.duration;
     state.nexusShield.cooldown = shield.cooldown;
     state.events.push({ type: 'nexusShieldUp', duration: shield.duration });
-    return;
+    return 0;
   }
   const reduction = nexusLevel(state, 'armor')?.reduction ?? 0;
-  const damage = Math.max(1, Math.round(amount * (1 - reduction) * (1 - state.modifiers.synergy.nexusArmor)));
+  return Math.max(1, Math.round(amount * (1 - reduction) * (1 - state.modifiers.synergy.nexusArmor)));
+}
+
+export function damageNexus(state: RunState, amount: number): void {
+  const damage = mitigateNexusHit(state, amount);
+  if (!damage) return;
   state.nexus.hp -= damage;
   state.lowestNexusRatio = Math.min(state.lowestNexusRatio, Math.max(0, state.nexus.hp) / state.nexus.maxHp);
   state.events.push({ type: 'nexusHit', damage });

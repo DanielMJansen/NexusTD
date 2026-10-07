@@ -1,4 +1,5 @@
 // Configurações do jogador, salvas separadas do progresso. Novas opções entram com valor padrão.
+import { DEFAULT_BINDINGS, sanitizeBindings, type KeyBindings } from '../input/bindings';
 
 export type GameSpeed = 1 | 2 | 4;
 
@@ -19,6 +20,8 @@ export interface Settings {
   showFps: boolean;
   /** Modo administrador (liberado por código): botão 🛠 Admin no menu. */
   admin: boolean;
+  /** Teclas configuradas (Controles). */
+  keys: KeyBindings;
 }
 
 export const SETTINGS_KEY = 'nexus-settings-v1';
@@ -33,6 +36,7 @@ const DEFAULT_SETTINGS: Settings = {
   quality: 'auto',
   showFps: false,
   admin: false,
+  keys: { ...DEFAULT_BINDINGS },
 };
 
 const clamp01 = (value: unknown, fallback: number): number =>
@@ -51,15 +55,16 @@ export function sanitizeSettings(data: unknown): Settings {
     quality: raw.quality === 'high' || raw.quality === 'medium' || raw.quality === 'low' ? raw.quality : 'auto',
     showFps: raw.showFps === true,
     admin: raw.admin === true,
+    keys: sanitizeBindings(raw.keys),
   };
 }
 
 export function loadSettings(): Settings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
-    return raw ? sanitizeSettings(JSON.parse(raw)) : { ...DEFAULT_SETTINGS };
+    return sanitizeSettings(raw ? JSON.parse(raw) : {});
   } catch {
-    return { ...DEFAULT_SETTINGS };
+    return sanitizeSettings({});
   }
 }
 

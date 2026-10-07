@@ -1,3 +1,4 @@
+import { boundKeyLabel } from '../input/bindings';
 import { VARIANTS } from '../data/altar';
 import { raisableCorpses } from '../game/raise';
 import { SYNERGIES } from '../data/synergies';
@@ -49,7 +50,7 @@ export class SidePanel {
   private setTeam(team: readonly CreatureId[], hero: HeroDef): void {
     this.team = [...team];
     this.heroId = hero.id;
-    this.pulseTooltip.innerHTML = `<h4>Pulso do ${hero.name} <kbd>Espaço</kbd></h4><p class="special">${pulseText(hero)}</p>`;
+    this.pulseTooltip.innerHTML = `<h4>Pulso do ${hero.name} <kbd>${boundKeyLabel('pulse')}</kbd></h4><p class="special">${pulseText(hero)}</p>`;
     this.pulseKey = '';
     this.pulseTooltip.style.setProperty('--card-color', hero.color);
     this.cards.clear();
@@ -158,7 +159,7 @@ export class SidePanel {
     const key = `${run.hero.def.id} ${live.power} ${live.size} ${live.radius} ${live.cooldown}`;
     if (key !== this.pulseKey) {
       this.pulseKey = key;
-      setHtml(this.pulseTooltip, `<h4>Pulso do ${run.hero.def.name} <kbd>Espaço</kbd></h4><p class="special">${pulseText(run.hero.def, live)}</p>`);
+      setHtml(this.pulseTooltip, `<h4>Pulso do ${run.hero.def.name} <kbd>${boundKeyLabel('pulse')}</kbd></h4><p class="special">${pulseText(run.hero.def, live)}</p>`);
     }
     const name = run.hero.def.pulse.name;
     if (this.pulseName.textContent !== name) this.pulseName.textContent = name;

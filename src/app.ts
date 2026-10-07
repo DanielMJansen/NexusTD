@@ -20,6 +20,7 @@ import { showChestChoices } from './ui/chestChoices';
 import { NexusPanel } from './ui/nexusPanel';
 import { CreaturePopup } from './ui/creaturePopup';
 import { firePulse } from './game/pulses';
+import { actionForKey, setActiveBindings } from './input/bindings';
 import type { GameEvent } from './game/events';
 import {
   buyHero,
@@ -69,6 +70,7 @@ import { animateOverlay, hideOverlay, setChosenVariants } from './ui/overlay';
 import { showPause } from './ui/pause';
 import { showRunEnd } from './ui/runEnd';
 import { showSettings } from './ui/settingsScreen';
+import { showRelics } from './ui/relicsScreen';
 import { SidePanel } from './ui/sidePanel';
 import { needsStarter, showStarterPick } from './ui/starterPick';
 import { showTalents } from './ui/talentsScreen';
@@ -214,6 +216,8 @@ export class App {
     this.speedButton.classList.toggle('frozen', this.frozen);
     this.freezeBadge.hidden = !this.frozen || this.mode !== 'run';
     this.effects.showDamageNumbers = this.settings.damageNumbers;
+    this.keyboard.bindings = this.settings.keys;
+    setActiveBindings(this.settings.keys);
   }
 
   /** Abre as configurações por cima da tela atual; durante uma onda, pausa antes. */
@@ -328,25 +332,26 @@ export class App {
       if (key === 'escape') this.closeSettings();
       return;
     }
-    if (key === ' ') {
+    const action = actionForKey(this.settings.keys, key);
+    if (action === 'pulse') {
       event.preventDefault();
       this.pulse();
     } else if (key === 'escape') {
       if (!this.pointer.cancel()) this.togglePause();
-    } else if (key === 'e') {
+    } else if (action === 'evolve') {
       this.pointer.evolveInspected();
-    } else if (key === 'v') {
+    } else if (action === 'sell') {
       // vender a criatura selecionada (2 toques, como no popup)
       this.sellInspected();
-    } else if (key === 'f') {
+    } else if (action === 'speed') {
       this.cycleSpeed();
-    } else if (key === '0') {
+    } else if (action === 'freeze') {
       this.setFrozen(!this.frozen);
-    } else if (key === 'p') {
+    } else if (action === 'pause') {
       this.togglePause();
-    } else if (key === 'c') {
+    } else if (action === 'camera') {
       this.camera.snap(this.run);
-    } else if (key === 'n') {
+    } else if (action === 'nexus') {
       this.toggleNexusPanel();
     } else if (/^[1-9]$/.test(key)) {
       const id = this.run.team[Number(key) - 1];
@@ -393,6 +398,8 @@ export class App {
       let remaining = elapsed * this.settings.gameSpeed;
       while (remaining > 1e-6) {
         const dt = Math.min(SIMULATION.maxFrameTime, remaining);
+        // Pulso segurado: solta assim que recarregar
+        if (this.run.pulse.remaining === 0 && this.keyboard.isDown(this.settings.keys.pulse)) this.pulse();
         updateRun(this.run, dt, { direction: this.keyboard.direction(), aim: this.aimPoint() });
         this.effects.update(dt);
         remaining -= dt;
@@ -607,6 +614,12 @@ export class App {
       },
       onSanctuary: () => this.openSanctuary(),
       onAltar: () => this.openAltar(),
+      onRelics: () =>
+        showRelics(
+          this.profile,
+          () => saveProfile(this.profile),
+          () => this.openMenu(),
+        ),
       onSettings: () => this.openSettings(),
     });
   }

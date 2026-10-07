@@ -1,3 +1,4 @@
+import { RELIC_IDS } from '../data/relics';
 // Painel de administrador: edita o perfil local à vontade (para testar). Simulação pura: só mexe no perfil;
 // quem chama salva e passa o perfil pela limpeza do save (equipe, herói e equipes salvas válidos).
 import { ACHIEVEMENT_IDS, type AchievementId } from '../data/achievements';
@@ -107,6 +108,12 @@ export function setGift(profile: Profile, gift: GiftId, on: boolean): void {
   for (const id of ALL_HERO_IDS) if (HEROES[id].gift === gift) setHeroOwned(profile, id, false);
 }
 
+/** Relíquias: todas ou nenhuma (tira as equipadas junto). */
+export function setAllRelics(profile: Profile, all: boolean): void {
+  profile.relics = all ? [...RELIC_IDS] : [];
+  if (!all) profile.equippedRelics = [];
+}
+
 /** Libera tudo: criaturas, heróis, conquistas (skins), fases, cores, talentos e presentes. */
 export function unlockEverything(profile: Profile): void {
   for (const gift of GIFT_IDS) setGift(profile, gift, true);
@@ -116,4 +123,5 @@ export function unlockEverything(profile: Profile): void {
   for (const id of STAGE_IDS) setStageWon(profile, id, true);
   for (const c of NEXUS_COLORS) if (c.unlock.kind !== 'achievement' && !profile.nexusColors.includes(c.id)) profile.nexusColors.push(c.id);
   setTalentsMax(profile, true);
+  setAllRelics(profile, true);
 }

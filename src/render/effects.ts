@@ -1,3 +1,4 @@
+import { RELICS } from '../data/relics';
 import { MUTATIONS } from '../data/mutations';
 import { ARENA } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
@@ -202,6 +203,14 @@ export class Effects {
         break;
       case 'guardHit':
         this.text(event.x, event.y - 50, `-${event.damage}`, '#ffb84a', 11);
+        break;
+      case 'relicFound':
+        this.banner(`Relíquia: ${RELICS[event.relic].icon} ${RELICS[event.relic].name}`, 'Equipe no menu, em Relíquias', '#f0c35a', 2.6);
+        this.ring(event.x, event.y, 60, '#f0c35a', 0.8, 4);
+        this.burst(event.x, event.y, 30, '#ffe9a0', 120, 0.9, 3, true, -40);
+        break;
+      case 'ankhSaved':
+        this.banner('☥ O Ankh salvou o Obelisco!', 'Uma vez por run', '#f0c35a', 2.4);
         break;
       case 'guardDestroyed':
         this.ring(event.x, event.y, 70, '#ff5a5a', 0.8, 5);

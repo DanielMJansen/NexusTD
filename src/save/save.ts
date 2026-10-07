@@ -7,7 +7,8 @@ import { FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
 import { ALL_CREATURE_IDS, type CreatureId, CREATURES } from '../data/creatures';
 import { GIFT_IDS } from '../data/gifts';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
-import { ENEMY_IDS } from '../data/enemies';
+import { ENEMY_IDS, type EnemyId } from '../data/enemies';
+import { RELIC_IDS, type RelicId } from '../data/relics';
 import { ALL_HERO_IDS, STARTER_HERO, type HeroId } from '../data/heroes';
 import { findSkin } from '../data/skins';
 import { TALENT_IDS, talentMaxLevel, type TalentId } from '../data/talents';
@@ -147,6 +148,11 @@ function sanitize(data: unknown): Profile {
   if (!raw.stageRecords && (profile.stats.wins > 0 || profile.bestWave > 0)) {
     profile.stageRecords[FIRST_STAGE] = { wins: profile.stats.wins, bestWave: profile.bestWave };
   }
+  // Relíquias (campos novos: padrão vazio)
+  const relicList = (value: unknown) => [...new Set(Array.isArray(value) ? value : [])].filter((id): id is RelicId => RELIC_IDS.includes(id as RelicId));
+  profile.relics = relicList(raw.relics);
+  profile.equippedRelics = relicList(raw.equippedRelics).filter((id) => profile.relics.includes(id));
+  profile.relicBosses = [...new Set(Array.isArray(raw.relicBosses) ? raw.relicBosses : [])].filter((id): id is EnemyId => ENEMY_IDS.includes(id as EnemyId));
   // Santuário (campos novos: padrão vazio)
   const fragments = (raw.fragments ?? {}) as Record<string, unknown>;
   const races = new Set(ALL_CREATURE_IDS.map((id) => CREATURES[id].race));

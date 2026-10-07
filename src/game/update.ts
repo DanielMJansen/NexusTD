@@ -1,3 +1,4 @@
+import { tryAnkh } from './relics';
 import { updateSynergies } from './synergies';
 import { updateIce } from './ice';
 import { vitalGuardLost } from './objectives';
@@ -49,6 +50,8 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   if (state.talents.nexusRegen > 0 && state.nexus.hp < state.nexus.maxHp) {
     state.nexus.hp = Math.min(state.nexus.maxHp, state.nexus.hp + state.talents.nexusRegen * dt);
   }
+  // Obeliscos gêmeos regeneram como o Nexus
+  if (state.talents.nexusRegen > 0) for (const g of state.guards) if (g.twin && g.hp > 0) g.hp = Math.min(g.maxHp, g.hp + state.talents.nexusRegen * dt);
 
   state.spawnTimer -= dt;
   const next = state.spawnQueue[0];
@@ -84,7 +87,7 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   updateLoot(state, dt);
   state.enemies = state.enemies.filter((e) => !e.dead);
 
-  if (state.nexus.hp <= 0 || vitalGuardLost(state)) endRun(state, false);
+  if ((state.nexus.hp <= 0 || vitalGuardLost(state)) && !tryAnkh(state)) endRun(state, false);
   else if (!state.spawnQueue.length && !state.enemies.length) {
     if (state.wave >= stageWaveCount(state.stage) && !state.endless) endRun(state, true);
     else offerChoices(state);
@@ -156,6 +159,8 @@ function endRun(state: RunState, victory: boolean): void {
     seenEnemies: [...state.seenEnemies],
     endless: state.endless,
     previousKills: state.endless ? state.endlessKills : 0,
+    relicsFound: [...state.relicsFound],
+    relicBosses: [...state.relicBosses],
   };
   state.events.push({ type: 'runEnded', result: state.result });
 }

@@ -1,3 +1,5 @@
+import { RELIC_SLOTS, type RelicId } from '../data/relics';
+import { withRelicBonuses } from './relics';
 import { GIFT_IDS, GIFTS, type GiftId } from '../data/gifts';
 import { ALL_CREATURE_IDS } from '../data/creatures';
 import { ALL_HERO_IDS, HEROES as GIFT_HEROES } from '../data/heroes';
@@ -67,6 +69,10 @@ export interface Profile {
   selectedStage: StageId;
   /** Recordes por fase (vitórias e onda mais alta). */
   stageRecords: Partial<Record<StageId, StageRecord>>;
+  /** Relíquias possuídas, equipadas e chefes já abatidos com elas liberadas (1º abate garante uma). */
+  relics: RelicId[];
+  equippedRelics: RelicId[];
+  relicBosses: EnemyId[];
 }
 
 /** Criaturas que já vêm na coleção. */
@@ -101,6 +107,9 @@ export function createProfile(): Profile {
     nexusLooks: {},
     nexusColors: [],
     stageRecords: {},
+    relics: [],
+    equippedRelics: [],
+    relicBosses: [],
   };
   profile.loadouts = Array.from({ length: LOADOUTS.free }, (_, i) => ({ name: loadoutName(i), hero: profile.selectedHero, team: [...profile.team] }));
   return profile;
@@ -280,6 +289,34 @@ export function isStageUnlocked(profile: Profile, id: StageId): boolean {
   return required === null || (profile.stageRecords[required]?.wins ?? 0) > 0;
 }
 
+// ---------- Relíquias ----------
+
+/** Relíquias liberadas ao chegar no Deserto (vencer a Tundra). */
+export const relicsUnlocked = (profile: Profile): boolean => isStageUnlocked(profile, 'desert');
+
+/** Vagas: 1 ao liberar, 2 ao vencer o Deserto, 3 na onda 30 do Sem Fim do Deserto. */
+export function relicSlots(profile: Profile): number {
+  if (!relicsUnlocked(profile)) return 0;
+  const desert = profile.stageRecords.desert;
+  return 1 + ((desert?.wins ?? 0) > 0 ? 1 : 0) + ((desert?.bestWave ?? 0) >= RELIC_SLOTS.desertEndlessWave ? 1 : 0);
+}
+
+/** Relíquias que valem na próxima run (equipadas, possuídas e dentro das vagas). */
+export const activeRelics = (profile: Profile): RelicId[] =>
+  profile.equippedRelics.filter((id) => profile.relics.includes(id)).slice(0, relicSlots(profile));
+
+/** Equipa ou desequipa uma Relíquia; sem vaga livre, não equipa. */
+export function toggleRelic(profile: Profile, id: RelicId): boolean {
+  if (!profile.relics.includes(id)) return false;
+  if (profile.equippedRelics.includes(id)) {
+    profile.equippedRelics = profile.equippedRelics.filter((r) => r !== id);
+    return true;
+  }
+  if (activeRelics(profile).length >= relicSlots(profile)) return false;
+  profile.equippedRelics = [...activeRelics(profile), id];
+  return true;
+}
+
 /** O Santuário aparece quando alguma fase que dá Fragmentos foi liberada. */
 export function hasSanctuary(profile: Profile): boolean {
   return STAGE_IDS.some((id) => STAGES[id].fragments && isStageUnlocked(profile, id));
@@ -319,7 +356,8 @@ export function runSetup(profile: Profile): RunSetup {
     synergies: isStageUnlocked(profile, 'tundra'),
     variants: { ...profile.selectedVariants },
     nexusLook: { ...nexusLookFor(profile, isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE) },
-    talents: talentBonuses(profile.talents),
+    talents: withRelicBonuses(talentBonuses(profile.talents), activeRelics(profile)),
+    relics: { unlocked: relicsUnlocked(profile), owned: [...profile.relics], firstKills: [...profile.relicBosses], equipped: activeRelics(profile) },
     team: profile.team.filter((id) => ownsCreature(profile, id)),
     hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,
     heroPalette: heroSkin(profile, profile.selectedHero).palette,

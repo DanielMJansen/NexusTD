@@ -1,5 +1,6 @@
 import type { Settings } from '../save/settings';
 import { showOverlay } from './overlay';
+import { DEFAULT_BINDINGS, isReservedKey, KEY_ACTIONS, keyLabel, rebind, type KeyAction } from '../input/bindings';
 
 export interface SettingsHandlers {
   onChange(change: Partial<Settings>): void;
@@ -39,6 +40,12 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
       ${toggle('muted', 'Silenciar tudo')}
       <h3>Jogo</h3>
       ${toggle('damageNumbers', 'Mostrar números de dano')}
+      <h3>Controles</h3>
+      <p class="hint">Clique numa ação e aperte a nova tecla (Esc cancela). Se a tecla já for de outra ação, as duas trocam. As setas sempre movem o herói; 1–8 invocam as criaturas.</p>
+      <div class="keys-grid">${KEY_ACTIONS.map(
+        ({ action, label }) => `<span>${label}</span><button class="key-button" data-action="rebind" data-value="${action}">${keyLabel(settings.keys[action])}</button>`,
+      ).join('')}</div>
+      <div class="row-buttons"><button data-action="resetKeys">↺ Restaurar teclas padrão</button></div>
       <h3>Desempenho</h3>
       <div class="quality-row">
         <span>Qualidade gráfica</span>
@@ -92,6 +99,32 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
       quality: (value) => {
         handlers.onChange({ quality: value as Settings['quality'] });
         showSettings({ ...settings, quality: value as Settings['quality'] }, handlers);
+      },
+      rebind: (value) => {
+        const action = value as KeyAction;
+        const button = document.querySelector<HTMLButtonElement>(`.key-button[data-value="${action}"]`);
+        if (!button) return;
+        button.textContent = 'Aperte uma tecla…';
+        button.classList.add('listening');
+        // captura antes do jogo (fase de captura no documento)
+        const listen = (event: KeyboardEvent) => {
+          event.preventDefault();
+          event.stopPropagation();
+          document.removeEventListener('keydown', listen, true);
+          const key = event.key.toLowerCase();
+          if (key === 'escape' || isReservedKey(key)) {
+            showSettings(settings, handlers);
+            return;
+          }
+          const keys = rebind(settings.keys, action, key);
+          handlers.onChange({ keys });
+          showSettings({ ...settings, keys }, handlers);
+        };
+        document.addEventListener('keydown', listen, true);
+      },
+      resetKeys: () => {
+        handlers.onChange({ keys: { ...DEFAULT_BINDINGS } });
+        showSettings({ ...settings, keys: { ...DEFAULT_BINDINGS } }, handlers);
       },
       tutorial: () => {
         handlers.onChange({ tutorialDone: false });

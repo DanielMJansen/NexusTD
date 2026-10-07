@@ -1,3 +1,4 @@
+import { rollRelicDrop } from './relics';
 import { raceGrip, racePure } from '../data/races';
 import { onIce } from './ice';
 import { weatherRangeFactor } from './mapEvents';
@@ -96,6 +97,7 @@ export function damageEnemy(
       enemy.stolen = 0;
     }
     if (!enemy.summonedAlly) dropLoot(state, enemy);
+    rollRelicDrop(state, enemy);
     onEnemyKilled(state, enemy, source);
     for (const trait of enemy.def.traits) {
       if (trait.kind === 'split') for (let k = 0; k < trait.count; k++) spawnEnemyAt(state, trait.into, enemy, 8);

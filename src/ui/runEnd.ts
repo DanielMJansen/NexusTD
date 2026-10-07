@@ -1,3 +1,4 @@
+import { RELICS } from '../data/relics';
 import type { StageDef } from '../data/stages';
 import { ACHIEVEMENTS, type AchievementId } from '../data/achievements';
 import { HEROES } from '../data/heroes';
@@ -36,6 +37,7 @@ export function showRunEnd(
         <div>${result.kills}<small>abates</small></div>
         <div>${essence(`+${result.essence}`)}<small>Essência</small></div>
       </div>
+      ${result.relicsFound?.length ? `<p class="run-fragments">Relíquias: ${result.relicsFound.map((id) => `${RELICS[id].icon} <b>${RELICS[id].name}</b>`).join(' · ')}</p>` : ''}
       ${result.crystals ? `<p class="run-fragments">Cristais Ancestrais: ${crystals(`+${result.crystals}`)}</p>` : ''}
       ${Object.keys(result.fragments).length ? `<p class="run-fragments">Fragmentos: ${Object.entries(result.fragments).map(([race, n]) => fragments(`+${n}`, race)).join(' · ')}</p>` : ''}
       ${stageUnlocked ? `<p class="stage-unlocked">🔓 <b>Fase ${stageUnlocked.number} · ${stageUnlocked.name}</b> liberada! Escolha em <b>Fase</b>, no menu.</p>` : ''}

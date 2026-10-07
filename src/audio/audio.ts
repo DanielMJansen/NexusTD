@@ -142,6 +142,10 @@ export class SoundPlayer {
       case 'enemyRevived':
         this.play('summon');
         break;
+      case 'relicFound':
+      case 'ankhSaved':
+        this.play('evolve');
+        break;
       case 'stomp':
         this.play('stomp');
         break;

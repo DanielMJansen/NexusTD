@@ -3,7 +3,7 @@ import { NEXUS } from '../data/config';
 import type { EnemyTrait } from '../data/enemies';
 import { damageHero } from './hero';
 import { updateAlly, updateStatusTimers } from './hitEffects';
-import { damageNexus, nexusSlowFactor } from './nexus';
+import { damageNexus, mitigateNexusHit, nexusSlowFactor } from './nexus';
 import { spawnEnemyAt } from './spawning';
 import { inMud } from './terrain';
 import { breakIce, iceSpeed, onIce } from './ice';
@@ -353,7 +353,12 @@ export function updateEnemies(state: RunState, dt: number): void {
       if (enemy.nexusTimer <= 0) {
         enemy.nexusTimer = enemy.def.isBoss ? NEXUS.bossAttackInterval : NEXUS.enemyAttackInterval;
         if (enemy.hexTimer <= 0) {
-          if (target.kind === 'guard') damageGuard(state, target.index, enemy.nexusDamage * (1 - enemy.weakenDamage));
+          if (target.kind === 'guard') {
+            // Obelisco gêmeo tem as mesmas defesas do Nexus
+            const raw = enemy.nexusDamage * (1 - enemy.weakenDamage);
+            const dealt = state.guards[target.index]?.twin ? mitigateNexusHit(state, raw) : raw;
+            if (dealt > 0) damageGuard(state, target.index, dealt);
+          }
           else damageNexus(state, enemy.nexusDamage * (1 - enemy.weakenDamage));
           markAttack(enemy, state.time, target.at);
           const drain = findTrait(enemy, 'drain');

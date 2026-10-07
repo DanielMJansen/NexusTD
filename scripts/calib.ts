@@ -157,6 +157,16 @@ function trial(label: string, team: CreatureId[], hero: HeroId): void {
       }
       if (run.endless && run.wave >= 60) break;
     }
+    if (process.env.DIAG === '1' && !won && !run.result?.victory) {
+      // diagnóstico da derrota: qual ponto caiu e quem estava vivo perto dele
+      const near = (p: { x: number; y: number }) => {
+        const count: Record<string, number> = {};
+        for (const e of run.enemies) if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 60) count[e.def.id] = (count[e.def.id] ?? 0) + 1;
+        return JSON.stringify(count);
+      };
+      const points = [{ name: 'Nexus', hp: run.nexus.hp, at: run.nexus }, ...run.guards.map((g) => ({ name: g.name, hp: g.hp, at: g }))];
+      console.log(`  onda ${run.wave} · ${points.map((p) => `${p.name} ${Math.round(p.hp)} ${near(p.at)}`).join(' | ')} · criaturas ${run.creatures.length}`);
+    }
     const victory = won || !!run.result?.victory;
     if (victory) wins++;
     else losses.push(run.wave);

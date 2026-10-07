@@ -3225,36 +3225,42 @@ body:not([data-mode='run']) .panel.screen {
   box-shadow: 0 0 10px #f0c35a40;
 }
 
-.hub-hero-pick span,
-.hub-race > span {
+.hub-hero-pick span {
   font: 600 11px var(--font-label);
-  color: var(--muted);
+  color: #f6e6b8;
   white-space: nowrap;
 }
 
-.hub-hero-pick span {
-  color: #f6e6b8;
-}
-
-.hub-race {
+.hub-crew {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
+  gap: 2px;
   min-width: 0;
 }
 
-.hub-race > div {
+.hub-crew > div {
   display: flex;
   justify-content: center;
+  max-width: 100%;
 }
 
-.hub-race > span {
-  margin-top: 1px;
-  padding-top: 1px;
+.hub-crew > span {
+  width: 100%;
+  padding-top: 2px;
   border-top: 1px solid var(--line-strong);
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font: 600 11px var(--font-label);
+  color: var(--muted);
+}
+
+.hub-crew > span b {
+  color: #e8dcff;
+  font-weight: 700;
+}
+
+.menu-page .hub-buttons .hub-locked {
+  opacity: 0.55;
+  border-style: dashed;
 }
 
 .hub-play {
@@ -4014,4 +4020,124 @@ b.awakened {
 
 #hud-twin-chip[hidden] {
   display: none;
+}
+
+/* Configurações → Controles */
+.keys-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 14px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.keys-grid span {
+  color: var(--muted);
+}
+
+.key-button {
+  min-width: 110px;
+  padding: 4px 10px;
+  font: 700 14px var(--font-label);
+}
+
+.key-button.listening {
+  border-color: #f0c35a;
+  color: #f0c35a;
+}
+
+/* Relíquias */
+.relic-slots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 6px 0 10px;
+}
+
+.relic-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 150px;
+  min-height: 96px;
+  padding: 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: #110b1ecc;
+  text-align: center;
+}
+
+.relic-slot span {
+  font-size: 30px;
+}
+
+.relic-slot small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.relic-slot.filled {
+  border-color: #f0c35a;
+  box-shadow: 0 0 14px #f0c35a44;
+}
+
+.relic-slot.filled small {
+  color: #f6e6b8;
+}
+
+.relic-slot.empty {
+  border-style: dashed;
+}
+
+.relic-slot.locked {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.relic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.relic-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: linear-gradient(#1c1430e6, #110b1ee6);
+  text-align: center;
+}
+
+.relic-card.equipped {
+  border-color: #f0c35a;
+  box-shadow: 0 0 14px #f0c35a44;
+}
+
+.relic-card.unknown {
+  opacity: 0.5;
+}
+
+.relic-icon {
+  font-size: 34px;
+  line-height: 1.2;
+}
+
+.relic-card p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.relic-card em {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.relic-card button {
+  margin-top: auto;
 }

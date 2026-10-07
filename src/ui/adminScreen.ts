@@ -19,6 +19,7 @@ import {
   setHeroOwned,
   setSanctuaryLevel,
   setStageWon,
+  setAllRelics,
   setTalentsMax,
   toggleNexusColor,
   toggleVariant,
@@ -111,6 +112,7 @@ function extrasTab(profile: Profile): string {
   const gifts = GIFT_IDS.map((id) => `<div class="admin-row"><span><b>Presente · ${GIFTS[id].name}</b></span>${toggle(profile.gifts.includes(id), `gift:${id}`)}</div>`);
   return [
     '<div class="row-buttons"><button data-action="do" data-value="talents:max">Talentos no máximo</button><button data-action="do" data-value="talents:none">Zerar talentos</button></div>',
+    '<div class="row-buttons"><button data-action="do" data-value="relics:all">Todas as Relíquias</button><button data-action="do" data-value="relics:none">Tirar as Relíquias</button></div>',
     ...gifts,
     '<div class="row-buttons"><button class="play-button" data-action="do" data-value="everything">Liberar tudo</button><button data-action="do" data-value="intros">Rever tutoriais das fases</button></div>',
   ].join('');
@@ -147,6 +149,8 @@ function changeFor(action: string): ((p: Profile) => void) | null {
       return (p) => setStageWon(p, a as StageId, !((p.stageRecords[a as StageId]?.wins ?? 0) > 0));
     case 'color':
       return (p) => toggleNexusColor(p, a!);
+    case 'relics':
+      return (p) => setAllRelics(p, a === 'all');
     case 'talents':
       return (p) => setTalentsMax(p, a === 'max');
     case 'gift':

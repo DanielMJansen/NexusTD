@@ -1,3 +1,4 @@
+import { RELICS, type RelicId } from '../data/relics';
 import type { MutationId } from '../data/mutations';
 import { HERO_SPAWN_SHIELD } from '../data/heroUpgrades';
 import type { NexusLook } from '../data/nexusSkins';
@@ -328,6 +329,9 @@ export interface RunResult {
   endless: boolean;
   /** Abates já contados no perfil antes do Sem Fim. */
   previousKills: number;
+  /** Relíquias achadas e chefes com o 1º abate registrado nesta run. */
+  relicsFound: RelicId[];
+  relicBosses: EnemyId[];
 }
 
 /** Inimigo na fila de entrada. */
@@ -355,6 +359,8 @@ export interface RunSetup {
   hero: HeroId;
   /** Cores da skin do herói (só visual). */
   heroPalette: SkinPalette;
+  /** Relíquias: liberadas?, já possuídas, chefes já abatidos (1º abate garante) e equipadas (Ankh). */
+  relics?: { unlocked: boolean; owned: RelicId[]; firstKills: EnemyId[]; equipped: RelicId[] };
 }
 
 export interface RunState {
@@ -416,6 +422,12 @@ export interface RunState {
   pools: Pool[];
   /** Égide rúnica: o próximo golpe no Nexus nesta onda é anulado. */
   wardReady: boolean;
+  /** Relíquias: regras de queda, achadas nesta run e chefes com 1º abate nesta run. */
+  relics?: RunSetup['relics'];
+  relicsFound: RelicId[];
+  relicBosses: EnemyId[];
+  /** Ankh equipado: salva um ponto vital uma vez. */
+  ankh: { hp: number; used: boolean } | null;
   /** Estatísticas da run para conquistas. */
   lowestNexusRatio: number;
   ascendedPeak: number;
@@ -572,6 +584,10 @@ export function createRun(setup: RunSetup): RunState {
     recentDeaths: [],
     pools: [],
     wardReady: false,
+    relics: setup.relics,
+    relicsFound: [],
+    relicBosses: [],
+    ankh: setup.relics?.equipped.includes('ankh') ? { hp: RELICS.ankh.special?.hp ?? 0.3, used: false } : null,
     lowestNexusRatio: 1,
     ascendedPeak: 0,
     spawnQueue: [],
