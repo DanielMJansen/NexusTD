@@ -45,7 +45,7 @@ export function drawFrame(
   effects: Effects,
   interaction: InteractionView,
   time: number,
-  camera: { x: number; y: number } = { x: 0, y: 0 },
+  camera: { x: number; y: number; zoom?: number } = { x: 0, y: 0 },
 ): void {
   effects.nexusAt = state.nexus;
   // limpa o quadro (fora do mundo pintado fica o fundo escuro)
@@ -58,8 +58,11 @@ export function drawFrame(
   const shake = effects.shakeOffset();
   ctx.save();
   // alinha a câmera a pixels inteiros da tela (o cenário em cache não treme)
+  const zoom = camera.zoom ?? 1;
+  ctx.translate(shake.x, shake.y);
+  ctx.scale(zoom, zoom);
   const px = ctx.getTransform().a || 1;
-  ctx.translate(shake.x - Math.round(camera.x * px) / px, shake.y - Math.round(camera.y * px) / px);
+  ctx.translate(-Math.round(camera.x * px) / px, -Math.round(camera.y * px) / px);
   drawBackground(ctx, time, STAGES[state.stage], state.map, state.nexus);
 
   drawIce(ctx, state, time);

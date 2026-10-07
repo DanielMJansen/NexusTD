@@ -128,6 +128,16 @@ export class App {
       isActive: () => this.isPlaying(),
     });
     this.sound.onReady = (ctx, output) => this.music.connect(ctx, output);
+    // roda do mouse: zoom (afastar até ver o mapa inteiro)
+    this.canvas.addEventListener(
+      'wheel',
+      (event) => {
+        if (this.mode !== 'run') return;
+        event.preventDefault();
+        this.camera.zoomBy(this.run, event.deltaY < 0 ? 1 : -1);
+      },
+      { passive: false },
+    );
     this.keyboard = new Keyboard((key, event) => this.onKey(key, event));
     addEventListener('pointerdown', () => this.sound.unlock());
 
@@ -806,7 +816,7 @@ export class App {
     this.music.play('run');
     this.music.setIntensity(0);
     this.run = startRun(runSetup(this.profile));
-    this.camera.snap(this.run);
+    this.camera.snap(this.run, true);
     const stage = this.run.stage;
     if (!this.profile.seenStageIntros.includes(stage)) {
       // primeira run na fase: mostra as mecânicas do mapa antes de começar

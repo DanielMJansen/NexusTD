@@ -11,7 +11,7 @@ const NEXUS_CLICK_RADIUS = 20;
 export interface PointerContext {
   canvas: HTMLCanvasElement;
   /** Câmera (o mouse vira coordenada do mundo; guiar o herói volta a segui-lo). */
-  camera: { x: number; y: number };
+  camera: { x: number; y: number; zoom?: number };
   interaction: Interaction;
   getRun(): RunState;
   /** Só aceita comandos durante uma onda, sem pausa. */
@@ -46,7 +46,8 @@ export function attachPointer({ canvas, camera, interaction, getRun, isActive }:
     };
     // rolagem pela borda só com o mouse sobre a arena (não sobre o HUD)
     interaction.viewPointer = inside && event.target === canvas ? view : null;
-    return { point: { x: view.x + camera.x, y: view.y + camera.y }, inside };
+    const zoom = camera.zoom ?? 1;
+    return { point: { x: view.x / zoom + camera.x, y: view.y / zoom + camera.y }, inside };
   };
 
   const tryPlace = (): boolean => {
