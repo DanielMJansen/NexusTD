@@ -1,3 +1,4 @@
+import { MUTATIONS } from '../data/mutations';
 import { ARENA } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
 import { ENEMIES, type EnemyId } from '../data/enemies';
@@ -561,6 +562,14 @@ export class Effects {
       case 'bossSpawned':
         this.shake = Math.max(this.shake, 9);
         this.banner(`${ENEMIES[event.enemy].name} chegou!`, 'Chefe', '#ff5a5a', 2.6);
+        break;
+      case 'mutationAdded': {
+        const def = MUTATIONS[event.mutation];
+        this.banner(`Mutação: ${def.name}`, def.description, '#ff7ad8', 3);
+        break;
+      }
+      case 'enemyWardBroken':
+        this.ring(event.x, event.y - 6, 18, '#9ad8ff', 0.35, 3);
         break;
       case 'waveStarted':
         {

@@ -49,6 +49,12 @@ export function damageEnemy(
   options: HitOptions = {},
 ): void {
   if (enemy.dead) return;
+  // Escudados (Sem Fim): o primeiro golpe direto é bloqueado
+  if (enemy.ward && !options.overTime) {
+    enemy.ward = false;
+    state.events.push({ type: 'enemyWardBroken', x: enemy.x, y: enemy.y });
+    return;
+  }
   const ability = source ? creatureAbility(source) : null;
   if (ability?.kind === 'pierceArmor' && enemyArmor(enemy) > 0) amount *= 1 + ability.bonusVsArmored;
   // marca/vulnerável (todas as fontes) e bônus da criatura (contra fortes, abates acumulados)

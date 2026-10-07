@@ -1,9 +1,10 @@
+import { MUTATION_IDS, MUTATION_RULES, type MutationId } from '../data/mutations';
 import { advanceEscort } from './objectives';
 import { startWeather } from './mapEvents';
 import { entrances, joinNearestPath } from './paths';
 
 import { ENEMIES, type EnemyId } from '../data/enemies';
-import { scriptedWave, stageWaveCount, STAGES, type StageDef, type StageId } from '../data/stages';
+import { scriptedWave, stageWaveCount, STAGES, type StageDef, type StageId, STAGE_IDS } from '../data/stages';
 import { WAVES } from '../data/waves';
 import { random } from './random';
 import type { Enemy, Point, RunState, SpawnItem } from './state';
@@ -101,6 +102,16 @@ export function startWave(state: RunState): void {
   state.waveKills = 0;
   for (const creature of state.creatures) creature.killStacks = 0;
   state.spawnQueue = buildWaveQueue(state.stage, state.wave);
+  // Invasão: parte da onda vem das outras fases
+  if (state.mutations?.includes('invasion')) {
+    const others = STAGE_IDS.filter((id) => id !== state.stage);
+    state.spawnQueue = state.spawnQueue.map((item) => {
+      const id = typeof item === 'string' ? item : item.enemy;
+      if (ENEMIES[id].isBoss || !others.length || random() >= MUTATION_RULES.invasion) return item;
+      const other = others[Math.floor(random() * others.length)]!;
+      return rollEnemy(other, stageWaveCount(other));
+    });
+  }
   state.spawnIntervalOverride = scriptedWave(state.stage, state.wave)?.interval ?? null;
   state.spawnTimer = 0;
   state.phase = 'playing';
@@ -113,6 +124,17 @@ export function startWave(state: RunState): void {
     state.events.push({ type: 'avalancheWarning', entrance, seconds: Math.ceil(delay) });
   }
   state.events.push({ type: 'waveStarted', wave: state.wave, total: stageWaveCount(state.stage), kind: scripted?.kind ?? 'normal', title: scripted?.title });
+  // Sem Fim: uma mutação nova a cada N ondas (sorteada entre as que ainda não estão ativas)
+  const extra = state.wave - stageWaveCount(state.stage);
+  state.mutations ??= [];
+  if (extra > 0 && extra % MUTATION_RULES.every === 0) {
+    const options = MUTATION_IDS.filter((id) => !state.mutations.includes(id));
+    const pick = options[Math.floor(random() * options.length)];
+    if (pick) {
+      state.mutations.push(pick);
+      state.events.push({ type: 'mutationAdded', mutation: pick });
+    }
+  }
 }
 
 /** Ponto logo fora da borda da tela, na direção do ângulo a partir do Nexus. */
@@ -132,7 +154,9 @@ function eliteChance(state: RunState, wave: number): number {
   const e = WAVES.elites;
   if (wave < e.fromWave) return 0;
   const max = wave > stageWaveCount(state.stage) ? WAVES.endless.eliteChance : e.maxChance;
-  return Math.min(max, e.chance + e.chancePerWave * (wave - e.fromWave));
+  const chance = Math.min(max, e.chance + e.chancePerWave * (wave - e.fromWave));
+  // Frenesi (Sem Fim): elites com o dobro da frequência
+  return state.mutations?.includes('frenzy') ? Math.min(MUTATION_RULES.elite.max, chance * MUTATION_RULES.elite.multiplier) : chance;
 }
 
 /** Cria um inimigo já com a força da onda (e talvez elite). */
@@ -143,13 +167,17 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
   const hp = def.hp * scaling.hp * (elite ? e.hp : 1);
   const damage = scaling.damage * (elite ? e.damage : 1);
   if (!state.seenEnemies.includes(id)) state.seenEnemies.push(id);
+  const mutated = (mutation: MutationId) => !!state.mutations?.includes(mutation);
   return {
     def,
     x: at.x,
     y: at.y,
     hp,
     maxHp: hp,
-    speed: def.speed * scaling.speed,
+    speed: def.speed * scaling.speed * (mutated('swift') ? 1 + MUTATION_RULES.speed : 1),
+    bonusArmor: mutated('armored') ? MUTATION_RULES.armor : 0,
+    mutRegen: mutated('regenerating') ? MUTATION_RULES.regen : 0,
+    ward: mutated('shielded') && !def.isBoss,
     nexusDamage: Math.round(def.nexusDamage * damage),
     heroDps: def.heroDps * damage,
     damageScale: damage,

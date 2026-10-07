@@ -1,3 +1,4 @@
+import type { MutationId } from '../data/mutations';
 import type { WaveKind } from '../data/stages';
 import type { CreatureId } from '../data/creatures';
 import type { EnemyId } from '../data/enemies';
@@ -83,6 +84,8 @@ export type GameEvent =
   /** Ouro extra de um abate do Caldeirão Alquímico. */
   | { type: 'bountyGold'; x: number; y: number; gold: number }
   | { type: 'bossSpawned'; enemy: EnemyId }
+  | { type: 'mutationAdded'; mutation: MutationId }
+  | { type: 'enemyWardBroken'; x: number; y: number }
   | { type: 'creaturePlaced'; creature: CreatureId; x: number; y: number }
   | { type: 'creatureSold'; x: number; y: number; refund: number }
   | { type: 'creatureEvolved'; creature: CreatureId; x: number; y: number; level: number; ascended: boolean; name: string }

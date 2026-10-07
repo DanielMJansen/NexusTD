@@ -200,6 +200,14 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     ctx.restore();
   }
 
+  if (enemy.ward) {
+    // Escudados (Sem Fim): anel que quebra no primeiro golpe
+    ctx.strokeStyle = '#9ad8ffcc';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(enemy.x, enemy.y - 6 * scale, 15 * scale, 0, TAU);
+    ctx.stroke();
+  }
   if (enemy.poisonTimer > 0) {
     // bolhas verdes subindo
     ctx.fillStyle = '#a8f080';

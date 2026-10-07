@@ -167,8 +167,8 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 
 ### Em paralelo (encaixar entre fases)
 - **Balanceamento das raças** `[~]` (07/10/2026): rodada feita nas 3 fases (ver Registro do GDD); Humanos com a passiva **Disciplina**. Pendente: Lobisomem na Tundra (0/30) e Bruxa no Pântano (24/30).
-- **Limites da run** `[~]` (decidido em 07/10/2026): crítico até 100% (a Precisão some das ofertas ao chegar) e herói até o **nível 30** — feitos. O Sem Fim continua até perder (sem onda final). A fazer: teto nas demais melhorias da run (PROPOSTA de valores por família).
-- **Sem Fim com mutações** `[ ]` (decidido em 07/10/2026): a cada 5 ondas do Sem Fim entra uma mutação sorteada que fica até o fim (ex.: escudo, rapidez, dividir ao morrer, regeneração, explosão) e ondas misturando inimigos de outras fases. Lista de mutações: PROPOSTA.
+- **Limites da run** `[x]` (decidido em 07/10/2026): crítico até 100% (a Precisão some das ofertas ao chegar) e herói até o **nível 30** — feitos. O Sem Fim continua até perder (sem onda final). Tetos de todas as melhorias feitos (07/10/2026).
+- **Sem Fim com mutações** `[x]` (feito em 07/10/2026) (decidido em 07/10/2026): a cada 5 ondas do Sem Fim entra uma mutação sorteada que fica até o fim (ex.: escudo, rapidez, dividir ao morrer, regeneração, explosão) e ondas misturando inimigos de outras fases. Lista de mutações: PROPOSTA.
 - **Estrelas e Despertar** `[~]` (07/10/2026): estrelas ★4–★5, Despertar (Cristais Ancestrais + Fragmentos) e estrutura da Forma Suprema feitos; ★5 = Forma Suprema, só despertadas, até 2 por run. Lote 1 (Humanos) feito. A fazer: **Formas Supremas das outras raças, em lotes** (efeito e visual próprios; PROPOSTA por lote).
 - **Lobisomem na Tundra** `[x]`: passiva **Caçada** (Garras + Salto) e dica da fase sobre corpo a corpo; Tundra segue difícil para ele (~4/30), por decisão.
 - **Unicórnio exclusivo** `[x]` — feito em 07/10/2026 (Pureza, Potro Estelar, Unicórnio Guardião, Pégaso de Guerra, Alicórnio com o Arco-Íris; código de presente em Configurações, guardado só como hash).

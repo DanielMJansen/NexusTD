@@ -25,7 +25,7 @@ export function markAttack(enemy: Enemy, time: number, target: { x: number; y: n
 /** Armadura atual (Gárgula pousada como pedra ganha armadura extra). */
 export function enemyArmor(enemy: Enemy): number {
   const stone = enemy.stone ? findTrait(enemy, 'stone') : undefined;
-  return Math.max(0, enemy.def.armor + (stone?.armor ?? 0) - enemy.corrodeAmount);
+  return Math.max(0, enemy.def.armor + (stone?.armor ?? 0) + (enemy.bonusArmor ?? 0) - enemy.corrodeAmount);
 }
 
 /** Fração do dano que passa pelo escudo do Lich (1 = sem escudo). */
@@ -263,6 +263,11 @@ export function updateEnemies(state: RunState, dt: number): void {
     const enemy = state.enemies[n]!;
     if (enemy.dead) continue;
     updateStatusTimers(enemy, dt);
+    // Regenerantes (Sem Fim): fogo corta por alguns segundos
+    if ((enemy.mutRegen ?? 0) > 0 && enemy.allyTimer <= 0) {
+      enemy.fireHitTimer = Math.max(0, (enemy.fireHitTimer ?? 0) - dt);
+      if (enemy.fireHitTimer <= 0 && enemy.hp < enemy.maxHp) enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * enemy.mutRegen! * dt);
+    }
     if (enemy.allyTimer > 0) {
       updateAlly(state, enemy, dt);
       continue;

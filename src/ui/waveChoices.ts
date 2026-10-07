@@ -1,5 +1,6 @@
 import { SHOP } from '../data/config';
-import { CRIT_CHANCE_CAP, TIERS, type OfferedUpgrade } from '../data/upgrades';
+import { TIERS, type OfferedUpgrade } from '../data/upgrades';
+import { capRoom, upgradeCurrent } from '../game/choices';
 import { canBuyExtraSlot, canReroll, extraSlotCost, rerollCost } from '../game/shop';
 import type { Choice, RunState } from '../game/state';
 import { formatNumber, heroStatRows } from './describe';
@@ -29,53 +30,37 @@ export function upgradeText(upgrade: OfferedUpgrade): string {
   return family.text.replace('{v}', v).replace('{race}', race ?? '');
 }
 
-/** Valor atual e depois de pegar a melhoria ("máx." quando bate no teto); null quando não há número a comparar. */
+/** Valor atual e depois de pegar a melhoria ("máx." quando bate no teto da família); null quando não há número a comparar. */
 export function upgradeDelta(run: RunState, upgrade: OfferedUpgrade): [string, string] | null {
-  const m = run.modifiers;
-  const t = run.talents;
-  const v = upgrade.value;
-  const plus = (now: number, after: number, cap = Infinity): [string, string] => [
-    `+${pct(now)}`,
-    `+${pct(Math.min(cap, after))}${after >= cap ? ' (máx.)' : ''}`,
-  ];
-  const minus = (now: number, after: number, cap: number): [string, string] => [
-    `−${pct(Math.min(cap, now))}`,
-    `−${pct(Math.min(cap, after))}${after >= cap ? ' (máx.)' : ''}`,
-  ];
-  switch (upgrade.family.kind) {
+  const { family, race } = upgrade;
+  const now = upgradeCurrent(run, family, race);
+  const after = now + Math.min(upgrade.value, capRoom(run, family, race));
+  const maxed = family.cap !== undefined && after >= family.cap - 1e-9 ? ' (máx.)' : '';
+  switch (family.kind) {
     case 'damage':
-      return plus(m.damage - 1, m.damage - 1 + v);
     case 'attackSpeed':
-      return plus(m.attackSpeed - 1, m.attackSpeed - 1 + v);
     case 'range':
-      return plus(m.range - 1, m.range - 1 + v);
+    case 'killGold':
+    case 'heroXp':
+    case 'heroDamage':
+    case 'raceDamage':
+      return [`+${pct(now)}`, `+${pct(after)}${maxed}`];
+    case 'pulseCooldown':
+    case 'evolveDiscount':
+      return [`−${pct(now)}`, `−${pct(after)}${maxed}`];
+    case 'critChance':
+      return [pct(now), `${pct(after)}${maxed}`];
+    case 'nexusRegen':
+      return [`${formatNumber(now)}/s`, `${formatNumber(after)}/s${maxed}`];
     case 'gold':
-      return [`◉ ${run.gold}`, `◉ ${run.gold + v}`];
+      return [`◉ ${run.gold}`, `◉ ${run.gold + upgrade.value}`];
     case 'nexusMaxHp':
     case 'nexusHeart':
-      return [`${run.nexus.maxHp} de vida`, `${run.nexus.maxHp + v}`];
-    case 'pulseCooldown':
-      return minus(t.pulseCooldown, t.pulseCooldown + v, 0.65);
-    case 'nexusRegen':
-      return [`${formatNumber(t.nexusRegen)}/s`, `${formatNumber(t.nexusRegen + v)}/s`];
-    case 'killGold':
-      return plus(t.killGold, t.killGold + v);
-    case 'heroXp':
-      return plus(t.heroXp, t.heroXp + v);
-    case 'heroDamage':
-      return plus(t.heroDamage, t.heroDamage + v);
-    case 'evolveDiscount':
-      return minus(t.evolveDiscount, t.evolveDiscount + v, 0.75);
-    case 'raceDamage': {
-      const now = upgrade.race ? (m.raceDamage[upgrade.race] ?? 0) : 0;
-      return plus(now, now + v);
-    }
-    case 'critChance':
-      return [pct(m.critChance), `${pct(Math.min(CRIT_CHANCE_CAP, m.critChance + v))}${m.critChance + v >= CRIT_CHANCE_CAP ? ' (máx.)' : ''}`];
+      return [`${run.nexus.maxHp} de vida`, `${run.nexus.maxHp + upgrade.value}`];
     case 'creatureSlot':
-      return [`${run.creatureLimit} vagas`, `${run.creatureLimit + v}`];
+      return [`${run.creatureLimit} vagas`, `${run.creatureLimit + upgrade.value}`];
     case 'execute':
-      return m.executeBelow > 0 ? [`< ${pct(m.executeBelow)}`, `< ${pct(Math.max(m.executeBelow, v))}`] : null;
+      return run.modifiers.executeBelow > 0 ? [`< ${pct(run.modifiers.executeBelow)}`, `< ${pct(Math.max(run.modifiers.executeBelow, upgrade.value))}`] : null;
     default:
       return null;
   }

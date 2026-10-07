@@ -1,4 +1,3 @@
-import { CRIT_CHANCE_CAP } from '../data/upgrades';
 import { ASCENDED_LEVEL } from '../data/evolution';
 import { endWeather } from './mapEvents';
 import { scriptedWave, stageWaveCount } from '../data/stages';
@@ -31,7 +30,46 @@ export function offerChoices(state: RunState): void {
 /** Raças presentes na equipe (para as sinergias). */
 const teamRaces = (state: RunState): string[] => [...new Set(state.team.map((id) => CREATURES[id].race))];
 
-/** A família pode ser oferecida agora? (limite de escolhas e efeitos que não fariam nada) */
+/** Total atual que o teto da família limita (talentos + melhorias); `race` para as de raça. */
+export function upgradeCurrent(state: RunState, family: UpgradeFamily, race?: string): number {
+  const m = state.modifiers;
+  const t = state.talents;
+  switch (family.kind) {
+    case 'damage':
+      return m.damage - 1;
+    case 'attackSpeed':
+      return m.attackSpeed - 1;
+    case 'range':
+      return m.range - 1;
+    case 'pulseCooldown':
+      return t.pulseCooldown;
+    case 'nexusRegen':
+      return t.nexusRegen;
+    case 'killGold':
+      return t.killGold;
+    case 'heroXp':
+      return t.heroXp;
+    case 'evolveDiscount':
+      return t.evolveDiscount;
+    case 'raceDamage':
+      return race ? (m.raceDamage[race] ?? 0) : 0;
+    case 'critChance':
+      return m.critChance;
+    case 'heroDamage':
+      return t.heroDamage;
+    default:
+      return 0;
+  }
+}
+
+/** Quanto ainda cabe até o teto (Infinity sem teto). */
+export const capRoom = (state: RunState, family: UpgradeFamily, race?: string): number =>
+  family.cap === undefined ? Infinity : Math.max(0, family.cap - upgradeCurrent(state, family, race));
+
+/** Raças da equipe que ainda cabem no teto da família de raça. */
+const racesBelowCap = (state: RunState, family: UpgradeFamily): string[] => teamRaces(state).filter((race) => capRoom(state, family, race) > 1e-9);
+
+/** A família pode ser oferecida agora? (limite de escolhas, teto e efeitos que não fariam nada) */
 function isAvailable(state: RunState, family: UpgradeFamily): boolean {
   if (family.maxPicks !== undefined && (state.upgradePicks[family.id] ?? 0) >= family.maxPicks) return false;
   switch (family.kind) {
@@ -39,16 +77,10 @@ function isAvailable(state: RunState, family: UpgradeFamily): boolean {
       return state.creatures.length > 0;
     case 'ward':
       return state.talents.nexusWard <= 0;
-    case 'critChance':
-      return state.modifiers.critChance < CRIT_CHANCE_CAP;
-    case 'evolveDiscount':
-      return state.talents.evolveDiscount < 0.75;
-    case 'pulseCooldown':
-      return state.talents.pulseCooldown < 0.65;
     case 'raceDamage':
-      return teamRaces(state).length > 0;
+      return racesBelowCap(state, family).length > 0;
     default:
-      return true;
+      return capRoom(state, family) > 1e-9;
   }
 }
 
@@ -73,7 +105,7 @@ function rollUpgrade(state: RunState, exclude: Set<string>, minTier = 0): Offere
     const options = families.filter((f) => f.values[tier] !== undefined);
     if (!options.length) continue;
     const family = options[Math.floor(random() * options.length)]!;
-    const races = teamRaces(state);
+    const races = racesBelowCap(state, family);
     return {
       family,
       tier,
@@ -130,7 +162,9 @@ export function refreshPulseCooldown(state: RunState): void {
 }
 
 export function applyChoice(state: RunState, choice: Choice): void {
-  const { family, value, race } = choice.upgrade;
+  const { family, race } = choice.upgrade;
+  // nunca passa do teto da família
+  const value = Math.min(choice.upgrade.value, capRoom(state, family, race));
   const m = state.modifiers;
   switch (family.kind) {
     case 'damage':
@@ -167,13 +201,13 @@ export function applyChoice(state: RunState, choice: Choice): void {
       state.talents.heroXp += value;
       break;
     case 'evolveDiscount':
-      state.talents.evolveDiscount = Math.min(0.75, state.talents.evolveDiscount + value);
+      state.talents.evolveDiscount += value;
       break;
     case 'raceDamage':
       if (race) m.raceDamage[race] = (m.raceDamage[race] ?? 0) + value;
       break;
     case 'critChance':
-      m.critChance = Math.min(CRIT_CHANCE_CAP, m.critChance + value);
+      m.critChance += value;
       break;
     case 'heroDamage':
       state.talents.heroDamage += value;

@@ -3671,3 +3671,13 @@ b.awakened {
   display: flex;
   gap: 4px;
 }
+
+/* mutações do Sem Fim no HUD */
+#hud-mutations[hidden] {
+  display: none;
+}
+
+#hud-mutations #hud-mutation-list {
+  color: #ff9ae0;
+  letter-spacing: 2px;
+}

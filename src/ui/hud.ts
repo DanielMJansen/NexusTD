@@ -1,3 +1,4 @@
+import { MUTATIONS } from '../data/mutations';
 import { stageWaveCount } from '../data/stages';
 import { HERO_MAX_LEVEL, xpToNextLevel } from '../data/heroUpgrades';
 import { heroMaxHp } from '../game/hero';
@@ -8,6 +9,8 @@ import { heroSheetHtml } from './describe';
 import type { RunState } from '../game/state';
 
 const wave = document.querySelector<HTMLElement>('#hud-wave')!;
+const mutationChip = document.querySelector<HTMLElement>('#hud-mutations')!;
+const mutationList = document.querySelector<HTMLElement>('#hud-mutation-list')!;
 const gold = document.querySelector<HTMLElement>('#hud-gold')!;
 const nexusText = document.querySelector<HTMLElement>('#hud-nexus')!;
 const nexusBar = document.querySelector<HTMLElement>('#hud-nexus-bar')!;
@@ -24,6 +27,12 @@ const heroSheet = document.querySelector<HTMLElement>('#hero-sheet')!;
 export function updateHud(run: RunState): void {
   setText(wave, run.endless ? `${run.wave} · Sem Fim` : `${Math.max(1, run.wave)} de ${stageWaveCount(run.stage)}`);
   setText(gold, `${run.gold}`);
+  // mutações do Sem Fim ativas (ícones; nome e efeito no título)
+  const mutations = run.mutations ?? [];
+  if (mutationChip.hidden === mutations.length > 0) mutationChip.hidden = mutations.length === 0;
+  setText(mutationList, mutations.map((id) => MUTATIONS[id].icon).join(' '));
+  const title = mutations.map((id) => `${MUTATIONS[id].name}: ${MUTATIONS[id].description}`).join('\n');
+  if (mutationChip.title !== title) mutationChip.title = title;
   const hp = Math.max(0, Math.trunc(run.nexus.hp));
   const ratio = hp / run.nexus.maxHp;
   setText(nexusText, `${hp}/${run.nexus.maxHp}`);

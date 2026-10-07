@@ -1,3 +1,4 @@
+import type { MutationId } from '../data/mutations';
 import { HERO_SPAWN_SHIELD } from '../data/heroUpgrades';
 import type { NexusLook } from '../data/nexusSkins';
 import type { VariantTier } from '../data/altar';
@@ -42,6 +43,11 @@ export interface Enemy extends Point {
   enraged: boolean;
   slowTimer: number;
   slowMultiplier: number;
+  /** Mutações do Sem Fim: armadura extra, regeneração, escudo de um golpe e filho de divisão. */
+  bonusArmor?: number;
+  mutRegen?: number;
+  ward?: boolean;
+  splitChild?: boolean;
   /** Agarrado (Garras dos lobisomens): não desliza no gelo e anda mais devagar. */
   gripTimer: number;
   gripSlow: number;
@@ -432,6 +438,8 @@ export interface RunState {
   /** Criaturas invocadas na run (conquista Sem Torres). */
   creaturesPlaced: number;
   /** Inimigos que já apareceram nesta run (códex). */
+  /** Mutações do Sem Fim ativas (somam a cada N ondas). */
+  mutations: MutationId[];
   seenEnemies: EnemyId[];
   /** Nível comprado de cada melhoria do Nexus (0 = não comprada). */
   nexusLevels: Record<NexusUpgradeId, number>;
@@ -521,6 +529,7 @@ export function createRun(setup: RunSetup): RunState {
     heroUpgradePicks: {},
     creaturesPlaced: 0,
     seenEnemies: [],
+    mutations: [],
     // Nexus+: habilidades que já começam no nível 1
     nexusLevels: { ...noNexusLevels(), bolt: t.startNexusBolt > 0 ? 1 : 0, slowField: t.startNexusField > 0 ? 1 : 0, shield: t.startNexusShield > 0 ? 1 : 0 },
     nexusShield: { active: 0, cooldown: 0 },

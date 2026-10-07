@@ -62,6 +62,8 @@ export interface UpgradeFamily {
   maxPicks?: number;
   /** Sinergia: a carta sorteia uma raça presente na equipe. */
   perRace?: boolean;
+  /** Teto do total na run (talentos + melhorias); ao chegar, a carta some das ofertas. */
+  cap?: number;
 }
 
 export const UPGRADE_FAMILIES: UpgradeFamily[] = [
@@ -73,6 +75,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'damage',
     format: 'percent',
     values: { common: 0.06, uncommon: 0.1, rare: 0.16, epic: 0.25, legendary: 0.4 },
+    cap: 3,
   },
   {
     id: 'rhythm',
@@ -82,6 +85,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'attackSpeed',
     format: 'percent',
     values: { common: 0.05, uncommon: 0.08, rare: 0.13, epic: 0.2, legendary: 0.32 },
+    cap: 2,
   },
   {
     id: 'keenEye',
@@ -91,6 +95,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'range',
     format: 'percent',
     values: { common: 0.05, uncommon: 0.08, rare: 0.12, epic: 0.18, legendary: 0.28 },
+    cap: 1,
   },
   {
     id: 'loot',
@@ -118,6 +123,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'pulseCooldown',
     format: 'percent',
     values: { common: 0.06, uncommon: 0.1, rare: 0.15, epic: 0.22, legendary: 0.32 },
+    cap: 0.65,
   },
   {
     id: 'livingRoots',
@@ -127,6 +133,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'nexusRegen',
     format: 'perSecond',
     values: { common: 0.2, uncommon: 0.35, rare: 0.6, epic: 1, legendary: 1.6 },
+    cap: 10,
   },
   {
     id: 'greed',
@@ -136,6 +143,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'killGold',
     format: 'percent',
     values: { common: 0.1, uncommon: 0.18, rare: 0.3, epic: 0.45, legendary: 0.7 },
+    cap: 3,
   },
   {
     id: 'wisdom',
@@ -145,6 +153,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'heroXp',
     format: 'percent',
     values: { common: 0.1, uncommon: 0.18, rare: 0.3, epic: 0.45, legendary: 0.7 },
+    cap: 3,
   },
   {
     id: 'alchemy',
@@ -154,6 +163,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'evolveDiscount',
     format: 'percent',
     values: { common: 0.06, uncommon: 0.1, rare: 0.15, epic: 0.22, legendary: 0.3 },
+    cap: 0.75,
   },
   {
     id: 'kinship',
@@ -163,6 +173,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'raceDamage',
     format: 'percent',
     values: { common: 0.1, uncommon: 0.16, rare: 0.25, epic: 0.38, legendary: 0.6 },
+    cap: 3,
     perRace: true,
   },
   {
@@ -173,6 +184,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'critChance',
     format: 'percent',
     values: { common: 0.03, uncommon: 0.05, rare: 0.08, epic: 0.12, legendary: 0.18 },
+    cap: CRIT_CHANCE_CAP,
   },
   {
     id: 'champion',
@@ -182,6 +194,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     kind: 'heroDamage',
     format: 'percent',
     values: { common: 0.08, uncommon: 0.12, rare: 0.2, epic: 0.3, legendary: 0.45 },
+    cap: 3,
   },
   {
     id: 'recruit',

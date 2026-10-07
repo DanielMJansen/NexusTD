@@ -1,4 +1,5 @@
-import { raceGrip } from '../data/races';
+import { MUTATION_RULES } from '../data/mutations';
+import { raceGrip, racePure } from '../data/races';
 import { SYNERGY_RAISE_DURATION } from '../data/synergies';
 
 import type { HitEffect } from '../data/creatures';
@@ -151,6 +152,25 @@ export function onEnemyKilled(state: RunState, enemy: Enemy, source?: Creature):
   if (enemy.markTimer > 0 && enemy.markExplode) explode(state, enemy, enemy.markExplode.radius, enemy.maxHp * enemy.markExplode.ratio);
   // petrificado que morre se despedaça, ferindo os vizinhos
   if (enemy.stunTimer > 0 && enemy.stunLook === 'stone' && !enemy.def.isBoss) explode(state, enemy, 30, enemy.maxHp * 0.25);
+  // mutações do Sem Fim ao morrer
+  if (state.mutations?.length && !enemy.summonedAlly && !enemy.def.isBoss) {
+    if (state.mutations.includes('splitting') && !enemy.splitChild) {
+      const { count, hpRatio } = MUTATION_RULES.split;
+      for (let i = 0; i < count; i++) {
+        const child = spawnEnemyAt(state, enemy.def.id, enemy, 14);
+        child.maxHp = child.hp = enemy.maxHp * hpRatio;
+        child.splitChild = true;
+        child.elite = false;
+      }
+    }
+    if (state.mutations.includes('explosive')) {
+      const { radius, stun } = MUTATION_RULES.explode;
+      for (const c of state.creatures) {
+        if (Math.hypot(c.x - enemy.x, c.y - enemy.y) <= radius && !c.protected && !racePure(c.def.race)) c.stunTimer = Math.max(c.stunTimer, stun);
+      }
+      state.events.push({ type: 'explosion', x: enemy.x, y: enemy.y, radius });
+    }
+  }
   if (state.modifiers.synergy.raise > 0 && !enemy.summonedAlly && !enemy.killedByAlly && !enemy.def.isBoss && random() < state.modifiers.synergy.raise) {
     raiseSkeleton(state, enemy, SYNERGY_RAISE_DURATION);
   }
