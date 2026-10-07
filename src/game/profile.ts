@@ -173,6 +173,15 @@ export function toggleTeamMember(profile: Profile, id: CreatureId): boolean {
   return true;
 }
 
+/** Move uma criatura da equipe da posição `from` para `to` (ordem dos atalhos 1–8). */
+export function moveTeamMember(profile: Profile, from: number, to: number): boolean {
+  if (from === to || from < 0 || to < 0 || from >= profile.team.length || to >= profile.team.length) return false;
+  const [id] = profile.team.splice(from, 1);
+  profile.team.splice(to, 0, id!);
+  syncLoadout(profile);
+  return true;
+}
+
 // ---------- equipes salvas ----------
 
 export interface Loadout {

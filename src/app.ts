@@ -34,6 +34,7 @@ import {
   renameLoadout,
   upgradeSanctuary,
   toggleTeamMember,
+  moveTeamMember,
   unlockCreature,
   type Profile,
   redeemGiftCode,
@@ -740,6 +741,9 @@ export class App {
     showTeam(this.profile, {
       onToggle: (id) => {
         if (toggleTeamMember(this.profile, id)) changed();
+      },
+      onMove: (from, to) => {
+        if (moveTeamMember(this.profile, from, to)) changed();
       },
       onSelectLoadout: (index) => {
         if (index !== this.profile.activeLoadout && selectLoadout(this.profile, index)) changed();

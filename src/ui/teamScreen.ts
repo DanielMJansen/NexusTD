@@ -9,6 +9,8 @@ import { showOverlay } from './overlay';
 
 export interface TeamHandlers {
   onToggle(id: CreatureId): void;
+  /** Muda a posição de uma criatura na equipe (atalhos 1–8). */
+  onMove(from: number, to: number): void;
   onSelectLoadout(index: number): void;
   onBuyLoadout(): void;
   onRename(index: number, name: string): void;
@@ -36,8 +38,14 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
     const id = profile.team[i];
     if (!id) return `<div class="team-slot empty"><kbd>${i + 1}</kbd><span>Vaga livre</span></div>`;
     const def = CREATURES[id];
-    return `<button class="team-slot" style="--card-color:${def.color}" data-action="toggle" data-value="${id}" title="Tirar da equipe">
-      <kbd>${i + 1}</kbd><canvas data-sprite="${id}"></canvas><span>${def.name}</span><small>${def.role}</small></button>`;
+    const last = profile.team.length - 1;
+    return `<div class="team-slot" style="--card-color:${def.color}" draggable="true" data-index="${i}" title="Arraste para mudar a posição">
+      <kbd>${i + 1}</kbd><canvas data-sprite="${id}"></canvas><span>${def.name}</span><small>${def.role}</small>
+      <div class="slot-tools">
+        <button data-action="move" data-value="${i}:${i - 1}"${i === 0 ? ' disabled' : ''} title="Mover para a esquerda">◀</button>
+        <button data-action="toggle" data-value="${id}" title="Tirar da equipe">✕</button>
+        <button data-action="move" data-value="${i}:${i + 1}"${i === last ? ' disabled' : ''} title="Mover para a direita">▶</button>
+      </div></div>`;
   }).join('');
 
   const full = profile.team.length >= TEAM_SIZE;
@@ -84,6 +92,10 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
     </div>`,
     {
       toggle: (id) => handlers.onToggle(id as CreatureId),
+      move: (value) => {
+        const [from, to] = value.split(':').map(Number);
+        handlers.onMove(from!, to!);
+      },
       tab: (id) => {
         setTab('team', id);
         showTeam(profile, handlers);
@@ -103,6 +115,28 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
     },
     { keepScroll: true },
   );
+  // arrastar uma vaga sobre outra muda a posição
+  let dragFrom = -1;
+  for (const slot of element.querySelectorAll<HTMLElement>('.team-slot[data-index]')) {
+    const index = Number(slot.dataset.index);
+    slot.addEventListener('dragstart', (e) => {
+      dragFrom = index;
+      slot.classList.add('dragging');
+      e.dataTransfer?.setData('text/plain', String(index));
+    });
+    slot.addEventListener('dragend', () => slot.classList.remove('dragging'));
+    slot.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      slot.classList.add('drop-target');
+    });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drop-target'));
+    slot.addEventListener('drop', (e) => {
+      e.preventDefault();
+      slot.classList.remove('drop-target');
+      if (dragFrom >= 0 && dragFrom !== index) handlers.onMove(dragFrom, index);
+      dragFrom = -1;
+    });
+  }
   // renomear ao sair do campo ou com Enter
   const input = element.querySelector<HTMLInputElement>('.loadout-name');
   const rename = () => input && input.value !== active?.name && handlers.onRename(profile.activeLoadout, input.value);

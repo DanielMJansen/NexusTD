@@ -3862,3 +3862,31 @@ b.awakened {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* equipe: reordenar vagas */
+.team-slot {
+  position: relative;
+  cursor: grab;
+}
+
+.team-slot .slot-tools {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.team-slot .slot-tools button {
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.team-slot.dragging {
+  opacity: 0.4;
+}
+
+.team-slot.drop-target {
+  outline: 2px dashed var(--card-color);
+  outline-offset: 2px;
+}
