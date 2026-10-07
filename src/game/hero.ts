@@ -6,6 +6,7 @@ import {
   xpToNextLevel,
   type HeroUpgradeDef,
   HERO_SPAWN_SHIELD,
+  HERO_MAX_LEVEL,
 } from '../data/heroUpgrades';
 import { refreshPulseCooldown } from './choices';
 import { damageEnemy } from './combat';
@@ -79,8 +80,9 @@ export function damageHero(state: RunState, amount: number): void {
 /** XP de um abate; cada nível ganho abre uma escolha de melhoria do herói. */
 export function grantXp(state: RunState, amount: number): void {
   const { hero } = state;
+  if (hero.level >= HERO_MAX_LEVEL) return;
   hero.xp += amount * (1 + state.talents.heroXp);
-  while (hero.xp >= xpToNextLevel(hero.level)) {
+  while (hero.level < HERO_MAX_LEVEL && hero.xp >= xpToNextLevel(hero.level)) {
     hero.xp -= xpToNextLevel(hero.level);
     hero.level++;
     state.pendingLevels++;

@@ -1,5 +1,5 @@
 import { stageWaveCount } from '../data/stages';
-import { xpToNextLevel } from '../data/heroUpgrades';
+import { HERO_MAX_LEVEL, xpToNextLevel } from '../data/heroUpgrades';
 import { heroMaxHp } from '../game/hero';
 import { CREATURE_IDS } from '../data/creatures';
 import { HERO_IDS } from '../data/heroes';
@@ -38,9 +38,10 @@ export function updateHud(run: RunState): void {
   const maxHp = heroMaxHp(run);
   const nextXp = xpToNextLevel(hero.level);
   heroHp.style.width = `${(hero.hp / maxHp) * 100}%`;
-  heroXp.style.width = `${(hero.xp / nextXp) * 100}%`;
+  const maxed = hero.level >= HERO_MAX_LEVEL;
+  heroXp.style.width = maxed ? '100%' : `${(hero.xp / nextXp) * 100}%`;
   setText(heroHpText, `♥ ${Math.ceil(Math.max(0, hero.hp))}/${Math.round(maxHp)}`);
-  setText(heroXpText, `XP ${Math.floor(hero.xp)}/${nextXp} → nível ${hero.level + 1}`);
+  setText(heroXpText, maxed ? 'Nível máximo' : `XP ${Math.floor(hero.xp)}/${nextXp} → nível ${hero.level + 1}`);
   // ficha do herói só é montada enquanto o mouse está no chip
   if (heroChip.matches(':hover')) {
     const html = `<h4>${hero.def.name}</h4>${heroSheetHtml(run)}`;

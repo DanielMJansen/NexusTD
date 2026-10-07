@@ -49,6 +49,8 @@ export const xpToNextLevel = (level: number): number => Math.round(15 + 12 * (le
 
 /** Tempo para renascer depois de morrer (s). */
 export const HERO_RESPAWN_TIME = 8;
+/** Nível máximo do herói na run (depois disso o XP não conta mais). */
+export const HERO_MAX_LEVEL = 30;
 /** Segundos de invulnerabilidade ao nascer (início da run e renascimento). */
 export const HERO_SPAWN_SHIELD = 3;
 /** Distância (além do raio do inimigo) em que um inimigo encosta no herói. */

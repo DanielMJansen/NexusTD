@@ -6,6 +6,9 @@
 
 export type Tier = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
+/** Teto da chance de crítico das melhorias da run (a Precisão deixa de ser oferecida ao chegar). */
+export const CRIT_CHANCE_CAP = 1;
+
 export const TIER_ORDER: Tier[] = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
 
 export const TIERS: Record<Tier, { name: string; color: string }> = {

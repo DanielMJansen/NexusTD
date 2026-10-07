@@ -1,5 +1,5 @@
 import { SHOP } from '../data/config';
-import { TIERS, type OfferedUpgrade } from '../data/upgrades';
+import { CRIT_CHANCE_CAP, TIERS, type OfferedUpgrade } from '../data/upgrades';
 import { canBuyExtraSlot, canReroll, extraSlotCost, rerollCost } from '../game/shop';
 import type { Choice, RunState } from '../game/state';
 import { formatNumber, heroStatRows } from './describe';
@@ -71,7 +71,7 @@ export function upgradeDelta(run: RunState, upgrade: OfferedUpgrade): [string, s
       return plus(now, now + v);
     }
     case 'critChance':
-      return [pct(m.critChance), `${pct(Math.min(0.75, m.critChance + v))}${m.critChance + v >= 0.75 ? ' (máx.)' : ''}`];
+      return [pct(m.critChance), `${pct(Math.min(CRIT_CHANCE_CAP, m.critChance + v))}${m.critChance + v >= CRIT_CHANCE_CAP ? ' (máx.)' : ''}`];
     case 'creatureSlot':
       return [`${run.creatureLimit} vagas`, `${run.creatureLimit + v}`];
     case 'execute':

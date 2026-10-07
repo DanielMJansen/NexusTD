@@ -1,3 +1,4 @@
+import { CRIT_CHANCE_CAP } from '../data/upgrades';
 import { endWeather } from './mapEvents';
 import { scriptedWave, stageWaveCount } from '../data/stages';
 import { LOOT } from '../data/nexusUpgrades';
@@ -37,6 +38,8 @@ function isAvailable(state: RunState, family: UpgradeFamily): boolean {
       return state.creatures.length > 0;
     case 'ward':
       return state.talents.nexusWard <= 0;
+    case 'critChance':
+      return state.modifiers.critChance < CRIT_CHANCE_CAP;
     case 'evolveDiscount':
       return state.talents.evolveDiscount < 0.75;
     case 'pulseCooldown':
@@ -169,7 +172,7 @@ export function applyChoice(state: RunState, choice: Choice): void {
       if (race) m.raceDamage[race] = (m.raceDamage[race] ?? 0) + value;
       break;
     case 'critChance':
-      m.critChance = Math.min(0.75, m.critChance + value);
+      m.critChance = Math.min(CRIT_CHANCE_CAP, m.critChance + value);
       break;
     case 'heroDamage':
       state.talents.heroDamage += value;

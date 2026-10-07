@@ -167,6 +167,10 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 
 ### Em paralelo (encaixar entre fases)
 - **Balanceamento das raças** `[~]` (07/10/2026): rodada feita nas 3 fases (ver Registro do GDD); Humanos com a passiva **Disciplina**. Pendente: Lobisomem na Tundra (0/30) e Bruxa no Pântano (24/30).
+- **Limites da run** `[~]` (decidido em 07/10/2026): crítico até 100% (a Precisão some das ofertas ao chegar) e herói até o **nível 30** — feitos. O Sem Fim continua até perder (sem onda final). A fazer: teto nas demais melhorias da run (PROPOSTA de valores por família).
+- **Sem Fim com mutações** `[ ]` (decidido em 07/10/2026): a cada 5 ondas do Sem Fim entra uma mutação sorteada que fica até o fim (ex.: escudo, rapidez, dividir ao morrer, regeneração, explosão) e ondas misturando inimigos de outras fases. Lista de mutações: PROPOSTA.
+- **Estrelas e Despertar** `[ ]` (decidido em 07/10/2026): na run, depois do nível 3, até 2 **estrelas** (níveis 4 e 5) pagas com ouro; fora da run, **Despertar** no Santuário (Fragmentos). Criatura **despertada** que chega ao nível 5 ganha uma **forma suprema** para cada vertente, bem mais difícil de obter que as formas atuais. Custos, bônus e formas: PROPOSTA.
+- **Lobisomem na Tundra** `[ ]`: 0/30 no bot; propor mecânica (ex.: garras que impedem o alvo de deslizar) em vez de só números.
 - **Unicórnio exclusivo** `[ ]` — raça especial de um jogador específico, liberada por **código secreto** em Configurações (código guardado só como hash; libera no save da pessoa). Classes e herói: PROPOSTA a apresentar.
 - **Raças novas** `[ ]` — PROPOSTA por lote: Zumbis, Sereia, Centauro, Goblin, Elementais. Ideia: cada fase libera 1–2 raças ligadas ao bioma (ex.: Sereia no Pântano, Elementais na Tundra, Goblin no Deserto, Unicórnio na Cidadela).
 - **Playtest** com outras pessoas pelo GitHub Pages a cada fase nova.
