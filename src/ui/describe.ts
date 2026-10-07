@@ -148,7 +148,7 @@ function formStatsText(form: AscendedForm): string {
 export function ascendedFormsHtml(def: CreatureDef, className = 'cc-ability evolved', portraits = false): string {
   return def.ascended
     .map(
-      (form, i) => `<p class="${className}">${portraits ? `<canvas class="branch-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}" style="--branch-color:${form.color}"></canvas>` : ''}<span class="branch-tag" style="--branch-color:${form.color}">${form.icon} ${i === 0 ? 'A' : 'B'}</span> Nível 3 — <b>${form.name}</b>: ${abilityText(form.ability, form.effects ?? def.effects)}${formStatsText(form)}</p>`,
+      (form, i) => `<p class="${className}">${portraits ? `<canvas class="branch-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}" style="--branch-color:${form.color}"></canvas>` : ''}<span class="branch-tag" style="--branch-color:${form.color}">${form.icon} ${i === 0 ? 'A' : 'B'}</span> Nível 3 — <b>${form.name}</b>: ${abilityText(form.ability, form.effects ?? def.effects)}${formStatsText(form)}${form.supreme ? `<br><small class="supreme-line">✦ Forma Suprema (despertada, ★5): <b>${form.supreme.name}</b> — ${form.supreme.description}</small>` : ''}</p>`,
     )
     .join('');
 }

@@ -12,6 +12,7 @@ import {
   eye,
   glowingEye,
   GOLD,
+  halo,
   line,
   OUTLINE,
   poly,
@@ -505,17 +506,38 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
   // Atirador de Elite: capuz carmesim, arco longo escuro, pena e lente
   const elite = formB(p);
   const pull = p.attack > 0.5 ? 0 : 1 - p.attack * 2; // após o tiro, a corda volta a ser puxada
+  // Formas Supremas: Mestre Arqueiro (A) e Olho do Falcão (B)
+  const master = p.supreme && !elite;
+  const hawk = p.supreme && elite;
 
-  // aljava nas costas
-  ctx.save();
-  ctx.translate(-6, -3);
-  ctx.rotate(-0.35);
-  shape(ctx, '#8a5a32', () => ctx.roundRect(-2.5, -8, 5, 14, 2), 1);
-  for (const dx of [-1.2, 1.2]) shape(ctx, '#e8e0d0', () => poly(ctx, [dx - 1.2, -8, dx + 1.2, -8, dx, -12]), 0.8);
-  ctx.restore();
+  if (master) {
+    // capa longa de folhas esvoaçando atrás
+    const wind = Math.sin(p.time * 3) * 2;
+    shape(ctx, vertical(ctx, -12, 16, '#5ac878', '#1a5a2c'), () => {
+      ctx.moveTo(-3, -11 + breathe);
+      ctx.quadraticCurveTo(-14 + wind, 0, -17 + wind, 15);
+      ctx.lineTo(-12 + wind, 12);
+      ctx.lineTo(-9 + wind, 16);
+      ctx.lineTo(-5, 12);
+      ctx.lineTo(-1, 15);
+      ctx.closePath();
+    }, 0.9);
+    for (let i = 0; i < 4; i++) shape(ctx, '#7ae890', () => ellipse(ctx, -6 - i * 2.6 + wind * (i / 4), -2 + i * 4, 1.8, 0.9, 0.8), 0.4);
+  }
+
+  // aljava nas costas (dupla, com flechas verdes brilhantes, no Mestre Arqueiro)
+  for (const off of master ? [-3, 0] : [0]) {
+    ctx.save();
+    ctx.translate(-6 + off, -3);
+    ctx.rotate(-0.35 - off * 0.05);
+    shape(ctx, '#8a5a32', () => ctx.roundRect(-2.5, -8, 5, 14, 2), 1);
+    for (const dx of [-1.2, 1.2]) shape(ctx, master ? '#9affb0' : '#e8e0d0', () => poly(ctx, [dx - 1.2, -8, dx + 1.2, -8, dx, -12]), 0.8);
+    if (master) halo(ctx, 0, -11, 4, '#7affa0', 0.6);
+    ctx.restore();
+  }
 
   // manto
-  shape(ctx, vertical(ctx, -10, 14, elite ? '#a8323c' : '#3f9a5c', elite ? '#4a1018' : '#1d5530'), () =>
+  shape(ctx, vertical(ctx, -10, 14, hawk ? '#2a2a34' : elite ? '#a8323c' : '#3f9a5c', hawk ? '#0a0a10' : elite ? '#4a1018' : '#1d5530'), () =>
     poly(ctx, [-1, -9 + breathe, 8, 7, 9, 14, -9, 14, -8, 7]),
   );
   shape(ctx, '#2b2018', () => ctx.rect(-6, 3, 12, 2.2), 0.8);
@@ -531,7 +553,7 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
       ctx.closePath();
     }, 0.9);
   }
-  shape(ctx, vertical(ctx, hy - 10, hy + 8, elite ? '#c0444e' : '#4fb06c', elite ? '#6a1a22' : '#2a7040'), () => {
+  shape(ctx, vertical(ctx, hy - 10, hy + 8, hawk ? '#3a3a46' : elite ? '#c0444e' : '#4fb06c', hawk ? '#0e0e16' : elite ? '#6a1a22' : '#2a7040'), () => {
     ctx.moveTo(-8, hy + 6);
     ctx.quadraticCurveTo(-11, hy - 6, -4, hy - 9);
     ctx.lineTo(-11, hy - 14);
@@ -588,6 +610,30 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
     shape(ctx, '#cfd8e8', () => poly(ctx, [nock.x + 15, nock.y - 2, nock.x + 19, nock.y, nock.x + 15, nock.y + 2]), 0.8);
   }
   shape(ctx, '#f2cfae', () => circle(ctx, nock.x, nock.y, 1.9), 0.9);
+
+  if (master) {
+    // braçadeira de couro reforçada na mão do arco
+    shape(ctx, '#6a4020', () => ctx.roundRect(nock.x - 2.5, nock.y - 1.6, 4, 3.2, 1), 0.6);
+    shape(ctx, GOLD, () => ctx.rect(nock.x - 1, nock.y - 1.6, 1, 3.2), 0);
+  }
+  if (hawk) {
+    // luneta longa sobre o olho e a mira vermelha à frente
+    line(ctx, '#3a3020', 1.6, () => {
+      ctx.moveTo(5, hy + 0.6);
+      ctx.lineTo(11, hy - 0.4);
+    });
+    shape(ctx, '#bfe8ff88', () => circle(ctx, 11.5, hy - 0.5, 1.4), 0.6);
+    ctx.save();
+    ctx.globalAlpha *= 0.55 + Math.sin(p.time * 6) * 0.2;
+    ctx.strokeStyle = '#ff3a3a';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(bx + r, by);
+    ctx.lineTo(bx + r + 30, by);
+    ctx.stroke();
+    halo(ctx, bx + r + 30, by, 3, '#ff3a3a', 1);
+    ctx.restore();
+  }
 }
 
 // ---------- guarda (humano) ----------
@@ -659,7 +705,7 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
   shape(ctx, holy ? '#5aa8ff' : ascended(p) ? '#e0243a' : '#3a5ab0', () => poly(ctx, [-1.2, -6, 1.2, -6, 1.2, -1, 4, -1, 4, 1.4, 1.2, 1.4, 1.2, 8, -1.2, 8, -1.2, 1.4, -4, 1.4, -4, -1, -1.2, -1]), 0.6);
   ctx.restore();
 
-  if (ascended(p)) {
+  if (ascended(p) && !p.supreme) {
     ctx.save();
     ctx.strokeStyle = holy ? '#9fdcff' : '#ffe48a';
     if (holy) {
@@ -670,6 +716,58 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.beginPath();
     ctx.ellipse(0, hy - 12, 6, 2, 0, 0, TAU);
     ctx.stroke();
+    ctx.restore();
+  }
+
+  if (p.supreme && !holy) {
+    // Bastião: escudo-torre enorme com brasão, ombreiras de placas azul e branca
+    for (const x of [-8, 6]) shape(ctx, vertical(ctx, -11, -4, '#ffffff', '#5a7ad8'), () => ctx.roundRect(x, -11 + sway, 6, 6, [3, 3, 1, 1]), 0.8);
+    ctx.save();
+    ctx.translate(9, 1);
+    shape(ctx, vertical(ctx, -16, 15, '#eef4ff', '#4a6ad0'), () => ctx.roundRect(-7, -16, 14, 31, 2.5), 1.2);
+    shape(ctx, '#2a3a8a', () => ctx.roundRect(-5, -14, 10, 27, 2), 0.6);
+    // brasão: leão estilizado em dourado
+    shape(ctx, GOLD, () => {
+      ctx.moveTo(0, -9);
+      ctx.lineTo(3.5, -5);
+      ctx.lineTo(2, 1);
+      ctx.lineTo(3.5, 7);
+      ctx.lineTo(0, 5);
+      ctx.lineTo(-3.5, 7);
+      ctx.lineTo(-2, 1);
+      ctx.lineTo(-3.5, -5);
+      ctx.closePath();
+    }, 0.6);
+    for (const y of [-12, 11]) shape(ctx, '#c8d2e6', () => circle(ctx, -3.5, y, 0.9), 0);
+    ctx.restore();
+  }
+  if (p.supreme && holy) {
+    // Juiz de Ferro: elmo fechado de ferro e martelo de duas mãos rachado de luz
+    shape(ctx, vertical(ctx, hy - 10, hy + 7, '#6a6e7a', '#2a2c34'), () => ctx.roundRect(-8.5, hy - 9, 17, 16, [7, 7, 3, 3]), 1.1);
+    shape(ctx, '#0e0c14', () => ctx.rect(-1, hy - 1.2, 8, 2.2), 0);
+    for (const x of [1.5, 4, 6.5]) shape(ctx, '#ffe9a8', () => ctx.rect(x, hy - 0.6, 1.2, 1), 0);
+    ctx.save();
+    ctx.translate(-6, 3);
+    ctx.rotate(-0.2 + p.attack * 1.4);
+    line(ctx, '#3a2a20', 2.6, () => {
+      ctx.moveTo(0, 9);
+      ctx.lineTo(0, -22);
+    });
+    shape(ctx, vertical(ctx, -32, -20, '#8a8e9a', '#3a3c44'), () => ctx.roundRect(-9, -32, 18, 12, 2), 1.1);
+    // rachaduras de luz no martelo
+    const glow = 0.6 + Math.sin(p.time * 5) * 0.3 + p.attack * 0.4;
+    ctx.save();
+    ctx.globalAlpha *= Math.min(1, glow);
+    line(ctx, '#ffe9a8', 0.9, () => {
+      ctx.moveTo(-6, -30);
+      ctx.lineTo(-2, -26);
+      ctx.lineTo(-4, -22);
+      ctx.moveTo(4, -31);
+      ctx.lineTo(2, -27);
+      ctx.lineTo(6, -23);
+    }, false);
+    ctx.restore();
+    halo(ctx, 0, -26, 10, '#ffe9a8', glow * 0.5);
     ctx.restore();
   }
 }

@@ -219,8 +219,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'none' },
     unlock: { kind: 'start' },
     ascended: [
-      { name: 'Patrulheiro', description: 'Dispara em dois alvos de uma vez.', ability: { kind: 'multishot', targets: 2 }, color: '#ffd25a', icon: '➶' },
-      { name: 'Atirador de Elite', description: 'Mais alcance e golpes críticos devastadores, atirando mais devagar.', ability: { kind: 'crit', chance: 0.35, multiplier: 3.5 }, stats: { range: 1.3, cooldown: 1.15 }, color: '#ff7a5a', icon: '◎' },
+      { name: 'Patrulheiro', description: 'Dispara em dois alvos de uma vez.', ability: { kind: 'multishot', targets: 2 }, color: '#ffd25a', icon: '➶', supreme: { name: 'Mestre Arqueiro', description: 'Dispara em 4 alvos de uma vez, com flechas mais fortes.', ability: { kind: 'multishot', targets: 4 }, stats: { damage: 1.2 } } },
+      { name: 'Atirador de Elite', description: 'Mais alcance e golpes críticos devastadores, atirando mais devagar.', ability: { kind: 'crit', chance: 0.35, multiplier: 3.5 }, stats: { range: 1.3, cooldown: 1.15 }, color: '#ff7a5a', icon: '◎', supreme: { name: 'Olho do Falcão', description: 'Metade dos tiros é crítica (dano ×5), de muito longe.', ability: { kind: 'crit', chance: 0.5, multiplier: 5 }, stats: { range: 1.95, cooldown: 1.15 } } },
     ],
   },
   guard: {
@@ -240,8 +240,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'block', radius: 30, capacity: 2 },
     unlock: { kind: 'essence', cost: 30 },
     ascended: [
-      { name: 'Paladino', description: 'Segura até 4 inimigos ao redor.', ability: { kind: 'block', radius: 36, capacity: 4 }, color: '#ffd25a', icon: '⛨' },
-      { name: 'Martelo Sagrado', description: 'Troca o bloqueio por golpes pesados que atordoam.', ability: { kind: 'stun', chance: 0.35, duration: 1.2 }, stats: { damage: 1.4 }, color: '#9ad8ff', icon: '⚒' },
+      { name: 'Paladino', description: 'Segura até 4 inimigos ao redor.', ability: { kind: 'block', radius: 36, capacity: 4 }, color: '#ffd25a', icon: '⛨', supreme: { name: 'Bastião', description: 'O escudo-torre segura até 7 inimigos num raio maior.', ability: { kind: 'block', radius: 46, capacity: 7 }, stats: { damage: 1.5 } } },
+      { name: 'Martelo Sagrado', description: 'Troca o bloqueio por golpes pesados que atordoam.', ability: { kind: 'stun', chance: 0.35, duration: 1.2 }, stats: { damage: 1.4 }, color: '#9ad8ff', icon: '⚒', supreme: { name: 'Juiz de Ferro', description: 'Cada martelada racha o chão ao redor e atordoa.', ability: { kind: 'nova', radius: 45 }, effects: [{ kind: 'stun', chance: 0.4, duration: 1.4 }], stats: { damage: 1.4 } } },
     ],
   },
   cleric: {
@@ -260,8 +260,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'bless', radius: 100, damage: 0.25 },
     unlock: { kind: 'essence', cost: 70 },
     ascended: [
-      { name: 'Sacerdotisa', description: 'Bênção maior e mais forte, que também protege contra teia e atordoamento.', ability: { kind: 'bless', radius: 100, damage: 0.25, protect: true }, color: '#ffd25a', icon: '✚' },
-      { name: 'Inquisidora', description: 'Troca a bênção por raios de luz pesados que atordoam.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 2.6, range: 1.15 }, color: '#ff7a3a', icon: '☀' },
+      { name: 'Sacerdotisa', description: 'Bênção maior e mais forte, que também protege contra teia e atordoamento.', ability: { kind: 'bless', radius: 100, damage: 0.25, protect: true }, color: '#ffd25a', icon: '✚', supreme: { name: 'Santa', description: 'Bênção enorme: mais dano e mais velocidade para todos ao redor.', ability: { kind: 'bless', radius: 140, damage: 0.35, attackSpeed: 0.15, protect: true } } },
+      { name: 'Inquisidora', description: 'Troca a bênção por raios de luz pesados que atordoam.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 2.6, range: 1.15 }, color: '#ff7a3a', icon: '☀', supreme: { name: 'Grã-Inquisidora', description: 'O livro em chamas dispara um raio que atravessa a fila e atordoa.', ability: { kind: 'pierce', width: 18, beams: 1 }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 2.6, range: 1.15 } } },
     ],
   },
   duelist: {

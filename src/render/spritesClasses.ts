@@ -8,6 +8,7 @@ import {
   formB,
   glowingEye,
   GOLD,
+  halo,
   line,
   poly,
   radial,
@@ -20,6 +21,17 @@ import {
 
 /** Clériga: túnica clara, véu e cajado com sol. A: Sacerdotisa dourada com auréola; B: Inquisidora de vermelho e preto com maça em chamas. */
 export function drawCleric(ctx: Ctx, p: Pose): void {
+  // Santa (suprema A): flutua, auréola de vitral e véu longo; Grã-Inquisidora (suprema B): livro em chamas
+  const saint = p.supreme && formA(p);
+  const grand = p.supreme && formB(p);
+  if (saint) {
+    const lift = -4 + Math.sin(p.time * 2) * 1.2;
+    ctx.save();
+    ctx.translate(0, lift);
+    drawSaint(ctx, p);
+    ctx.restore();
+    return;
+  }
   const breathe = Math.sin(p.time * 2) * 0.6;
   const inq = formB(p);
   const robe = inq ? '#5a1418' : formA(p) ? '#fff6dc' : '#f4f0f8';
@@ -97,6 +109,88 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
     ctx.stroke();
     ctx.restore();
   }
+  if (grand) {
+    // livro aberto em chamas diante do peito: o raio sai dele
+    ctx.save();
+    ctx.translate(4, -3 + breathe);
+    ctx.rotate(-0.15);
+    shape(ctx, '#3a0a10', () => ctx.roundRect(-6, -3.5, 12, 7, 1), 0.9);
+    shape(ctx, '#f4ead0', () => poly(ctx, [-5.2, -2.8, -0.3, -2, -0.3, 2.6, -5.2, 2]), 0.5);
+    shape(ctx, '#f4ead0', () => poly(ctx, [0.3, -2, 5.2, -2.8, 5.2, 2, 0.3, 2.6]), 0.5);
+    ctx.strokeStyle = '#8a1a20';
+    ctx.lineWidth = 0.4;
+    ctx.beginPath();
+    for (const y of [-1, 0.5]) {
+      ctx.moveTo(-4.4, y);
+      ctx.lineTo(-1.2, y + 0.3);
+      ctx.moveTo(1.2, y + 0.3);
+      ctx.lineTo(4.4, y);
+    }
+    ctx.stroke();
+    for (let i = 0; i < 4; i++) {
+      const h = 4 + Math.sin(p.time * 11 + i * 1.7) * 1.6 + p.attack * 4;
+      shape(ctx, i % 2 ? '#ffd040' : '#ff6a2a', () => poly(ctx, [-4.5 + i * 3, -3, -3 + i * 3, -3 - h, -1.5 + i * 3, -3]), 0);
+    }
+    halo(ctx, 0, -5, 9, '#ff8a3a', 0.45 + p.attack * 0.4);
+    ctx.restore();
+  }
+}
+
+/** Santa (Forma Suprema da Sacerdotisa): véu longo, auréola de vitral e mãos em prece; flutua. */
+function drawSaint(ctx: Ctx, p: Pose): void {
+  const t = p.time;
+  // véu longo atrás, ondulando
+  shape(ctx, vertical(ctx, -22, 16, '#ffffff', '#d8d0f0'), () => {
+    ctx.moveTo(-3, -22);
+    ctx.quadraticCurveTo(-13, -6, -12 + Math.sin(t * 2) * 1.5, 16);
+    ctx.lineTo(10 + Math.sin(t * 2 + 1) * 1.5, 16);
+    ctx.quadraticCurveTo(10, -6, 4, -22);
+    ctx.closePath();
+  }, 0.9);
+  // túnica branca e dourada que some em luz embaixo
+  shape(ctx, vertical(ctx, -10, 14, '#fffaf0', '#f0d890'), () => poly(ctx, [-5, -9, 5, -9, 8, 10, 0, 14, -8, 10]));
+  shape(ctx, GOLD, () => ctx.rect(-1.2, -8, 2.4, 18), 0.5);
+  halo(ctx, 0, 14, 10, '#fff2b0', 0.6);
+  // auréola atrás da cabeça, depois rosto e mãos em prece
+  const hy = -15;
+  stainedHalo(ctx, 1, hy - 2, t, 0.35 + p.attack * 0.4);
+  shape(ctx, radial(ctx, 1, hy, 7, '#ffe6cf', '#e9b994'), () => circle(ctx, 1, hy, 6.5));
+  shape(ctx, '#ffffff', () => {
+    ctx.moveTo(-7, hy + 6);
+    ctx.quadraticCurveTo(-8.5, hy - 8, 1, hy - 8.5);
+    ctx.quadraticCurveTo(8, hy - 8, 6.5, hy - 3);
+    ctx.lineTo(-3, hy - 3);
+    ctx.lineTo(-4, hy + 6);
+    ctx.closePath();
+  }, 0.8);
+  // olhos fechados em prece
+  ctx.strokeStyle = '#5a3a2a';
+  ctx.lineWidth = 0.7;
+  ctx.beginPath();
+  ctx.arc(1.4, hy + 0.6, 1.2, 0.2, Math.PI - 0.2);
+  ctx.moveTo(6, hy + 0.6);
+  ctx.arc(4.8, hy + 0.6, 1.2, 0.2, Math.PI - 0.2);
+  ctx.stroke();
+  shape(ctx, '#ffe6cf', () => poly(ctx, [1, -6, 3, -10, 5, -6, 3, -3]), 0.6);
+}
+
+/** Auréola de vitral da Santa: gomos coloridos girando devagar, atrás da cabeça. */
+function stainedHalo(ctx: Ctx, x: number, y: number, t: number, glow: number): void {
+  halo(ctx, x, y, 15, '#fff6c0', glow);
+  const colors = ['#ff7a9a', '#ffd25a', '#7ae8a0', '#7ac8ff', '#b08aff', '#ffb45a'];
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(t * 0.4);
+  for (let i = 0; i < 6; i++) {
+    const a0 = (i / 6) * TAU;
+    const a1 = ((i + 1) / 6) * TAU;
+    shape(ctx, colors[i]!, () => {
+      ctx.arc(0, 0, 11, a0, a1);
+      ctx.arc(0, 0, 8, a1, a0, true);
+      ctx.closePath();
+    }, 0.6);
+  }
+  ctx.restore();
 }
 
 /** Um morcego pequeno (asas batendo). */

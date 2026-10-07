@@ -11,7 +11,7 @@ export const SANCTUARY = {
   perBoss: 4,
   /** Despertar: depois do nível máximo, por Fragmentos da raça + Cristais Ancestrais. */
   awakenCost: 100,
-  awakenCrystals: 3,
+  awakenCrystals: 8,
   /** Cristais Ancestrais: 1 por vitória numa fase com Fragmentos (Fase 2+) e 1 a cada N ondas do Sem Fim. */
   crystalsPerVictory: 1,
   crystalEveryEndlessWaves: 10,

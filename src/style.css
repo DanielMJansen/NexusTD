@@ -3614,3 +3614,8 @@ b.awakened {
   font-weight: 700;
   white-space: nowrap;
 }
+
+/* Forma Suprema na descrição das vertentes */
+.supreme-line {
+  color: #7ae8ff;
+}
