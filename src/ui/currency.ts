@@ -16,5 +16,8 @@ export function confirmPurchaseHtml(id: string, cost: number, balance: number): 
 export const fragments = (amount: number | string, race?: string): string =>
   `<span class="fragment-amount">❖ ${amount}${race ? ` <small>${race}</small>` : ''}</span>`;
 
+/** Cristais Ancestrais (Despertar): ◆ ciano. */
+export const crystals = (amount: number | string): string => `<span class="crystal-amount">◆ ${amount}</span>`;
+
 /** Ouro (da run): ◉ dourado. */
 export const gold = (amount: number | string): string => `<span class="gold-amount">◉ ${amount}</span>`;

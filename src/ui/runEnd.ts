@@ -3,7 +3,7 @@ import { ACHIEVEMENTS, type AchievementId } from '../data/achievements';
 import { HEROES } from '../data/heroes';
 import { SKINS } from '../data/skins';
 import type { RunResult } from '../game/state';
-import { essence, fragments } from './currency';
+import { crystals, essence, fragments } from './currency';
 import { showOverlay } from './overlay';
 
 /** `onEndless`: oferece seguir no modo Sem Fim (só depois da vitória). */
@@ -36,6 +36,7 @@ export function showRunEnd(
         <div>${result.kills}<small>abates</small></div>
         <div>${essence(`+${result.essence}`)}<small>Essência</small></div>
       </div>
+      ${result.crystals ? `<p class="run-fragments">Cristais Ancestrais: ${crystals(`+${result.crystals}`)}</p>` : ''}
       ${Object.keys(result.fragments).length ? `<p class="run-fragments">Fragmentos: ${Object.entries(result.fragments).map(([race, n]) => fragments(`+${n}`, race)).join(' · ')}</p>` : ''}
       ${stageUnlocked ? `<p class="stage-unlocked">🔓 <b>Fase ${stageUnlocked.number} · ${stageUnlocked.name}</b> liberada! Escolha em <b>Fase</b>, no menu.</p>` : ''}
       ${unlocked ? `<ul class="achievement-list">${unlocked}</ul>` : ''}

@@ -68,7 +68,8 @@ export type CreatureAbility =
   | { kind: 'pierceArmor'; bonusVsArmored: number }
   /** Grito em leque na direção do alvo: atinge todos e empurra para longe do Nexus. */
   /** immunity: segundos até o mesmo inimigo poder ser empurrado/assustado de novo (o dano continua). */
-  | { kind: 'screech'; halfAngle: number; push: number; fear?: number; immunity?: number }
+  /** dive: descrito como rasante (Pégaso), não como grito. */
+  | { kind: 'screech'; halfAngle: number; push: number; fear?: number; immunity?: number; dive?: boolean }
   /** Envenena o alvo: dano por segundo durante um tempo. */
   | { kind: 'poison'; dps: number; duration: number }
   /** Cria uma poça no chão onde o alvo está: dano por segundo em quem estiver dentro. */
@@ -152,6 +153,17 @@ export interface AscendedForm {
   /** Cor da aura e do emblema da vertente. */
   color: string;
   icon: string;
+  /** Forma Suprema desta vertente: criatura despertada (Santuário) que chega a ★5 na run. Única por criatura. */
+  supreme?: SupremeForm;
+}
+
+/** Forma Suprema: substitui o que definir da vertente (nome, habilidade, efeitos, atributos). */
+export interface SupremeForm {
+  name: string;
+  description: string;
+  ability?: CreatureAbility;
+  effects?: HitEffect[];
+  stats?: { damage?: number; range?: number; cooldown?: number };
 }
 
 /** gift: exclusiva, liberada só por código de presente (não aparece para quem não tem). */
@@ -997,11 +1009,11 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     cooldown: 1.6,
     color: '#e0e8ff',
     flying: true,
-    ability: { kind: 'screech', halfAngle: 0.25, push: 22, immunity: 2 },
+    ability: { kind: 'screech', halfAngle: 0.25, push: 22, immunity: 2, dive: true },
     unlock: { kind: 'gift', gift: 'unicorn' },
     ascended: [
-      { name: 'Corcel da Tempestade', description: 'O rasante traz raios que atordoam.', ability: { kind: 'screech', halfAngle: 0.25, push: 22, immunity: 2 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], color: '#9ad8ff', icon: 'ϟ' },
-      { name: 'Pégaso Real', description: 'Rasante mais largo e mais forte, que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.4, push: 30, immunity: 2 }, stats: { damage: 1.3 }, color: '#ffd25a', icon: '♛' },
+      { name: 'Corcel da Tempestade', description: 'O rasante traz raios que atordoam.', ability: { kind: 'screech', halfAngle: 0.25, push: 22, immunity: 2, dive: true }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], color: '#9ad8ff', icon: 'ϟ' },
+      { name: 'Pégaso Real', description: 'Rasante mais largo e mais forte, que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.4, push: 30, immunity: 2, dive: true }, stats: { damage: 1.3 }, color: '#ffd25a', icon: '♛' },
     ],
   },
 };

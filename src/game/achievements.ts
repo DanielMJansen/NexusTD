@@ -12,6 +12,7 @@ export function recordRun(profile: Profile, result: RunResult): void {
   for (const id of result.seenEnemies) if (!profile.seenEnemies.includes(id)) profile.seenEnemies.push(id);
   profile.bestWave = Math.max(profile.bestWave, result.wave);
   for (const [race, amount] of Object.entries(result.fragments)) profile.fragments[race] = (profile.fragments[race] ?? 0) + amount;
+  profile.crystals += result.crystals ?? 0;
   const record = (profile.stageRecords[result.stage] ??= { wins: 0, bestWave: 0 });
   if (result.victory) record.wins++;
   record.bestWave = Math.max(record.bestWave, result.wave);

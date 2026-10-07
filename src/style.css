@@ -3596,3 +3596,21 @@ body:not([data-mode='run']) .team-slots {
   letter-spacing: 1px;
   text-transform: uppercase;
 }
+
+/* Despertar (Santuário) */
+.awaken-button {
+  border-color: #ffd25a;
+  color: #ffe9a8;
+}
+
+.cc-tag.awakened,
+b.awakened {
+  color: #ffd25a;
+}
+
+/* Cristais Ancestrais (Despertar) */
+.crystal-amount {
+  color: #7ae8ff;
+  font-weight: 700;
+  white-space: nowrap;
+}

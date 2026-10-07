@@ -9,6 +9,14 @@ export const SANCTUARY = {
   attackSpeedPerLevel: 0.02,
   /** Fragmentos de uma run: ondas vencidas + este valor por chefe derrotado (repartidos entre as raças usadas). */
   perBoss: 4,
+  /** Despertar: depois do nível máximo, por Fragmentos da raça + Cristais Ancestrais. */
+  awakenCost: 100,
+  awakenCrystals: 3,
+  /** Cristais Ancestrais: 1 por vitória numa fase com Fragmentos (Fase 2+) e 1 a cada N ondas do Sem Fim. */
+  crystalsPerVictory: 1,
+  crystalEveryEndlessWaves: 10,
+  /** Bônus da criatura despertada em toda run (dano e velocidade de ataque). */
+  awakenBonus: 0.1,
 } as const;
 
 /** Custo do próximo nível (null no máximo). */

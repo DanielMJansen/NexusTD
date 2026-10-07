@@ -1,17 +1,34 @@
 import { SANCTUARY } from '../data/sanctuary';
 import type { AscendedForm, CreatureAbility, HitEffect } from '../data/creatures';
-import { EVOLUTION_LEVELS, MAX_CREATURE_LEVEL, type EvolutionLevel } from '../data/evolution';
+import { ASCENDED_LEVEL, EVOLUTION_LEVELS, MAX_CREATURE_LEVEL, type EvolutionLevel } from '../data/evolution';
 import type { Creature, Modifiers } from './state';
 
 // Atributos efetivos de uma criatura em campo, considerando nível e melhorias.
 
 export const levelInfo = (creature: Creature): EvolutionLevel => EVOLUTION_LEVELS[creature.level - 1]!;
 
-export const isAscended = (creature: Creature): boolean => creature.level >= MAX_CREATURE_LEVEL;
+export const isAscended = (creature: Creature): boolean => creature.level >= ASCENDED_LEVEL;
 
-/** Vertente escolhida (só no nível máximo). */
-export const ascendedForm = (creature: Creature): AscendedForm | null =>
+/** Vertente escolhida, sem a Forma Suprema. */
+const branchForm = (creature: Creature): AscendedForm | null =>
   isAscended(creature) ? creature.def.ascended[creature.branch === 1 ? 1 : 0] : null;
+
+/** A vertente escolhida tem Forma Suprema definida? */
+export const hasSupremeForm = (creature: Creature): boolean => !!branchForm(creature)?.supreme;
+
+/** Forma Suprema ativa: despertada, ★5 e a vertente tem forma suprema definida. */
+export const isSupreme = (creature: Creature): boolean =>
+  !!creature.awakened && creature.level >= MAX_CREATURE_LEVEL && !!branchForm(creature)?.supreme;
+
+/** Vertente escolhida (da forma evoluída em diante); na Forma Suprema, com o que ela substitui. */
+export function ascendedForm(creature: Creature): AscendedForm | null {
+  const form = branchForm(creature);
+  if (!form || !isSupreme(creature)) return form;
+  return { ...form, ...form.supreme!, ability: form.supreme!.ability ?? form.ability, effects: form.supreme!.effects ?? form.effects };
+}
+
+/** Bônus de criatura despertada (dano e velocidade de ataque). */
+const awaken = (creature: Creature): number => (creature.awakened ? SANCTUARY.awakenBonus : 0);
 
 export const creatureAbility = (creature: Creature): CreatureAbility => ascendedForm(creature)?.ability ?? creature.def.ability;
 
@@ -27,9 +44,12 @@ export function killHaste(creature: Creature): number {
   return haste?.kind === 'killHaste' ? Math.min(haste.max, haste.perKill * creature.killStacks) : 0;
 }
 
-/** Segundos entre ataques (algumas vertentes atacam mais devagar ou mais rápido; o Santuário acelera). */
+/** Segundos entre ataques (algumas vertentes atacam mais devagar ou mais rápido; o Santuário e as estrelas aceleram). */
 export const creatureCooldown = (creature: Creature): number =>
-  (creature.def.cooldown * (ascendedForm(creature)?.stats?.cooldown ?? 1)) / (1 + SANCTUARY.attackSpeedPerLevel * (creature.sanctuary ?? 0));
+  (creature.def.cooldown * (ascendedForm(creature)?.stats?.cooldown ?? 1)) /
+  (1 + SANCTUARY.attackSpeedPerLevel * (creature.sanctuary ?? 0)) /
+  (levelInfo(creature).attackSpeed ?? 1) /
+  (1 + awaken(creature));
 
 /** Bônus do herói que vale para esta criatura (mesma raça), ou 0. */
 function raceBonusValue(creature: Creature, modifiers: Modifiers, kind: 'damage' | 'range'): number {
@@ -44,6 +64,7 @@ export const creatureDamage = (creature: Creature, modifiers: Modifiers): number
   modifiers.damage *
   (1 + creature.blessDamage) *
   (1 + SANCTUARY.damagePerLevel * (creature.sanctuary ?? 0)) *
+  (1 + awaken(creature)) *
   (1 + modifiers.synergy.damage) *
   (1 + raceBonusValue(creature, modifiers, 'damage') + (modifiers.raceDamage[creature.def.race] ?? 0));
 

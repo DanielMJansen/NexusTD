@@ -1,4 +1,5 @@
 import { CRIT_CHANCE_CAP } from '../data/upgrades';
+import { ASCENDED_LEVEL } from '../data/evolution';
 import { endWeather } from './mapEvents';
 import { scriptedWave, stageWaveCount } from '../data/stages';
 import { LOOT } from '../data/nexusUpgrades';
@@ -181,7 +182,8 @@ export function applyChoice(state: RunState, choice: Choice): void {
       state.creatureLimit += value;
       break;
     case 'ascendAll':
-      for (let i = 0; i < value; i++) for (const creature of state.creatures) promoteCreature(state, creature);
+      // sobe até a forma evoluída; estrelas só pagando ouro
+      for (let i = 0; i < value; i++) for (const creature of state.creatures) promoteCreature(state, creature, undefined, ASCENDED_LEVEL);
       break;
     case 'ward':
       state.talents.nexusWard = 1;

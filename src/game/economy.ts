@@ -2,8 +2,8 @@ import { raceEvolveDiscount } from '../data/races';
 import { random } from './random';
 import { ECONOMY, NEXUS } from '../data/config';
 import { CREATURES, type CreatureId } from '../data/creatures';
-import { EVOLUTION_LEVELS } from '../data/evolution';
-import { creatureName, isAscended } from './creatureStats';
+import { ASCENDED_LEVEL, EVOLUTION_LEVELS, MAX_CREATURE_LEVEL, SUPREME_PER_RUN } from '../data/evolution';
+import { creatureName, hasSupremeForm, isAscended } from './creatureStats';
 import { distance, type Creature, type Point, type RunState } from './state';
 
 /** Custo = base × crescimento^(cópias da mesma classe em campo). Vender reduz o custo da próxima. */
@@ -47,6 +47,7 @@ export function placeCreature(state: RunState, id: CreatureId, at: Point): boole
     lastAttackAt: -Infinity,
     stunTimer: 0,
     sanctuary: state.sanctuary[id] ?? 0,
+    awakened: (state.awakened ?? []).includes(id),
     variant: state.variants[id],
     webTimer: 0,
     webSlow: 0,
@@ -69,13 +70,23 @@ export function evolveCost(creature: Creature, discount = 0): number | null {
   return next ? Math.round(creature.summonCost * next.costMultiplier * (1 - discount) * (1 - race)) : null;
 }
 
+/**
+ * O próximo nível está liberado? A ★5 (Forma Suprema) é só para criaturas despertadas cuja vertente tem forma
+ * suprema, e no máximo SUPREME_PER_RUN por run; as outras param em ★4.
+ */
+export function nextLevelAllowed(state: RunState, creature: Creature): boolean {
+  if (creature.level + 1 < MAX_CREATURE_LEVEL) return true;
+  if (!creature.awakened || !hasSupremeForm(creature)) return false;
+  return state.creatures.filter((c) => c.level >= MAX_CREATURE_LEVEL).length < SUPREME_PER_RUN;
+}
+
 export function canEvolve(state: RunState, creature: Creature): boolean {
   const cost = evolveCost(creature, state.talents.evolveDiscount);
-  return state.phase === 'playing' && cost !== null && state.gold >= cost;
+  return state.phase === 'playing' && cost !== null && state.gold >= cost && nextLevelAllowed(state, creature);
 }
 
 /** O próximo nível é a forma evoluída (exige escolher a vertente)? */
-export const needsBranchChoice = (creature: Creature): boolean => creature.level === EVOLUTION_LEVELS.length - 1;
+export const needsBranchChoice = (creature: Creature): boolean => creature.level === ASCENDED_LEVEL - 1;
 
 /** Evolui pagando ouro. Ao chegar no nível máximo, `branch` escolhe a vertente (0 ou 1). */
 export function evolveCreature(state: RunState, creature: Creature, branch?: number): boolean {
@@ -89,10 +100,11 @@ export function evolveCreature(state: RunState, creature: Creature, branch?: num
 
 /**
  * Sobe a criatura 1 nível sem cobrar (evolução paga ou melhoria Ascensão).
- * Sem vertente indicada ao chegar no nível máximo, sorteia uma.
+ * Sem vertente indicada ao chegar na forma evoluída, sorteia uma. `upTo`: nível máximo permitido
+ * (a Ascensão para na forma evoluída; estrelas só pagando).
  */
-export function promoteCreature(state: RunState, creature: Creature, branch?: number): boolean {
-  if (creature.level >= EVOLUTION_LEVELS.length) return false;
+export function promoteCreature(state: RunState, creature: Creature, branch?: number, upTo = EVOLUTION_LEVELS.length): boolean {
+  if (creature.level >= Math.min(upTo, EVOLUTION_LEVELS.length)) return false;
   if (needsBranchChoice(creature)) creature.branch = branch ?? (random() < 0.5 ? 0 : 1);
   creature.level++;
   creature.hitCount = 0;

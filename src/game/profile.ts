@@ -6,7 +6,7 @@ import type { NexusLook } from '../data/nexusSkins';
 import { LOADOUTS } from '../data/config';
 import type { VariantTier } from '../data/altar';
 import { FIRST_STAGE, STAGE_IDS, STAGES, type StageId } from '../data/stages';
-import { sanctuaryCost } from '../data/sanctuary';
+import { SANCTUARY, sanctuaryCost } from '../data/sanctuary';
 import type { EnemyId } from '../data/enemies';
 import { CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
 import type { AchievementId } from '../data/achievements';
@@ -48,8 +48,12 @@ export interface Profile {
   bestWave: number;
   /** Fragmentos de raça (Santuário). */
   fragments: Record<string, number>;
+  /** Cristais Ancestrais (moeda rara do Despertar). */
+  crystals: number;
   /** Nível do Santuário de cada criatura (0 a 5). */
   sanctuary: Partial<Record<CreatureId, number>>;
+  /** Criaturas despertadas no Santuário (bônus permanente e Forma Suprema em ★5). */
+  awakened: CreatureId[];
   /** Altar: variantes obtidas, variante usada e contadores de garantia. */
   variants: Partial<Record<CreatureId, VariantTier[]>>;
   selectedVariants: Partial<Record<CreatureId, VariantTier>>;
@@ -85,7 +89,9 @@ export function createProfile(): Profile {
     bestWave: 0,
     selectedStage: FIRST_STAGE,
     fragments: {},
+    crystals: 0,
     sanctuary: {},
+    awakened: [],
     variants: {},
     selectedVariants: {},
     altarPity: { epic: 0, legendary: 0 },
@@ -267,13 +273,21 @@ export function hasSanctuary(profile: Profile): boolean {
   return STAGE_IDS.some((id) => STAGES[id].fragments && isStageUnlocked(profile, id));
 }
 
-/** Sobe o nível do Santuário de uma criatura da coleção, pagando Fragmentos da raça. */
+/** Sobe o nível do Santuário de uma criatura da coleção, pagando Fragmentos da raça; no máximo, desperta. */
 export function upgradeSanctuary(profile: Profile, id: CreatureId): boolean {
   if (!ownsCreature(profile, id)) return false;
   const level = profile.sanctuary[id] ?? 0;
   const cost = sanctuaryCost(level);
   const race = CREATURES[id].race;
-  if (cost === null || (profile.fragments[race] ?? 0) < cost) return false;
+  if (cost === null) {
+    // Despertar: depois do nível máximo
+    if (!canAwaken(profile, id)) return false;
+    profile.fragments[race] = (profile.fragments[race] ?? 0) - SANCTUARY.awakenCost;
+    profile.crystals -= SANCTUARY.awakenCrystals;
+    profile.awakened.push(id);
+    return true;
+  }
+  if ((profile.fragments[race] ?? 0) < cost) return false;
   profile.fragments[race] = (profile.fragments[race] ?? 0) - cost;
   profile.sanctuary[id] = level + 1;
   return true;
@@ -289,6 +303,7 @@ export function runSetup(profile: Profile): RunSetup {
   return {
     stage: isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE,
     sanctuary: { ...profile.sanctuary },
+    awakened: [...profile.awakened],
     synergies: isStageUnlocked(profile, 'tundra'),
     variants: { ...profile.selectedVariants },
     nexusLook: { ...nexusLookFor(profile, isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE) },
@@ -325,4 +340,15 @@ export async function redeemGiftCode(profile: Profile, code: string): Promise<Gi
   if (!gift) return null;
   grantGift(profile, gift);
   return gift;
+}
+
+/** Dá para despertar? (nível máximo do Santuário, Fragmentos da raça e Cristais Ancestrais) */
+export function canAwaken(profile: Profile, id: CreatureId): boolean {
+  return (
+    ownsCreature(profile, id) &&
+    !profile.awakened.includes(id) &&
+    (profile.sanctuary[id] ?? 0) >= SANCTUARY.maxLevel &&
+    (profile.fragments[CREATURES[id].race] ?? 0) >= SANCTUARY.awakenCost &&
+    profile.crystals >= SANCTUARY.awakenCrystals
+  );
 }

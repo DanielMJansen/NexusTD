@@ -158,6 +158,8 @@ export interface Creature extends Point {
   webSlow: number;
   /** Nível do Santuário (bônus permanente de dano e velocidade de ataque). */
   sanctuary?: number;
+  /** Despertada no Santuário (bônus e Forma Suprema em ★5). */
+  awakened?: boolean;
   /** Variante cosmética do Altar (só visual). */
   variant?: VariantTier;
   /** Atordoada por congelamento (bloco de gelo em vez de estrelas). */
@@ -305,6 +307,8 @@ export interface RunResult {
   creaturesPlaced: number;
   /** Fragmentos de raça ganhos (por raça). */
   fragments: Record<string, number>;
+  /** Cristais Ancestrais ganhos (Despertar). */
+  crystals: number;
   /** Inimigos enfrentados (códex). */
   seenEnemies: EnemyId[];
   /** Fim de uma partida no Sem Fim (a vitória já foi contada antes). */
@@ -326,6 +330,7 @@ export interface RunSetup {
   synergies?: boolean;
   /** Níveis do Santuário das criaturas (padrão: nenhum). */
   sanctuary?: Partial<Record<CreatureId, number>>;
+  awakened?: CreatureId[];
   /** Variantes cosméticas escolhidas no Altar (só visual). */
   variants?: Partial<Record<CreatureId, VariantTier>>;
   /** Aparência do Nexus (só visual). */
@@ -368,6 +373,7 @@ export interface RunState {
   synergyTiers: Record<string, number>;
   /** Níveis do Santuário das criaturas (fixos na run). */
   sanctuary: Partial<Record<CreatureId, number>>;
+  awakened: CreatureId[];
   /** Criaturas invocadas por raça (repartem os Fragmentos). */
   racePlacements: Record<string, number>;
   /** Variantes cosméticas (só visual). */
@@ -486,6 +492,7 @@ export function createRun(setup: RunSetup): RunState {
     synergiesOn: setup.synergies ?? false,
     synergyTiers: {},
     sanctuary: { ...(setup.sanctuary ?? {}) },
+    awakened: [...(setup.awakened ?? [])],
     racePlacements: {},
     variants: { ...(setup.variants ?? {}) },
     nexusLook: { ...(setup.nexusLook ?? { model: 'map', color: 'original' }) },

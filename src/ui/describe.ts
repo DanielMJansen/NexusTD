@@ -91,6 +91,7 @@ function baseAbilityText(a: CreatureAbility): string {
         : 'Ignora toda a armadura do alvo.';
     case 'screech': {
       const again = a.immunity ? ` O mesmo inimigo só sofre o efeito de novo após ${formatNumber(a.immunity)} s.` : '';
+      if (a.dive) return `Rasante: atinge todos numa faixa à frente e os empurra ${a.push} para longe do Nexus (chefes resistem).${again}`;
       return a.fear
         ? `Grito em leque: atinge todos à frente e os faz fugir do Nexus por ${formatNumber(a.fear)} s (chefes resistem).${again}`
         : a.push > 0

@@ -16,6 +16,8 @@ export interface SpritePose {
   branch?: number;
   /** Cores da skin (heróis); chaves ausentes usam a cor padrão do desenho. */
   palette?: SkinPalette;
+  /** Forma Suprema (despertada em ★5): cada sprite desenha a sua versão única. */
+  supreme?: boolean;
 }
 
 export const TAU = Math.PI * 2;

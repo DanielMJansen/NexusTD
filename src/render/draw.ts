@@ -7,8 +7,8 @@ import { VARIANTS } from '../data/altar';
 import { STAGES } from '../data/stages';
 import { WAVES } from '../data/waves';
 import { CREATURES, type CreatureId } from '../data/creatures';
-import { MAX_CREATURE_LEVEL } from '../data/evolution';
-import { ascendedForm, creatureAbility, creatureRange, isAscended, levelInfo } from '../game/creatureStats';
+import { ASCENDED_LEVEL } from '../data/evolution';
+import { ascendedForm, creatureAbility, creatureRange, isAscended, isSupreme, levelInfo } from '../game/creatureStats';
 import { canEvolve, needsBranchChoice } from '../game/economy';
 import { heroMaxHp, heroRange } from '../game/hero';
 import type { Creature, Enemy, Point, Pool, RunState } from '../game/state';
@@ -376,6 +376,7 @@ function drawCreatureBody(ctx: CanvasRenderingContext2D, state: RunState, creatu
       attack: attackStrength(state, creature.lastAttackAt),
       level: creature.level,
       branch: creature.branch,
+      supreme: isSupreme(creature),
     }),
   );
   if (variant?.sparkles) drawVariantSparkles(ctx, creature.x, creature.y - 8 * spriteScale, time + creature.x);
@@ -610,10 +611,20 @@ function drawLevelStars(ctx: CanvasRenderingContext2D, x: number, y: number, lev
   ctx.textBaseline = 'middle';
   ctx.lineWidth = 0.9;
   ctx.strokeStyle = '#0a0612';
-  const text = '★'.repeat(level);
-  ctx.strokeText(text, x, y);
-  ctx.fillStyle = level >= MAX_CREATURE_LEVEL ? '#ffd25a' : '#e8e0f8';
-  ctx.fillText(text, x, y);
+  // até a forma evoluída: estrelas claras; estrelas compradas depois (★4, ★5) em dourado vivo
+  const base = '★'.repeat(Math.min(level, ASCENDED_LEVEL));
+  const extra = '★'.repeat(Math.max(0, level - ASCENDED_LEVEL));
+  const full = base + extra;
+  ctx.strokeText(full, x, y);
+  const start = x - ctx.measureText(full).width / 2;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = level >= ASCENDED_LEVEL ? '#ffd25a' : '#e8e0f8';
+  ctx.fillText(base, start, y);
+  if (extra) {
+    ctx.fillStyle = '#fff6a0';
+    ctx.fillText(extra, start + ctx.measureText(base).width, y);
+  }
+  ctx.textAlign = 'center';
 }
 
 function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, highlightRange: boolean): void {

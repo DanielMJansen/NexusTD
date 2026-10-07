@@ -135,9 +135,16 @@ function endRun(state: RunState, victory: boolean): void {
       for (const race of Object.keys(fragments)) if (!fragments[race]) delete fragments[race];
     }
   }
+  // Cristais Ancestrais (Despertar): vitória numa fase com Fragmentos e a cada N ondas do Sem Fim
+  let crystals = 0;
+  if (stage.fragments) {
+    if (victory && !state.endless) crystals += SANCTUARY.crystalsPerVictory;
+    if (state.endless) crystals += Math.floor(Math.max(0, state.wave - 1 - stageWaveCount(state.stage)) / SANCTUARY.crystalEveryEndlessWaves);
+  }
   state.result = {
     stage: state.stage,
     fragments,
+    crystals,
     victory,
     wave: state.wave,
     kills: state.kills,

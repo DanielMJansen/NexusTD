@@ -1,5 +1,5 @@
 import { ARENA } from '../data/config';
-import { MAX_CREATURE_LEVEL } from '../data/evolution';
+import { ASCENDED_LEVEL, EVOLUTION_LEVELS, MAX_CREATURE_LEVEL, SUPREME_PER_RUN } from '../data/evolution';
 import {
   ascendedForm,
   creatureAbility,
@@ -9,7 +9,7 @@ import {
   creatureName,
   creatureRange,
 } from '../game/creatureStats';
-import { canEvolve, evolveCost, needsBranchChoice, sellValue } from '../game/economy';
+import { canEvolve, evolveCost, needsBranchChoice, sellValue, nextLevelAllowed } from '../game/economy';
 import type { Creature, RunState } from '../game/state';
 import type { Interaction } from '../input/interaction';
 import { gold } from './currency';
@@ -109,7 +109,10 @@ export class CreaturePopup {
     const evolveLabel = (c: number) => `${affordable ? '' : '<small>falta ouro</small> '}${gold(c)}`;
 
     let evolve = '';
-    if (cost === null) {
+    const blocked = cost !== null && !needsBranchChoice(creature) && !nextLevelAllowed(run, creature);
+    if (blocked) {
+      evolve = `<p class="cp-final">★${creature.level + 1} é a Forma Suprema: só para criaturas despertadas no Santuário (com Forma Suprema), até ${SUPREME_PER_RUN} por run.</p>`;
+    } else if (cost === null) {
       evolve = `<p class="cp-final">Forma final${form ? ` · <span class="branch-tag" style="--branch-color:${form.color}">${form.icon} ${creature.branch === 1 ? 'B' : 'A'}</span>` : ''}</p>`;
     } else if (needsBranchChoice(creature)) {
       const cards = creature.def.ascended
@@ -127,7 +130,10 @@ export class CreaturePopup {
       evolve = `<p class="cp-section">Nível 3: escolha a vertente</p><div class="cp-branches">${cards}</div>`;
     } else {
       const next = statsOf(run, { ...creature, level: creature.level + 1 });
-      evolve = `<p class="cp-section">Evoluir para o nível ${creature.level + 1}</p>
+      const star = creature.level + 1 > ASCENDED_LEVEL;
+      const [from, to] = [EVOLUTION_LEVELS[creature.level - 1]!, EVOLUTION_LEVELS[creature.level]!];
+      const gain = (a: number, b: number) => `+${Math.round((b / a - 1) * 100)}%`;
+      evolve = `<p class="cp-section">${star ? `Estrela ★${creature.level + 1}: ${gain(from.damage, to.damage)} de dano e ${gain(from.attackSpeed ?? 1, to.attackSpeed ?? 1)} de velocidade de ataque` : `Evoluir para o nível ${creature.level + 1}`}</p>
         ${deltaRows(now, next)}
         <button type="button" class="cp-evolve" data-action="evolve"${affordable ? '' : ' disabled'}>Evoluir ${evolveLabel(cost)} <kbd>E</kbd></button>`;
     }

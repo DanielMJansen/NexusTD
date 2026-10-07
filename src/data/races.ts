@@ -19,9 +19,9 @@ export interface RacePassiveDef {
 export const RACE_PASSIVES: Partial<Record<string, RacePassiveDef>> = {
   // Disciplina: a raça inicial evolui mais barato e chega antes ao nível 3
   Humano: { name: 'Disciplina', passive: { kind: 'evolveDiscount', value: 0.4 } },
-  // Caçada: garras que rasgam e prendem, e o salto que alcança quem fica longe (chefes que atiram de longe)
   // Pureza: nada prende um unicórnio (raça exclusiva, por código de presente)
   Unicórnio: { name: 'Pureza', passive: { kind: 'pure' } },
+  // Caçada: garras que rasgam e prendem, e o salto que alcança quem fica longe (chefes que atiram de longe)
   Lobisomem: { name: 'Caçada', passive: { kind: 'grip', slow: 0.25, duration: 1.2, leap: { range: 190, cooldown: 10, damage: 1 } } },
 };
 
