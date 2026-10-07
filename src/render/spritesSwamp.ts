@@ -182,33 +182,165 @@ export function drawWisp(ctx: Ctx, p: Pose): void {
   ctx.globalAlpha = 1;
 }
 
-/** Hidra: corpo de serpente no pântano e uma cabeça por cabeça viva (pose.level = cabeças). */
+/** Hidra: dragão-serpente saindo do pântano, com pescoços longos (pose.level = cabeças vivas, 1 a 5). */
 export function drawHydra(ctx: Ctx, p: Pose): void {
   const heads = Math.max(1, Math.min(5, p.level || 3));
+  const t = p.time;
+  const scaleDark = '#1f4a3a';
+  const scaleMid = '#2f6e52';
+  const scaleLight = '#4f9a6e';
+  const belly = '#c8d890';
+
+  // água do pântano ao redor (ondulações)
+  ctx.fillStyle = '#1a3a32cc';
+  ctx.beginPath();
+  ellipse(ctx, 0, 13, 27, 6);
+  ctx.fill();
+  ctx.strokeStyle = '#6ab0a066';
+  ctx.lineWidth = 0.8;
+  for (let k = 0; k < 2; k++) {
+    const r = ((t * 0.6 + k * 0.5) % 1);
+    ctx.globalAlpha = 1 - r;
+    ctx.beginPath();
+    ellipse(ctx, 0, 13, 22 + r * 10, 5 + r * 2);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // cauda enrolada atrás
+  line(ctx, scaleMid, 6, () => {
+    ctx.moveTo(-12, 8);
+    ctx.bezierCurveTo(-26, 10, -30, 0 + Math.sin(t * 1.5) * 2, -22, -4);
+    ctx.quadraticCurveTo(-17, -7, -19, -1);
+  });
+  shape(ctx, scaleLight, () => poly(ctx, [-22, -5, -25, -9, -19, -6]), 0.8);
+
   // corpo
-  shape(ctx, radial(ctx, 0, 6, 16, '#4a8a6a', '#1e4a3a'), () => ellipse(ctx, 0, 8, 15, 7.5));
-  for (let i = -2; i <= 2; i++) shape(ctx, '#2a5a44', () => poly(ctx, [i * 5 - 1.5, 2, i * 5, -1, i * 5 + 1.5, 2]), 0.6);
-  shape(ctx, '#bada9a', () => ellipse(ctx, 2, 11, 8, 2.6), 0);
-  // pescoços e cabeças em leque
-  for (let h = 0; h < heads; h++) {
-    const spread = heads === 1 ? 0 : (h / (heads - 1) - 0.5) * 2;
-    const sway = Math.sin(p.time * 2.2 + h * 1.3) * 2;
-    const hx = spread * 13 + sway;
-    const hy = -16 - (1 - Math.abs(spread)) * 6 + Math.cos(p.time * 2 + h) * 1.5 - p.attack * 3;
-    line(ctx, '#3a7a5a', 4.2, () => {
-      ctx.moveTo(spread * 6, 2);
-      ctx.quadraticCurveTo(spread * 10 - sway, -6, hx, hy + 3);
-    });
+  shape(ctx, radial(ctx, -3, -2, 20, scaleLight, scaleDark), () => ellipse(ctx, 0, 4, 19, 11));
+  // escamas do dorso
+  ctx.strokeStyle = '#163a2c';
+  ctx.lineWidth = 0.7;
+  for (let i = 0; i < 9; i++) {
+    const x = -14 + i * 3.5;
+    ctx.beginPath();
+    ctx.arc(x, -1 + Math.abs(x) * 0.12, 2.2, Math.PI * 0.1, Math.PI * 0.9);
+    ctx.stroke();
+  }
+  // espinhos das costas
+  for (let i = 0; i < 6; i++) {
+    const x = -12 + i * 4.5;
+    shape(ctx, '#b8c870', () => poly(ctx, [x - 1.6, -5 + Math.abs(x) * 0.1, x, -10 + Math.abs(x) * 0.12, x + 1.6, -5 + Math.abs(x) * 0.1]), 0.7);
+  }
+  // barriga em placas
+  for (let i = 0; i < 5; i++) {
+    shape(ctx, belly, () => ellipse(ctx, -6 + i * 4, 10.5, 2.3, 1.5), 0.6);
+  }
+  // patas da frente com garras
+  for (const [x, phase] of [[-9, 0], [9, 1.4]] as const) {
+    const step = Math.sin(t * 2 + phase) * 0.8;
+    shape(ctx, scaleMid, () => ctx.roundRect(x - 3, 6 + step, 6, 7, 2.5));
+    for (const c of [-2, 0, 2]) shape(ctx, '#e8e4c8', () => poly(ctx, [x + c - 0.7, 13 + step, x + c, 15.5 + step, x + c + 0.7, 13 + step]), 0.5);
+  }
+
+  // pescoços (de trás para a frente) e cabeças
+  const order = Array.from({ length: heads }, (_, i) => i).sort((a, b) => Math.abs(b - (heads - 1) / 2) - Math.abs(a - (heads - 1) / 2));
+  for (const h of order) {
+    const spread = heads === 1 ? 0 : (h / (heads - 1) - 0.5) * 2; // -1 .. 1
+    const sway = Math.sin(t * 1.8 + h * 1.7);
+    const lunge = p.attack * (0.6 + 0.4 * Math.sin(h * 2.3 + 1));
+    // base no corpo, curva e cabeça
+    // leque mais aberto com mais cabeças
+    const fan = heads >= 4 ? 30 : heads === 3 ? 24 : 20;
+    const bx = spread * (heads >= 4 ? 11 : 8);
+    const by = -2;
+    const hx = spread * fan + 6 + sway * 2 + lunge * 7;
+    const hy = -28 - (1 - Math.abs(spread)) * 9 + Math.cos(t * 1.6 + h) * 1.8 - lunge * 2;
+    const cx1 = bx + spread * 4 - 4;
+    const cy1 = by - 14;
+    const cx2 = hx - 10 - sway * 2;
+    const cy2 = hy + 10;
+    // pescoço grosso que afina (contorno + cor + listra clara da garganta)
+    const neck = (width: number, color: string) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.bezierCurveTo(cx1, cy1, cx2, cy2, hx - 3, hy + 2);
+      ctx.stroke();
+    };
+    neck(8.4, '#0e2a20');
+    neck(6.2, scaleMid);
+    neck(2.2, scaleLight);
+    // espinhos ao longo do pescoço
+    for (let k = 1; k <= 3; k++) {
+      const u = k / 4;
+      const x = (1 - u) ** 3 * bx + 3 * (1 - u) ** 2 * u * cx1 + 3 * (1 - u) * u * u * cx2 + u ** 3 * (hx - 3);
+      const y = (1 - u) ** 3 * by + 3 * (1 - u) ** 2 * u * cy1 + 3 * (1 - u) * u * u * cy2 + u ** 3 * (hy + 2);
+      shape(ctx, '#b8c870', () => poly(ctx, [x - 3.2, y - 1.5, x - 5.5, y - 4, x - 2, y - 3.2]), 0.6);
+    }
+
+    // cabeça de dragão-serpente
     ctx.save();
     ctx.translate(hx, hy);
-    ctx.rotate(spread * 0.35);
-    shape(ctx, '#4a9a6a', () => ellipse(ctx, 0, 0, 4.6, 3.6));
-    shape(ctx, '#3a7a5a', () => poly(ctx, [-2, -3, -1, -6.5, 0.5, -3.2]), 0.6);
-    shape(ctx, '#3a7a5a', () => poly(ctx, [1.5, -3, 3, -6, 3.2, -2.6]), 0.6);
-    // boca com ácido
-    shape(ctx, '#2a1a1a', () => ellipse(ctx, 2.8, 1.6, 2.2, 0.8 + p.attack * 1.2), 0.6);
-    if (p.attack > 0.3) halo(ctx, 4, 2.5, 4, '#b8ff4a', p.attack);
+    ctx.rotate(-0.15 + spread * 0.25 - lunge * 0.2);
+    const open = 0.15 + lunge * 0.55;
+    // crista e chifres
+    shape(ctx, '#7a3a5a', () => poly(ctx, [-6, -1, -11, -6, -8, 1]), 0.7);
+    shape(ctx, '#e8e0c0', () => {
+      ctx.moveTo(-2, -4);
+      ctx.quadraticCurveTo(-8, -10, -11, -8);
+      ctx.quadraticCurveTo(-7, -7, -4, -2);
+      ctx.closePath();
+    }, 0.7);
+    // mandíbula de baixo (abre no ataque)
+    ctx.save();
+    ctx.translate(-2, 1.5);
+    ctx.rotate(open);
+    shape(ctx, scaleDark, () => {
+      ctx.moveTo(0, 0);
+      ctx.lineTo(11, 1);
+      ctx.quadraticCurveTo(12, 3, 9, 3.5);
+      ctx.lineTo(0, 3);
+      ctx.closePath();
+    }, 0.9);
+    ctx.fillStyle = '#f4f0dc';
+    for (let k = 0; k < 4; k++) ctx.fillRect(2.5 + k * 2.2, -0.3, 0.8, 1.4);
     ctx.restore();
-    glowingEye(ctx, hx + 1.2, hy - 0.8, 0.9, '#ffd84a');
+    // boca por dentro
+    if (open > 0.3) shape(ctx, '#5a1a2a', () => poly(ctx, [-1, 1, 10, 1.5, 9, 1.5 + open * 6, -1, 2 + open * 3]), 0);
+    // crânio alongado com focinho
+    shape(ctx, radial(ctx, 0, -2, 9, scaleLight, scaleMid), () => {
+      ctx.moveTo(-6, 2);
+      ctx.quadraticCurveTo(-6, -5, 1, -5);
+      ctx.quadraticCurveTo(8, -4.5, 12, -1.5);
+      ctx.quadraticCurveTo(13, 1, 11, 2);
+      ctx.lineTo(-6, 2);
+      ctx.closePath();
+    });
+    ctx.fillStyle = '#f4f0dc';
+    for (let k = 0; k < 4; k++) ctx.fillRect(3 + k * 2.2, 1.6, 0.8, 1.2);
+    // narina e sobrancelha
+    ctx.fillStyle = '#0e2a20';
+    ctx.beginPath();
+    ellipse(ctx, 10.5, -1.6, 0.8, 0.5);
+    ctx.fill();
+    shape(ctx, scaleDark, () => poly(ctx, [0, -4.6, 5, -5.2, 4, -3.4]), 0.6);
+    // olho amarelo com pupila em fenda
+    halo(ctx, 2.5, -2.6, 4, '#e8ff5a', 0.5);
+    shape(ctx, '#f0e04a', () => ellipse(ctx, 2.5, -2.6, 1.8, 1.3), 0.6);
+    ctx.fillStyle = '#1a1a10';
+    ctx.fillRect(2.2, -3.8, 0.6, 2.4);
+    // baba ácida
+    if (lunge > 0.25) {
+      ctx.fillStyle = '#b8ff4a';
+      ctx.globalAlpha = lunge;
+      ctx.beginPath();
+      ellipse(ctx, 9, 4 + lunge * 5, 1, 2 + lunge * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      halo(ctx, 12, 2, 6, '#b8ff4a', lunge * 0.8);
+    }
+    ctx.restore();
   }
 }
