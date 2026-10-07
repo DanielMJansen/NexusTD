@@ -1,7 +1,7 @@
 # Nexus — instruções para o Claude Code
 
 ## Projeto
-Jogo de **navegador para computador** (paisagem 16:9, mouse e teclado): Tower Defense + Survivor + Roguelite + Coleção de Criaturas místicas. TypeScript + Vite + Canvas 2D, publicado no GitHub Pages (https://danielmjansen.github.io/NexusTD/, repositório `DanielMJansen/NexusTD`). O nome "Nexus" é provisório.
+Jogo de **navegador para computador** (paisagem 16:9, mouse e teclado): Tower Defense + Survivor + Roguelite + Coleção de Criaturas místicas. TypeScript + Vite + Canvas 2D, publicado no GitHub Pages (https://danielmjansen.github.io/NexusTD/, repositório `DanielMJansen/NexusTD`). Nome definitivo: **Nexus TD** (decidido em 07/10/2026).
 **Fonte de verdade do design:** `docs/GDD.md` (regras e calibragem na seção 9; números exatos em `docs/valores.md`, gerado).
 **Plano único:** `docs/roadmap.md` (feito, próximas etapas com status e propostas). Planos/propostas antigos em `docs/arquivo/` (só histórico; não criar novos arquivos de plano, atualizar o roadmap).
 

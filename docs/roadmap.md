@@ -179,7 +179,7 @@ Objetivo: deixar o código seguro e pronto para ser **distribuído** em sites co
 5. **Higiene do GitHub** `[ ]`: 2FA na conta, proteção da `main`, Dependabot (`.github/dependabot.yml`), varredura de segredos e workflow com `permissions` mínimas.
 6. **Licença "todos os direitos reservados"** `[ ]`: arquivo `LICENSE` proprietário e aviso de copyright no jogo (Configurações → Sobre).
 7. **Códigos de presente** `[ ]`: mantidos como mimo para amigos (não são proteção: dá para descobrir por força bruta ou editar o save). Conteúdo **pago** nunca vai por código no cliente.
-8. **Nome definitivo** `[ ]` — decisão do Daniel. "Nexus" é comum; pesquisar no INPI e na Steam antes de divulgar.
+8. **Nome definitivo** `[x]` — **Nexus TD** (decidido em 07/10/2026). Pesquisar no INPI e na Steam antes de divulgar.
 
 **PUB-B. Sites com anúncios (médio-baixo)**
 - **Portal:** CrazyGames (aceita jogos só de computador, SDK simples, divide a receita de anúncios) é o primeiro candidato; GameDistribution como alternativa. Poki é seletivo e prioriza celular. Receita esperada: modesta. Vale como vitrine e para medir público.
@@ -205,9 +205,7 @@ Objetivo: deixar o código seguro e pronto para ser **distribuído** em sites co
 - **Save na nuvem:** tabela `saves` (usuário, dados JSON, versão, data). Salva ao fim de cada run e ao gastar na meta-progressão. Conflito entre aparelhos: vale o mais novo, guardando o anterior como cópia. O `sanitize` atual continua validando tudo que chega.
 - **Por plataforma** (camada `src/platform/`): web → contas próprias; CrazyGames → conta e save do próprio portal (login de terceiros dentro do portal costuma ser vetado); Steam → conta Steam, Steam Cloud e os **rankings da própria Steam**. O backend próprio serve à versão web e a um ranking unificado, se desejado.
 - **Rankings** (exemplos): onda mais alta no Sem Fim por fase, vitória mais rápida por fase, **Desafio diário** (F16: mesma semente para todos).
-- **Trapaça:** o cliente nunca é confiável. Dois níveis:
-  1. *Básico:* o servidor recusa valores impossíveis (onda acima do possível, tempo curto demais), limita envios e permite banir.
-  2. *Forte:* **replay verificado** — a run usa semente e registra as ações do jogador; o servidor reexecuta a simulação (o mesmo código TypeScript) e confere o resultado. Possível porque a simulação já é separada da interface e todo sorteio passa por `random.ts`. Falta: gerador com semente e passo de tempo fixo na simulação.
+- **Trapaça:** ver **PUB-G** (servidor dono do progresso e runs verificadas).
 - **Segurança do backend:** regras por linha (cada um só lê e grava o próprio save); só a chave pública no cliente (a chave de serviço nunca sai do servidor); envio de placar por função no servidor, não direto na tabela; limite de requisições.
 - **LGPD:** política de privacidade e termos de uso, coletar o mínimo (e-mail e apelido), botão para **apagar a conta e os dados** e para exportar o save (já existe).
 
@@ -221,7 +219,28 @@ Objetivo: deixar o código seguro e pronto para ser **distribuído** em sites co
 
 **Hospedagem (Cloudflare Pages / Netlify), como funciona:** conecta-se ao repositório do GitHub (pode ser privado). O fluxo continua o mesmo: commit e push na `main` → o serviço roda `npm run build` e publica a pasta `dist` em ~1 minuto. Ganhos: link de **prévia para cada branch** (testar antes de publicar), **voltar para qualquer versão anterior com um clique**, domínio próprio com HTTPS grátis. O versionamento continua no Git; o workflow `deploy.yml` deixa de ser necessário. Configuração única: comando `npm run build`, pasta `dist`, Node 24. A base do Vite já é relativa (`./`), então nada muda no código. Plano grátis: Cloudflare sem limite de tráfego (500 builds/mês); Netlify 100 GB/mês.
 
-**Ordem sugerida (quando a 1.0 estiver pronta):** PUB-A → PUB-E (contas e save na nuvem) → PUB-F (beta aberta) → PUB-B (portal com anúncios) → PUB-C (Steam). Decisões pendentes: nome definitivo, portal, anúncio recompensado (sim/não e qual recompensa), Electron ou Tauri, serviço de contas (Supabase?), quais rankings.
+**PUB-G. Proteção contra trapaça** (PROPOSTA de 07/10/2026; substitui "aceitar edição do save")
+Ideia central: **com conta, o servidor é o dono do progresso**. O navegador só mostra e joga; quem decide quanto o jogador tem é o servidor. Editar o `localStorage` deixa de valer, porque ele vira só uma cópia.
+
+1. **Progresso autoritativo no servidor (base da 1.0 com contas).**
+   - O cliente nunca envia "tenho 5.000 de Essência". Envia **ações**: "terminei esta run com este resultado", "quero comprar o talento X", "quero despertar a criatura Y".
+   - O servidor recalcula tudo com o **mesmo código do jogo** (`src/data` e as funções puras de `game/profile`, `talents`, `economy` rodam no servidor sem mudança), confere saldo e regras e grava. Recompensas (Essência, Fragmentos, Cristais, Relíquias, sorteio do Altar) são **calculadas e sorteadas no servidor**.
+   - O save local passa a ser cache: ao abrir o jogo, vale o do servidor.
+2. **Run verificada (o que dá recompensa e ranking).**
+   - O servidor entrega uma **semente** ao começar a run; o jogo registra as ações do jogador (posições de invocação, evoluções, escolhas de carta, movimento e Pulso por quadro).
+   - Ao terminar, envia semente + ações. O servidor **reexecuta a simulação** e só credita o que a reexecução confirmar. Alterar o jogo no navegador não muda o resultado da reexecução.
+   - Pré-requisitos no jogo: gerador com semente em `random.ts`, simulação em passo fixo (ex.: 1/60 s) e gravação das entradas. A simulação já é separada da interface, o que torna isso viável.
+   - Custo: uma run de 20 ondas roda em ~1–3 s sem desenho (o bot já faz isso). Verificar em fila, sem pressa (recompensa chega em segundos; ranking aceito depois de verificado).
+   - Etapa intermediária mais barata (se preferir começar menor): **checagem de plausibilidade** — limites por onda/tempo (Essência máxima por run, onda possível no tempo jogado, ritmo de abates); o que passar do limite é recusado e marcado.
+3. **Ranking só com runs verificadas**, por conta, com limite de envios e possibilidade de banir. Os 10 primeiros de cada ranking podem ser revisados (o replay mostra a run).
+4. **Modo convidado (sem conta):** continua com save local e funciona offline, mas é **"não verificado"**: não entra em ranking. Ao criar conta, o progresso local pode ser importado **uma vez**, com limites (ex.: até o que é plausível para o número de runs registradas) — PROPOSTA a decidir.
+5. **Camada leve contra edição casual no local** (também no convidado): save com assinatura de integridade; se for editado à mão, o jogo **não apaga**, só marca o perfil como "modificado" (sem ranking). Não impede quem souber o que faz, mas tira a facilidade de "abrir o console e mudar o número".
+6. **Por plataforma:** CrazyGames → mesmo esquema com a conta do portal; Steam → os rankings da Steam aceitam qualquer valor do cliente, então enviar para eles só depois da verificação do nosso servidor (ou usar só o nosso ranking).
+7. **Conteúdo pago** (se houver): a posse vem da plataforma (DLC da Steam) ou do servidor (compra registrada), nunca de código no cliente.
+
+Esforço: nível 1 (servidor autoritativo + plausibilidade) — médio, entra junto com as contas (PUB-E). Nível 2 (replay verificado) — médio-alto; recomendado antes de abrir rankings ou o Desafio diário.
+
+**Ordem sugerida (quando a 1.0 estiver pronta):** PUB-A → PUB-E + PUB-G nível 1 (contas, save na nuvem, servidor dono do progresso) → PUB-F (beta aberta) → PUB-G nível 2 (runs verificadas) antes dos rankings → PUB-B (portal com anúncios) → PUB-C (Steam). Nome decidido: **Nexus TD**. Decisões pendentes: portal, anúncio recompensado (sim/não e qual recompensa), Electron ou Tauri, serviço de contas (Supabase?), quais rankings.
 
 ### Em paralelo (encaixar entre fases)
 - **Balanceamento das raças** `[~]` (07/10/2026): rodada feita nas 3 fases (ver Registro do GDD); Humanos com a passiva **Disciplina**. Pendente: Lobisomem na Tundra (0/30) e Bruxa no Pântano (24/30).
