@@ -17,6 +17,7 @@ export interface SkinDef {
 
 export const SKINS: SkinDef[] = [
   { id: 'archangel-default', hero: 'archangel', name: 'Aurora', palette: {}, unlockedBy: null },
+  { id: 'alicorn-default', hero: 'alicorn', name: 'Arco-Íris', palette: {}, unlockedBy: null },
   { id: 'archangel-silver', hero: 'archangel', name: 'Serafim Prateado', palette: { wing: '#ffffff', armor: '#d8dce8', armorDark: '#6a7090', glow: '#bfe8ff' }, unlockedBy: 'archangelVictory' },
   { id: 'archangel-fallen', hero: 'archangel', name: 'Anjo Caído', palette: { wing: '#3a3048', armor: '#5a4a6a', armorDark: '#1a1020', glow: '#ff5a6a' }, unlockedBy: 'archangelEndless' },
   { id: 'archdemon-default', hero: 'archdemon', name: 'Abismo', palette: {}, unlockedBy: null },

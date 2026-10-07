@@ -7,6 +7,8 @@ export interface SettingsHandlers {
   onExport(): void;
   onImport(): void;
   onResetSave(): void;
+  /** Confere um código de presente; devolve a mensagem para mostrar. */
+  onRedeem(code: string): Promise<string>;
 }
 
 const percent = (v: number) => Math.round(v * 100);
@@ -64,6 +66,11 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
         <button data-action="export">⇩ Exportar save</button>
         <button data-action="import">⇧ Importar save</button>
       </div>
+      <div class="gift-row">
+        <input type="text" id="gift-code" placeholder="Código de presente" maxlength="40" autocomplete="off" spellcheck="false" />
+        <button data-action="redeem">🎁 Resgatar</button>
+      </div>
+      <p class="hint" id="gift-result"></p>
       <div class="row-buttons">
         <button class="danger" data-action="reset">✖ Apagar todo o progresso</button>
       </div>
@@ -74,6 +81,14 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
       export: () => handlers.onExport(),
       import: () => handlers.onImport(),
       reset: () => handlers.onResetSave(),
+      redeem: () => {
+        const input = document.querySelector<HTMLInputElement>('#gift-code');
+        const result = document.querySelector<HTMLElement>('#gift-result');
+        if (!input || !result || !input.value.trim()) return;
+        void handlers.onRedeem(input.value).then((message) => {
+          result.textContent = message;
+        });
+      },
       quality: (value) => {
         handlers.onChange({ quality: value as Settings['quality'] });
         showSettings({ ...settings, quality: value as Settings['quality'] }, handlers);

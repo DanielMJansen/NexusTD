@@ -1,6 +1,6 @@
 import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
 import { VARIANTS, type VariantTier } from '../data/altar';
-import { CREATURES, CREATURE_IDS, type CreatureDef, type CreatureId } from '../data/creatures';
+import { ALL_CREATURE_IDS, CREATURES, isGiftCreature, type CreatureDef, type CreatureId } from '../data/creatures';
 import { ownsCreature, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
 import { abilityText, ascendedFormsHtml, creatureStats, racePassiveHtml } from './describe';
@@ -12,9 +12,13 @@ export interface CollectionHandlers {
   onBack(): void;
 }
 
-/** Raças na ordem em que aparecem nos dados. */
-export function racesInOrder(): string[] {
-  return [...new Set(CREATURE_IDS.map((id) => CREATURES[id].race))];
+/** Criaturas que aparecem para este jogador: as públicas e as exclusivas que ele tem. */
+export const visibleCreatureIds = (profile: Profile): CreatureId[] =>
+  ALL_CREATURE_IDS.filter((id) => !isGiftCreature(id) || profile.ownedCreatures.includes(id));
+
+/** Raças na ordem em que aparecem nos dados (com as exclusivas que o jogador tem). */
+export function racesInOrder(profile: Profile): string[] {
+  return [...new Set(visibleCreatureIds(profile).map((id) => CREATURES[id].race))];
 }
 
 /** Variantes do Altar já obtidas: clicar escolhe a usada na arena. */
@@ -74,13 +78,13 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
  */
 export function showCollection(profile: Profile, handlers: CollectionHandlers, justUnlocked?: CreatureId): void {
   // uma raça por aba (com quantas criaturas dela o jogador já tem)
-  const tabs: Tab[] = racesInOrder().map((race) => {
-    const ids = CREATURE_IDS.filter((id) => CREATURES[id].race === race);
+  const tabs: Tab[] = racesInOrder(profile).map((race) => {
+    const ids = visibleCreatureIds(profile).filter((id) => CREATURES[id].race === race);
     return { id: race, label: race, badge: `${ids.filter((id) => profile.ownedCreatures.includes(id)).length}/${ids.length}`, color: CREATURES[ids[0]!].color };
   });
   if (justUnlocked) setTab('collection', CREATURES[justUnlocked].race);
   const race = currentTab('collection', tabs);
-  const cards = CREATURE_IDS.filter((id) => CREATURES[id].race === race)
+  const cards = visibleCreatureIds(profile).filter((id) => CREATURES[id].race === race)
     .map((id) => cardHtml(profile, CREATURES[id], id === justUnlocked))
     .join('');
   const groups = `${tabsHtml(tabs, race)}<div class="creature-grid three">${cards}</div>`;

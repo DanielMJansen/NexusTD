@@ -186,6 +186,20 @@ export function firePulse(state: RunState, aim?: Point): boolean {
       to = end;
       break;
     }
+    case 'rainbow': {
+      // feixe em linha: fere e encanta (inimigos comuns viram aliados por um tempo)
+      const angle = aimAngle(state, aim);
+      const length = effect.length * reach;
+      const end = clampToArena(state, { x: hero.x + Math.cos(angle) * length, y: hero.y + Math.sin(angle) * length });
+      hit = hitWhere(state, (e) => distanceToSegment(e, start, end) <= effect.width / 2 + e.def.radius * 0.5, damage, (e) => {
+        if (e.def.isBoss || e.dead || e.allyTimer > 0) return;
+        e.allyTimer = effect.charm * size;
+        e.allyExplode = null;
+        state.events.push({ type: 'possessed', x: e.x, y: e.y });
+      });
+      to = end;
+      break;
+    }
     case 'raise': {
       // ergue onde inimigos caíram há pouco; sem corpos, ergue alguns ao redor do herói
       hit = hitWhere(state, inRadius, damage);

@@ -4,13 +4,14 @@ import { LOADOUTS } from '../data/config';
 import { VARIANT_TIERS, type VariantTier } from '../data/altar';
 import { SANCTUARY } from '../data/sanctuary';
 import { FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
-import { CREATURE_IDS, type CreatureId, CREATURES } from '../data/creatures';
+import { ALL_CREATURE_IDS, type CreatureId, CREATURES } from '../data/creatures';
+import { GIFT_IDS } from '../data/gifts';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
 import { ENEMY_IDS } from '../data/enemies';
-import { HERO_IDS, STARTER_HERO, type HeroId } from '../data/heroes';
+import { ALL_HERO_IDS, STARTER_HERO, type HeroId } from '../data/heroes';
 import { findSkin } from '../data/skins';
 import { TALENT_IDS, talentMaxLevel, type TalentId } from '../data/talents';
-import { createProfile, STARTER_CREATURES, TEAM_SIZE, type Profile, loadoutName, selectLoadout, syncLoadout } from '../game/profile';
+import { createProfile, grantGift, STARTER_CREATURES, TEAM_SIZE, type Profile, loadoutName, selectLoadout, syncLoadout } from '../game/profile';
 
 const SAVE_KEY = 'nx4';
 /** Versão do formato do perfil (vai junto nos arquivos exportados). */
@@ -109,12 +110,20 @@ function sanitize(data: unknown): Profile {
   }
 
   const owned = new Set<CreatureId>([...STARTER_CREATURES, ...validCreatures(raw.ownedCreatures)]);
-  profile.ownedCreatures = CREATURE_IDS.filter((id) => owned.has(id));
+  // presentes (código): o conteúdo deles volta a ser liberado antes de validar equipe e herói
+  const gifts = Array.isArray(raw.gifts) ? raw.gifts : [];
+  profile.gifts = [];
+  profile.ownedCreatures = [];
+  profile.ownedHeroes = [];
+  for (const id of GIFT_IDS) if (gifts.includes(id)) grantGift(profile, id);
+  for (const id of profile.ownedCreatures) owned.add(id);
+  const giftHeroes = [...profile.ownedHeroes];
+  profile.ownedCreatures = ALL_CREATURE_IDS.filter((id) => owned.has(id));
   const team = [...new Set(validCreatures(raw.team))].filter((id) => owned.has(id)).slice(0, TEAM_SIZE);
   profile.team = team.length ? team : profile.ownedCreatures.slice(0, TEAM_SIZE);
 
   const heroes = Array.isArray(raw.ownedHeroes) ? raw.ownedHeroes : [];
-  profile.ownedHeroes = HERO_IDS.filter((id) => id === STARTER_HERO || heroes.includes(id));
+  profile.ownedHeroes = ALL_HERO_IDS.filter((id) => id === STARTER_HERO || heroes.includes(id) || giftHeroes.includes(id));
   const selected = raw.selectedHero as HeroId;
   profile.selectedHero = profile.ownedHeroes.includes(selected) ? selected : STARTER_HERO;
 
@@ -138,7 +147,7 @@ function sanitize(data: unknown): Profile {
   }
   // Santuário (campos novos: padrão vazio)
   const fragments = (raw.fragments ?? {}) as Record<string, unknown>;
-  const races = new Set(CREATURE_IDS.map((id) => CREATURES[id].race));
+  const races = new Set(ALL_CREATURE_IDS.map((id) => CREATURES[id].race));
   for (const race of races) {
     const amount = Math.floor(toNumber(fragments[race]));
     if (amount > 0) profile.fragments[race] = amount;
@@ -196,7 +205,7 @@ function sanitize(data: unknown): Profile {
   const stage = raw.selectedStage as StageId;
   profile.selectedStage = STAGE_IDS.includes(stage) ? stage : FIRST_STAGE;
   const skins = (raw.selectedSkins ?? {}) as Record<string, unknown>;
-  for (const hero of HERO_IDS) {
+  for (const hero of ALL_HERO_IDS) {
     const skin = findSkin(String(skins[hero] ?? ''));
     if (skin && skin.hero === hero) profile.selectedSkins[hero] = skin.id;
   }
@@ -204,7 +213,7 @@ function sanitize(data: unknown): Profile {
 }
 
 function validCreatures(value: unknown): CreatureId[] {
-  return Array.isArray(value) ? value.filter((id): id is CreatureId => CREATURE_IDS.includes(id)) : [];
+  return Array.isArray(value) ? value.filter((id): id is CreatureId => ALL_CREATURE_IDS.includes(id)) : [];
 }
 
 function toNumber(value: unknown): number {

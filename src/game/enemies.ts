@@ -1,3 +1,4 @@
+import { racePure } from '../data/races';
 import { NEXUS } from '../data/config';
 import type { EnemyTrait } from '../data/enemies';
 import { damageHero } from './hero';
@@ -98,7 +99,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
         if (inside.length && enemy.hp < (enemy.swallowHp ?? enemy.hp) - enemy.maxHp * trait.breakDamage) releaseSwallowed(state, enemy);
         if (!ready || !onScreen(state, enemy) || inside.length) break;
         const prey = state.creatures
-          .filter((c) => !(c.swallowTimer! > 0) && distance(c, enemy) <= trait.range)
+          .filter((c) => !(c.swallowTimer! > 0) && !racePure(c.def.race) && distance(c, enemy) <= trait.range)
           .sort((a, b) => distance(a, enemy) - distance(b, enemy))[0];
         if (!prey) break;
         prey.swallowTimer = trait.duration;

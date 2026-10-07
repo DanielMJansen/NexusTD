@@ -1,4 +1,4 @@
-import { raceGrip } from '../data/races';
+import { raceGrip, racePure } from '../data/races';
 import { onIce } from './ice';
 import { weatherRangeFactor } from './mapEvents';
 import { HERO_PLACEMENT } from '../data/config';
@@ -236,8 +236,12 @@ function applyAuras(state: RunState): void {
       if (ability.protect) other.protected = true;
     }
   }
-  // Proteção: imunes a teia e atordoamento
+  // Proteção: imunes a teia e atordoamento (Pureza dos unicórnios: sempre)
   for (const creature of state.creatures) {
+    if (racePure(creature.def.race)) {
+      creature.protected = true;
+      creature.frozen = false;
+    }
     if (!creature.protected) continue;
     creature.webTimer = 0;
     creature.stunTimer = 0;

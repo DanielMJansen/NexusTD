@@ -1,5 +1,5 @@
 import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
-import { HERO_IDS, HEROES, type HeroId } from '../data/heroes';
+import { ALL_HERO_IDS, HEROES, type HeroId } from '../data/heroes';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { skinsOf } from '../data/skins';
 import { heroSkin, isSkinUnlocked, ownsHero, type Profile } from '../game/profile';
@@ -47,7 +47,7 @@ export interface HeroScreenOptions {
 /** Heróis jogáveis: um por raça; desbloqueio com Essência e escolha do herói da run. */
 export function showHeroes(profile: Profile, handlers: HeroHandlers, options: HeroScreenOptions = {}): void {
   // lista de heróis (abas) e a ficha do escolhido
-  const tabs: Tab[] = HERO_IDS.map((id) => ({
+  const tabs: Tab[] = ALL_HERO_IDS.filter((id) => !HEROES[id].gift || ownsHero(profile, id)).map((id) => ({
     id,
     label: `${ownsHero(profile, id) ? '' : '🔒 '}${HEROES[id].name}`,
     sprite: id,

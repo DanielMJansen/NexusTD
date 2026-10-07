@@ -55,7 +55,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
         <button data-action="stages">Fase <small>${stage.number} · ${stage.name}</small></button>
         <button data-action="heroes">Herói <small>${HEROES[profile.selectedHero].name}</small></button>
         <button data-action="team">Equipes <small>${profile.loadouts[profile.activeLoadout]?.name ?? ''} · ${profile.team.length} de ${TEAM_SIZE}</small></button>
-        <button data-action="collection">Coleção <small>${profile.ownedCreatures.length} de ${CREATURE_IDS.length}</small></button>
+        <button data-action="collection">Coleção <small>${CREATURE_IDS.filter((id) => profile.ownedCreatures.includes(id)).length} de ${CREATURE_IDS.length}</small></button>
         <button data-action="talents">Talentos</button>
         <button data-action="nexus">Nexus <small>modelo e cor</small></button>
         ${isAltarUnlocked(profile) ? '<button data-action="altar">Altar de Variantes</button>' : ''}

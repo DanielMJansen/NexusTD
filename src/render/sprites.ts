@@ -54,6 +54,7 @@ import { drawBasilisk, drawGorgonQueen, drawMedusa, drawSerpentArcher } from './
 import { drawDeathLord, drawDrainer, drawReaper, drawSkeletonWarrior } from './spritesNecro';
 import { drawColossus, drawCrystalGolem, drawMagmaGolem, drawWall } from './spritesGolem';
 import { drawEnchantress, drawFaeQueen, drawLumina, drawTrickster } from './spritesFae';
+import { drawAlicorn, drawGuardianUnicorn, drawStarFoal, drawWarPegasus } from './spritesUnicorn';
 
 export type SpriteId = HeroId | CreatureId | EnemyId;
 export type { SpritePose };
@@ -204,6 +205,18 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'lumina':
       drawLumina(ctx, p);
+      break;
+    case 'starFoal':
+      drawStarFoal(ctx, p);
+      break;
+    case 'guardianUnicorn':
+      drawGuardianUnicorn(ctx, p);
+      break;
+    case 'warPegasus':
+      drawWarPegasus(ctx, p);
+      break;
+    case 'alicorn':
+      drawAlicorn(ctx, p);
       break;
     case 'faeQueen':
       drawFaeQueen(ctx, p);

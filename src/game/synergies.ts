@@ -1,9 +1,9 @@
-import { CREATURE_IDS, CREATURES } from '../data/creatures';
+import { ALL_CREATURE_IDS, CREATURES } from '../data/creatures';
 import { SYNERGIES } from '../data/synergies';
 import { noSynergy, type RunState } from './state';
 
 /** Quantas classes cada raça tem (para mostrar "2/3"). */
-export const raceClassCount = (race: string): number => CREATURE_IDS.filter((id) => CREATURES[id].race === race).length;
+export const raceClassCount = (race: string): number => ALL_CREATURE_IDS.filter((id) => CREATURES[id].race === race).length;
 
 /** Classes diferentes de cada raça em campo (criaturas engolidas não contam). */
 export function racesInField(state: RunState): Record<string, number> {

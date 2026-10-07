@@ -1,3 +1,6 @@
+import { GIFT_IDS, GIFTS, type GiftId } from '../data/gifts';
+import { ALL_CREATURE_IDS } from '../data/creatures';
+import { ALL_HERO_IDS, HEROES as GIFT_HEROES } from '../data/heroes';
 import { nexusLookFor } from './nexusSkins';
 import type { NexusLook } from '../data/nexusSkins';
 import { LOADOUTS } from '../data/config';
@@ -39,6 +42,8 @@ export interface Profile {
   seenEnemies: EnemyId[];
   /** Fases cujo tutorial (quadro de mecânicas) já foi visto. */
   seenStageIntros: StageId[];
+  /** Presentes resgatados por código (conteúdo exclusivo). */
+  gifts: GiftId[];
   /** Onda mais alta alcançada (inclui o Sem Fim). */
   bestWave: number;
   /** Fragmentos de raça (Santuário). */
@@ -76,6 +81,7 @@ export function createProfile(): Profile {
     stats: { runs: 0, wins: 0, kills: 0 },
     seenEnemies: [],
     seenStageIntros: [],
+    gifts: [],
     bestWave: 0,
     selectedStage: FIRST_STAGE,
     fragments: {},
@@ -291,4 +297,32 @@ export function runSetup(profile: Profile): RunSetup {
     hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,
     heroPalette: heroSkin(profile, profile.selectedHero).palette,
   };
+}
+
+/** SHA-256 em hex (Web Crypto). */
+async function sha256(text: string): Promise<string> {
+  const data = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** Libera um presente: criaturas e herói exclusivos entram na coleção. */
+export function grantGift(profile: Profile, gift: GiftId): void {
+  if (!profile.gifts.includes(gift)) profile.gifts.push(gift);
+  for (const id of ALL_CREATURE_IDS) {
+    const unlock = CREATURES[id].unlock;
+    if (unlock.kind === 'gift' && unlock.gift === gift && !profile.ownedCreatures.includes(id)) profile.ownedCreatures.push(id);
+  }
+  for (const id of ALL_HERO_IDS) {
+    if (GIFT_HEROES[id].gift === gift && !profile.ownedHeroes.includes(id)) profile.ownedHeroes.push(id);
+  }
+}
+
+/** Confere um código de presente; devolve o presente liberado (ou null se o código não vale). */
+export async function redeemGiftCode(profile: Profile, code: string): Promise<GiftId | null> {
+  const hash = await sha256(code.trim().toUpperCase());
+  const gift = GIFT_IDS.find((id) => GIFTS[id].hash === hash);
+  if (!gift) return null;
+  grantGift(profile, gift);
+  return gift;
 }

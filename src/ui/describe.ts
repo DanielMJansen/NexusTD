@@ -379,6 +379,9 @@ export function pulseText(def: HeroDef, live?: PulseLive): string {
     case 'meteors':
       what = `${e.count} meteoros caem em sequência ao redor da mira: ${d} de dano cada (raio ${e.radius}) e chão em chamas.`;
       break;
+    case 'rainbow':
+      what = `feixe de arco-íris de ${e.length} na direção da mira: ${d} de dano, e inimigos comuns atingidos lutam do seu lado por ${formatNumber(e.charm)} s (chefes resistem).`;
+      break;
     case 'judgment':
       what = `após ${formatNumber(e.delay)} s, uma coluna de luz desce na mira: ${d} de dano (raio ${e.radius}) e marca quem atinge (+${pctOf(e.mark.amount)} de dano recebido por ${formatNumber(e.mark.duration)} s).`;
       break;
@@ -474,6 +477,8 @@ export function racePassiveHtml(race: string, className = 'cc-ability race-passi
   const text =
     p.kind === 'evolveDiscount'
       ? `evolui ${pctText(p.value)} mais barato`
-      : `golpes ignoram armadura e agarram o alvo por ${formatNumber(p.duration)} s: ele fica ${pctText(p.slow)} mais lento e não desliza no gelo${p.leap ? `. Sem inimigo no alcance, salta até um a ${p.leap.range} de distância, golpeia com ${formatNumber(p.leap.damage)}× de dano e volta (a cada ${formatNumber(p.leap.cooldown)} s)` : ''}`;
+      : p.kind === 'pure'
+        ? 'imune a teia, maldição, atordoamento, congelamento e a ser engolido'
+        : `golpes ignoram armadura e agarram o alvo por ${formatNumber(p.duration)} s: ele fica ${pctText(p.slow)} mais lento e não desliza no gelo${p.leap ? `. Sem inimigo no alcance, salta até um a ${p.leap.range} de distância, golpeia com ${formatNumber(p.leap.damage)}× de dano e volta (a cada ${formatNumber(p.leap.cooldown)} s)` : ''}`;
   return `<p class="${className}"><b>${def.name}</b> (raça ${race}): ${text}.</p>`;
 }

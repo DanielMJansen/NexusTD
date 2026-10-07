@@ -1,5 +1,5 @@
 import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
-import { CREATURE_IDS, CREATURES, type CreatureId } from '../data/creatures';
+import { ALL_CREATURE_IDS, CREATURES, type CreatureId } from '../data/creatures';
 import { SANCTUARY, sanctuaryCost } from '../data/sanctuary';
 import type { Profile } from '../game/profile';
 import { racesInOrder } from './collection';
@@ -40,13 +40,13 @@ function confirmHtml(profile: Profile, id: CreatureId): string {
 
 /** Santuário: nível permanente das criaturas da coleção, pago com Fragmentos da raça. */
 export function showSanctuary(profile: Profile, handlers: SanctuaryHandlers, highlight?: CreatureId): void {
-  const races = racesInOrder().filter((race) => CREATURE_IDS.some((id) => CREATURES[id].race === race && profile.ownedCreatures.includes(id)));
-  const tabs: Tab[] = races.map((race) => ({ id: race, label: race, badge: `${profile.fragments[race] ?? 0} ❖`, color: CREATURES[CREATURE_IDS.find((id) => CREATURES[id].race === race)!].color }));
+  const races = racesInOrder(profile).filter((race) => ALL_CREATURE_IDS.some((id) => CREATURES[id].race === race && profile.ownedCreatures.includes(id)));
+  const tabs: Tab[] = races.map((race) => ({ id: race, label: race, badge: `${profile.fragments[race] ?? 0} ❖`, color: CREATURES[ALL_CREATURE_IDS.find((id) => CREATURES[id].race === race)!].color }));
   if (highlight) setTab('sanctuary', CREATURES[highlight].race);
   const shownRace = currentTab('sanctuary', tabs);
   const groups = tabsHtml(tabs, shownRace) + [shownRace]
     .map((race) => {
-      const owned = CREATURE_IDS.filter((id) => CREATURES[id].race === race && profile.ownedCreatures.includes(id));
+      const owned = ALL_CREATURE_IDS.filter((id) => CREATURES[id].race === race && profile.ownedCreatures.includes(id));
       if (!owned.length) return '';
       const cards = owned
         .map((id) => {

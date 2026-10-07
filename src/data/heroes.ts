@@ -1,7 +1,8 @@
 // Heróis jogáveis: um por raça. O Cavaleiro (Humano) é o inicial; os outros custam Essência.
 // Valores PROPOSTA: calibrar em playtest.
+import type { GiftId } from './gifts';
 
-export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus' | 'deathLord' | 'gorgonQueen' | 'archdemon' | 'archangel';
+export type HeroId = 'knight' | 'vampireLord' | 'draconian' | 'lycan' | 'specter' | 'witch' | 'faeQueen' | 'colossus' | 'deathLord' | 'gorgonQueen' | 'archdemon' | 'archangel' | 'alicorn';
 
 export type HeroAttack = {
   damage: number;
@@ -43,7 +44,9 @@ export type PulseEffect =
   /** Meteoros caem em sequência ao redor da mira, deixando o chão em chamas. */
   | { kind: 'meteors'; count: number; spread: number; interval: number; radius: number; burn: { dps: number; duration: number } }
   /** Coluna de luz desce na mira após `delay` s; marca quem atinge. */
-  | { kind: 'judgment'; delay: number; radius: number; mark: { amount: number; duration: number } };
+  | { kind: 'judgment'; delay: number; radius: number; mark: { amount: number; duration: number } }
+  /** Feixe de arco-íris em linha na direção da mira: fere e encanta (inimigos comuns lutam do seu lado por `charm` s). */
+  | { kind: 'rainbow'; length: number; width: number; charm: number };
 
 export type HeroPulse = {
   name: string;
@@ -94,6 +97,8 @@ export interface HeroDef {
   maxHp: number;
   /** null = herói inicial (gratuito). */
   cost: number | null;
+  /** Exclusivo: liberado só por código de presente (não aparece para quem não tem). */
+  gift?: GiftId;
 }
 
 // A ordem aqui é a ordem na tela de heróis.
@@ -254,6 +259,23 @@ export const HEROES: Record<HeroId, HeroDef> = {
     maxHp: 120,
     cost: 280,
   },
+  alicorn: {
+    id: 'alicorn',
+    name: 'Alicórnio',
+    race: 'Unicórnio',
+    description: 'Unicórnio alado. Ataca com o raio do chifre; o Arco-Íris fere e encanta uma fila de inimigos, que passam a lutar do seu lado.',
+    speed: 125,
+    attack: { damage: 8, range: 100, cooldown: 0.5, pattern: { kind: 'single' }, healPerHit: 0 },
+    pulse: { name: 'Arco-Íris', damage: 30, radius: 0, cooldown: 15, healPerEnemy: 0, effect: { kind: 'rainbow', length: 190, width: 30, charm: 4 } },
+    raceBonus: { kind: 'range', value: 0.1 },
+    color: '#ffd0f4',
+    maxHp: 100,
+    cost: 0,
+    gift: 'unicorn',
+  },
 };
-export const HERO_IDS = Object.keys(HEROES) as HeroId[];
+/** Todos os heróis, inclusive os exclusivos (validar saves). */
+export const ALL_HERO_IDS = Object.keys(HEROES) as HeroId[];
+/** Heróis públicos (telas e contagens); os de presente só aparecem para quem tem. */
+export const HERO_IDS = ALL_HERO_IDS.filter((id) => !HEROES[id].gift);
 export const STARTER_HERO: HeroId = 'knight';

@@ -1,3 +1,4 @@
+import type { GiftId } from './gifts';
 export type CreatureId =
   | 'archer'
   | 'guard'
@@ -34,7 +35,10 @@ export type CreatureId =
   | 'infernal'
   | 'cherub'
   | 'valkyrie'
-  | 'guardianAngel';
+  | 'guardianAngel'
+  | 'starFoal'
+  | 'guardianUnicorn'
+  | 'warPegasus';
 
 export type CreatureAbility =
   | { kind: 'none' }
@@ -150,7 +154,8 @@ export interface AscendedForm {
   icon: string;
 }
 
-export type CreatureUnlock = { kind: 'start' } | { kind: 'essence'; cost: number };
+/** gift: exclusiva, liberada só por código de presente (não aparece para quem não tem). */
+export type CreatureUnlock = { kind: 'start' } | { kind: 'essence'; cost: number } | { kind: 'gift'; gift: GiftId };
 
 export interface CreatureDef {
   /** Elemento (fogo: +25% de dano em inimigos de gelo e corta a regeneração deles). */
@@ -937,8 +942,75 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
       { name: 'Juiz', description: 'Inimigos dentro da aura sofrem dano por segundo.', ability: { kind: 'bless', radius: 80, protect: true, dps: 10 }, color: '#bfe8ff', icon: '⚖' },
     ],
   },
+  // ---------- Unicórnio (exclusiva, código de presente) ----------
+  starFoal: {
+    id: 'starFoal',
+    name: 'Potro Estelar',
+    race: 'Unicórnio',
+    role: 'Raio de luz',
+    description: 'O chifre dispara um raio de luz que atravessa todos os inimigos em linha.',
+    lore: 'Ainda pequeno, mas já carrega uma estrela inteira na ponta do chifre.',
+    icon: '✶',
+    baseCost: 30,
+    damage: 9,
+    range: 120,
+    cooldown: 1.1,
+    color: '#f4e8ff',
+    ability: { kind: 'pierce', width: 14, beams: 1 },
+    unlock: { kind: 'gift', gift: 'unicorn' },
+    ascended: [
+      { name: 'Chifre Prismático', description: 'Três raios em leque, um de cada cor do arco-íris.', ability: { kind: 'pierce', width: 12, beams: 3 }, color: '#ff9ad8', icon: '❖' },
+      { name: 'Estrela Guia', description: 'Raio mais forte que marca quem atravessa: todos causam mais dano neles.', ability: { kind: 'pierce', width: 16, beams: 1 }, effects: [{ kind: 'mark', amount: 0.15, duration: 3 }], stats: { damage: 1.3 }, color: '#bfe8ff', icon: '✧' },
+    ],
+  },
+  guardianUnicorn: {
+    id: 'guardianUnicorn',
+    name: 'Unicórnio Guardião',
+    race: 'Unicórnio',
+    role: 'Suporte (proteção)',
+    description: 'Aura de luz: as criaturas ao redor atacam mais rápido e ficam imunes a teia e atordoamento.',
+    lore: 'Onde ele pisa, nenhuma sombra consegue prender ninguém.',
+    icon: '⛉',
+    baseCost: 30,
+    damage: 6,
+    range: 90,
+    cooldown: 1,
+    color: '#cfe6ff',
+    ability: { kind: 'bless', radius: 95, attackSpeed: 0.12, protect: true },
+    unlock: { kind: 'gift', gift: 'unicorn' },
+    ascended: [
+      { name: 'Santuário de Luz', description: 'Aura maior que também fortalece o dano.', ability: { kind: 'bless', radius: 120, attackSpeed: 0.15, damage: 0.12, protect: true }, color: '#fff2b0', icon: '☼' },
+      { name: 'Lança Celeste', description: 'A aura passa a ferir os inimigos dentro dela.', ability: { kind: 'bless', radius: 95, attackSpeed: 0.12, protect: true, dps: 7 }, color: '#ffb07a', icon: '⟰' },
+    ],
+  },
+  warPegasus: {
+    id: 'warPegasus',
+    name: 'Pégaso de Guerra',
+    race: 'Unicórnio',
+    role: 'Investida (empurrão)',
+    description: 'Avança num rasante estreito: fere todos à frente e os empurra para longe do Nexus.',
+    lore: 'As asas abrem caminho antes mesmo dos cascos tocarem o chão.',
+    icon: '➹',
+    baseCost: 35,
+    damage: 14,
+    range: 85,
+    cooldown: 1.6,
+    color: '#e0e8ff',
+    flying: true,
+    ability: { kind: 'screech', halfAngle: 0.25, push: 22, immunity: 2 },
+    unlock: { kind: 'gift', gift: 'unicorn' },
+    ascended: [
+      { name: 'Corcel da Tempestade', description: 'O rasante traz raios que atordoam.', ability: { kind: 'screech', halfAngle: 0.25, push: 22, immunity: 2 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], color: '#9ad8ff', icon: 'ϟ' },
+      { name: 'Pégaso Real', description: 'Rasante mais largo e mais forte, que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.4, push: 30, immunity: 2 }, stats: { damage: 1.3 }, color: '#ffd25a', icon: '♛' },
+    ],
+  },
 };
-export const CREATURE_IDS = Object.keys(CREATURES) as CreatureId[];
+/** Todas as criaturas, inclusive as exclusivas (validar saves, sinergias). */
+export const ALL_CREATURE_IDS = Object.keys(CREATURES) as CreatureId[];
+/** Criatura exclusiva de presente? */
+export const isGiftCreature = (id: CreatureId): boolean => CREATURES[id].unlock.kind === 'gift';
+/** Criaturas públicas (telas, contagens, sorteios); as de presente só aparecem para quem tem. */
+export const CREATURE_IDS = ALL_CREATURE_IDS.filter((id) => !isGiftCreature(id));
 
 /** Criaturas místicas são as de raças não humanas (o ovo inicial só oferece estas). */
 export const isMystical = (def: CreatureDef): boolean => def.race !== 'Humano';

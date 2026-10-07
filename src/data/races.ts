@@ -7,7 +7,9 @@ export type RacePassive =
    * Golpes ignoram armadura e agarram o alvo (não desliza no gelo, fica mais lento por alguns segundos).
    * leap: sem alvo no alcance, salta até um inimigo a até `range`, golpeia (dano × `damage`) e volta; recarga em segundos.
    */
-  | { kind: 'grip'; slow: number; duration: number; leap?: { range: number; cooldown: number; damage: number } };
+  | { kind: 'grip'; slow: number; duration: number; leap?: { range: number; cooldown: number; damage: number } }
+  /** Imunes a teia, maldição, atordoamento, congelamento e a ser engolidas. */
+  | { kind: 'pure' };
 
 export interface RacePassiveDef {
   name: string;
@@ -18,6 +20,8 @@ export const RACE_PASSIVES: Partial<Record<string, RacePassiveDef>> = {
   // Disciplina: a raça inicial evolui mais barato e chega antes ao nível 3
   Humano: { name: 'Disciplina', passive: { kind: 'evolveDiscount', value: 0.4 } },
   // Caçada: garras que rasgam e prendem, e o salto que alcança quem fica longe (chefes que atiram de longe)
+  // Pureza: nada prende um unicórnio (raça exclusiva, por código de presente)
+  Unicórnio: { name: 'Pureza', passive: { kind: 'pure' } },
   Lobisomem: { name: 'Caçada', passive: { kind: 'grip', slow: 0.25, duration: 1.2, leap: { range: 190, cooldown: 10, damage: 1 } } },
 };
 
@@ -32,3 +36,6 @@ export function raceGrip(race: string): Extract<RacePassive, { kind: 'grip' }> |
   const def = RACE_PASSIVES[race];
   return def?.passive.kind === 'grip' ? def.passive : null;
 }
+
+/** A raça é imune a controle (Pureza)? */
+export const racePure = (race: string): boolean => RACE_PASSIVES[race]?.passive.kind === 'pure';

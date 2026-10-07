@@ -1,3 +1,4 @@
+import { GIFTS } from './data/gifts';
 import { showStageIntro } from './ui/stageIntro';
 import { RenderQuality } from './render/quality';
 import { Camera, drawMinimap } from './render/camera';
@@ -33,6 +34,7 @@ import {
   toggleTeamMember,
   unlockCreature,
   type Profile,
+  redeemGiftCode,
 } from './game/profile';
 import { buyExtraSlot, reroll } from './game/shop';
 import { createRun, type RunState } from './game/state';
@@ -233,6 +235,13 @@ export class App {
       onExport: () => downloadBackup(),
       onImport: () => void this.importSave(),
       onResetSave: () => this.resetSave(),
+      onRedeem: async (code) => {
+        const gift = await redeemGiftCode(this.profile, code);
+        if (!gift) return 'Código inválido.';
+        saveProfile(this.profile);
+        updateMenuHud(this.profile);
+        return `🎁 ${GIFTS[gift].name} liberada! Veja na Coleção e em Heróis.`;
+      },
     });
   }
 

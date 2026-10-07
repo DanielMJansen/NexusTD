@@ -24,6 +24,7 @@ const PULSE_LOOK: Record<HeroId, { ring: string; inner: string; particle: string
   lycan: { ring: '#e8c890', inner: '#ffffff', particle: '#c8a070' },
   specter: { ring: '#8ce8d8', inner: '#e8fffc', particle: '#5ab8a8' },
   witch: { ring: '#7ad85a', inner: '#2a5a1a', particle: '#a8f080' },
+  alicorn: { ring: '#ffd0f4', inner: '#ffffff', particle: '#ffe0f8' },
 };
 
 /** Golpes corpo a corpo (corte sobre o alvo) e a cor do corte. */
@@ -418,6 +419,17 @@ export class Effects {
         if (event.kind === 'glide' || event.kind === 'flame' || event.kind === 'meteors' || event.kind === 'judgment' || event.kind === 'swarm') {
           // esses têm visual próprio enquanto duram; aqui só um brilho no herói
           this.ring(event.x, event.y + 6, 22, look.ring, 0.35, 3);
+          break;
+        }
+        if (event.kind === 'rainbow' && event.to) {
+          // arco-íris: faixas coloridas ao longo do feixe
+          const colors = ['#ff7a9a', '#ffb45a', '#ffe66a', '#7ae8a0', '#7ac8ff', '#b08aff'];
+          for (let i = 0; i <= 24; i++) {
+            const t = i / 24;
+            this.burst(event.x + (event.to.x - event.x) * t, event.y + (event.to.y - event.y) * t - 8, 3, colors[i % colors.length]!, 40, 0.8, 3.2, true, -20);
+          }
+          this.ring(event.to.x, event.to.y - 6, 26, '#ffd0f4', 0.5, 4);
+          this.shake = Math.max(this.shake, 3);
           break;
         }
         if (event.kind === 'fissure' && event.to) {

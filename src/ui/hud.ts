@@ -58,8 +58,8 @@ const menuWins = document.querySelector<HTMLElement>('#menu-wins')!;
 /** Fora da run, o topo mostra o progresso permanente em vez dos dados da run. */
 export function updateMenuHud(profile: Profile): void {
   setText(menuEssence, `${profile.essence}`);
-  setText(menuCollection, `${profile.ownedCreatures.length} de ${CREATURE_IDS.length}`);
-  setText(menuHeroes, `${profile.ownedHeroes.length} de ${HERO_IDS.length}`);
+  setText(menuCollection, `${CREATURE_IDS.filter((id) => profile.ownedCreatures.includes(id)).length} de ${CREATURE_IDS.length}`);
+  setText(menuHeroes, `${HERO_IDS.filter((id) => profile.ownedHeroes.includes(id)).length} de ${HERO_IDS.length}`);
   setText(menuWins, `${profile.stats.wins} de ${profile.stats.runs} runs`);
 }
 

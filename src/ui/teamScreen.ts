@@ -1,6 +1,6 @@
 import { racesInOrder } from './collection';
 import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
-import { CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
+import { ALL_CREATURE_IDS, CREATURES, CREATURE_IDS, type CreatureId } from '../data/creatures';
 import { LOADOUTS } from '../data/config';
 import { HEROES } from '../data/heroes';
 import { heroSkin, loadoutSlotCost, ownsCreature, TEAM_SIZE, type Profile } from '../game/profile';
@@ -42,13 +42,13 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
 
   const full = profile.team.length >= TEAM_SIZE;
   // coleção em abas por raça (só raças que o jogador tem)
-  const races = racesInOrder().filter((race) => CREATURE_IDS.some((id) => CREATURES[id].race === race && ownsCreature(profile, id)));
+  const races = racesInOrder(profile).filter((race) => ALL_CREATURE_IDS.some((id) => CREATURES[id].race === race && ownsCreature(profile, id)));
   const tabs: Tab[] = races.map((race) => {
-    const ids = CREATURE_IDS.filter((id) => CREATURES[id].race === race && ownsCreature(profile, id));
+    const ids = ALL_CREATURE_IDS.filter((id) => CREATURES[id].race === race && ownsCreature(profile, id));
     return { id: race, label: race, badge: `${ids.filter((id) => profile.team.includes(id)).length}`, color: CREATURES[ids[0]!].color };
   });
   const race = currentTab('team', tabs);
-  const options = CREATURE_IDS.filter((id) => ownsCreature(profile, id) && CREATURES[id].race === race)
+  const options = ALL_CREATURE_IDS.filter((id) => ownsCreature(profile, id) && CREATURES[id].race === race)
     .map((id) => {
       const def = CREATURES[id];
       const inTeam = profile.team.includes(id);
@@ -59,7 +59,7 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
         <em>${tag}</em></button>`;
     })
     .join('');
-  const missing = CREATURE_IDS.length - profile.ownedCreatures.length;
+  const missing = CREATURE_IDS.filter((id) => !profile.ownedCreatures.includes(id)).length;
 
   const active = profile.loadouts[profile.activeLoadout];
   const hero = HEROES[profile.selectedHero];
