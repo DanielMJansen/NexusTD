@@ -36,7 +36,14 @@ export type EnemyId =
   | 'raider'
   | 'djinn'
   | 'scorpionKing'
-  | 'pharaoh';
+  | 'pharaoh'
+  | 'harpy'
+  | 'marbleSentinel'
+  | 'fallenAngel'
+  | 'windElemental'
+  | 'stormCrow'
+  | 'griffin'
+  | 'seraph';
 
 /** Habilidades e passivas dos inimigos (cada uma tem seu próprio tempo de recarga). */
 export type EnemyTrait =
@@ -84,6 +91,12 @@ export type EnemyTrait =
   | { kind: 'steal'; gold: number }
   /** Teleporte: salta `distance` em direção ao alvo mais ferido (Nexus ou Obelisco). */
   | { kind: 'blink'; cooldown: number; distance: number }
+  /** Égide: dá escudo (reduz o dano em `reduction`) aos inimigos num raio por `duration` s. */
+  | { kind: 'aegis'; radius: number; cooldown: number; duration: number; reduction: number }
+  /** Esquiva: `chance` de um golpe direto passar sem dano (dano contínuo pega sempre). */
+  | { kind: 'evade'; chance: number }
+  /** Fenda: abre portais em `count` pontos de portal da fase, cada um soltando um `enemy`. */
+  | { kind: 'riftcall'; enemy: EnemyId; count: number; cooldown: number }
   /** Segunda fase abaixo de uma fração da vida: mais rápido e recargas menores. */
   | { kind: 'enrage'; below: number; speedMultiplier: number; cooldownMultiplier: number };
 
@@ -807,6 +820,135 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
       { kind: 'summon', enemy: 'mummy', count: 2, cooldown: 13 },
       { kind: 'web', range: 150, cooldown: 7, duration: 4, slow: 0.5, targets: 3, look: 'curse' },
       { kind: 'revive', hp: 0.5, delay: 3, fireStops: false },
+    ],
+  },
+  // ---------- Cidadela Celeste (Fase 5) ----------
+  harpy: {
+    ...base,
+    id: 'harpy',
+    name: 'Harpia',
+    description: 'Voa rápido, em bando, zigue-zagueando entre as colunas.',
+    hp: 14,
+    speed: 58,
+    radius: 7,
+    color: '#c88a5a',
+    nexusDamage: 3,
+    heroDps: 5,
+    gold: 2,
+    xp: 2,
+    flying: true,
+    zigzag: { lateralSpeed: 18, frequency: 3 },
+    pack: { chance: 0.5, angleOffsets: [0.08, -0.08] },
+  },
+  marbleSentinel: {
+    ...base,
+    id: 'marbleSentinel',
+    name: 'Sentinela de Mármore',
+    description: 'Estátua lenta e muito blindada; dispara um raio de luz no herói.',
+    hp: 110,
+    speed: 15,
+    radius: 11,
+    scale: 1.3,
+    color: '#e8e4f0',
+    nexusDamage: 12,
+    heroDps: 12,
+    gold: 9,
+    xp: 8,
+    armor: 4,
+    traits: [{ kind: 'ranged', range: 130, damage: 8, cooldown: 3 }],
+  },
+  fallenAngel: {
+    ...base,
+    id: 'fallenAngel',
+    name: 'Anjo Caído',
+    description: 'Voa e cobre os inimigos por perto com uma égide que reduz o dano pela metade.',
+    hp: 45,
+    speed: 30,
+    radius: 8,
+    color: '#6a5a8a',
+    nexusDamage: 8,
+    heroDps: 7,
+    gold: 6,
+    xp: 6,
+    flying: true,
+    traits: [{ kind: 'aegis', radius: 90, cooldown: 8, duration: 3, reduction: 0.5 }],
+  },
+  windElemental: {
+    ...base,
+    id: 'windElemental',
+    name: 'Elemental do Vento',
+    description: 'Corpo de vento: parte dos golpes passa direto por ele.',
+    hp: 50,
+    speed: 36,
+    radius: 9,
+    color: '#bfe8f0',
+    nexusDamage: 7,
+    heroDps: 7,
+    gold: 6,
+    xp: 5,
+    traits: [{ kind: 'evade', chance: 0.3 }],
+  },
+  stormCrow: {
+    ...base,
+    id: 'stormCrow',
+    name: 'Corvo da Tempestade',
+    description: 'Some nas nuvens e reaparece em bando perto do Nexus.',
+    hp: 18,
+    speed: 50,
+    radius: 6,
+    scale: 0.85,
+    color: '#4a4a6a',
+    nexusDamage: 4,
+    heroDps: 4,
+    gold: 2,
+    xp: 2,
+    flying: true,
+    pack: { chance: 0.5, angleOffsets: [0.1, -0.1] },
+    traits: [{ kind: 'burrow', cooldown: 14, hide: 1.5, landAt: 100 }],
+  },
+  griffin: {
+    ...base,
+    id: 'griffin',
+    name: 'Grifo Real',
+    description: 'Chefe. Mergulha em investidas e, ao pousar, atordoa as criaturas em volta.',
+    hp: 480,
+    speed: 16,
+    radius: 18,
+    scale: 2.1,
+    color: '#d8a84a',
+    nexusDamage: 30,
+    heroDps: 35,
+    gold: 40,
+    xp: 50,
+    armor: 3,
+    flying: true,
+    isBoss: true,
+    traits: [
+      { kind: 'charge', cooldown: 7, duration: 1.2, speedMultiplier: 3 },
+      { kind: 'stomp', radius: 70, stun: 1.2, cooldown: 9 },
+    ],
+  },
+  seraph: {
+    ...base,
+    id: 'seraph',
+    name: 'Serafim Corrompido',
+    description: 'Chefe final. Rasga o céu em portais que soltam Harpias, dispara feixes no herói e fica furioso abaixo da metade da vida.',
+    hp: 850,
+    speed: 12,
+    radius: 18,
+    scale: 2.2,
+    color: '#f0e0ff',
+    nexusDamage: 70,
+    heroDps: 40,
+    gold: 100,
+    xp: 120,
+    armor: 3,
+    flying: true,
+    isBoss: true,
+    traits: [
+      { kind: 'riftcall', enemy: 'harpy', count: 3, cooldown: 10 },
+      { kind: 'ranged', range: 150, damage: 12, cooldown: 2.2 },
+      { kind: 'enrage', below: 0.5, speedMultiplier: 1.3, cooldownMultiplier: 0.6 },
     ],
   },
 };

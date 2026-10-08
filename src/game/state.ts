@@ -40,6 +40,8 @@ export interface Enemy extends Point {
   stone: boolean;
   /** Segundos restantes de escudo. */
   shield: number;
+  /** Redução do escudo recebido de fora (Égide do Anjo Caído); sem ela, a do próprio escudo. */
+  shieldAmount?: number;
   /** Chefe na segunda fase. */
   enraged: boolean;
   slowTimer: number;

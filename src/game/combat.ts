@@ -65,6 +65,12 @@ export function damageEnemy(
   if (source && raceBonus.bonus.kind === 'vsStrong' && source.def.race === raceBonus.race && (enemy.elite || enemy.def.isBoss)) {
     amount *= 1 + raceBonus.bonus.value;
   }
+  // Elemental do Vento: golpes diretos às vezes passam direto
+  const evade = options.overTime ? undefined : enemy.def.traits.find((t) => t.kind === 'evade');
+  if (evade?.kind === 'evade' && random() < evade.chance) {
+    state.events.push({ type: 'enemyEvaded', x: enemy.x, y: enemy.y });
+    return;
+  }
   const reduced = (amount - effectiveArmor(state, enemy, source, options)) * shieldFactor(enemy);
   const dealt = options.overTime ? Math.max(0, reduced) : Math.max(1, reduced);
   enemy.hp -= dealt;

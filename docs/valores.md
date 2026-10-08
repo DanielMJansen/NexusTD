@@ -174,6 +174,13 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 | Djinn | 38 | 32 | 0 | 9 | 6 | 6 | 5 | Teleporte: a cada 8 s, salta 110 em direção ao Nexus mais ferido. |
 | Escorpião Colossal (chefe) | 400 | 14 | 3 | 30 | 35 | 40 | 50 | Ferrão: a cada 5 s, atordoa a criatura mais próxima (alcance 140) por 1,6 s. Investida: a cada 9 s, corre 2,5× mais rápido por 1,2 s. |
 | Faraó Imortal (chefe) | 800 | 12 | 3 | 70 | 40 | 100 | 120 | Invocação: a cada 13 s, ergue 2 Múmias. Praga: a cada 7 s, amaldiçoa até 3 criaturas (alcance 150): atacam 50% mais devagar por 4 s. Imortal: ao cair, levanta uma vez com 50% da vida após 3 s. |
+| Harpia | 14 | 58 | 0 | 3 | 5 | 2 | 2 | — |
+| Sentinela de Mármore | 110 | 15 | 4 | 12 | 12 | 9 | 8 | Tiro: com o herói a até 130, avança devagar e atira (8 de dano a cada 3 s). |
+| Anjo Caído | 45 | 30 | 0 | 8 | 7 | 6 | 6 | Égide: a cada 8 s, cobre os inimigos num raio de 90 com um escudo que reduz o dano em 50% por 3 s. |
+| Elemental do Vento | 50 | 36 | 0 | 7 | 7 | 6 | 5 | Esquiva: 30% dos golpes diretos passam sem causar dano (veneno e poças pegam sempre). |
+| Corvo da Tempestade | 18 | 50 | 0 | 4 | 4 | 2 | 2 | Mergulho: a cada 14 s, some na lama por 1,5 s e reaparece perto do Nexus em investida. |
+| Grifo Real (chefe) | 480 | 16 | 3 | 30 | 35 | 40 | 50 | Investida: a cada 7 s, corre 3× mais rápido por 1,2 s. Pisão: a cada 9 s, atordoa as criaturas num raio de 70 por 1,2 s. |
+| Serafim Corrompido (chefe) | 850 | 12 | 3 | 70 | 40 | 100 | 120 | Fenda: a cada 10 s, abre 3 portais que soltam Harpias. Tiro: com o herói a até 150, avança devagar e atira (12 de dano a cada 2,2 s). Fúria: abaixo de 50% da vida, fica 30% mais rápido e usa habilidades mais vezes. |
 
 ## Ondas
 - 20 ondas; quantidade = 4 + 3 × onda; chefes por fase abaixo.
@@ -181,7 +188,7 @@ XP para o próximo nível: nível 1 → 15 · nível 2 → 30 · nível 3 → 51
 - **Fase 2 · Pântano**: vida dos inimigos ×0,9, dano ×1, Essência ×1,25; chefes: onda 7 Rei Sapo, onda 14 Crocodilo Ancião, onda 20 Hidra; inimigos: Sanguessuga (onda 1+), Sapo-Boi (onda 1+), Fogo-fátuo (onda 3+), Bruxa do Brejo (onda 5+), Crocodilo (onda 6+), Lodo (onda 9+); lama: 8 poças, criaturas −25% vel. de ataque, herói −40% velocidade.
 - **Fase 3 · Tundra Gelada**: vida dos inimigos ×1,1, dano ×1, Essência ×1,5; chefes: onda 6 Yeti Ancião, onda 18 Wyrm de Gelo; inimigos: Lobo Gélido (onda 1+), Golem de Neve (onda 2+), Espírito do Gelo (onda 4+), Kobold Escavador (onda 5+), Troll da Geleira (onda 7+); gelo: inimigos ×1,3 de velocidade, racha com 7 de desgaste, buraco por 18 s; nevasca a cada 60 s por 12 s (alcance ×0,7).
 - **Fase 4 · Deserto Dourado**: vida dos inimigos ×0,9, dano ×0,85, Essência ×1,75; chefes: onda 10 Escorpião Colossal, onda 20 Faraó Imortal; inimigos: Escaravelho (onda 1+), Saqueador (onda 2+), Múmia (onda 3+), Djinn (onda 5+), Serpente das Areias (onda 7+); nevasca a cada 70 s por 14 s (alcance ×1).
-- **Fase 5 · Cidadela Celeste**: vida dos inimigos ×1, dano ×0,9, Essência ×2; chefes: onda 10 Rei Ogro, onda 20 Lich; inimigos: Morcego (onda 1+), Gárgula (onda 2+), Fogo-fátuo (onda 3+), Djinn (onda 5+), Cavaleiro Sem Cabeça (onda 7+).
+- **Fase 5 · Cidadela Celeste**: vida dos inimigos ×1, dano ×0,9, Essência ×2; chefes: onda 10 Grifo Real, onda 20 Serafim Corrompido; inimigos: Harpia (onda 1+), Elemental do Vento (onda 2+), Sentinela de Mármore (onda 3+), Corvo da Tempestade (onda 5+), Anjo Caído (onda 7+).
 - Força (o = onda − 1): vida × (1 + 0,18·o + 0,02·o²); velocidade +2% por onda (máx. +40%); dano +6% por onda.
 - Elites a partir da onda 8: chance 5% (+1%/onda, máx. 25%); vida ×2,5, dano ×1,5, recompensa ×2.
 - Sem Fim: chefe a cada 5 ondas; por onda além da 20, vida ×1,08 e dano ×1,05 a mais (exponencial); elites até 35%.

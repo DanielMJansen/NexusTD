@@ -42,6 +42,8 @@ export type GameEvent =
   | { type: 'enemyRevived'; x: number; y: number; boss: boolean; rising: boolean }
   | { type: 'relicFound'; relic: RelicId; x: number; y: number }
   | { type: 'ankhSaved' }
+  | { type: 'enemyAegis'; x: number; y: number; radius: number }
+  | { type: 'enemyEvaded'; x: number; y: number }
   | { type: 'portalsWarning'; count: number; seconds: number }
   | { type: 'portalOpened'; x: number; y: number }
   | { type: 'portalSealed'; x: number; y: number; prevented: number }

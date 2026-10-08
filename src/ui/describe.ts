@@ -205,6 +205,12 @@ export function enemyTraitText(t: EnemyTrait): string {
       return `Imortal: ao cair, levanta uma vez com ${Math.round(t.hp * 100)}% da vida após ${formatNumber(t.delay)} s${t.fireStops ? ', a não ser que tenha levado dano de fogo há pouco' : ''}.`;
     case 'steal':
       return `Saque: cada golpe num Nexus rouba ${t.gold} de ouro; matá-lo devolve tudo.`;
+    case 'aegis':
+      return `Égide: a cada ${formatNumber(t.cooldown)} s, cobre os inimigos num raio de ${t.radius} com um escudo que reduz o dano em ${Math.round(t.reduction * 100)}% por ${formatNumber(t.duration)} s.`;
+    case 'evade':
+      return `Esquiva: ${Math.round(t.chance * 100)}% dos golpes diretos passam sem causar dano (veneno e poças pegam sempre).`;
+    case 'riftcall':
+      return `Fenda: a cada ${formatNumber(t.cooldown)} s, abre ${t.count} portais que soltam ${ENEMIES[t.enemy].name}s.`;
     case 'blink':
       return `Teleporte: a cada ${formatNumber(t.cooldown)} s, salta ${t.distance} em direção ao Nexus mais ferido.`;
   }

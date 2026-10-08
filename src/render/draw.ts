@@ -146,6 +146,11 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     halo(ctx, enemy.x, enemy.y + 4 * scale, (14 + rise * 10) * scale, '#f0c35a', 0.3 + rise * 0.4 + Math.sin(time * 8) * 0.1);
     return;
   }
+  if (enemy.submerged && enemy.def.flying) {
+    // voador sumido nas nuvens: só a sombra
+    drawShadow(ctx, enemy.x, enemy.y + 14 * scale, 5 * scale);
+    return;
+  }
   if (enemy.submerged) {
     drawSubmerged(ctx, enemy.x, enemy.y + 6 * scale, scale, time + enemy.animationOffset);
     return;

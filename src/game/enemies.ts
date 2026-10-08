@@ -1,3 +1,5 @@
+import { shuffle } from './random';
+import { STAGES } from '../data/stages';
 import { windSpeedFactor } from './portals';
 import { racePure } from '../data/races';
 import { NEXUS } from '../data/config';
@@ -32,7 +34,7 @@ export function enemyArmor(enemy: Enemy): number {
 /** Fração do dano que passa pelo escudo do Lich (1 = sem escudo). */
 export function shieldFactor(enemy: Enemy): number {
   if (enemy.shield <= 0) return 1;
-  return 1 - (findTrait(enemy, 'shield')?.reduction ?? 0);
+  return 1 - (enemy.shieldAmount ?? findTrait(enemy, 'shield')?.reduction ?? 0);
 }
 
 /** Já entrou no mapa (fora dele, inimigos não usam habilidades). */
@@ -261,9 +263,38 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
       case 'shield':
         if (!ready || !onScreen(state, enemy)) break;
         enemy.shield = trait.duration;
+        enemy.shieldAmount = trait.reduction;
         enemy.timers[i] = trait.cooldown;
         state.events.push({ type: 'bossShield', x: enemy.x, y: enemy.y });
         break;
+      case 'aegis': {
+        // Anjo Caído: escudo nos vizinhos (e em si), só se houver alguém para proteger
+        if (!ready || !onScreen(state, enemy)) break;
+        const near = state.enemies.filter((e) => !e.dead && e.allyTimer <= 0 && distance(e, enemy) <= trait.radius);
+        if (near.length < 2) break;
+        for (const e of near) {
+          e.shield = Math.max(e.shield, trait.duration);
+          e.shieldAmount = trait.reduction;
+        }
+        enemy.lastAttackAt = state.time;
+        state.events.push({ type: 'enemyAegis', x: enemy.x, y: enemy.y, radius: trait.radius });
+        enemy.timers[i] = trait.cooldown;
+        break;
+      }
+      case 'riftcall': {
+        // Serafim: abre fendas em pontos de portal da fase
+        if (!ready || !onScreen(state, enemy)) break;
+        const spots = STAGES[state.stage].portals?.spots ?? [];
+        const picks = shuffle(spots).slice(0, trait.count);
+        for (const spot of picks) {
+          spawnEnemyAt(state, trait.enemy, spot, 10);
+          state.events.push({ type: 'portalOpened', x: spot.x, y: spot.y });
+        }
+        if (!picks.length) for (let k = 0; k < trait.count; k++) spawnEnemyAt(state, trait.enemy, enemy, 20);
+        enemy.lastAttackAt = state.time;
+        enemy.timers[i] = trait.cooldown;
+        break;
+      }
       case 'split':
       case 'enrage':
       case 'drain':
@@ -271,6 +302,7 @@ function useTraits(state: RunState, enemy: Enemy, dt: number): number {
       case 'lure':
       case 'revive':
       case 'steal':
+      case 'evade':
         break;
     }
   });

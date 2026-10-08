@@ -229,6 +229,13 @@ export class Effects {
       case 'guardHit':
         this.text(event.x, event.y - 50, `-${event.damage}`, '#ffb84a', 11);
         break;
+      case 'enemyAegis':
+        this.ring(event.x, event.y, event.radius, '#fff2c0', 0.6, 2.5);
+        this.burst(event.x, event.y - 8, 10, '#ffe8a0', 50, 0.5, 2, true, -20);
+        break;
+      case 'enemyEvaded':
+        this.text(event.x, event.y - 18, 'Esquivou!', '#bfe8f0', 9);
+        break;
       case 'portalsWarning':
         this.banner(`${event.count} portais se abrindo`, `em ${event.seconds} s · pare o herói sobre um para selar`, '#d8b8ff', 2.2);
         break;

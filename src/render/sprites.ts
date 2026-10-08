@@ -1,3 +1,4 @@
+import { drawFallenAngel, drawGriffin, drawHarpy, drawMarbleSentinel, drawSeraph, drawStormCrow, drawWindElemental } from './spritesCitadel';
 import { drawDjinn, drawMummy, drawPharaoh, drawRaider, drawSandSerpent, drawScarab, drawScorpionKing } from './spritesDesert';
 import { drawFrostWolf, drawFrostWyrm, drawGlacierTroll, drawIceSpirit, drawKobold, drawSnowball, drawSnowGolem, drawYeti } from './spritesTundra';
 import type { CreatureId } from '../data/creatures';
@@ -340,6 +341,27 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       break;
     case 'pharaoh':
       drawPharaoh(ctx, p);
+      break;
+    case 'harpy':
+      drawHarpy(ctx, p);
+      break;
+    case 'marbleSentinel':
+      drawMarbleSentinel(ctx, p);
+      break;
+    case 'fallenAngel':
+      drawFallenAngel(ctx, p);
+      break;
+    case 'windElemental':
+      drawWindElemental(ctx, p);
+      break;
+    case 'stormCrow':
+      drawStormCrow(ctx, p);
+      break;
+    case 'griffin':
+      drawGriffin(ctx, p);
+      break;
+    case 'seraph':
+      drawSeraph(ctx, p);
       break;
   }
   ctx.restore();

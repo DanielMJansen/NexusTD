@@ -580,6 +580,7 @@ export const STAGES: Record<StageId, StageDef> = {
     intro: [
       { icon: '🌀', title: 'Portais do Céu', text: 'Não há trilhas: a cada onda, portais se abrem em pontos do mapa (com aviso de alguns segundos) e despejam os inimigos ali. Fique de olho no minimapa.' },
       { icon: '✋', title: 'Selar', text: 'Pare o herói sobre um portal aberto por alguns segundos para selá-lo: os inimigos que ainda iam sair dele não saem. Chefes não podem ser impedidos.' },
+      { icon: '🪶', title: 'Inimigos do céu', text: 'Quase todos voam. A Sentinela de Mármore é lenta e blindada e atira no herói; o Anjo Caído protege os vizinhos com uma égide (mate-o primeiro); o Elemental do Vento esquiva de parte dos golpes; o Corvo da Tempestade some e reaparece perto do Nexus.' },
       { icon: '🌬', title: 'Ventos', text: 'O vento muda a cada onda (veja as rajadas). A favor do vento, voadores ficam mais rápidos e os tiros das criaturas vão mais longe; contra o vento, perdem alcance.' },
     ],
     biome: 'citadel',
@@ -588,19 +589,18 @@ export const STAGES: Record<StageId, StageDef> = {
     essenceMultiplier: 2,
     fragments: true,
     nexusModel: 'eye',
-    // provisório (parte 1): inimigos de fases anteriores até chegarem os da Cidadela
     composition: [
-      { enemy: 'bat', fromWave: 1, weight: 6, perWave: -0.15, minWeight: 2 },
-      { enemy: 'gargoyle', fromWave: 2, weight: 3, perWave: 0.02 },
-      { enemy: 'wisp', fromWave: 3, weight: 2.5, perWave: 0.02 },
-      { enemy: 'djinn', fromWave: 5, weight: 2.2, perWave: 0.03 },
-      { enemy: 'headless', fromWave: 7, weight: 1.8, perWave: 0.04 },
+      { enemy: 'harpy', fromWave: 1, weight: 7, perWave: -0.18, minWeight: 2.5 },
+      { enemy: 'windElemental', fromWave: 2, weight: 3, perWave: 0.02 },
+      { enemy: 'marbleSentinel', fromWave: 3, weight: 2.5, perWave: 0.03 },
+      { enemy: 'stormCrow', fromWave: 5, weight: 2.5, perWave: 0.02 },
+      { enemy: 'fallenAngel', fromWave: 7, weight: 1.8, perWave: 0.04 },
     ],
     bosses: [
-      { wave: 10, enemy: 'ogreKing' },
-      { wave: 20, enemy: 'lich' },
+      { wave: 10, enemy: 'griffin' },
+      { wave: 20, enemy: 'seraph' },
     ],
-    endlessBosses: ['ogreKing', 'lich'],
+    endlessBosses: ['griffin', 'seraph'],
     map: { width: 1280, height: 720, nexus: { x: 640, y: 360 } },
     portals: {
       spots: [{ x: 1051, y: 434 }, { x: 898, y: 560 }, { x: 646, y: 610 }, { x: 392, y: 564 }, { x: 233, y: 441 }, { x: 229, y: 286 }, { x: 382, y: 160 }, { x: 634, y: 110 }, { x: 888, y: 156 }, { x: 1047, y: 279 }],
