@@ -1,3 +1,4 @@
+import { MAX_ASCENSION } from '../data/ascension';
 import { findNexusColor, NEXUS_COLORS, NEXUS_MODEL_IDS, type NexusLook, type NexusModelId } from '../data/nexusSkins';
 import { isNexusColorUnlocked, isNexusModelUnlocked } from '../game/nexusSkins';
 import { LOADOUTS } from '../data/config';
@@ -147,6 +148,14 @@ function sanitize(data: unknown): Profile {
   }
   if (!raw.stageRecords && (profile.stats.wins > 0 || profile.bestWave > 0)) {
     profile.stageRecords[FIRST_STAGE] = { wins: profile.stats.wins, bestWave: profile.bestWave };
+  }
+  // Ascensão (campo novo: padrão vazio)
+  const asc = (raw.ascension ?? {}) as Record<string, { unlocked?: unknown; selected?: unknown } | undefined>;
+  for (const id of STAGE_IDS) {
+    const a = asc[id];
+    if (!a) continue;
+    const unlocked = Math.max(0, Math.min(MAX_ASCENSION, Math.floor(toNumber(a.unlocked))));
+    profile.ascension[id] = { unlocked, selected: Math.max(0, Math.min(unlocked, Math.floor(toNumber(a.selected)))) };
   }
   // Relíquias (campos novos: padrão vazio)
   const relicList = (value: unknown) => [...new Set(Array.isArray(value) ? value : [])].filter((id): id is RelicId => RELIC_IDS.includes(id as RelicId));

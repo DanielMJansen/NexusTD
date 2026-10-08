@@ -7,7 +7,7 @@ import { GAME_TITLE } from '../data/config';
 import { CREATURE_IDS, CREATURES } from '../data/creatures';
 import { ENEMIES } from '../data/enemies';
 import { HEROES } from '../data/heroes';
-import { activeRelics, heroSkin, relicSlots, TEAM_SIZE, type Profile, runSetup } from '../game/profile';
+import { activeRelics, heroSkin, relicSlots, TEAM_SIZE, type Profile, runSetup, selectedAscension } from '../game/profile';
 import type { SavedRunSummary } from '../save/runSave';
 import { CODEX_ENEMIES } from './codexScreen';
 import { showOverlay } from './overlay';
@@ -53,7 +53,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
   // fase escolhida em destaque: miniatura do mapa, nome e objetivo (clicar troca de fase)
   const stageCard = `<button class="hub-stage" data-action="stages" style="--stage: ${stage.color}" title="Trocar de fase">
         <canvas class="hub-stage-map" width="240" height="135"></canvas>
-        <span class="hub-stage-info"><small>Fase ${stage.number} escolhida</small><b>${stage.name}</b><span>${goal}</span><em>Trocar fase ›</em></span>
+        <span class="hub-stage-info"><small>Fase ${stage.number} escolhida${selectedAscension(profile, stage.id) ? ` · Ascensão ${selectedAscension(profile, stage.id)}` : ''}</small><b>${stage.name}</b><span>${goal}</span><em>Trocar fase ›</em></span>
       </button>`;
   // herói em moldura dourada com o nome; criaturas vizinhas da mesma raça agrupadas sob o nome da raça
   const hero = `<div class="hub-hero-pick" title="Herói: ${HEROES[profile.selectedHero].name}"><small>Herói</small><canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas><span>${HEROES[profile.selectedHero].name}</span></div>`;

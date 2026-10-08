@@ -1,3 +1,4 @@
+import { ASCENSION, MAX_ASCENSION } from '../data/ascension';
 import { RELICS, type RelicId } from '../data/relics';
 import type { MutationId } from '../data/mutations';
 import { HERO_SPAWN_SHIELD } from '../data/heroUpgrades';
@@ -311,6 +312,8 @@ export type Choice = { kind: 'upgrade'; upgrade: OfferedUpgrade };
 
 export interface RunResult {
   stage: StageId;
+  /** Nível de Ascensão da run (0 = normal). */
+  ascension: number;
   victory: boolean;
   wave: number;
   kills: number;
@@ -358,6 +361,8 @@ export interface Portal {
 export interface RunSetup {
   /** Fase da run (padrão: a primeira). */
   stage?: StageId;
+  /** Nível de Ascensão (0 = normal). */
+  ascension?: number;
   /** Sinergias de raça destravadas (padrão: não). */
   synergies?: boolean;
   /** Níveis do Santuário das criaturas (padrão: nenhum). */
@@ -379,6 +384,8 @@ export interface RunSetup {
 }
 
 export interface RunState {
+  /** Nível de Ascensão da run (0 = normal). */
+  ascension: number;
   phase: Phase;
   wave: number;
   /** Tempo de jogo em segundos (para durante a pausa). */
@@ -515,6 +522,9 @@ export const noHeroStats = (): Record<HeroStat, number> => ({
   pulseEcho: 0,
 });
 
+/** Modificadores de um nível de Ascensão (fora do intervalo: normal). */
+export const ascensionLevel = (level = 0) => ASCENSION.levels[Math.max(0, Math.min(MAX_ASCENSION, level))]!;
+
 export function createRun(setup: RunSetup): RunState {
   const t = setup.talents;
   const maxHp = NEXUS.baseHp + t.nexusMaxHp;
@@ -525,10 +535,11 @@ export function createRun(setup: RunSetup): RunState {
     phase: 'playing',
     wave: 0,
     time: 0,
-    nexus: { hp: maxHp, maxHp, x: geometry.nexus.x, y: geometry.nexus.y },
+    // Ascensão 3: o Nexus começa com menos vida
+    nexus: { hp: Math.round(maxHp * ascensionLevel(setup.ascension).nexusStart), maxHp, x: geometry.nexus.x, y: geometry.nexus.y },
     map: { width: geometry.width, height: geometry.height },
     // pontos gêmeos (segundo Nexus) nascem com a vida máxima do Nexus principal
-    guards: (STAGES[setup.stage ?? FIRST_STAGE].guards ?? []).map((g) => ({ ...g, hp: g.twin ? maxHp : g.hp, maxHp: g.twin ? maxHp : g.hp, lastHitAt: -Infinity })),
+    guards: (STAGES[setup.stage ?? FIRST_STAGE].guards ?? []).map((g) => ({ ...g, hp: g.twin ? Math.round(maxHp * ascensionLevel(setup.ascension).nexusStart) : g.hp, maxHp: g.twin ? maxHp : g.hp, lastHitAt: -Infinity })),
     escortStop: 0,
     ice: null,
     avalanche: null,
@@ -538,6 +549,7 @@ export function createRun(setup: RunSetup): RunState {
     weather: { active: false, timer: STAGES[setup.stage ?? FIRST_STAGE].weather?.every ?? 0, warned: false, forced: false },
     gold: ECONOMY.startGold + t.startGold,
     stage: setup.stage ?? FIRST_STAGE,
+    ascension: Math.max(0, Math.min(MAX_ASCENSION, setup.ascension ?? 0)),
     synergiesOn: setup.synergies ?? false,
     synergyTiers: {},
     sanctuary: { ...(setup.sanctuary ?? {}) },

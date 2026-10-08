@@ -4173,3 +4173,32 @@ b.awakened {
 .menu-page .hub-buttons button {
   position: relative;
 }
+
+/* Ascensão (tela de fases) */
+.asc-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.asc-row span {
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.asc-chip {
+  padding: 3px 10px;
+  font: 700 13px var(--font-label);
+}
+
+.asc-chip.selected {
+  border-color: #ff8a5a;
+  color: #ffb08a;
+  box-shadow: 0 0 10px #ff8a5a55;
+}
+
+.asc-text {
+  margin: 4px 0 0;
+}

@@ -1,3 +1,4 @@
+import { ASCENSION } from '../data/ascension';
 import type { SpawnItem } from './state';
 import { nextSpawnIndex, updatePortals } from './portals';
 import { tryAnkh } from './relics';
@@ -117,7 +118,8 @@ function endRun(state: RunState, victory: boolean): void {
     waves * (REWARDS.essencePerWave + t.essencePerWave) +
     Math.floor(kills / REWARDS.killsPerEssence) +
     (victory ? REWARDS.victoryBonus + t.victoryEssence : 0);
-  const essence = Math.floor(base * (1 + t.essenceGain) * STAGES[state.stage].essenceMultiplier);
+  // Ascensão: +25% de Essência por nível
+  const essence = Math.floor(base * (1 + t.essenceGain) * STAGES[state.stage].essenceMultiplier * (1 + ASCENSION.essencePerLevel * state.ascension));
   // Fragmentos (fases a partir da 2): ondas vencidas + bônus por chefe, repartidos pelas raças invocadas
   const fragments: Record<string, number> = {};
   const stage = STAGES[state.stage];
@@ -150,6 +152,7 @@ function endRun(state: RunState, victory: boolean): void {
   }
   state.result = {
     stage: state.stage,
+    ascension: state.ascension,
     fragments,
     crystals,
     victory,

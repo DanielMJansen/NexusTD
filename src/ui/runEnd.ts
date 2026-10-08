@@ -31,6 +31,7 @@ export function showRunEnd(
   showOverlay(
     `<div class="panel">
       <h2>${title}</h2>
+      ${result.ascension ? `<p class="subtitle">Ascensão ${result.ascension}</p>` : ''}
       <p class="subtitle">${subtitle}</p>
       <div class="result-stats">
         <div>${result.wave}<small>onda</small></div>

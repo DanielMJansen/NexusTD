@@ -1,3 +1,5 @@
+import { ASCENSION } from '../data/ascension';
+import { ascensionOpen, ascensionUnlocked, selectedAscension } from '../game/profile';
 import { STAGE_IDS, stageWaveCount, STAGES, type StageId } from '../data/stages';
 import { isStageUnlocked, type Profile } from '../game/profile';
 import { paintStageThumbnail } from '../render/arena';
@@ -5,11 +7,30 @@ import { showOverlay } from './overlay';
 
 export interface StageHandlers {
   onSelect(id: StageId): void;
+  /** Escolhe o nível de Ascensão da fase. */
+  onAscension(id: StageId, level: number): void;
   onBack(): void;
 }
 
 /** Fase mostrada no carrossel (lembrada enquanto o jogo estiver aberto). */
 let shown: StageId | null = null;
+
+/** Seletor de Ascensão (A0–A3) da fase: só depois de vencer a Cidadela e a própria fase. */
+function ascensionRow(profile: Profile, id: StageId): string {
+  if (!ascensionOpen(profile)) return '';
+  const unlocked = ascensionUnlocked(profile, id);
+  if (!unlocked) return '<p class="hint">Vença esta fase para liberar a Ascensão nela.</p>';
+  const current = selectedAscension(profile, id);
+  const buttons = ASCENSION.levels
+    .map((_, level) =>
+      level > unlocked
+        ? `<button class="asc-chip" disabled title="Vença em A${level - 1} para liberar">🔒 A${level}</button>`
+        : `<button class="asc-chip${level === current ? ' selected' : ''}" data-action="ascension" data-value="${level}">${level ? `A${level}` : 'Normal'}</button>`,
+    )
+    .join('');
+  const bonus = current ? ` · Essência +${Math.round(ASCENSION.essencePerLevel * current * 100)}%` : '';
+  return `<div class="asc-row"><span>Ascensão</span>${buttons}</div><p class="hint asc-text">${current ? `A${current}: ${ASCENSION.levels.slice(1, current + 1).map((l) => l.text).join(' ')}` : 'Escolha um nível de Ascensão para mais desafio e mais Essência.'}${bonus}</p>`;
+}
 
 /** Fases em carrossel: uma por vez, com a miniatura do mapa, recordes e a escolha. */
 export function showStages(profile: Profile, handlers: StageHandlers): void {
@@ -45,6 +66,7 @@ export function showStages(profile: Profile, handlers: StageHandlers): void {
               <div><small>Vitórias</small><b>${record?.wins ?? 0}</b></div>
               <div><small>Melhor onda</small><b>${best ? `${best}${best > total ? ' · Sem Fim' : ''}` : '—'}</b></div>
             </div>
+            ${ascensionRow(profile, id)}
             <div class="cc-footer">${footer}</div>
           </div>
         </div>
@@ -62,6 +84,7 @@ export function showStages(profile: Profile, handlers: StageHandlers): void {
         showStages(profile, handlers);
       },
       select: (value) => handlers.onSelect(value as StageId),
+      ascension: (value) => handlers.onAscension(id, Number(value)),
       back: () => handlers.onBack(),
     },
   );

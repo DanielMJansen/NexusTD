@@ -8,7 +8,7 @@ import { ENEMIES, type EnemyId } from '../data/enemies';
 import { scriptedWave, stageWaveCount, STAGES, type StageDef, type StageId, STAGE_IDS } from '../data/stages';
 import { WAVES } from '../data/waves';
 import { random } from './random';
-import type { Enemy, Point, RunState, SpawnItem } from './state';
+import { ascensionLevel, type Enemy, type Point, type RunState, type SpawnItem } from './state';
 
 export function waveEnemyCount(wave: number): number {
   return Math.round(WAVES.enemyCount.base + WAVES.enemyCount.perWave * wave);
@@ -157,7 +157,9 @@ function eliteChance(state: RunState, wave: number): number {
   const e = WAVES.elites;
   if (wave < e.fromWave) return 0;
   const max = wave > stageWaveCount(state.stage) ? WAVES.endless.eliteChance : e.maxChance;
-  const chance = Math.min(max, e.chance + e.chancePerWave * (wave - e.fromWave));
+  // Ascensão 2+: elites mais frequentes (teto sobe para 60%)
+  const mult = ascensionLevel(state.ascension).eliteChance;
+  const chance = Math.min(mult > 1 ? Math.max(max, 0.6) : max, (e.chance + e.chancePerWave * (wave - e.fromWave)) * mult);
   // Frenesi (Sem Fim): elites com o dobro da frequência
   return state.mutations?.includes('frenzy') ? Math.min(MUTATION_RULES.elite.max, chance * MUTATION_RULES.elite.multiplier) : chance;
 }
@@ -167,7 +169,9 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
   const def = ENEMIES[id];
   const scaling = waveScaling(state.wave, STAGES[state.stage]);
   const e = WAVES.elites;
-  const hp = def.hp * scaling.hp * (elite ? e.hp : 1);
+  // Ascensão: inimigos com mais vida (chefes ainda mais) e mais rápidos
+  const asc = ascensionLevel(state.ascension);
+  const hp = def.hp * scaling.hp * (elite ? e.hp : 1) * asc.enemyHp * (def.isBoss ? asc.bossHp : 1);
   const damage = scaling.damage * (elite ? e.damage : 1);
   if (!state.seenEnemies.includes(id)) state.seenEnemies.push(id);
   const mutated = (mutation: MutationId) => !!state.mutations?.includes(mutation);
@@ -177,7 +181,7 @@ function createEnemy(state: RunState, id: EnemyId, at: Point, elite: boolean): E
     y: at.y,
     hp,
     maxHp: hp,
-    speed: def.speed * scaling.speed * (mutated('swift') ? 1 + MUTATION_RULES.speed : 1),
+    speed: def.speed * scaling.speed * asc.enemySpeed * (mutated('swift') ? 1 + MUTATION_RULES.speed : 1),
     bonusArmor: mutated('armored') ? MUTATION_RULES.armor : 0,
     mutRegen: mutated('regenerating') ? MUTATION_RULES.regen : 0,
     ward: mutated('shielded') && !def.isBoss,

@@ -1,3 +1,4 @@
+import { ASCENSION, MAX_ASCENSION } from '../data/ascension';
 import { RELIC_SLOTS, type RelicId } from '../data/relics';
 import { withRelicBonuses } from './relics';
 import { GIFT_IDS, GIFTS, type GiftId } from '../data/gifts';
@@ -73,6 +74,8 @@ export interface Profile {
   relics: RelicId[];
   equippedRelics: RelicId[];
   relicBosses: EnemyId[];
+  /** Ascensão por fase: maior nível liberado e o escolhido para a próxima run. */
+  ascension: Partial<Record<StageId, { unlocked: number; selected: number }>>;
 }
 
 /** Criaturas que já vêm na coleção. */
@@ -110,6 +113,7 @@ export function createProfile(): Profile {
     relics: [],
     equippedRelics: [],
     relicBosses: [],
+    ascension: {},
   };
   profile.loadouts = Array.from({ length: LOADOUTS.free }, (_, i) => ({ name: loadoutName(i), hero: profile.selectedHero, team: [...profile.team] }));
   return profile;
@@ -289,6 +293,27 @@ export function isStageUnlocked(profile: Profile, id: StageId): boolean {
   return required === null || (profile.stageRecords[required]?.wins ?? 0) > 0;
 }
 
+// ---------- Ascensão ----------
+
+/** A Ascensão aparece depois de vencer a Cidadela. */
+export const ascensionOpen = (profile: Profile): boolean => (profile.stageRecords[ASCENSION.unlockStage]?.wins ?? 0) > 0;
+
+/** Maior nível de Ascensão liberado numa fase (0 se a fase não foi vencida ou a Ascensão está fechada). */
+export function ascensionUnlocked(profile: Profile, stage: StageId): number {
+  if (!ascensionOpen(profile) || (profile.stageRecords[stage]?.wins ?? 0) <= 0) return 0;
+  return Math.max(1, Math.min(MAX_ASCENSION, profile.ascension[stage]?.unlocked ?? 1));
+}
+
+/** Nível escolhido para a próxima run nessa fase (limitado ao liberado). */
+export const selectedAscension = (profile: Profile, stage: StageId): number =>
+  Math.min(profile.ascension[stage]?.selected ?? 0, ascensionUnlocked(profile, stage));
+
+export function selectAscension(profile: Profile, stage: StageId, level: number): boolean {
+  if (level < 0 || level > ascensionUnlocked(profile, stage)) return false;
+  profile.ascension[stage] = { unlocked: ascensionUnlocked(profile, stage), selected: level };
+  return true;
+}
+
 // ---------- Relíquias ----------
 
 /** Relíquias liberadas ao chegar no Deserto (vencer a Tundra). */
@@ -357,6 +382,7 @@ export function runSetup(profile: Profile): RunSetup {
     variants: { ...profile.selectedVariants },
     nexusLook: { ...nexusLookFor(profile, isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE) },
     talents: withRelicBonuses(talentBonuses(profile.talents), activeRelics(profile)),
+    ascension: selectedAscension(profile, isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE),
     relics: { unlocked: relicsUnlocked(profile), owned: [...profile.relics], firstKills: [...profile.relicBosses], equipped: activeRelics(profile) },
     team: profile.team.filter((id) => ownsCreature(profile, id)),
     hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,

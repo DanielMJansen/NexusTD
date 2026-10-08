@@ -29,7 +29,7 @@ import {
   runSetup,
   selectHero,
   selectSkin,
-  selectStage,
+  selectAscension, selectStage,
   selectLoadout,
   buyLoadoutSlot,
   renameLoadout,
@@ -715,6 +715,12 @@ export class App {
         saveProfile(this.profile);
         this.sound.play('place');
         this.run = createRun(runSetup(this.profile));
+        this.openStages();
+      },
+      onAscension: (id, level) => {
+        if (!selectAscension(this.profile, id, level)) return;
+        saveProfile(this.profile);
+        this.sound.play('place');
         this.openStages();
       },
       onBack: () => this.openMenu(),

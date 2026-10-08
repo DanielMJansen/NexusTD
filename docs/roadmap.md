@@ -27,7 +27,7 @@ Regras e valores do jogo ficam no [GDD](GDD.md); números exatos em [valores.md]
 
 ## 2.5. Caminho para a 1.0 (o "fim" deste projeto) — itens 1–4 aprovados em 08/10/2026 (o 5 se decide depois do playtest)
 A 1.0 é o jogo completo para jogar sozinho: 5 fases, coleção, meta-progressão e Sem Fim, calibrado e sem bugs conhecidos. Contas, rankings, anúncios e Steam ficam **fora** da 1.0 (só se o jogo tiver público).
-1. **F16 · Fase 5 — Cidadela Celeste** (Portais do Céu, ventos, 5 inimigos e 2 chefes; proposta detalhada no F16). Ascensão por fase entra simples (3 níveis); Desafio diário fica para depois da 1.0 (precisa de ranking para fazer sentido). ~3–4 sessões.
+1. ✓ **F16 · Fase 5 — Cidadela Celeste** (feita em 08/10/2026) (Portais do Céu, ventos, 5 inimigos e 2 chefes; proposta detalhada no F16). Ascensão por fase entra simples (3 níveis); Desafio diário fica para depois da 1.0 (precisa de ranking para fazer sentido). ~3–4 sessões.
 2. **CAL · Calibragem** das 5 fases com o bot novo contra as metas (seção CAL). ~2 sessões.
 3. **Polimento:** variantes Épica/Lendária recolorindo também as **habilidades** (auras, poças, ondas, raios, correntes), passada completa do checklist de regressão, desempenho (FPS) em computador comum, textos e tutoriais revisados, tela "Sobre" com versão e créditos. ~2 sessões.
 4. **Playtest fechado** com 3–5 pessoas pelo link atual (1–2 semanas); corrigir o que aparecer.
@@ -166,7 +166,7 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 - Tempestade de areia (decidido): inimigos longe do herói e das criaturas ficam **ocultos e não podem ser alvo** até chegar perto.
 - Nexus temático: **Obelisco Solar**.
 
-### F16. Fase 5 — Cidadela Celeste + Ascensão `[~]` — partes 1–3 feitas em 08/10/2026 (mapa, Olho Celeste, Portais do Céu, ventos, 5 inimigos e 2 chefes, roteiro de 20 ondas e calibragem inicial); a seguir: Ascensão
+### F16. Fase 5 — Cidadela Celeste + Ascensão `[x]` — feita em 08/10/2026 (mapa, Olho Celeste, Portais do Céu, ventos, 5 inimigos e 2 chefes, roteiro de 20 ondas, calibragem inicial, Ascensão A1–A3). Desafio diário fica para depois da 1.0
 - Nuvens, luz e ruínas brancas. Regra de mapa: **ventos** que desviam projéteis e empurram inimigos voadores.
 - Modo diferente (decidido em 07/10/2026): **Portais do Céu** — sem trilhas fixas; portais se abrem em pontos do mapa (avisados ~5 s antes) e despejam inimigos ali; o herói **sela** um portal ficando parado nele alguns segundos. Ventos continuam como regra de mapa. Números e detalhes: PROPOSTA a fechar antes de implementar.
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).
