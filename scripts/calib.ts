@@ -20,6 +20,9 @@ import { enterEndless, startRun, updateRun } from '../src/game/update';
 import { entrances } from '../src/game/paths';
 
 const N = Number(process.env.N ?? 30);
+/** Portais do Céu: inimigos impedidos ao selar e abates (diagnóstico com DIAG=1). */
+let sealedTotal = 0;
+let killedTotal = 0;
 const ENDLESS = process.env.ENDLESS === '1';
 const TAL = process.env.TAL ?? 'none';
 
@@ -172,6 +175,8 @@ function trial(label: string, team: CreatureId[], hero: HeroId): void {
       updateRun(run, 1 / 30, { direction: { x: 0, y: 0 } });
       t += 1 / 30;
       for (const e of run.events.splice(0)) {
+        if (e.type === 'portalSealed') sealedTotal += e.prevented;
+        if (e.type === 'enemyKilled') killedTotal++;
         if (e.type === 'choicesOffered') {
           if (canBuyExtraSlot(run) && run.gold > (extraSlotCost(run) ?? 0) + 40) buyExtraSlot(run);
           chooseOption(run, best(run.choices));
@@ -204,6 +209,9 @@ function trial(label: string, team: CreatureId[], hero: HeroId): void {
     if (ENDLESS && won) endlessSum += run.wave;
     levels += run.hero.level;
   }
+  if (process.env.DIAG === '1' && sealedTotal) console.log(`  selados: ${(sealedTotal / N).toFixed(1)} inimigos impedidos por run (abates ${(killedTotal / N).toFixed(0)})`);
+  sealedTotal = 0;
+  killedTotal = 0;
   const endless = ENDLESS ? ` | Sem Fim até ${wins ? (endlessSum / wins).toFixed(1) : '-'}` : '';
   console.log(
     `${label.padEnd(14)} vitórias ${String(wins).padStart(2)}/${N} | onda ${(wavesSum / N).toFixed(1)} | nível ${(levels / N).toFixed(1)}${endless} | derrotas ${losses.sort((a, b) => a - b).join(',')}`,
