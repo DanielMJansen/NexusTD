@@ -25,6 +25,15 @@ Regras e valores do jogo ficam no [GDD](GDD.md); números exatos em [valores.md]
 - **Steam fica para depois**, quando houver conteúdo suficiente. Até lá: web (GitHub Pages; itch.io quando fizer sentido).
 - Nome: **Nexus TD** (definitivo para a 1ª versão, decidido em 07/10/2026).
 
+## 2.5. Caminho para a 1.0 (o "fim" deste projeto) — PROPOSTA de 08/10/2026
+A 1.0 é o jogo completo para jogar sozinho: 5 fases, coleção, meta-progressão e Sem Fim, calibrado e sem bugs conhecidos. Contas, rankings, anúncios e Steam ficam **fora** da 1.0 (só se o jogo tiver público).
+1. **F16 · Fase 5 — Cidadela Celeste** (Portais do Céu, ventos, 5 inimigos e 2 chefes; proposta detalhada no F16). Ascensão por fase entra simples (3 níveis); Desafio diário fica para depois da 1.0 (precisa de ranking para fazer sentido). ~3–4 sessões.
+2. **CAL · Calibragem** das 5 fases com o bot novo contra as metas (seção CAL). ~2 sessões.
+3. **Polimento:** passada completa do checklist de regressão, desempenho (FPS) em computador comum, textos e tutoriais revisados, tela "Sobre" com versão e créditos. ~2 sessões.
+4. **Playtest fechado** com 3–5 pessoas pelo link atual (1–2 semanas); corrigir o que aparecer.
+5. **Portão de decisão:** com o retorno do playtest, escolher entre (a) **publicar leve** — PUB-A (segurança e hospedagem) + página grátis no itch.io e/ou CrazyGames, save local, sem servidor; (b) investir no caminho completo (contas, rankings, Steam: PUB-B a PUB-G); ou (c) encerrar aqui e partir para um projeto novo.
+- **Fora da 1.0 (conteúdo pós-lançamento):** raças novas, Desafio diário, Corrida de Chefes e mutadores, arte e música finais.
+
 ## 3. Próximas etapas
 
 ### F11. Organização `[x]`
