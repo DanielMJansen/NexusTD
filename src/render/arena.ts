@@ -1,3 +1,4 @@
+import { drawCitadelLife, paintCitadelStatic } from './arenaCitadel';
 import { drawDesertLife, paintDesertStatic } from './arenaDesert';
 import { drawTundraLife, paintTundraStatic } from './arenaTundra';
 import { NEXUS_MODELS, type NexusModelId, type NexusPalette } from '../data/nexusSkins';
@@ -122,6 +123,7 @@ export function drawBackground(
     if (stage.biome === 'swamp') paintSwampStatic(c, stage, world, nexus);
     else if (stage.biome === 'tundra') paintTundraStatic(c, stage, world, nexus);
     else if (stage.biome === 'desert') paintDesertStatic(c, stage, world, nexus);
+    else if (stage.biome === 'citadel') paintCitadelStatic(c, stage, world, nexus);
     else paintStatic(c, stage, world, nexus);
   }
   ctx.drawImage(cache, 0, 0, world.width, world.height);
@@ -129,6 +131,7 @@ export function drawBackground(
   if (stage.biome === 'swamp') drawSwampLife(ctx, time, stage.terrain?.kind === 'mud' ? stage.terrain : undefined, world);
   if (stage.biome === 'tundra') drawTundraLife(ctx, time, world);
   if (stage.biome === 'desert') drawDesertLife(ctx, time, world);
+  if (stage.biome === 'citadel') drawCitadelLife(ctx, time, world);
   drawRuneCircle(ctx, time, nexus);
   if (stage.biome === 'graveyard') for (const candle of graveyardLayout(stage, world, nexus).candles) drawCandle(ctx, candle.x, candle.y, time + candle.phase);
 }
@@ -534,7 +537,9 @@ export function drawNexusModel(
         ? drawGlacier(ctx, x, y, time, p, hurt, float)
         : look.model === 'obelisk'
           ? drawObelisk(ctx, x, y, time, p, hurt, float)
-          : drawCrystal(ctx, x, y, time, p, hurt, float);
+          : look.model === 'eye'
+            ? drawCelestialEye(ctx, x, y, time, p, hurt, float)
+            : drawCrystal(ctx, x, y, time, p, hurt, float);
   ctx.restore();
   return top;
 }
@@ -856,6 +861,85 @@ function drawObelisk(ctx: CanvasRenderingContext2D, x: number, y: number, time: 
   return sy - 14;
 }
 
+/** Olho Celeste: pedestal de mármore, anéis de ouro girando em volta de um olho de luz. */
+function drawCelestialEye(ctx: CanvasRenderingContext2D, x: number, y: number, time: number, p: NexusPalette, hurt: number, float: number): number {
+  // pedestal de mármore com friso dourado
+  ctx.fillStyle = '#e8e4f4';
+  ctx.strokeStyle = '#6a6488';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 8, 18, 6, 0, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x - 9, y + 8);
+  ctx.lineTo(x - 6, y - 8);
+  ctx.lineTo(x + 6, y - 8);
+  ctx.lineTo(x + 9, y + 8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = p.accent;
+  ctx.beginPath();
+  ctx.moveTo(x - 7.5, y - 2);
+  ctx.lineTo(x + 7.5, y - 2);
+  ctx.stroke();
+  const cy = y - 30 + float;
+  // luz em volta
+  const glow = ctx.createRadialGradient(x, cy, 3, x, cy, 30);
+  glow.addColorStop(0, p.glow + 'cc');
+  glow.addColorStop(1, p.glow + '00');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(x, cy, 30, 0, TAU);
+  ctx.fill();
+  // anéis de ouro girando (um deitado, um em pé)
+  ctx.lineWidth = 1.6;
+  ctx.strokeStyle = p.accent;
+  ctx.beginPath();
+  ctx.ellipse(x, cy, 20, 6 + Math.sin(time * 0.9) * 2, time * 0.3, 0, TAU);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x, cy, 7 + Math.cos(time * 1.1) * 2, 19, -time * 0.25, 0, TAU);
+  ctx.stroke();
+  // runas no anel
+  ctx.fillStyle = p.light;
+  for (let i = 0; i < 6; i++) {
+    const a = time * 0.6 + (i * TAU) / 6;
+    ctx.beginPath();
+    ctx.arc(x + Math.cos(a) * 20, cy + Math.sin(a) * 6, 1.2, 0, TAU);
+    ctx.fill();
+  }
+  // o olho: amêndoa branca, íris na cor do Nexus e pupila que acompanha o tempo
+  const blink = Math.max(0.15, Math.min(1, Math.abs(Math.sin(time * 0.35)) * 6));
+  ctx.fillStyle = hurt > 0 ? '#ffd0d8' : p.light;
+  ctx.strokeStyle = p.dark;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(x - 11, cy);
+  ctx.quadraticCurveTo(x, cy - 10 * blink, x + 11, cy);
+  ctx.quadraticCurveTo(x, cy + 10 * blink, x - 11, cy);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  if (blink > 0.3) {
+    const look = Math.sin(time * 0.7) * 2.5;
+    const iris = ctx.createRadialGradient(x + look, cy, 1, x + look, cy, 5.5);
+    iris.addColorStop(0, p.light);
+    iris.addColorStop(0.4, p.mid);
+    iris.addColorStop(1, p.dark);
+    ctx.fillStyle = iris;
+    ctx.beginPath();
+    ctx.arc(x + look, cy, 5.2 * Math.min(1, blink), 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#140a2a';
+    ctx.beginPath();
+    ctx.arc(x + look, cy, 2, 0, TAU);
+    ctx.fill();
+  }
+  return cy - 22;
+}
+
 const thumbnails = new Map<string, HTMLCanvasElement>();
 
 /** Miniatura do mapa da fase (cenário + Nexus do mapa), pintada uma vez e reaproveitada. */
@@ -877,6 +961,7 @@ export function paintStageThumbnail(target: HTMLCanvasElement, stage: StageDef):
     if (stage.biome === 'swamp') paintSwampStatic(c, stage, world, nexus);
     else if (stage.biome === 'tundra') paintTundraStatic(c, stage, world, nexus);
     else if (stage.biome === 'desert') paintDesertStatic(c, stage, world, nexus);
+    else if (stage.biome === 'citadel') paintCitadelStatic(c, stage, world, nexus);
     else paintStatic(c, stage, world, nexus);
     // segundo Nexus (pontos vitais gêmeos)
     for (const g of stage.guards ?? []) if (g.twin) drawNexusModel(c, g.x, g.y, 0, { model: stage.nexusModel, palette: NEXUS_MODELS[stage.nexusModel].palette });

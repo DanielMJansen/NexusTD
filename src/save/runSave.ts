@@ -79,6 +79,9 @@ function deserialize(raw: Record<string, unknown>): RunState {
     relicsFound: (raw.relicsFound as RunState['relicsFound'] | undefined) ?? [],
     relicBosses: (raw.relicBosses as RunState['relicBosses'] | undefined) ?? [],
     ankh: (raw.ankh as RunState['ankh'] | undefined) ?? null,
+    // Portais e vento (runs salvas antes da Fase 5)
+    portals: (raw.portals as RunState['portals'] | undefined) ?? [],
+    wind: (raw.wind as RunState['wind'] | undefined) ?? null,
     escortStop: typeof raw.escortStop === 'number' ? raw.escortStop : 0,
     ice: (raw.ice as RunState['ice'] | undefined) ?? null,
     avalanche: (raw.avalanche as RunState['avalanche'] | undefined) ?? null,

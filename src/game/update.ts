@@ -1,3 +1,5 @@
+import type { SpawnItem } from './state';
+import { nextSpawnIndex, updatePortals } from './portals';
 import { tryAnkh } from './relics';
 import { updateSynergies } from './synergies';
 import { updateIce } from './ice';
@@ -53,10 +55,12 @@ export function updateRun(state: RunState, dt: number, input: FrameInput): void 
   // Obeliscos gêmeos regeneram como o Nexus
   if (state.talents.nexusRegen > 0) for (const g of state.guards) if (g.twin && g.hp > 0) g.hp = Math.min(g.maxHp, g.hp + state.talents.nexusRegen * dt);
 
+  updatePortals(state, dt);
   state.spawnTimer -= dt;
-  const next = state.spawnQueue[0];
-  if (next && state.spawnTimer <= 0) {
-    state.spawnQueue.shift();
+  // próximo da fila que já pode sair (com portais, espera o portal dele abrir)
+  const nextIndex = state.spawnTimer <= 0 ? nextSpawnIndex(state) : -1;
+  if (nextIndex >= 0) {
+    const [next] = state.spawnQueue.splice(nextIndex, 1) as [SpawnItem];
     if (typeof next === 'string') spawnEnemy(state, next);
     else spawnEnemy(state, next.enemy, undefined, next.entrance, next.elite);
     state.spawnTimer = state.spawnIntervalOverride ?? spawnInterval(state.wave);

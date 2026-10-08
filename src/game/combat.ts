@@ -1,3 +1,4 @@
+import { windRangeFactor } from './portals';
 import { rollRelicDrop } from './relics';
 import { raceGrip, racePure } from '../data/races';
 import { onIce } from './ice';
@@ -313,7 +314,8 @@ export function updateDamageOverTime(state: RunState, dt: number): void {
 /** Escolhe os alvos no alcance: os mais perto do Nexus (padrão) ou os mais fortes primeiro. */
 function pickTargets(state: RunState, creature: Creature, range: number, count: number): Enemy[] {
   const strongest = creature.def.targeting === 'strongest';
-  const inRange = (enemy: Enemy) => distance(enemy, creature) <= range;
+  // vento (Fase 5): criaturas à distância alcançam mais longe a favor do vento
+  const inRange = (enemy: Enemy) => distance(enemy, creature) <= (range > 60 ? range * windRangeFactor(state, creature, enemy) : range);
   // sem inimigo hostil ao alcance, bate nos possuídos (não fica parado)
   let pool = state.enemies.filter((enemy) => isTargetable(enemy) && inRange(enemy));
   if (!pool.length) pool = state.enemies.filter((enemy) => isFallbackTarget(enemy) && inRange(enemy));

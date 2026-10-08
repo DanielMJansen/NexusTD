@@ -16,6 +16,10 @@ const nexusText = document.querySelector<HTMLElement>('#hud-nexus')!;
 const nexusBar = document.querySelector<HTMLElement>('#hud-nexus-bar')!;
 const nexusLabel = document.querySelector<HTMLElement>('#hud-nexus-label')!;
 const twinChip = document.querySelector<HTMLElement>('#hud-twin-chip')!;
+const windChip = document.querySelector<HTMLElement>('#hud-wind')!;
+const windText = document.querySelector<HTMLElement>('#hud-wind-text')!;
+/** Direções do vento (0 = leste, sentido horário na tela). */
+const WIND_NAMES = ['Leste →', 'Sudeste ↘', 'Sul ↓', 'Sudoeste ↙', 'Oeste ←', 'Noroeste ↖', 'Norte ↑', 'Nordeste ↗'];
 const twinLabel = document.querySelector<HTMLElement>('#hud-twin-label')!;
 const twinText = document.querySelector<HTMLElement>('#hud-twin')!;
 const twinBar = document.querySelector<HTMLElement>('#hud-twin-bar')!;
@@ -43,6 +47,9 @@ export function updateHud(run: RunState): void {
   setText(nexusText, `${hp}/${run.nexus.maxHp}`);
   nexusBar.style.width = `${ratio * 100}%`;
   nexusBar.classList.toggle('low', ratio < 0.3);
+  // vento (Fase 5)
+  if (windChip.hidden === (run.wind !== null)) windChip.hidden = run.wind === null;
+  if (run.wind !== null) setText(windText, WIND_NAMES[Math.round(run.wind / (Math.PI / 4)) % 8] ?? '');
   // segundo Nexus (Deserto): bloco próprio no HUD
   const twin = run.guards.find((g) => g.twin);
   if (twinChip.hidden === !!twin) twinChip.hidden = !twin;

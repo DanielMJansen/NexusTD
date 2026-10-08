@@ -1,3 +1,4 @@
+import { windSpeedFactor } from './portals';
 import { racePure } from '../data/races';
 import { NEXUS } from '../data/config';
 import type { EnemyTrait } from '../data/enemies';
@@ -378,12 +379,13 @@ export function updateEnemies(state: RunState, dt: number): void {
     const lateral = zigzag
       ? Math.sin(state.time * zigzag.frequency + enemy.animationOffset) * zigzag.lateralSpeed
       : 0;
-    const speed = enemy.speed * speedFactor;
     // anda até o próximo ponto da trilha (ou direto ao Nexus)
     const goal = enemyGoal(state, enemy);
     const gx = goal.x - enemy.x;
     const gy = goal.y - enemy.y;
     const gl = Math.hypot(gx, gy) || 1;
+    // vento (Fase 5): voadores a favor andam mais rápido
+    const speed = enemy.speed * speedFactor * windSpeedFactor(state, enemy, gx / gl, gy / gl);
     enemy.x += ((gx / gl) * speed - (gy / gl) * lateral) * dt;
     enemy.y += ((gy / gl) * speed + (gx / gl) * lateral) * dt;
   }

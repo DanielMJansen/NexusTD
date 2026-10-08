@@ -90,6 +90,9 @@ export function drawFrame(
     layers.push({ y: g.y + 10, draw: () => drawNexus(ctx, g.hp, g.maxHp, time, state.time - g.lastHitAt < 0.15 ? 1 : 0, look, g) });
   }
   for (const o of state.interactables) layers.push({ y: o.y, draw: () => drawInteractable(ctx, o, time, state.weather.active) });
+  // Portais do Céu (Fase 5)
+  const portalRule = STAGES[state.stage].portals;
+  for (const p of state.portals) if (!p.sealed && !p.done) layers.push({ y: p.y - 12, draw: () => drawPortal(ctx, p, time, portalRule?.sealTime ?? 3, portalRule?.warning ?? 5) });
   for (const enemy of state.enemies) layers.push({ y: enemy.y, draw: () => drawEnemy(ctx, state, enemy, time) });
   for (const creature of state.creatures) {
     layers.push({ y: creature.y, draw: () => drawCreature(ctx, state, creature, time) });
@@ -102,6 +105,7 @@ export function drawFrame(
   if (interaction.placement) drawPlacementPreview(ctx, state, interaction.placement, time);
   drawAvalanche(ctx, state, time);
   effects.drawWorld(ctx, time);
+  if (state.wind !== null) drawWind(ctx, state.wind, time, state.map);
   ctx.restore();
   if (state.weather.active) {
     if (STAGES[state.stage].weather?.kind === 'sandstorm') drawSandstorm(ctx, time);
@@ -1119,6 +1123,89 @@ function drawInteractable(
 }
 
 /** Nevasca: véu branco e flocos na tela inteira (espaço da tela). */
+/** Portal do Céu: em aviso, círculo pulsando com contagem; aberto, redemoinho de luz; anel dourado ao selar. */
+function drawPortal(ctx: CanvasRenderingContext2D, p: RunState['portals'][number], time: number, sealTime: number, warning: number): void {
+  ctx.save();
+  if (p.warn > 0) {
+    const k = 1 - p.warn / warning;
+    ctx.strokeStyle = `rgba(200, 160, 255, ${0.4 + 0.4 * Math.abs(Math.sin(time * 6))})`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 5]);
+    ctx.lineDashOffset = -time * 20;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, 30, 13, 0, 0, TAU);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = `rgba(150, 100, 255, ${0.15 + k * 0.35})`;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, 30 * k, 13 * k, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#f4ecff';
+    ctx.font = '700 14px Cinzel, Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(String(Math.ceil(p.warn)), p.x, p.y - 18);
+    ctx.restore();
+    return;
+  }
+  // redemoinho: fenda vertical de luz com anéis girando
+  halo(ctx, p.x, p.y - 18, 40, '#a87aff', 0.55);
+  ctx.fillStyle = '#2a0a5a';
+  ctx.beginPath();
+  ctx.ellipse(p.x, p.y, 28, 12, 0, 0, TAU);
+  ctx.fill();
+  for (let i = 0; i < 3; i++) {
+    ctx.strokeStyle = i === 1 ? '#ffe7a8' : '#c8a0ff';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, 26 - i * 7, 11 - i * 3, 0, time * (2 + i) , time * (2 + i) + Math.PI * 1.4);
+    ctx.stroke();
+  }
+  const rift = ctx.createLinearGradient(p.x, p.y - 46, p.x, p.y);
+  rift.addColorStop(0, 'rgba(200, 170, 255, 0)');
+  rift.addColorStop(1, 'rgba(230, 210, 255, 0.85)');
+  ctx.fillStyle = rift;
+  ctx.beginPath();
+  ctx.moveTo(p.x - 4 - Math.sin(time * 5) * 2, p.y);
+  ctx.quadraticCurveTo(p.x, p.y - 30, p.x, p.y - 46);
+  ctx.quadraticCurveTo(p.x, p.y - 30, p.x + 4 + Math.sin(time * 5) * 2, p.y);
+  ctx.closePath();
+  ctx.fill();
+  // progresso de selar
+  if (p.seal > 0) {
+    ctx.strokeStyle = '#ffd25a';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, 34, 15, 0, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, p.seal / sealTime));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/** Rajadas de vento atravessando o mapa na direção do vento (Fase 5). */
+function drawWind(ctx: CanvasRenderingContext2D, angle: number, time: number, map: { width: number; height: number }): void {
+  const dx = Math.cos(angle);
+  const dy = Math.sin(angle);
+  ctx.save();
+  ctx.strokeStyle = '#6a58b0';
+  ctx.lineWidth = 1.4;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 34; i++) {
+    const seed = i * 7.31;
+    const t = (time * 0.35 + (seed % 1)) % 1;
+    const span = Math.hypot(map.width, map.height);
+    // linha de base perpendicular ao vento, espalhada pelo mapa
+    const px = map.width / 2 + -dy * ((((seed * 97) % 1) - 0.5) * span) + dx * (t - 0.5) * span;
+    const py = map.height / 2 + dx * ((((seed * 97) % 1) - 0.5) * span) + dy * (t - 0.5) * span;
+    if (px < -40 || py < -40 || px > map.width + 40 || py > map.height + 40) continue;
+    ctx.globalAlpha = Math.sin(t * Math.PI) * 0.45;
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(px - dx * 34, py - dy * 34);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawBlizzard(ctx: CanvasRenderingContext2D, time: number): void {
   ctx.save();
   ctx.fillStyle = 'rgba(220, 235, 255, 0.18)';

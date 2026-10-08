@@ -340,6 +340,19 @@ export type SpawnItem = EnemyId | { enemy: EnemyId; entrance?: number; elite?: b
 export type Phase = 'playing' | 'choosing' | 'ended';
 
 /** O que vem de fora da run: progresso permanente do jogador. */
+/** Portal do Céu (Fase 5). */
+export interface Portal {
+  x: number;
+  y: number;
+  /** Segundos até abrir (> 0 = aviso). */
+  warn: number;
+  /** Segundos acumulados do herói selando. */
+  seal: number;
+  sealed: boolean;
+  /** Já soltou tudo o que tinha (fecha sozinho). */
+  done: boolean;
+}
+
 export interface RunSetup {
   /** Fase da run (padrão: a primeira). */
   stage?: StageId;
@@ -380,6 +393,10 @@ export interface RunState {
   ice: { stress: number[]; holes: number[]; cols: number; rows: number; x0: number; y0: number } | null;
   /** Avalanche em andamento (evento da onda). */
   avalanche: { entrance: number; t: number; delay: number; duration: number; width: number } | null;
+  /** Portais do Céu da onda (Fase 5): aviso restante, progresso de selar, selado e esvaziado. */
+  portals: Portal[];
+  /** Direção do vento (radianos) nas fases com vento; null sem vento. */
+  wind: number | null;
   /** Objetos interativos do mapa (estado da run). */
   interactables: { kind: 'brazier'; x: number; y: number; radius: number; lit: boolean; progress: number }[];
   /** Clima: ativo agora, segundos até mudar, se já avisou e se a onda forçou. */
@@ -513,6 +530,8 @@ export function createRun(setup: RunSetup): RunState {
     escortStop: 0,
     ice: null,
     avalanche: null,
+    portals: [],
+    wind: STAGES[setup.stage ?? FIRST_STAGE].wind ? 0 : null,
     interactables: (STAGES[setup.stage ?? FIRST_STAGE].interactables ?? []).map((o) => ({ ...o, lit: true, progress: 0 })),
     weather: { active: false, timer: STAGES[setup.stage ?? FIRST_STAGE].weather?.every ?? 0, warned: false, forced: false },
     gold: ECONOMY.startGold + t.startGold,

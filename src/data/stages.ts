@@ -3,9 +3,9 @@ import type { EnemyId } from './enemies';
 import { WAVES } from './waves';
 import type { BossEntry, WaveEntry } from './waves';
 
-export type StageId = 'graveyard' | 'swamp' | 'tundra' | 'desert';
+export type StageId = 'graveyard' | 'swamp' | 'tundra' | 'desert' | 'citadel';
 /** Cenário desenhado na arena. */
-export type Biome = 'graveyard' | 'swamp' | 'tundra' | 'desert';
+export type Biome = 'graveyard' | 'swamp' | 'tundra' | 'desert' | 'citadel';
 
 /** Lama: criaturas invocadas nela atacam mais devagar; o herói anda mais devagar. */
 export interface MudTerrain {
@@ -152,6 +152,28 @@ export interface StageTip {
   text: string;
 }
 
+/** Portais do Céu (Fase 5): cada onda abre portais em pontos sorteados; o herói sela ficando sobre um. */
+export interface PortalRule {
+  /** Pontos possíveis de portal. */
+  spots: { x: number; y: number }[];
+  /** Portais por onda: a partir de `fromWave`, `count` portais. */
+  counts: { fromWave: number; count: number }[];
+  /** Segundos de aviso antes de abrir. */
+  warning: number;
+  /** Segundos parado sobre o portal para selar. */
+  sealTime: number;
+  /** Distância do herói ao portal para selar. */
+  sealRadius: number;
+}
+
+/** Ventos (Fase 5): a favor do vento, voadores andam mais rápido e projéteis vão mais longe. */
+export interface WindRule {
+  /** Velocidade extra (ou a menos) dos voadores, a favor (ou contra) o vento. */
+  flyerSpeed: number;
+  /** Alcance extra (ou a menos) das criaturas à distância, mirando a favor (ou contra) o vento. */
+  range: number;
+}
+
 export interface StageDef {
   id: StageId;
   number: number;
@@ -183,6 +205,10 @@ export interface StageDef {
   interactables?: Interactable[];
   /** Clima periódico. */
   weather?: WeatherRule;
+  /** Portais do Céu: inimigos surgem de portais avisados em pontos do mapa (sem trilhas). */
+  portals?: PortalRule;
+  /** Ventos: direção sorteada a cada onda; acelera voadores e muda o alcance das criaturas. */
+  wind?: WindRule;
   /** Pontos extras a defender. */
   guards?: GuardPoint[];
   /** Decoração do cenário. */
@@ -545,6 +571,50 @@ export const STAGES: Record<StageId, StageDef> = {
       { kind: 'boss', title: 'O Faraó Imortal', groups: [{ enemy: 'pharaoh', count: 1, entrance: 0 }], rolls: 1 },
     ],
     requires: 'tundra',
+  },
+  citadel: {
+    id: 'citadel',
+    number: 5,
+    name: 'Cidadela Celeste',
+    description: 'Ruínas de mármore flutuando acima das nuvens: o céu se rasga em portais por todos os lados.',
+    intro: [
+      { icon: '🌀', title: 'Portais do Céu', text: 'Não há trilhas: a cada onda, portais se abrem em pontos do mapa (com aviso de alguns segundos) e despejam os inimigos ali. Fique de olho no minimapa.' },
+      { icon: '✋', title: 'Selar', text: 'Pare o herói sobre um portal aberto por alguns segundos para selá-lo: os inimigos que ainda iam sair dele não saem. Chefes não podem ser impedidos.' },
+      { icon: '🌬', title: 'Ventos', text: 'O vento muda a cada onda (veja as rajadas). A favor do vento, voadores ficam mais rápidos e os tiros das criaturas vão mais longe; contra o vento, perdem alcance.' },
+    ],
+    biome: 'citadel',
+    color: '#c8b8ff',
+    power: { hp: 1, damage: 0.9 },
+    essenceMultiplier: 2,
+    fragments: true,
+    nexusModel: 'eye',
+    // provisório (parte 1): inimigos de fases anteriores até chegarem os da Cidadela
+    composition: [
+      { enemy: 'bat', fromWave: 1, weight: 6, perWave: -0.15, minWeight: 2 },
+      { enemy: 'gargoyle', fromWave: 2, weight: 3, perWave: 0.02 },
+      { enemy: 'wisp', fromWave: 3, weight: 2.5, perWave: 0.02 },
+      { enemy: 'djinn', fromWave: 5, weight: 2.2, perWave: 0.03 },
+      { enemy: 'headless', fromWave: 7, weight: 1.8, perWave: 0.04 },
+    ],
+    bosses: [
+      { wave: 10, enemy: 'ogreKing' },
+      { wave: 20, enemy: 'lich' },
+    ],
+    endlessBosses: ['ogreKing', 'lich'],
+    map: { width: 1280, height: 720, nexus: { x: 640, y: 360 } },
+    portals: {
+      spots: [{ x: 1051, y: 434 }, { x: 898, y: 560 }, { x: 646, y: 610 }, { x: 392, y: 564 }, { x: 233, y: 441 }, { x: 229, y: 286 }, { x: 382, y: 160 }, { x: 634, y: 110 }, { x: 888, y: 156 }, { x: 1047, y: 279 }],
+      counts: [
+        { fromWave: 1, count: 2 },
+        { fromWave: 8, count: 3 },
+        { fromWave: 15, count: 4 },
+      ],
+      warning: 5,
+      sealTime: 3,
+      sealRadius: 40,
+    },
+    wind: { flyerSpeed: 0.2, range: 0.15 },
+    requires: 'desert',
   },
 };
 

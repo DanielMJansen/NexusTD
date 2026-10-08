@@ -1,3 +1,4 @@
+import { portalSpawnPoint, setupWavePortals } from './portals';
 import { MUTATION_IDS, MUTATION_RULES, type MutationId } from '../data/mutations';
 import { advanceEscort } from './objectives';
 import { startWeather } from './mapEvents';
@@ -112,6 +113,8 @@ export function startWave(state: RunState): void {
       return rollEnemy(other, stageWaveCount(other));
     });
   }
+  // Portais do Céu e vento (Fase 5)
+  setupWavePortals(state);
   state.spawnIntervalOverride = scriptedWave(state.stage, state.wave)?.interval ?? null;
   state.spawnTimer = 0;
   state.phase = 'playing';
@@ -232,6 +235,15 @@ export function spawnEnemy(state: RunState, id: EnemyId, angle?: number, entranc
   const isLeader = angle === undefined;
   const elite = !def.isBoss && (forceElite || random() < eliteChance(state, state.wave));
   if (def.isBoss) state.events.push({ type: 'bossSpawned', enemy: id });
+  // Portais do Céu: sai pelo portal da fila (o bando sai junto)
+  const fromPortal = entrance !== undefined ? portalSpawnPoint(state, entrance) : null;
+  if (fromPortal) {
+    state.enemies.push(createEnemy(state, id, fromPortal, elite));
+    if (isLeader && def.pack && random() < def.pack.chance) {
+      for (const offset of def.pack.angleOffsets) spawnEnemy(state, id, offset, entrance);
+    }
+    return;
+  }
   const gates = entrances(state);
   // voadores ignoram trilhas e muros: surgem de qualquer borda (só se não vieram por uma entrada escolhida)
   if (gates.length && !(def.flying && entrance === undefined)) {

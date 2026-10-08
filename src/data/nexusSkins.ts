@@ -2,7 +2,7 @@
 import type { AchievementId } from './achievements';
 import type { StageId } from './stages';
 
-export type NexusModelId = 'crystal' | 'lotus' | 'glacier' | 'obelisk';
+export type NexusModelId = 'crystal' | 'lotus' | 'glacier' | 'obelisk' | 'eye';
 
 /** Cores do Nexus; os modelos usam as mesmas chaves. */
 export interface NexusPalette {
@@ -54,6 +54,13 @@ export const NEXUS_MODELS: Record<NexusModelId, NexusModelDef> = {
     description: 'Um obelisco de arenito com um sol de ouro no topo. Vença o Deserto para liberar.',
     stage: 'desert',
     palette: { dark: '#a06a10', mid: '#e8b030', light: '#fff0b0', glow: '#ffd25a', accent: '#ff8a3a' },
+  },
+  eye: {
+    id: 'eye',
+    name: 'Olho Celeste',
+    description: 'Um olho de luz dentro de anéis de ouro que giram sobre as nuvens. Vença a Cidadela para liberar.',
+    stage: 'citadel',
+    palette: { dark: '#5a4aa8', mid: '#a890ff', light: '#f4f0ff', glow: '#c8b8ff', accent: '#ffd87a' },
   },
 };
 

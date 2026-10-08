@@ -122,6 +122,10 @@ function heroGoal(run: RunState): { x: number; y: number } {
       target = e;
     }
   }
+  // Portais do Céu: sem ameaça colada no Nexus, vai selar o portal aberto mais perto
+  const nearNexus = target && Math.min(...anchors.map((a) => Math.hypot(a.x - target!.x, a.y - target!.y))) < 130;
+  const portal = run.portals.filter((p) => p.warn <= 0 && !p.sealed && !p.done).sort((a, b) => Math.hypot(a.x - hero.x, a.y - hero.y) - Math.hypot(b.x - hero.x, b.y - hero.y))[0];
+  if (portal && !nearNexus) return { x: portal.x, y: portal.y };
   if (target) return { x: target.x, y: target.y };
   const item = run.loot.filter((l) => Math.hypot(l.x - hero.x, l.y - hero.y) < 140).sort((a, b) => Math.hypot(a.x - hero.x, a.y - hero.y) - Math.hypot(b.x - hero.x, b.y - hero.y))[0];
   if (item) return { x: item.x, y: item.y };

@@ -42,6 +42,11 @@ export type GameEvent =
   | { type: 'enemyRevived'; x: number; y: number; boss: boolean; rising: boolean }
   | { type: 'relicFound'; relic: RelicId; x: number; y: number }
   | { type: 'ankhSaved' }
+  | { type: 'portalsWarning'; count: number; seconds: number }
+  | { type: 'portalOpened'; x: number; y: number }
+  | { type: 'portalSealed'; x: number; y: number; prevented: number }
+  | { type: 'portalClosed'; x: number; y: number }
+  | { type: 'windChanged'; angle: number }
   | { type: 'goldStolen'; x: number; y: number; gold: number }
   | { type: 'enemyBlink'; from: Point; to: Point }
   | { type: 'headCut'; x: number; y: number; heads: number }

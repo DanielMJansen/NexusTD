@@ -229,6 +229,21 @@ export class Effects {
       case 'guardHit':
         this.text(event.x, event.y - 50, `-${event.damage}`, '#ffb84a', 11);
         break;
+      case 'portalsWarning':
+        this.banner(`${event.count} portais se abrindo`, `em ${event.seconds} s · pare o herói sobre um para selar`, '#d8b8ff', 2.2);
+        break;
+      case 'portalOpened':
+        this.ring(event.x, event.y, 36, '#c8a0ff', 0.6, 3);
+        this.burst(event.x, event.y - 10, 18, '#e8d8ff', 90, 0.6, 2.4, true, -30);
+        break;
+      case 'portalSealed':
+        this.ring(event.x, event.y, 50, '#ffd25a', 0.7, 4);
+        this.burst(event.x, event.y - 10, 26, '#fff0b0', 110, 0.7, 2.6, true, -40);
+        this.text(event.x, event.y - 40, event.prevented ? `Selado! −${event.prevented} inimigos` : 'Selado!', '#ffd25a', 12);
+        break;
+      case 'portalClosed':
+        this.burst(event.x, event.y - 10, 10, '#c8a0ff', 50, 0.5, 2, true);
+        break;
       case 'relicFound':
         this.banner(`Relíquia: ${RELICS[event.relic].icon} ${RELICS[event.relic].name}`, 'Equipe no menu, em Relíquias', '#f0c35a', 2.6);
         this.ring(event.x, event.y, 60, '#f0c35a', 0.8, 4);

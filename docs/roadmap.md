@@ -166,7 +166,7 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 - Tempestade de areia (decidido): inimigos longe do herói e das criaturas ficam **ocultos e não podem ser alvo** até chegar perto.
 - Nexus temático: **Obelisco Solar**.
 
-### F16. Fase 5 — Cidadela Celeste + Ascensão e Desafio diário `[ ]` — PROPOSTA
+### F16. Fase 5 — Cidadela Celeste + Ascensão `[~]` — parte 1 feita em 08/10/2026 (mapa, Olho Celeste, Portais do Céu, ventos; inimigos provisórios); a seguir: inimigos e chefes, roteiro e calibragem, Ascensão
 - Nuvens, luz e ruínas brancas. Regra de mapa: **ventos** que desviam projéteis e empurram inimigos voadores.
 - Modo diferente (decidido em 07/10/2026): **Portais do Céu** — sem trilhas fixas; portais se abrem em pontos do mapa (avisados ~5 s antes) e despejam inimigos ali; o herói **sela** um portal ficando parado nele alguns segundos. Ventos continuam como regra de mapa. Números e detalhes: PROPOSTA a fechar antes de implementar.
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).

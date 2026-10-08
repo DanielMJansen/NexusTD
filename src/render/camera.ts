@@ -124,6 +124,8 @@ export function drawMinimap(canvas: HTMLCanvasElement, state: RunState, camera: 
     ctx.fill();
   };
   // ocultos pela tempestade de areia também somem do minimapa
+  // Portais do Céu: lilás (em aviso, piscando)
+  for (const p of state.portals) if (!p.sealed && !p.done && (p.warn <= 0 || Math.sin(performance.now() / 120) > 0)) dot(p, '#c890ff', 4);
   for (const e of state.enemies) if (!e.dead && !e.hidden) dot(e, e.def.isBoss ? '#ff4a5a' : '#ff8a6a', e.def.isBoss ? 3 : 1.6);
   for (const c of state.creatures) dot(c, '#7af0b0', 2);
   dot(state.nexus, '#c8a8ff', 4);

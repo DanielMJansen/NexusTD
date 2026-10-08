@@ -146,6 +146,12 @@ export class SoundPlayer {
       case 'ankhSaved':
         this.play('evolve');
         break;
+      case 'portalSealed':
+        this.play('evolve');
+        break;
+      case 'portalOpened':
+        this.play('summon');
+        break;
       case 'stomp':
         this.play('stomp');
         break;
