@@ -503,6 +503,7 @@ export function updateCreatures(state: RunState, dt: number): void {
           dps: ability.dps * scale,
           color: ability.bounty ? '#f0c35a' : def.color,
           bounty: ability.bounty,
+          source: def.id,
         });
         state.events.push({ type: 'poolCreated', x: target.x, y: target.y, radius: ability.radius });
         break;

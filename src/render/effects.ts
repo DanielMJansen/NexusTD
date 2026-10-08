@@ -415,7 +415,7 @@ export class Effects {
         this.burst(event.x, event.y - 6, 6, GOLD, 60, 0.5, 2, true, -40);
         break;
       case 'nova': {
-        const color = CREATURES[event.source].color;
+        const color = this.attackTheme(event.source)?.accent ?? CREATURES[event.source].color;
         this.ring(event.x, event.y + 4, event.radius, color, 0.45, 3);
         this.burst(event.x, event.y, 10, color, 60, 0.4, 2, true);
         break;

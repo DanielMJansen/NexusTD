@@ -218,6 +218,8 @@ export interface Pool extends Point {
   color: string;
   /** Ouro extra por inimigo que morre dentro (Caldeirão Alquímico). */
   bounty?: number;
+  /** Criatura que criou a poça (visual: cor da variante). */
+  source?: CreatureId;
   /** Deixa lento quem está dentro (fração), como a Fenda Sísmica. */
   slow?: number;
   /** Visual: poça comum ou rachadura no chão. */

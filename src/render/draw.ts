@@ -1,3 +1,4 @@
+import { variantTheme } from '../data/variantThemes';
 import { CORPSE_LIFE, raisableCorpses } from '../game/raise';
 import { avalanchePosition } from '../game/mapEvents';
 import { ARENA, INTERACT } from '../data/config';
@@ -69,7 +70,7 @@ export function drawFrame(
   drawAvalancheWarning(ctx, state, time);
   drawRaisableCorpses(ctx, state, time);
   drawNexusGround(ctx, state, !!interaction.nexusOpen, time);
-  for (const pool of state.pools) drawPool(ctx, pool, time);
+  for (const pool of state.pools) drawPool(ctx, pool, time, poolColor(state, pool));
   for (const strike of state.pulseFx.strikes) drawStrikeWarning(ctx, strike, time);
   for (const item of state.loot) drawLoot(ctx, item, time);
   for (const creature of state.creatures) drawAuraRing(ctx, creature, time);
@@ -796,7 +797,13 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
 }
 
 /** Poça borbulhante do Caldeirão (desaparece no fim). */
-function drawPool(ctx: CanvasRenderingContext2D, pool: Pool, time: number): void {
+/** Cor da poça: a do tema se quem a criou tem variante Épica/Lendária. */
+function poolColor(state: RunState, pool: Pool): string {
+  const tier = pool.source ? state.variants[pool.source] : undefined;
+  return pool.source && tier && tier !== 'rare' ? variantTheme(pool.source, tier).accent : pool.color;
+}
+
+function drawPool(ctx: CanvasRenderingContext2D, pool: Pool, time: number, color = pool.color): void {
   const fade = Math.min(1, pool.remaining / 0.4) * Math.min(1, (pool.duration - pool.remaining) / 0.15 + 0.2);
   if (pool.look === 'crack') {
     drawCrack(ctx, pool, time, fade);
@@ -807,9 +814,9 @@ function drawPool(ctx: CanvasRenderingContext2D, pool: Pool, time: number): void
   ctx.translate(pool.x, pool.y + 6);
   ctx.scale(1, 0.55);
   const g = ctx.createRadialGradient(0, 0, 2, 0, 0, pool.radius);
-  g.addColorStop(0, withAlpha(pool.color, 0.55));
-  g.addColorStop(0.8, withAlpha(pool.color, 0.3));
-  g.addColorStop(1, withAlpha(pool.color, 0));
+  g.addColorStop(0, withAlpha(color, 0.55));
+  g.addColorStop(0.8, withAlpha(color, 0.3));
+  g.addColorStop(1, withAlpha(color, 0));
   ctx.fillStyle = g;
   ctx.beginPath();
   ctx.arc(0, 0, pool.radius, 0, TAU);
@@ -903,7 +910,9 @@ function drawAuraRing(ctx: CanvasRenderingContext2D, creature: Creature, time: n
   const ability = creatureAbility(creature);
   if (ability.kind !== 'aura' && ability.kind !== 'bless') return;
   const radius = ability.radius;
-  const color = ascendedForm(creature)?.color ?? creature.def.color;
+  // variante Épica/Lendária: aura na cor do tema
+  const theme = creature.variant && creature.variant !== 'rare' ? variantTheme(creature.def.id, creature.variant) : null;
+  const color = theme?.accent ?? ascendedForm(creature)?.color ?? creature.def.color;
   const harmful = ability.kind === 'bless' && (ability.dps ?? 0) > 0;
   const tint = harmful ? '#ff8a4a' : color;
   ctx.save();
