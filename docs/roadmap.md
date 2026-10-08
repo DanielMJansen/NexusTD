@@ -159,7 +159,7 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 
 ### F16. Fase 5 — Cidadela Celeste + Ascensão e Desafio diário `[ ]` — PROPOSTA
 - Nuvens, luz e ruínas brancas. Regra de mapa: **ventos** que desviam projéteis e empurram inimigos voadores.
-- Modo diferente: **a definir** (os dois Nexus foram para o Deserto). Ventos continuam como regra de mapa.
+- Modo diferente (decidido em 07/10/2026): **Portais do Céu** — sem trilhas fixas; portais se abrem em pontos do mapa (avisados ~5 s antes) e despejam inimigos ali; o herói **sela** um portal ficando parado nele alguns segundos. Ventos continuam como regra de mapa. Números e detalhes: PROPOSTA a fechar antes de implementar.
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).
 - Nexus temático: **Olho Celeste**.
 
@@ -242,6 +242,12 @@ Ideia central: **com conta, o servidor é o dono do progresso**. O navegador só
 Esforço: nível 1 (servidor autoritativo + plausibilidade) — médio, entra junto com as contas (PUB-E). Nível 2 (replay verificado) — médio-alto; recomendado antes de abrir rankings ou o Desafio diário.
 
 **Ordem sugerida (quando a 1.0 estiver pronta):** PUB-A → PUB-E + PUB-G nível 1 (contas, save na nuvem, servidor dono do progresso) → PUB-F (beta aberta) → PUB-G nível 2 (runs verificadas) antes dos rankings → PUB-B (portal com anúncios) → PUB-C (Steam). Nome decidido: **Nexus TD**. Decisões pendentes: portal, anúncio recompensado (sim/não e qual recompensa), Electron ou Tauri, serviço de contas (Supabase?), quais rankings.
+
+### CAL. Calibragem para a 1.0 `[ ]` (decidido em 07/10/2026; antes do lançamento)
+- **Metas de vitória** (bot, % com 2.500 ✦ / com a árvore completa): Fase 1 55–75% / 90%+ · Fase 2 40–60% / 85%+ · Fase 3 25–45% / 70%+ · Fase 4 15–35% / 55%+ · Fase 5 10–25% / 45%+. Nenhuma raça abaixo da metade da média da fase nem acima do dobro.
+- **Bot mais fiel a um jogador:** herói se movendo em todas as fases (hoje só no Deserto), criaturas posicionadas perto das trilhas (não num círculo fixo), uso de evolução, Santuário/Relíquias como num perfil real.
+- **Rodada completa:** 13 raças × fases × 2 perfis de talento × 30 runs; relatório por fase e raça; ajustes até cair nas metas.
+- Depois: playtest com pessoas para conferir se o bot bate com a experiência real.
 
 ### Em paralelo (encaixar entre fases)
 - **Balanceamento das raças** `[~]` (07/10/2026): rodada feita nas 3 fases (ver Registro do GDD); Humanos com a passiva **Disciplina**. Pendente: Lobisomem na Tundra (0/30) e Bruxa no Pântano (24/30).
