@@ -25,11 +25,11 @@ Regras e valores do jogo ficam no [GDD](GDD.md); números exatos em [valores.md]
 - **Steam fica para depois**, quando houver conteúdo suficiente. Até lá: web (GitHub Pages; itch.io quando fizer sentido).
 - Nome: **Nexus TD** (definitivo para a 1ª versão, decidido em 07/10/2026).
 
-## 2.5. Caminho para a 1.0 (o "fim" deste projeto) — PROPOSTA de 08/10/2026
+## 2.5. Caminho para a 1.0 (o "fim" deste projeto) — itens 1–4 aprovados em 08/10/2026 (o 5 se decide depois do playtest)
 A 1.0 é o jogo completo para jogar sozinho: 5 fases, coleção, meta-progressão e Sem Fim, calibrado e sem bugs conhecidos. Contas, rankings, anúncios e Steam ficam **fora** da 1.0 (só se o jogo tiver público).
 1. **F16 · Fase 5 — Cidadela Celeste** (Portais do Céu, ventos, 5 inimigos e 2 chefes; proposta detalhada no F16). Ascensão por fase entra simples (3 níveis); Desafio diário fica para depois da 1.0 (precisa de ranking para fazer sentido). ~3–4 sessões.
 2. **CAL · Calibragem** das 5 fases com o bot novo contra as metas (seção CAL). ~2 sessões.
-3. **Polimento:** passada completa do checklist de regressão, desempenho (FPS) em computador comum, textos e tutoriais revisados, tela "Sobre" com versão e créditos. ~2 sessões.
+3. **Polimento:** variantes Épica/Lendária recolorindo também as **habilidades** (auras, poças, ondas, raios, correntes), passada completa do checklist de regressão, desempenho (FPS) em computador comum, textos e tutoriais revisados, tela "Sobre" com versão e créditos. ~2 sessões.
 4. **Playtest fechado** com 3–5 pessoas pelo link atual (1–2 semanas); corrigir o que aparecer.
 5. **Portão de decisão:** com o retorno do playtest, escolher entre (a) **publicar leve** — PUB-A (segurança e hospedagem) + página grátis no itch.io e/ou CrazyGames, save local, sem servidor; (b) investir no caminho completo (contas, rankings, Steam: PUB-B a PUB-G); ou (c) encerrar aqui e partir para um projeto novo.
 - **Fora da 1.0 (conteúdo pós-lançamento):** raças novas, Desafio diário, Corrida de Chefes e mutadores, arte e música finais.
@@ -171,7 +171,7 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 - Modo diferente (decidido em 07/10/2026): **Portais do Céu** — sem trilhas fixas; portais se abrem em pontos do mapa (avisados ~5 s antes) e despejam inimigos ali; o herói **sela** um portal ficando parado nele alguns segundos. Ventos continuam como regra de mapa. Números e detalhes: PROPOSTA a fechar antes de implementar.
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).
 - Nexus temático: **Olho Celeste**.
-- **Detalhes propostos (PROPOSTA de 07/10/2026, aprovar antes de implementar):**
+- **Detalhes (propostos em 07/10/2026, aprovados com o caminho da 1.0 em 08/10/2026):**
   - *Mapa:* ruínas flutuantes 1280×720 com o Nexus no centro; sem entradas fixas. ~10 pontos possíveis de portal em plataformas a 250–450 do Nexus.
   - *Portais:* cada onda abre 2 portais (3 a partir da onda 8, 4 a partir da 15), sorteados entre os pontos. Aviso de 5 s (círculo no chão, faixa e marca no minimapa); o portal solta a parte dele da onda aos poucos e fecha sozinho quando esvazia.
   - *Selar:* o herói parado a até 40 de um portal por 3 s (anel de progresso) o fecha; os inimigos que ainda iam sair dele **não saem** (sem ouro por eles). Chefes não saem de portais selados e não podem ser impedidos.
