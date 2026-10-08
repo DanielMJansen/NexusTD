@@ -162,6 +162,15 @@ Entregue em 6 passos, cada um sem mudar Cemitério e Pântano: **M1** geometria 
 - Modo diferente (decidido em 07/10/2026): **Portais do Céu** — sem trilhas fixas; portais se abrem em pontos do mapa (avisados ~5 s antes) e despejam inimigos ali; o herói **sela** um portal ficando parado nele alguns segundos. Ventos continuam como regra de mapa. Números e detalhes: PROPOSTA a fechar antes de implementar.
 - Destrava **Ascensão** (níveis de dificuldade por fase) e o **Desafio diário** (semente do dia; recorde pessoal).
 - Nexus temático: **Olho Celeste**.
+- **Detalhes propostos (PROPOSTA de 07/10/2026, aprovar antes de implementar):**
+  - *Mapa:* ruínas flutuantes 1280×720 com o Nexus no centro; sem entradas fixas. ~10 pontos possíveis de portal em plataformas a 250–450 do Nexus.
+  - *Portais:* cada onda abre 2 portais (3 a partir da onda 8, 4 a partir da 15), sorteados entre os pontos. Aviso de 5 s (círculo no chão, faixa e marca no minimapa); o portal solta a parte dele da onda aos poucos e fecha sozinho quando esvazia.
+  - *Selar:* o herói parado a até 40 de um portal por 3 s (anel de progresso) o fecha; os inimigos que ainda iam sair dele **não saem** (sem ouro por eles). Chefes não saem de portais selados e não podem ser impedidos.
+  - *Ventos:* a direção gira a cada onda (rosa dos ventos no HUD). Voadores andam 20% mais rápido a favor do vento; projéteis das criaturas a favor ganham +15% de alcance, contra perdem 15%.
+  - *Inimigos (5):* Harpia (voa, rápida, em bando), Sentinela de Mármore (lenta, armadura alta, raio de luz no herói), Anjo Caído (voa, dá escudo aos próximos), Elemental do Vento (empurra criaturas para trás de leve, imune a lentidão), Corvo da Tempestade (enxame que surge direto perto do Nexus).
+  - *Chefes:* Grifo Real (onda 10; mergulhos em investida, atordoa no impacto) e Serafim Corrompido (onda 20; abre os próprios portais e dispara feixes; segunda fase abaixo de 50%).
+  - *Libera:* **Ascensão** (níveis de dificuldade por fase, ex.: A1 inimigos +15% de vida, A2 +elites…) e **Desafio diário** (semente do dia, recorde pessoal; ranking só com contas).
+  - *Força da fase:* começar em ~1,0× e calibrar para a meta da Fase 5 (10–25% / 45%+).
 
 ### Revisão das Fases 1 e 2 `[x]` (feita em 07/10, antes da Tundra)
 - Dar ao Cemitério e ao Pântano roteiros próprios (hordas, eventos, tréguas) e, se fizer sentido, trilhas e câmera — também fora do molde.
