@@ -8,6 +8,8 @@ import { creatureEffects } from './creatureStats';
 import { random } from './random';
 import { spawnEnemyAt } from './spawning';
 import { distance, type Creature, type Enemy, type RunState } from './state';
+import { defendTarget } from './objectives';
+import { joinNearestPath } from './paths';
 
 // Efeitos de golpe das criaturas (veneno, atordoar, marca, corrosão, possessão...) e aliados temporários.
 
@@ -17,6 +19,13 @@ export const isHostile = (enemy: Enemy): boolean => !enemy.dead && enemy.allyTim
 
 /** Pode ser mirado (vivo, hostil e não oculto pela tempestade de areia)? */
 export const isTargetable = (enemy: Enemy): boolean => isHostile(enemy) && !enemy.hidden;
+
+/**
+ * Alvo de reserva: inimigo possuído/encantado (não os esqueletos invocados). Criaturas e herói só
+ * batem nele quando não há nenhum inimigo hostil ao alcance, para não ficarem parados.
+ */
+export const isFallbackTarget = (enemy: Enemy): boolean =>
+  !enemy.dead && enemy.allyTimer > 0 && !enemy.summonedAlly && !enemy.submerged && !enemy.hidden;
 
 const findEffect = <K extends HitEffect['kind']>(creature: Creature, kind: K) =>
   creatureEffects(creature).find((e): e is Extract<HitEffect, { kind: K }> => e.kind === kind);
@@ -223,6 +232,11 @@ export function updateStatusTimers(enemy: Enemy, dt: number): void {
 }
 
 /** Aliado temporário: persegue o inimigo hostil mais próximo e o fere por contato. */
+/** Possuído persegue inimigos até esta distância; mais longe, recua. */
+const ALLY_CHASE_RANGE = 160;
+/** Possuído não chega mais perto que isto do Nexus/Obelisco. */
+const ALLY_KEEP_AWAY = 140;
+
 export function updateAlly(state: RunState, ally: Enemy, dt: number): void {
   ally.allyTimer -= dt;
   if (ally.allyTimer <= 0) {
@@ -233,6 +247,9 @@ export function updateAlly(state: RunState, ally: Enemy, dt: number): void {
     } else if (ally.allyExplode) {
       explode(state, ally, ally.allyExplode.radius, ally.maxHp * ally.allyExplode.ratio);
       damageEnemy(state, ally, ally.hp + 1000, undefined, { ignoreArmor: true, overTime: true });
+    } else if (ally.path !== undefined) {
+      // volta para a trilha mais próxima de onde está agora
+      joinNearestPath(state, ally);
     }
     return;
   }
@@ -246,15 +263,24 @@ export function updateAlly(state: RunState, ally: Enemy, dt: number): void {
       target = other;
     }
   }
-  if (!target) {
-    // sem inimigos: espera perto de onde está, sem ir ao Nexus
-    return;
-  }
-  const reach = ally.def.radius + target.def.radius + 2;
-  if (best > reach) {
-    const step = Math.max(ally.speed, 30) * dt;
-    ally.x += ((target.x - ally.x) / best) * step;
-    ally.y += ((target.y - ally.y) / best) * step;
+  // ponto defendido mais perto: o possuído não se aproxima dele (para não acabar o efeito colado no Nexus)
+  const home = defendTarget(state, ally).at;
+  const homeDistance = distance(ally, home);
+  const step = Math.max(ally.speed, 30) * dt;
+  if (!target || best > ALLY_CHASE_RANGE) {
+    // sem briga por perto: recua, para longe do Nexus/Obelisco
+    if (homeDistance > 0) {
+      ally.x += ((ally.x - home.x) / homeDistance) * step * 0.8;
+      ally.y += ((ally.y - home.y) / homeDistance) * step * 0.8;
+    }
+  } else if (best > ally.def.radius + target.def.radius + 2) {
+    const nx = ally.x + ((target.x - ally.x) / best) * step;
+    const ny = ally.y + ((target.y - ally.y) / best) * step;
+    // persegue sem entrar na zona do ponto defendido
+    if (Math.hypot(nx - home.x, ny - home.y) >= Math.min(homeDistance, ALLY_KEEP_AWAY)) {
+      ally.x = nx;
+      ally.y = ny;
+    }
   } else {
     // dano de contato contra o inimigo (mínimo razoável para inimigos fracos)
     target.killedByAlly = true;

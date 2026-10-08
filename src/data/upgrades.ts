@@ -220,7 +220,7 @@ export const UPGRADE_FAMILIES: UpgradeFamily[] = [
     id: 'ascension',
     name: 'Ascensão',
     icon: '★',
-    text: 'Todas as criaturas em campo sobem {v} nível(is) de graça',
+    text: 'Todas as criaturas em campo sobem {v} nível(is) de graça, inclusive ★4 e ★5 (★5 só despertas, até 2 por run)',
     kind: 'ascendAll',
     format: 'flat',
     values: { epic: 1, legendary: 2 },

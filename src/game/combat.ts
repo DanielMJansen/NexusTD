@@ -4,7 +4,7 @@ import { onIce } from './ice';
 import { weatherRangeFactor } from './mapEvents';
 import { HERO_PLACEMENT } from '../data/config';
 import { creatureAbility, creatureCooldown, creatureDamage, creatureRange, killHaste } from './creatureStats';
-import { applyHitEffects, isHostile, isTargetable, onEnemyKilled, sourceDamageMultiplier, vulnerability } from './hitEffects';
+import { applyHitEffects, isFallbackTarget, isHostile, isTargetable, onEnemyKilled, sourceDamageMultiplier, vulnerability } from './hitEffects';
 import { terrainAttackFactor, terrainHeroFactor } from './terrain';
 
 const isLure = (enemy: Enemy) => enemy.def.traits.some((t) => t.kind === 'lure');
@@ -189,6 +189,17 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
       target = enemy;
     }
   }
+  // sem inimigo hostil ao alcance, bate nos possuídos
+  if (!target) {
+    for (const enemy of state.enemies) {
+      if (!isFallbackTarget(enemy)) continue;
+      const d = distance(enemy, hero);
+      if (d < best) {
+        best = d;
+        target = enemy;
+      }
+    }
+  }
   if (!target) return;
 
   // Leque: todos dentro do alcance e do ângulo na direção do alvo mais próximo.
@@ -199,7 +210,7 @@ export function updateHero(state: RunState, dt: number, direction: Point): void 
   const victims =
     pattern.kind === 'cone'
       ? state.enemies.filter((e) => {
-          if (!isHostile(e) || distance(e, hero) > range) return false;
+          if (!(isHostile(e) || (e === target && isFallbackTarget(e))) || distance(e, hero) > range) return false;
           const diff = Math.abs(((Math.atan2(e.y - hero.y, e.x - hero.x) - aim + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);
           return diff <= pattern.halfAngle;
         })
@@ -302,8 +313,11 @@ export function updateDamageOverTime(state: RunState, dt: number): void {
 /** Escolhe os alvos no alcance: os mais perto do Nexus (padrão) ou os mais fortes primeiro. */
 function pickTargets(state: RunState, creature: Creature, range: number, count: number): Enemy[] {
   const strongest = creature.def.targeting === 'strongest';
-  return state.enemies
-    .filter((enemy) => isTargetable(enemy) && distance(enemy, creature) <= range)
+  const inRange = (enemy: Enemy) => distance(enemy, creature) <= range;
+  // sem inimigo hostil ao alcance, bate nos possuídos (não fica parado)
+  let pool = state.enemies.filter((enemy) => isTargetable(enemy) && inRange(enemy));
+  if (!pool.length) pool = state.enemies.filter((enemy) => isFallbackTarget(enemy) && inRange(enemy));
+  return pool
     .sort((a, b) =>
       // Fogo-fátuo (isca) sempre primeiro
       Number(isLure(b)) - Number(isLure(a)) ||

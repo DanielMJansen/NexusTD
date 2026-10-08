@@ -1,5 +1,5 @@
 import { syncTwins } from './objectives';
-import { ASCENDED_LEVEL } from '../data/evolution';
+import { MAX_CREATURE_LEVEL } from '../data/evolution';
 import { endWeather } from './mapEvents';
 import { scriptedWave, stageWaveCount } from '../data/stages';
 import { LOOT } from '../data/nexusUpgrades';
@@ -13,7 +13,7 @@ import {
   type Tier,
   type UpgradeFamily,
 } from '../data/upgrades';
-import { promoteCreature } from './economy';
+import { nextLevelAllowed, promoteCreature } from './economy';
 import { random } from './random';
 import { startWave } from './spawning';
 import type { Choice, RunState } from './state';
@@ -72,11 +72,12 @@ export const capRoom = (state: RunState, family: UpgradeFamily, race?: string): 
 const racesBelowCap = (state: RunState, family: UpgradeFamily): string[] => teamRaces(state).filter((race) => capRoom(state, family, race) > 1e-9);
 
 /** A família pode ser oferecida agora? (limite de escolhas, teto e efeitos que não fariam nada) */
-function isAvailable(state: RunState, family: UpgradeFamily): boolean {
+export function isAvailable(state: RunState, family: UpgradeFamily): boolean {
   if (family.maxPicks !== undefined && (state.upgradePicks[family.id] ?? 0) >= family.maxPicks) return false;
   switch (family.kind) {
     case 'ascendAll':
-      return state.creatures.length > 0;
+      // só se alguém em campo ainda puder subir (★5: despertas, até 2 por run)
+      return state.creatures.some((c) => nextLevelAllowed(state, c) && c.level < MAX_CREATURE_LEVEL);
     case 'ward':
       return state.talents.nexusWard <= 0;
     case 'raceDamage':
@@ -220,8 +221,10 @@ export function applyChoice(state: RunState, choice: Choice): void {
       state.creatureLimit += value;
       break;
     case 'ascendAll':
-      // sobe até a forma evoluída; estrelas só pagando ouro
-      for (let i = 0; i < value; i++) for (const creature of state.creatures) promoteCreature(state, creature, undefined, ASCENDED_LEVEL);
+      // sobe N níveis, incluindo as estrelas ★4–★5 (mesma regra da evolução com ouro)
+      for (let i = 0; i < value; i++) {
+        for (const creature of state.creatures) if (nextLevelAllowed(state, creature)) promoteCreature(state, creature);
+      }
       break;
     case 'ward':
       state.talents.nexusWard = 1;

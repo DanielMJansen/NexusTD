@@ -14,8 +14,10 @@ import { chooseHeroUpgrade } from '../src/game/hero';
 import { buyNexusUpgrade, canBuyNexusUpgrade, nexusUpgradeCost } from '../src/game/nexus';
 import { buyExtraSlot, canBuyExtraSlot, extraSlotCost } from '../src/game/shop';
 import type { Choice, RunState } from '../src/game/state';
+import type { StageId } from '../src/data/stages';
 import { noTalentBonuses, talentBonuses, type TalentLevels } from '../src/game/talents';
 import { enterEndless, startRun, updateRun } from '../src/game/update';
+import { entrances } from '../src/game/paths';
 
 const N = Number(process.env.N ?? 30);
 const ENDLESS = process.env.ENDLESS === '1';
@@ -52,11 +54,6 @@ function talents() {
   return talentBonuses(levels);
 }
 
-const SPOTS = Array.from({ length: 16 }, (_, i) => {
-  const a = (i / 16) * Math.PI * 2;
-  const r = i % 2 ? 95 : 62;
-  return { x: Math.cos(a) * r * 1.3, y: Math.sin(a) * r };
-});
 const PREF: Record<string, number> = { damage: 5, attackSpeed: 5, raceDamage: 4, critChance: 4, ascendAll: 6, execute: 6, creatureSlot: 5, range: 3, nexusHeart: 3, nexusMaxHp: 2, heroDamage: 2, pulseCooldown: 2, nexusRegen: 2, evolveDiscount: 3, killGold: 2, gold: 2, ward: 3 };
 
 function best(hand: Choice[]): number {
@@ -72,43 +69,75 @@ function best(hand: Choice[]): number {
   return idx;
 }
 
+/** Pontos a defender: Nexus e Obeliscos gêmeos vivos (Deserto). */
+const anchorsOf = (run: RunState) => [run.nexus, ...run.guards.filter((g) => g.twin && g.hp > 0)];
+
+/** Distância de um ponto à trilha mais próxima (Infinity sem trilhas). */
+function pathDistance(run: RunState, p: { x: number; y: number }): number {
+  let best = Infinity;
+  for (const entrance of entrances(run)) {
+    const path = entrance.path;
+    for (let i = 1; i < path.length; i++) {
+      const a = path[i - 1]!;
+      const b = path[i]!;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy || 1)));
+      best = Math.min(best, Math.hypot(p.x - (a.x + dx * t), p.y - (a.y + dy * t)));
+    }
+  }
+  return best;
+}
+
+/** Lugares candidatos em volta de um ponto (anéis), dos mais perto às trilhas aos mais longe. */
+function spotsAround(run: RunState, anchor: { x: number; y: number }): { x: number; y: number }[] {
+  const spots: { x: number; y: number; score: number }[] = [];
+  for (const r of [55, 85, 115, 145]) {
+    for (let i = 0; i < 24; i++) {
+      const a = (i / 24) * Math.PI * 2;
+      const p = { x: anchor.x + Math.cos(a) * r * 1.2, y: anchor.y + Math.sin(a) * r };
+      const d = pathDistance(run, p);
+      // perto (não em cima) das trilhas e sem se afastar demais do ponto defendido
+      const score = d === Infinity ? r : Math.abs(d - 32) + r * 0.25;
+      spots.push({ ...p, score });
+    }
+  }
+  return spots.sort((a, b) => a.score - b.score);
+}
+
 /**
- * Com dois Obeliscos (Deserto), o herói corre até o inimigo mais perto de qualquer um deles;
- * nas outras fases fica parado no Nexus (como nas calibragens antigas).
+ * Destino do herói (como o clique para mover de um jogador): o inimigo mais perto de qualquer ponto
+ * defendido; sem ameaça, loot por perto; senão, o ponto mais ferido.
  */
-function heroDirection(run: RunState): { x: number; y: number } {
-  const twins = run.guards.filter((g) => g.twin && g.hp > 0);
-  if (!twins.length || run.hero.dead) return { x: 0, y: 0 };
-  const anchors = [run.nexus, ...twins];
+function heroGoal(run: RunState): { x: number; y: number } {
+  const anchors = anchorsOf(run);
+  const hero = run.hero;
   let target: { x: number; y: number } | undefined;
-  let bestD = 260;
+  let bestD = 240;
   for (const e of run.enemies) {
-    if (e.dead || e.allyTimer > 0) continue;
+    if (e.dead || e.allyTimer > 0 || e.submerged || e.hidden) continue;
     const d = Math.min(...anchors.map((a) => Math.hypot(a.x - e.x, a.y - e.y)));
     if (d < bestD) {
       bestD = d;
       target = e;
     }
   }
-  if (!target) {
-    // sem ameaça: volta para o ponto mais ferido
-    target = anchors.reduce((a, b) => ((b.hp ?? 0) / (b.maxHp ?? 1) < (a.hp ?? 0) / (a.maxHp ?? 1) ? b : a));
-  }
-  const dx = target.x - run.hero.x;
-  const dy = target.y - run.hero.y;
-  const len = Math.hypot(dx, dy);
-  return len < 24 ? { x: 0, y: 0 } : { x: dx / len, y: dy / len };
+  if (target) return { x: target.x, y: target.y };
+  const item = run.loot.filter((l) => Math.hypot(l.x - hero.x, l.y - hero.y) < 140).sort((a, b) => Math.hypot(a.x - hero.x, a.y - hero.y) - Math.hypot(b.x - hero.x, b.y - hero.y))[0];
+  if (item) return { x: item.x, y: item.y };
+  const weakest = anchors.reduce((a, b) => (b.hp / b.maxHp < a.hp / a.maxHp ? b : a));
+  return { x: weakest.x, y: weakest.y + 30 };
 }
 
 function act(run: RunState, team: CreatureId[]): void {
   if (run.phase !== 'playing') return;
   for (let tries = 0; tries < 3 && team.length; tries++) {
     const id = team[run.creatures.length % team.length]!;
-    // Deserto: alterna entre o Nexus e os Obeliscos gêmeos
-    const anchors = [run.nexus, ...run.guards.filter((g) => g.twin && g.hp > 0)];
+    // com dois pontos (Deserto), alterna entre eles
+    const anchors = anchorsOf(run);
     const anchor = anchors[run.creatures.length % anchors.length]!;
-    const spot = SPOTS.map((s) => ({ x: anchor.x + s.x, y: anchor.y + s.y })).find((s) => !run.creatures.some((c) => Math.hypot(c.x - s.x, c.y - s.y) < 20));
-    if (spot && canPlaceCreature(run, id, spot)) placeCreature(run, id, spot);
+    const spot = spotsAround(run, anchor).find((s) => !run.creatures.some((c) => Math.hypot(c.x - s.x, c.y - s.y) < 22) && canPlaceCreature(run, id, s));
+    if (spot) placeCreature(run, id, spot);
     else break;
   }
   const evolvable = run.creatures.filter((c) => canEvolve(run, c)).sort((a, b) => a.level - b.level)[0];
@@ -118,10 +147,7 @@ function act(run: RunState, team: CreatureId[]): void {
     const options = NEXUS_UPGRADES.filter((u) => canBuyNexusUpgrade(run, u.id)).sort((a, b) => nexusUpgradeCost(run, a.id)! - nexusUpgradeCost(run, b.id)!);
     if (options[0]) buyNexusUpgrade(run, options[0].id);
   }
-  // herói busca loot por perto e volta para perto do Nexus
-  const hero = run.hero;
-  const item = run.loot.filter((l) => Math.hypot(l.x - hero.x, l.y - hero.y) < 140).sort((a, b) => Math.hypot(a.x - hero.x, a.y - hero.y) - Math.hypot(b.x - hero.x, b.y - hero.y))[0];
-  hero.target = item ? { x: item.x, y: item.y } : { x: 320, y: 214 };
+  if (!run.hero.dead) run.hero.target = heroGoal(run);
 }
 
 function trial(label: string, team: CreatureId[], hero: HeroId): void {
@@ -131,7 +157,7 @@ function trial(label: string, team: CreatureId[], hero: HeroId): void {
   let levels = 0;
   const losses: number[] = [];
   for (let k = 0; k < N; k++) {
-    const run = startRun({ stage: (process.env.STAGE ?? 'graveyard') as 'graveyard' | 'swamp' | 'tundra', talents: talents(), team, hero, heroPalette: {}, synergies: process.env.SYN === '1', awakened: process.env.AWAKE === '1' ? [...team] : process.env.AWAKEN ? (process.env.AWAKEN.split(',') as CreatureId[]) : [] });
+    const run = startRun({ stage: (process.env.STAGE ?? 'graveyard') as StageId, talents: talents(), team, hero, heroPalette: {}, synergies: process.env.SYN === '1', awakened: process.env.AWAKE === '1' ? [...team] : process.env.AWAKEN ? (process.env.AWAKEN.split(',') as CreatureId[]) : [] });
     let t = 0;
     let won = false;
     while (t < 20000) {
@@ -139,7 +165,7 @@ function trial(label: string, team: CreatureId[], hero: HeroId): void {
       while (run.chestChoices.length) chooseChest(run, best(run.chestChoices));
       act(run, team);
       if (run.pulse.remaining === 0 && run.enemies.length > 3) firePulse(run);
-      updateRun(run, 1 / 30, { direction: heroDirection(run) });
+      updateRun(run, 1 / 30, { direction: { x: 0, y: 0 } });
       t += 1 / 30;
       for (const e of run.events.splice(0)) {
         if (e.type === 'choicesOffered') {
