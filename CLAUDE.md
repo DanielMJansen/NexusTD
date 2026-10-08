@@ -11,6 +11,7 @@ Jogo de **navegador para computador** (paisagem 16:9, mouse e teclado): Tower De
 - Em `npm run dev`, o app fica em `window.nexus` no console (ex.: `nexus.run.gold = 999`) para testes.
 - Regressão manual: `docs/checklist-regressao.md`.
 - `npm run docs:values` gera `docs/valores.md` (números atuais lidos de `src/data`); rode após mudar balanceamento.
+- `npm run stop` encerra processos que ficaram rodando do projeto (bot de calibragem, Vite, esbuild, Edge de testes).
 - `npm run calib -- [raça]` roda o bot de calibragem (`scripts/calib.ts`; variáveis STAGE, TAL, N, SYN, ENDLESS, AWAKE/AWAKEN no topo do arquivo).
 
 ## Arquitetura (`src/`)
