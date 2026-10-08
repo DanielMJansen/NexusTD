@@ -1,3 +1,4 @@
+import { GAME_TITLE, GAME_VERSION } from '../data/config';
 import type { Settings } from '../save/settings';
 import { showOverlay } from './overlay';
 import { DEFAULT_BINDINGS, isReservedKey, KEY_ACTIONS, keyLabel, rebind, type KeyAction } from '../input/bindings';
@@ -67,6 +68,8 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
           settings.tutorialDone ? '↺ Rever tutorial na próxima run' : 'Tutorial na próxima run ✓'
         }</button>
       </div>
+      <h3>Sobre</h3>
+      <p class="hint about"><b>${GAME_TITLE}</b> · versão ${GAME_VERSION}<br>Criado por Daniel M. Jansen. Arte desenhada em código e música sintetizada, feitas para o jogo.<br>Fontes: Cinzel, Cinzel Decorative e Crimson Pro (SIL Open Font License).</p>
       <h3>Progresso</h3>
       <p class="hint">Leve seu progresso para outro computador ou navegador.</p>
       <div class="row-buttons">

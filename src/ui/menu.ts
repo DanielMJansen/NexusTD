@@ -3,7 +3,7 @@ import { isFeatureNew, isFeatureUnlocked } from '../game/features';
 import { RELIC_IDS } from '../data/relics';
 import { FIRST_STAGE, stageWaveCount, STAGES } from '../data/stages';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
-import { GAME_TITLE } from '../data/config';
+import { GAME_TITLE, GAME_VERSION } from '../data/config';
 import { CREATURE_IDS, CREATURES } from '../data/creatures';
 import { ENEMIES } from '../data/enemies';
 import { HEROES } from '../data/heroes';
@@ -64,7 +64,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
   const team = `${hero}<div class="hub-crew">${creatures}</div>`;
 
   showOverlay(
-    `<div class="menu-page">
+    `<span class="game-version">v${GAME_VERSION}</span><div class="menu-page">
       <section class="hub-hero">
       <h1>${GAME_TITLE}</h1>
       <p class="subtitle">Um herói. Um exército de monstros.</p>

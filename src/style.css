@@ -4202,3 +4202,13 @@ b.awakened {
 .asc-text {
   margin: 4px 0 0;
 }
+
+/* versão no canto do menu */
+.game-version {
+  position: fixed;
+  right: 14px;
+  bottom: 10px;
+  color: var(--muted);
+  font: 600 11px var(--font-label);
+  opacity: 0.6;
+}

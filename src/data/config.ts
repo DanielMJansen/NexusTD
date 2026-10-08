@@ -1,6 +1,8 @@
 // Regras gerais e números soltos. Valores de referência: GDD seção 9.
 
 export const GAME_TITLE = 'NEXUS TD';
+/** Versão mostrada no menu e em Configurações → Sobre (1.0 = lançamento). */
+export const GAME_VERSION = '0.9.0';
 
 /** Mundo do jogo em unidades lógicas (16:9); o canvas escala para a tela. */
 export const ARENA = {
