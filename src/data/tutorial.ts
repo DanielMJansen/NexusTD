@@ -1,5 +1,6 @@
 // Passos do tutorial da primeira run (modelo do Myth TD).
 // "read": pausa o jogo e avança com "Próximo". Os outros avançam quando o jogador faz a ação.
+// {move}, {pulse}, {evolve}, {sell}: trocados pela tecla configurada (Configurações → Controles).
 
 export type TutorialAdvance = 'read' | 'heroMoved' | 'creaturePlaced' | 'pulse' | 'inspect';
 
@@ -14,13 +15,13 @@ export interface TutorialStep {
 export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     title: 'Proteja o Nexus',
-    text: 'O cristal no centro é o Nexus. Hordas vêm de todos os lados; se a vida dele zerar, a run acaba.',
+    text: 'O cristal no centro é o Nexus. Os inimigos chegam pelas trilhas até ele; se a vida dele zerar, a run acaba.',
     advance: 'read',
     highlight: '.chip.nexus',
   },
   {
     title: 'Seu herói',
-    text: 'Mova o herói com WASD/setas ou clicando no chão. Ele ataca sozinho os inimigos por perto.',
+    text: 'Mova o herói com {move}/setas ou clicando no chão. Ele ataca sozinho os inimigos por perto.',
     advance: 'heroMoved',
   },
   {
@@ -37,13 +38,13 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: 'Pulso',
-    text: 'Aperte Espaço para usar a habilidade do herói. Ela recarrega sozinha.',
+    text: 'Aperte {pulse} para usar o Pulso, a habilidade do herói. Ele recarrega sozinho; segurando a tecla, solta assim que estiver pronto.',
     advance: 'pulse',
     highlight: '#pulse-button',
   },
   {
     title: 'Evoluir e vender',
-    text: 'Clique numa criatura em campo para ver os atributos, evoluir (botão verde quando há ouro) ou vender.',
+    text: 'Clique numa criatura em campo para ver os atributos, evoluir (botão verde quando há ouro, ou {evolve}) ou vender ({sell} duas vezes).',
     advance: 'inspect',
   },
   {

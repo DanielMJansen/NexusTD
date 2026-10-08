@@ -1,4 +1,13 @@
 import { TUTORIAL_STEPS, type TutorialAdvance } from '../data/tutorial';
+import { boundKeyLabel } from '../input/bindings';
+
+/** Troca {move}, {pulse}, {evolve} e {sell} pelas teclas configuradas. */
+const withKeys = (text: string): string =>
+  text
+    .replace('{move}', ['up', 'left', 'down', 'right'].map((a) => boundKeyLabel(a as 'up')).join(''))
+    .replace('{pulse}', boundKeyLabel('pulse'))
+    .replace('{evolve}', boundKeyLabel('evolve'))
+    .replace('{sell}', boundKeyLabel('sell'));
 import type { GameEvent } from '../game/events';
 import type { Point } from '../game/state';
 
@@ -112,7 +121,7 @@ export class Tutorial {
       <div class="tutorial-head"><span>Tutorial ${this.step + 1}/${TUTORIAL_STEPS.length}</span>
         <button class="tutorial-skip" data-tutorial="skip">Pular tutorial</button></div>
       <h4>${step.title}</h4>
-      <p>${step.text}</p>
+      <p>${withKeys(step.text)}</p>
       <div class="tutorial-foot">${action}</div>`;
     this.box.hidden = false;
   }
