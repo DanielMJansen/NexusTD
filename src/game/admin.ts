@@ -13,7 +13,7 @@ import { TALENT_IDS, talentMaxLevel } from '../data/talents';
 import { grantGift, type Profile } from './profile';
 
 /** SHA-256 do código de administrador (o código em si não fica no jogo). */
-export const ADMIN_HASH = '19d2dcb11870148b5f9da34e1f778c07bad899cdeb7906c991e10e1cd70c34c4';
+export const ADMIN_HASH = '225209c531ee64f38869f314cf677d4557e43e9fc613b691dac5d49537966713';
 
 const clampInt = (value: number, min: number, max = Number.MAX_SAFE_INTEGER): number =>
   Math.max(min, Math.min(max, Math.floor(Number.isFinite(value) ? value : 0)));
