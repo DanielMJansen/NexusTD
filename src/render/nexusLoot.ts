@@ -1,6 +1,6 @@
 // Desenho das melhorias do Nexus (campo, escudo, raio) e do loot no chão.
 
-import { nexusLevel } from '../game/nexus';
+import { anyNexusUpgradeAffordable, nexusLevel } from '../game/nexus';
 import type { LootItem, RunState } from '../game/state';
 
 const TAU = Math.PI * 2;
@@ -80,6 +80,34 @@ export function drawNexusOverlay(ctx: CanvasRenderingContext2D, state: RunState,
     ctx.fill();
     ctx.restore();
   }
+  // seta só até a 1ª compra da run (ensina o caminho); depois o aviso fica no botão do HUD
+  const bought = Object.values(state.nexusLevels).some((level) => level > 0);
+  if (!bought && anyNexusUpgradeAffordable(state)) drawUpgradeArrow(ctx, x + 24, y - 36 + Math.sin(time * 4) * 2.5, time);
+}
+
+/** Seta dourada ao lado do Nexus: há ouro para uma melhoria (clique no Nexus ou tecla N). */
+function drawUpgradeArrow(ctx: CanvasRenderingContext2D, x: number, y: number, time: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.globalAlpha = 0.8 + Math.sin(time * 6) * 0.2;
+  ctx.fillStyle = '#ffd25a';
+  ctx.strokeStyle = '#6a4a1a';
+  ctx.lineWidth = 1.2;
+  ctx.shadowColor = '#ffd25a';
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.moveTo(0, -7);
+  ctx.lineTo(6, 0);
+  ctx.lineTo(2.2, 0);
+  ctx.lineTo(2.2, 6);
+  ctx.lineTo(-2.2, 6);
+  ctx.lineTo(-2.2, 0);
+  ctx.lineTo(-6, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.stroke();
+  ctx.restore();
 }
 
 /** Moedas giram e baús balançam; piscam nos últimos 3 s antes de sumir. */

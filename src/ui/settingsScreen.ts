@@ -35,18 +35,14 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
   const root = showOverlay(
     `<div class="panel settings">
       <h2>Configurações</h2>
+      <div class="settings-columns">
+      <section>
       <h3>Som</h3>
       ${slider('musicVolume', 'Música')}
       ${slider('sfxVolume', 'Efeitos')}
       ${toggle('muted', 'Silenciar tudo')}
       <h3>Jogo</h3>
       ${toggle('damageNumbers', 'Mostrar números de dano')}
-      <h3>Controles</h3>
-      <p class="hint">Clique numa ação e aperte a nova tecla (Esc cancela). Se a tecla já for de outra ação, as duas trocam. As setas sempre movem o herói; 1–8 invocam as criaturas.</p>
-      <div class="keys-grid">${KEY_ACTIONS.map(
-        ({ action, label }) => `<span>${label}</span><button class="key-button" data-action="rebind" data-value="${action}">${keyLabel(settings.keys[action])}</button>`,
-      ).join('')}</div>
-      <div class="row-buttons"><button data-action="resetKeys">↺ Restaurar teclas padrão</button></div>
       <h3>Desempenho</h3>
       <div class="quality-row">
         <span>Qualidade gráfica</span>
@@ -68,8 +64,16 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
           settings.tutorialDone ? '↺ Rever tutorial na próxima run' : 'Tutorial na próxima run ✓'
         }</button>
       </div>
-      <h3>Sobre</h3>
-      <p class="hint about"><b>${GAME_TITLE}</b> · versão ${GAME_VERSION}<br>Criado por Daniel M. Jansen. Arte desenhada em código e música sintetizada, feitas para o jogo.<br>Fontes: Cinzel, Cinzel Decorative e Crimson Pro (SIL Open Font License).</p>
+      </section>
+      <section>
+      <h3>Controles</h3>
+      <p class="hint">Clique numa ação e aperte a nova tecla (Esc cancela). Se a tecla já for de outra ação, as duas trocam. As setas sempre movem o herói; 1–8 invocam as criaturas.</p>
+      <div class="keys-grid">${KEY_ACTIONS.map(
+        ({ action, label }) => `<span>${label}</span><button class="key-button" data-action="rebind" data-value="${action}">${keyLabel(settings.keys[action])}</button>`,
+      ).join('')}</div>
+      <div class="row-buttons"><button data-action="resetKeys">↺ Restaurar teclas padrão</button></div>
+      </section>
+      <section>
       <h3>Progresso</h3>
       <p class="hint">Leve seu progresso para outro computador ou navegador.</p>
       <div class="row-buttons">
@@ -83,6 +87,10 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
       <p class="hint" id="gift-result"></p>
       <div class="row-buttons">
         <button class="danger" data-action="reset">✖ Apagar todo o progresso</button>
+      </div>
+      <h3>Sobre</h3>
+      <p class="hint about"><b>${GAME_TITLE}</b> · versão ${GAME_VERSION}<br>Criado por Daniel M. Jansen. Arte desenhada em código e música sintetizada, feitas para o jogo.<br>Fontes: Cinzel, Cinzel Decorative e Crimson Pro (SIL Open Font License).</p>
+      </section>
       </div>
       <button class="play-button" data-action="back">Voltar</button>
     </div>`,

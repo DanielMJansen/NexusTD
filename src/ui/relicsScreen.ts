@@ -9,7 +9,7 @@ const SLOT_HINTS = ['Liberada ao vencer a Tundra', 'Vença o Deserto Dourado', `
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
 /** Relíquias: vagas no topo e a coleção abaixo (clique para equipar ou tirar). */
-export function showRelics(profile: Profile, onChange: () => void, onBack: () => void): void {
+export function showRelics(profile: Profile, onChange: () => void, onBack: () => void, onHelp: () => void): void {
   const slots = relicSlots(profile);
   const active = activeRelics(profile);
   const bosses = STAGE_IDS.flatMap((s) => STAGES[s].bosses.map((b) => b.enemy));
@@ -44,7 +44,7 @@ export function showRelics(profile: Profile, onChange: () => void, onBack: () =>
       <div class="screen-head">
         <button data-action="back">← Voltar</button>
         <h2>Relíquias</h2>
-        <span class="muted">${profile.relics.length}/${RELIC_IDS.length}</span>
+        <span class="muted">${profile.relics.length}/${RELIC_IDS.length} <button data-action="help" title="Rever o tutorial">❔ Como funciona</button></span>
       </div>
       <p class="subtitle">Tesouros dos chefes. Equipe antes da run: valem a run inteira.</p>
       <div class="relic-slots">${slotHtml}</div>
@@ -53,9 +53,10 @@ export function showRelics(profile: Profile, onChange: () => void, onBack: () =>
     </div>`,
     {
       back: () => onBack(),
+      help: () => onHelp(),
       toggle: (id) => {
         if (toggleRelic(profile, id as RelicId)) onChange();
-        showRelics(profile, onChange, onBack);
+        showRelics(profile, onChange, onBack, onHelp);
       },
     },
   );

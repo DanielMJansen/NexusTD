@@ -1,0 +1,3 @@
+// Premissa do mundo (aprovada em 12/10/2026). Ainda sem tela própria: candidata à tela inicial ou ao Códex.
+export const WORLD_PREMISE =
+  'Os Nexus são cristais antigos que costuram o mundo dos vivos ao dos mortos. Enquanto brilham, o véu entre os dois se mantém fechado. Algo do outro lado começou a caçá-los, e suas hordas vêm de todos os cantos: do Cemitério, do Pântano, da Tundra, do Deserto e até da Cidadela no céu. Para enfrentá-las, humanos, vampiros, dragões, fadas, demônios e anjos, raças que passaram séculos em guerra entre si, juraram uma trégua e lutam agora lado a lado ao redor do último brilho. Se o último Nexus cair, não sobra mundo para nenhuma delas.';

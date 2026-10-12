@@ -34,6 +34,16 @@ A 1.0 é o jogo completo para jogar sozinho: 5 fases, coleção, meta-progressã
 5. **Portão de decisão:** com o retorno do playtest, escolher entre (a) **publicar leve** — PUB-A (segurança e hospedagem) + página grátis no itch.io e/ou CrazyGames, save local, sem servidor; (b) investir no caminho completo (contas, rankings, Steam: PUB-B a PUB-G); ou (c) encerrar aqui e partir para um projeto novo.
 - **Fora da 1.0 (conteúdo pós-lançamento):** raças novas, Desafio diário, Corrida de Chefes e mutadores, arte e música finais.
 
+## 2.6. Ajustes do teste de 11/10/2026 (antes da calibragem e do polimento)
+1. `[x]` **Configurações sem rolagem**: três colunas lado a lado (Som/Jogo/Desempenho · Controles · Progresso/Sobre).
+2. `[x]` **Tutorial das Relíquias**: o quadro só aparecia na 1ª visita; agora a tela tem o botão "❔ Como funciona".
+3. `[x]` **Evolução do Nexus mais clara na run**: o botão "◆ Melhorar" brilha em dourado com ⬆ quando alguma melhoria cabe no ouro; seta ⬆ ao lado do Nexus na arena até a 1ª compra da run; mãozinha e dica ao passar o mouse no Nexus; passo "Melhore o Nexus" no tutorial guiado.
+4. `[x]` **Tela de heróis no estilo Soulstone Survivors**: retratos em grade à esquerda; à direita o herói grande, vida e velocidade, história (`lore` em `src/data/heroes.ts`, aprovadas em 12/10/2026), Ataque, Pulso, Bônus de raça, skins e Escolher/Desbloquear. Premissa do mundo aprovada em `src/data/lore.ts` (ainda sem tela: candidata à tela inicial ou ao Códex).
+5. `[ ]` **Relíquias equilibradas** (Ankh e Filactério fortes demais): Relíquias passam a ter níveis 1–3; o nível 1 fica mais fraco que hoje e o nível 3 perto do valor atual. Números pelo bot (ganho de vitória de cada Relíquia numa faixa parecida).
+6. `[ ]` **Relíquias raras** (aprovado em 12/10/2026): sem drop garantido no 1º abate; cada abate de chefe tem chance de deixar um **baú de Relíquia** (~3–6% nos chefes do Cemitério até ~15–25% no chefe final da Cidadela; Sem Fim conta), com garantia de uma Relíquia depois de N chefes sem nenhuma. O baú sorteia qualquer Relíquia; repetida → **subir de nível** (até 3) ou **converter em 150 ✦**.
+7. `[ ]` **Nexus com personalidade** (decidido em 12/10/2026): **só visual**. Cada modelo tem o próprio visual de ataque (no lugar do mesmo raio para todos), mas dano, vida e demais números continuam iguais, para não mexer no balanceamento. A skin continua só visual.
+8. `[ ]` **Variantes únicas por criatura** (decidido em 12/10/2026): **Rara** muda cor, brilho e efeitos; **Épica e Lendária** também mudam a forma (acessórios, armas, asas…). Cada forma e cada paleta é aprovada uma a uma.
+
 ## 3. Próximas etapas
 
 ### F11. Organização `[x]`

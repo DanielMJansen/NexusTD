@@ -1,13 +1,14 @@
 import { TUTORIAL_STEPS, type TutorialAdvance } from '../data/tutorial';
 import { boundKeyLabel } from '../input/bindings';
 
-/** Troca {move}, {pulse}, {evolve} e {sell} pelas teclas configuradas. */
+/** Troca {move}, {pulse}, {evolve}, {sell} e {nexus} pelas teclas configuradas. */
 const withKeys = (text: string): string =>
   text
     .replace('{move}', ['up', 'left', 'down', 'right'].map((a) => boundKeyLabel(a as 'up')).join(''))
     .replace('{pulse}', boundKeyLabel('pulse'))
     .replace('{evolve}', boundKeyLabel('evolve'))
-    .replace('{sell}', boundKeyLabel('sell'));
+    .replace('{sell}', boundKeyLabel('sell'))
+    .replace('{nexus}', boundKeyLabel('nexus'));
 import type { GameEvent } from '../game/events';
 import type { Point } from '../game/state';
 

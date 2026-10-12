@@ -1,4 +1,4 @@
-import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
+import { currentTab, setTab } from './tabs';
 import { ALL_HERO_IDS, HEROES, type HeroId } from '../data/heroes';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { skinsOf } from '../data/skins';
@@ -29,10 +29,10 @@ function skinRow(profile: Profile, hero: HeroId, owned: boolean): string {
     .join('');
 }
 
-/** Rodapé do card: escolhido, escolher ou o botão de desbloquear (que pede confirmação). */
+/** Rodapé da ficha: escolhido, escolher ou o botão de desbloquear (que pede confirmação). */
 function footerHtml(profile: Profile, id: HeroId): string {
   if (profile.selectedHero === id) return '<span class="cc-tag">✓ Herói escolhido</span>';
-  if (ownsHero(profile, id)) return `<button data-action="select" data-value="${id}">Escolher</button>`;
+  if (ownsHero(profile, id)) return `<button class="play-button" data-action="select" data-value="${id}">Escolher</button>`;
   const cost = HEROES[id].cost ?? 0;
   return `<button data-action="ask" data-value="${id}"${profile.essence >= cost ? '' : ' disabled'}>Desbloquear ${essence(cost)}</button>`;
 }
@@ -44,51 +44,61 @@ export interface HeroScreenOptions {
   keepScroll?: boolean;
 }
 
-/** Heróis jogáveis: um por raça; desbloqueio com Essência e escolha do herói da run. */
+/**
+ * Heróis jogáveis, um por raça (modelo Soulstone Survivors): retratos à esquerda; à direita o herói
+ * grande, a história, ataque, Pulso, bônus de raça, atributos, skins e escolher/desbloquear.
+ */
 export function showHeroes(profile: Profile, handlers: HeroHandlers, options: HeroScreenOptions = {}): void {
-  // lista de heróis (abas) e a ficha do escolhido
-  const tabs: Tab[] = ALL_HERO_IDS.filter((id) => !HEROES[id].gift || ownsHero(profile, id)).map((id) => ({
-    id,
-    label: `${ownsHero(profile, id) ? '' : '🔒 '}${HEROES[id].name}`,
-    sprite: id,
-    skin: heroSkin(profile, id).id,
-    silhouette: !ownsHero(profile, id),
-    badge: profile.selectedHero === id ? '✓' : undefined,
-    color: HEROES[id].color,
-  }));
+  const ids = ALL_HERO_IDS.filter((id) => !HEROES[id].gift || ownsHero(profile, id));
   if (options.justUnlocked) setTab('heroes', options.justUnlocked);
   if (!options.keepScroll && !options.justUnlocked) setTab('heroes', profile.selectedHero);
-  const shown = currentTab('heroes', tabs) as HeroId;
-  const cards = [shown].map((id) => {
-    const def = HEROES[id];
-    const owned = ownsHero(profile, id);
-    const selected = profile.selectedHero === id;
-    const footer = footerHtml(profile, id);
-    return `<div class="creature-card hero-card${owned ? '' : ' locked'}${selected ? ' selected' : ''}${options.justUnlocked === id ? ' just-unlocked' : ''}" data-card="${id}" style="--card-color:${def.color}">
-      <div class="cc-portraits"><canvas data-sprite="${id}" data-skin="${heroSkin(profile, id).id}"${owned ? '' : ' data-silhouette'}></canvas></div>
-      <div class="cc-body">
-        <div class="cc-head"><b>${def.name}</b><span>${def.race}</span></div>
-        <p class="cc-desc">${def.description}</p>
-        <p class="cc-ability"><b>Ataque:</b> ${attackText(def)}</p>
-        <p class="cc-ability"><b>Pulso</b> — ${pulseText(def)}</p>
-        <p class="cc-ability evolved"><b>Bônus de raça</b> — ${raceBonusText(def.race, def.raceBonus)}</p>
-        <div class="skin-row">${skinRow(profile, id, owned)}</div>
-        <div class="cc-footer">${footer}</div>
+  const shown = currentTab('heroes', ids.map((id) => ({ id, label: HEROES[id].name }))) as HeroId;
+
+  const roster = ids
+    .map((id) => {
+      const owned = ownsHero(profile, id);
+      const classes = ['hero-pick', id === shown ? 'active' : '', owned ? '' : 'locked', profile.selectedHero === id ? 'chosen' : ''].filter(Boolean).join(' ');
+      return `<button class="${classes}" data-action="tab" data-value="${id}" style="--card-color:${HEROES[id].color}" title="${HEROES[id].name} · ${HEROES[id].race}">
+        <canvas data-sprite="${id}" data-skin="${heroSkin(profile, id).id}"${owned ? '' : ' data-silhouette'}></canvas>
+        <span>${owned ? '' : '🔒 '}${HEROES[id].name}</span>
+        ${profile.selectedHero === id ? '<small class="hero-pick-badge">✓</small>' : ''}
+      </button>`;
+    })
+    .join('');
+
+  const def = HEROES[shown];
+  const owned = ownsHero(profile, shown);
+  const showcase = `<section class="hero-showcase${owned ? '' : ' locked'}${options.justUnlocked === shown ? ' just-unlocked' : ''}" data-card="${shown}" style="--card-color:${def.color}">
+      <div class="hero-stage">
+        <canvas data-sprite="${shown}" data-skin="${heroSkin(profile, shown).id}"${owned ? '' : ' data-silhouette'}></canvas>
+        <div class="hero-stats"><span title="Vida máxima">♥ ${def.maxHp} de vida</span><span title="Velocidade de movimento">➹ ${def.speed} de velocidade</span></div>
       </div>
-    </div>`;
-  }).join('');
+      <div class="hero-info">
+        <div class="hero-title"><h3>${def.name}</h3><span>${def.race}</span></div>
+        <p class="hero-tagline">${def.description}</p>
+        <p class="hero-lore">${def.lore}</p>
+        <div class="hero-kit">
+          <div><b>Ataque</b><p>${attackText(def)}</p></div>
+          <div><b>Pulso</b><p>${pulseText(def)}</p></div>
+          <div class="race-bonus"><b>Bônus de raça</b><p>${raceBonusText(def.race, def.raceBonus)}</p></div>
+        </div>
+        <div class="skin-row">${skinRow(profile, shown, owned)}</div>
+        <div class="cc-footer">${footerHtml(profile, shown)}</div>
+      </div>
+    </section>`;
 
   const footer = (id: string) => element.querySelector<HTMLElement>(`[data-card="${id}"] .cc-footer`);
   const element = showOverlay(
-    `<div class="panel screen">
+    `<div class="panel screen heroes-screen">
       <div class="screen-head">
         <button data-action="back">← Voltar</button>
         <h2>Heróis</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>
-      <p class="subtitle">O herói luta ao lado do exército e fortalece as criaturas da sua raça.</p>
-      ${tabsHtml(tabs, shown)}
-      <div class="hero-detail">${cards}</div>
+      <div class="heroes-layout">
+        <nav class="hero-roster">${roster}</nav>
+        ${showcase}
+      </div>
     </div>`,
     {
       ask: (id) => {

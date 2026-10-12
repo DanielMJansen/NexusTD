@@ -1,6 +1,6 @@
 // Passos do tutorial da primeira run (modelo do Myth TD).
 // "read": pausa o jogo e avança com "Próximo". Os outros avançam quando o jogador faz a ação.
-// {move}, {pulse}, {evolve}, {sell}: trocados pela tecla configurada (Configurações → Controles).
+// {move}, {pulse}, {evolve}, {sell}, {nexus}: trocados pela tecla configurada (Configurações → Controles).
 
 export type TutorialAdvance = 'read' | 'heroMoved' | 'creaturePlaced' | 'pulse' | 'inspect';
 
@@ -46,6 +46,12 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     title: 'Evoluir e vender',
     text: 'Clique numa criatura em campo para ver os atributos, evoluir (botão verde quando há ouro, ou {evolve}) ou vender ({sell} duas vezes).',
     advance: 'inspect',
+  },
+  {
+    title: 'Melhore o Nexus',
+    text: 'O Nexus também fica mais forte com ouro: vida, muralha, raio, escudo e campo de lentidão. Clique nele ou aperte {nexus}. Quando der para comprar, o botão ◆ Melhorar brilha e uma seta ⬆ aparece ao lado do Nexus.',
+    advance: 'read',
+    highlight: '#nexus-button',
   },
   {
     title: 'Entre as ondas',

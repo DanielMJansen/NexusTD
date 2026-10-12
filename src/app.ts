@@ -616,14 +616,7 @@ export class App {
       },
       onSanctuary: () => this.openFeature('sanctuary', () => this.openSanctuary()),
       onAltar: () => this.openFeature('altar', () => this.openAltar()),
-      onRelics: () =>
-        this.openFeature('relics', () =>
-          showRelics(
-            this.profile,
-            () => saveProfile(this.profile),
-            () => this.openMenu(),
-          ),
-        ),
+      onRelics: () => this.openFeature('relics', () => this.openRelics()),
       onSettings: () => this.openSettings(),
     });
   }
@@ -639,8 +632,22 @@ export class App {
       return;
     }
     saveProfile(this.profile);
+    this.showFeatureIntro(id, 'Liberado!', open);
+  }
+
+  /** Quadro "o que é" de uma tela (1ª visita ou botão "Como funciona"). */
+  private showFeatureIntro(id: FeatureId, kicker: string, onClose: () => void): void {
     const def = FEATURES[id];
-    showIntro({ kicker: 'Liberado!', title: def.name, subtitle: def.intro.subtitle, color: def.intro.color, tips: def.intro.tips, demo: id }, open, `▶ Abrir ${def.name}`);
+    showIntro({ kicker, title: def.name, subtitle: def.intro.subtitle, color: def.intro.color, tips: def.intro.tips, demo: id }, onClose, `▶ Abrir ${def.name}`);
+  }
+
+  private openRelics(): void {
+    showRelics(
+      this.profile,
+      () => saveProfile(this.profile),
+      () => this.openMenu(),
+      () => this.showFeatureIntro('relics', 'Como funciona', () => this.openRelics()),
+    );
   }
 
   private openTalents(): void {

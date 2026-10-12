@@ -87,6 +87,8 @@ export interface HeroDef {
   name: string;
   race: string;
   description: string;
+  /** História do herói (ficha na tela de heróis). */
+  lore: string;
   speed: number;
   attack: HeroAttack;
   pulse: HeroPulse;
@@ -108,6 +110,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Cavaleiro',
     race: 'Humano',
     description: 'Guardião versátil: espada rápida e uma onda de choque que afasta o perigo do Nexus.',
+    lore: 'Último da Ordem da Vigília, cavaleiros juramentados a guardar o Nexus da capital. A ordem caiu numa única noite e só ele saiu de pé, com a espada partida e o juramento inteiro. Não tem asas, garras nem magia: tem disciplina e a teimosia de quem já perdeu tudo uma vez e não pretende perder de novo.',
     speed: 115,
     attack: { damage: 10, range: 60, cooldown: 0.5, pattern: { kind: 'single' }, healPerHit: 0 },
     pulse: { name: 'Carga Heroica', damage: 40, radius: 0, cooldown: 11, healPerEnemy: 0, effect: { kind: 'charge', length: 150, width: 30, knockback: 60 } },
@@ -121,6 +124,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Nobre Vampiro',
     race: 'Vampiro',
     description: 'Duelista elegante que rouba vida a cada golpe e se cura com os abates dos vampiros.',
+    lore: 'Viveu quatro séculos entre bailes e intrigas, alimentando-se da nobreza que o temia. Quando os Nexus começaram a cair, entendeu antes de todos que um mundo sem vivos é um mundo sem banquete. Luta com elegância e sem pressa, e cada inimigo que cai o deixa um pouco mais jovem.',
     speed: 125,
     attack: { damage: 8, range: 55, cooldown: 0.45, pattern: { kind: 'single' }, healPerHit: 0.5 },
     pulse: { name: 'Revoada de Morcegos', damage: 30, radius: 0, cooldown: 12, healPerEnemy: 4, effect: { kind: 'swarm', count: 6, range: 150, bleed: { dps: 6, duration: 3 } } },
@@ -134,6 +138,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Draconato',
     race: 'Dragão',
     description: 'Meio-dragão lento e resistente: cospe fogo em leque e ruge chamas ao redor.',
+    lore: 'O último ovo de uma ninhada que os caçadores de dragões não chegaram a encontrar. Chocou sozinho, nas cinzas do ninho onde a mãe morreu, e cresceu sem ninguém para lhe ensinar o que era. Aprendeu a voar caindo e a cuspir fogo queimando a própria garganta. Hoje carrega o sangue de uma raça quase extinta e não pretende ser o último dela: se os Nexus caírem, não haverá mundo onde os dragões possam renascer.',
     speed: 105,
     attack: { damage: 8, range: 55, cooldown: 0.65, pattern: { kind: 'cone', halfAngle: 0.6 }, healPerHit: 0 },
     pulse: { name: 'Lança-Chamas', damage: 45, radius: 0, cooldown: 13, healPerEnemy: 0, effect: { kind: 'flame', length: 110, halfAngle: 0.35, duration: 2.5, burn: { dps: 6, duration: 2 } } },
@@ -147,6 +152,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Licantropo',
     race: 'Lobisomem',
     description: 'Fera de garras rápidas. O uivo dele espanta as hordas para longe do Nexus.',
+    lore: 'Era caçador de lobisomens até ser mordido pela fera que perseguia havia dez anos. Hoje lidera a matilha que um dia caçou e aprendeu a ouvir a lua em vez de temê-la. Ainda carrega as marcas das duas vidas: o faro da fera e a paciência do caçador.',
     speed: 135,
     attack: { damage: 6, range: 48, cooldown: 0.3, pattern: { kind: 'single' }, healPerHit: 0 },
     pulse: { name: 'Fúria Lunar', damage: 15, radius: 90, cooldown: 16, healPerEnemy: 0, fear: 1.5, effect: { kind: 'transform', duration: 6, attackSpeed: 1, damage: 0.5, lifesteal: 0.15, scale: 1.45 } },
@@ -160,6 +166,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Espectro',
     race: 'Fantasma',
     description: 'Atravessa paredes e armaduras. O Pulso é uma investida que cruza o campo ferindo tudo no caminho.',
+    lore: 'Morreu defendendo um Nexus e se recusou a atravessar o véu enquanto o cristal não estivesse seguro. Não sente frio, não sente dor e não lembra o próprio nome, só o dever. As armaduras não o detêm porque ele não precisa delas: passa através de tudo, inclusive dos inimigos.',
     speed: 120,
     attack: { damage: 11, range: 75, cooldown: 0.5, pattern: { kind: 'single' }, healPerHit: 0, pierceArmor: true },
     pulse: { name: 'Travessia', damage: 45, radius: 0, cooldown: 10, healPerEnemy: 0, fear: 1.5, effect: { kind: 'glide', length: 200, width: 26, duration: 0.6 } },
@@ -173,6 +180,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Bruxa',
     race: 'Bruxa',
     description: 'Ataca de longe com orbes e lança uma maldição que envenena todos ao redor.',
+    lore: 'Viveu reclusa no fundo do Pântano, colecionando venenos, segredos e inimizades. Foi a primeira a perceber que os Nexus estavam se apagando, porque as poções dela pararam de funcionar. Não luta por heroísmo: luta porque sem magia no mundo ela é só uma velha com um caldeirão.',
     speed: 115,
     attack: { damage: 8, range: 110, cooldown: 0.7, pattern: { kind: 'single' }, healPerHit: 0 },
     pulse: { name: 'Feitiço do Sapo', damage: 15, radius: 90, cooldown: 16, healPerEnemy: 0, effect: { kind: 'hex', duration: 4, vulnerable: 0.5 } },
@@ -186,6 +194,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Rainha Fada',
     race: 'Fada',
     description: 'Frágil, mas rápida. A Bênção Feérica faz todas as criaturas atacarem muito mais rápido por alguns segundos.',
+    lore: 'Governa um reino escondido entre o orvalho e a luz da manhã, invisível para quem não acredita. Os Nexus alimentam as flores do reino dela, e as flores estão murchando. Frágil como uma asa, mas uma palavra dela faz um exército inteiro lutar com o dobro da pressa.',
     speed: 130,
     attack: { damage: 7, range: 95, cooldown: 0.45, pattern: { kind: 'single' }, healPerHit: 0 },
     pulse: { name: 'Bênção Feérica', damage: 15, radius: 90, cooldown: 14, healPerEnemy: 0, effect: { kind: 'haste', amount: 0.5, duration: 5 } },
@@ -199,6 +208,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Colosso',
     race: 'Golem',
     description: 'Lento e muito resistente. Esmaga tudo à frente e o Terremoto atordoa os inimigos ao redor.',
+    lore: 'Foi esculpido há milênios para proteger o primeiro Nexus e dormiu de pé ao lado dele até o dia em que o cristal tremeu. Fala pouco, anda devagar e não esquece nada. Cada pedra do corpo dele é uma promessa antiga, e nenhuma ainda foi quebrada.',
     speed: 85,
     attack: { damage: 12, range: 55, cooldown: 0.9, pattern: { kind: 'cone', halfAngle: 1 }, healPerHit: 0 },
     pulse: { name: 'Fenda Sísmica', damage: 30, radius: 0, cooldown: 13, healPerEnemy: 0, stun: { duration: 1.5, look: 'stun' }, effect: { kind: 'fissure', length: 170, width: 26, duration: 3, slow: 0.5 } },
@@ -212,6 +222,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Senhor dos Mortos',
     race: 'Necromante',
     description: 'Corta em leque com a foice. O Pulso ergue esqueletos que lutam do seu lado.',
+    lore: 'Foi enterrado vivo por ordem de um rei que temia o que ele sabia. Passou sete dias no escuro da cripta, ouvindo os mortos ao redor, até que um deles respondeu. Saiu de lá com a foice do coveiro e um exército que nenhum rei poderia comprar. Conhece o outro lado do véu melhor do que qualquer vivo e sabe que o que está do lado de lá não quer servos. Quer só um mundo vazio.',
     speed: 110,
     attack: { damage: 9, range: 55, cooldown: 0.6, pattern: { kind: 'cone', halfAngle: 0.7 }, healPerHit: 0 },
     pulse: { name: 'Erguer Mortos', damage: 10, radius: 80, cooldown: 14, healPerEnemy: 0, effect: { kind: 'raise', count: 5, fallback: 2, duration: 8 } },
@@ -225,6 +236,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Rainha Górgona',
     race: 'Górgona',
     description: 'Ataca de média distância com a lança-serpente. O Olhar Fatal petrifica tudo num leque à frente.',
+    lore: 'Rainha de um povo exilado em ruínas de mármore, cercada pelas estátuas de quem um dia tentou caçá-la. Os humanos a chamam de monstro, mas foi ela quem guardou o Nexus do Deserto por séculos, sozinha. Agora aceita aliados pela primeira vez e não olha diretamente para nenhum deles, por cortesia.',
     speed: 115,
     attack: { damage: 9, range: 85, cooldown: 0.55, pattern: { kind: 'single' }, healPerHit: 0 },
     pulse: { name: 'Olhar Fatal', damage: 20, radius: 0, cooldown: 13, healPerEnemy: 0, stun: { duration: 2.2, look: 'stone' }, effect: { kind: 'cone', length: 140, halfAngle: 0.5 } },
@@ -238,6 +250,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Arquidemônio',
     race: 'Demônio',
     description: 'Lança chamas em leque. O Pacto custa parte da vida do herói, mas causa uma explosão enorme.',
+    lore: 'Um senhor do abismo que fez um pacto com o próprio Nexus: poder em troca de proteção. Ninguém sabe ao certo quem saiu ganhando, nem mesmo ele. Paga em vida própria por cada explosão e sorri enquanto paga, porque, para um demônio, todo preço vale um bom espetáculo.',
     speed: 120,
     attack: { damage: 9, range: 60, cooldown: 0.55, pattern: { kind: 'cone', halfAngle: 0.5 }, healPerHit: 0 },
     pulse: { name: 'Chuva de Meteoros', damage: 45, radius: 0, cooldown: 13, healPerEnemy: 0, selfDamage: 0.25, effect: { kind: 'meteors', count: 5, spread: 55, interval: 0.25, radius: 38, burn: { dps: 10, duration: 2.5 } } },
@@ -251,6 +264,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Arcanjo',
     race: 'Anjo',
     description: 'Espada de luz rápida. O Juízo dispara um raio sagrado em linha que atravessa o campo.',
+    lore: 'Desceu da Cidadela Celeste quando o Serafim que a governava foi corrompido pela mesma força que caça os Nexus. Carrega a vergonha de não ter percebido a tempo e uma espada de luz que não perdoa. Luta como quem quer consertar o céu inteiro, um inimigo de cada vez.',
     speed: 125,
     attack: { damage: 11, range: 60, cooldown: 0.5, pattern: { kind: 'single' }, healPerHit: 0 },
     pulse: { name: 'Juízo Celestial', damage: 110, radius: 0, cooldown: 12, healPerEnemy: 0, effect: { kind: 'judgment', delay: 0.8, radius: 45, mark: { amount: 0.3, duration: 4 } } },
@@ -264,6 +278,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     name: 'Alicórnio',
     race: 'Unicórnio',
     description: 'Unicórnio alado. Ataca com o raio do chifre; o Arco-Íris fere e encanta uma fila de inimigos, que passam a lutar do seu lado.',
+    lore: 'Um ser tão raro que a maioria o considera lenda, inclusive os outros unicórnios. Nasceu da primeira luz que um Nexus emitiu e sente cada cristal que se apaga como uma ferida no próprio corpo. A luz do chifre dele não só fere: lembra aos inimigos de que lado eles deveriam estar.',
     speed: 125,
     attack: { damage: 8, range: 100, cooldown: 0.5, pattern: { kind: 'single' }, healPerHit: 0 },
     pulse: { name: 'Arco-Íris', damage: 30, radius: 0, cooldown: 15, healPerEnemy: 0, effect: { kind: 'rainbow', length: 190, width: 30, charm: 4 } },

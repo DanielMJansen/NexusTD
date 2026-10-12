@@ -23,6 +23,9 @@ export function canBuyNexusUpgrade(state: RunState, id: NexusUpgradeId): boolean
   return state.phase !== 'ended' && cost !== null && state.gold >= cost;
 }
 
+/** Alguma melhoria do Nexus cabe no ouro agora (seta ⬆ sobre o Nexus e destaque no HUD). */
+export const anyNexusUpgradeAffordable = (state: RunState): boolean => NEXUS_UPGRADES.some((u) => canBuyNexusUpgrade(state, u.id));
+
 export function buyNexusUpgrade(state: RunState, id: NexusUpgradeId): boolean {
   const cost = nexusUpgradeCost(state, id);
   if (cost === null || !canBuyNexusUpgrade(state, id)) return false;

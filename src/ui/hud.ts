@@ -2,6 +2,7 @@ import { MUTATIONS } from '../data/mutations';
 import { stageWaveCount } from '../data/stages';
 import { HERO_MAX_LEVEL, xpToNextLevel } from '../data/heroUpgrades';
 import { heroMaxHp } from '../game/hero';
+import { anyNexusUpgradeAffordable } from '../game/nexus';
 import { CREATURE_IDS } from '../data/creatures';
 import { HERO_IDS } from '../data/heroes';
 import type { Profile } from '../game/profile';
@@ -15,6 +16,7 @@ const gold = document.querySelector<HTMLElement>('#hud-gold')!;
 const nexusText = document.querySelector<HTMLElement>('#hud-nexus')!;
 const nexusBar = document.querySelector<HTMLElement>('#hud-nexus-bar')!;
 const nexusLabel = document.querySelector<HTMLElement>('#hud-nexus-label')!;
+const nexusButton = document.querySelector<HTMLElement>('#nexus-button')!;
 const twinChip = document.querySelector<HTMLElement>('#hud-twin-chip')!;
 const windChip = document.querySelector<HTMLElement>('#hud-wind')!;
 const windText = document.querySelector<HTMLElement>('#hud-wind-text')!;
@@ -47,6 +49,8 @@ export function updateHud(run: RunState): void {
   setText(nexusText, `${hp}/${run.nexus.maxHp}`);
   nexusBar.style.width = `${ratio * 100}%`;
   nexusBar.classList.toggle('low', ratio < 0.3);
+  // botão "Melhorar" brilha quando alguma melhoria do Nexus cabe no ouro
+  nexusButton.classList.toggle('ready', anyNexusUpgradeAffordable(run));
   // vento (Fase 5)
   if (windChip.hidden === (run.wind !== null)) windChip.hidden = run.wind === null;
   if (run.wind !== null) setText(windText, WIND_NAMES[Math.round(run.wind / (Math.PI / 4)) % 8] ?? '');

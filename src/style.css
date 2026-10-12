@@ -775,6 +775,7 @@ button:disabled {
 
 /* configurações */
 .settings {
+  width: min(100%, 1240px);
   text-align: left;
 }
 
@@ -784,6 +785,28 @@ button:disabled {
 
 .settings h3 {
   margin-top: 14px;
+}
+
+/* três colunas lado a lado: som/jogo/desempenho · controles · progresso/sobre */
+.settings-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 28px;
+  margin-bottom: 14px;
+}
+
+.settings-columns section + section {
+  padding-left: 28px;
+  border-left: 1px solid var(--line);
+}
+
+.settings-columns h3:first-child {
+  margin-top: 0;
+}
+
+.settings .row-buttons {
+  flex-wrap: wrap;
+  margin-bottom: 12px;
 }
 
 .slider-row,
@@ -1329,14 +1352,155 @@ button:disabled {
   color: var(--heal);
 }
 
-.hero-card.selected {
-  border-color: var(--card-color);
-  box-shadow: 0 0 16px color-mix(in srgb, var(--card-color) 45%, transparent);
+/* heróis (modelo Soulstone Survivors): retratos à esquerda, ficha grande à direita */
+.heroes-layout {
+  display: grid;
+  grid-template-columns: 330px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
 }
 
-.hero-card .cc-portraits canvas {
-  width: 110px;
-  height: 110px;
+.hero-roster {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.hero-pick {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px 5px;
+  border-color: color-mix(in srgb, var(--card-color) 30%, var(--line));
+  font: 600 12px var(--font-label);
+  line-height: 1.15;
+}
+
+.hero-pick canvas {
+  width: 64px;
+  height: 64px;
+}
+
+.hero-pick.locked {
+  opacity: 0.7;
+}
+
+.hero-pick.active {
+  border-color: var(--card-color);
+  background: color-mix(in srgb, var(--card-color) 18%, #140d22);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--card-color) 45%, transparent);
+  opacity: 1;
+}
+
+.hero-pick-badge {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  color: var(--heal);
+}
+
+.hero-showcase {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--card-color);
+  border-radius: 14px;
+  background: radial-gradient(circle at 18% 30%, color-mix(in srgb, var(--card-color) 16%, transparent), transparent 55%), #140d22cc;
+}
+
+.hero-showcase.just-unlocked {
+  animation: just-unlocked 1.6s ease-out;
+}
+
+.hero-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-stage canvas {
+  width: 240px;
+  height: 260px;
+  border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 75%, color-mix(in srgb, var(--card-color) 28%, transparent), transparent 65%);
+}
+
+.hero-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  font: 600 14px var(--font-label);
+  color: var(--muted);
+}
+
+.hero-stats span {
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0c0716aa;
+}
+
+.hero-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.hero-title h3 {
+  margin: 0;
+  font-size: 26px;
+  color: var(--card-color);
+}
+
+.hero-title span {
+  color: var(--muted);
+  font: 600 14px var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero-tagline {
+  margin: 4px 0 8px;
+  font-weight: 600;
+}
+
+.hero-lore {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.hero-kit {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.hero-kit > div {
+  padding: 6px 10px;
+  border-left: 3px solid var(--card-color);
+  border-radius: 6px;
+  background: #0c0716aa;
+}
+
+.hero-kit p {
+  margin: 2px 0 0;
+  font-size: 15px;
+}
+
+.hero-kit .race-bonus {
+  border-left-color: var(--gold);
+}
+
+.hero-info .cc-footer {
+  margin-top: 10px;
+  text-align: right;
 }
 
 .tooltip .hero-bonus {
@@ -2896,6 +3060,27 @@ body[data-mode='run'] #nexus-button {
   font-size: 13px;
 }
 
+/* há ouro para alguma melhoria: brilho dourado e seta */
+#nexus-button.ready {
+  border-color: #f0c35a;
+  color: #ffe08a;
+  animation: nexus-ready 1.2s ease-in-out infinite;
+}
+
+#nexus-button.ready span::after {
+  content: ' ⬆';
+}
+
+@keyframes nexus-ready {
+  0%,
+  100% {
+    box-shadow: 0 0 8px #f0c35a55;
+  }
+  50% {
+    box-shadow: 0 0 22px #f0c35acc, 0 0 6px #fff8 inset;
+  }
+}
+
 body[data-mode='run'] #nexus-panel {
   width: 300px;
   max-height: calc(100% - 80px);
@@ -3336,10 +3521,6 @@ body:not([data-mode='run']) .panel.screen {
   align-self: center;
 }
 
-.hero-detail .creature-card {
-  max-width: 820px;
-  margin: 0 auto;
-}
 
 /* páginas que precisam caber na tela: talentos compactos (detalhes no tooltip), conquistas e códex em 3 colunas */
 .talent-node {
