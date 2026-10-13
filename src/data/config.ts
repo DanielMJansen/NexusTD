@@ -14,7 +14,8 @@ export const ARENA = {
 
 /**
  * Primeiro companheiro (grátis, escolha única): uma criatura mística por papel — alvo único, área e
- * suporte. Bot no Cemitério sem talentos (Humanos + a escolhida): 24/30 vitórias cada (13/10/2026).
+ * suporte. Bot no Cemitério sem talentos, com o Arqueiro (que todos já têm) + a escolhida: Alfa 27/30,
+ * Fogo 26/30, Duelista 20/30; só o Arqueiro: 12/30 (13/10/2026).
  */
 export const STARTER_CHOICES = ['duelist', 'fireDragon', 'alpha'] as const satisfies readonly CreatureId[];
 

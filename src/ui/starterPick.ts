@@ -31,8 +31,9 @@ export function showStarterPick(profile: Profile, onPick: (id: CreatureId) => vo
   showOverlay(
     `<div class="panel wide starter-pick">
       <h2>Escolha seu primeiro companheiro</h2>
-      <p class="subtitle">Uma criatura mística entra de graça na sua coleção e na sua equipe, ao lado dos Humanos. As outras você libera depois, com Essência, na Coleção.</p>
+      <p class="subtitle">Uma criatura mística entra de graça na sua coleção e na sua equipe. As outras você libera depois, com Essência, na Coleção.</p>
       <div class="starter-grid">${cards}</div>
+      <div class="starter-owned"><canvas data-sprite="archer"></canvas><span><b>Você já tem o Arqueiro</b> (Humano, dano à distância): ele já está na sua equipe, e o companheiro escolhido luta ao lado dele.</span></div>
     </div>`,
     { view: (id) => showStarterConfirm(profile, id as CreatureId, onPick) },
   );

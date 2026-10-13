@@ -1760,6 +1760,24 @@ button.danger {
   line-height: 1.3;
 }
 
+.starter-owned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: var(--muted);
+}
+
+.starter-owned canvas {
+  width: 48px;
+  height: 48px;
+}
+
+.starter-owned b {
+  color: var(--text, #f3e6ff);
+}
+
 .starter-role {
   font: 600 14px var(--font-label);
   text-transform: uppercase;
