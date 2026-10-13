@@ -49,6 +49,7 @@ export function drawFrame(
   camera: { x: number; y: number; zoom?: number } = { x: 0, y: 0 },
 ): void {
   effects.nexusAt = state.nexus;
+  effects.nexusLook = resolveNexus(state.nexusLook, state.stage);
   // limpa o quadro (fora do mundo pintado fica o fundo escuro)
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);

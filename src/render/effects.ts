@@ -11,6 +11,8 @@ import type { GameEvent } from '../game/events';
 import type { Point } from '../game/state';
 import { drawSprite } from './sprites';
 import { drawLayered } from './spriteKit';
+import { DEFAULT_NEXUS, type NexusAppearance } from './arena';
+import type { NexusModelId } from '../data/nexusSkins';
 
 const TAU = Math.PI * 2;
 const GOLD = '#ffd25a';
@@ -108,14 +110,23 @@ interface Beam {
   maxLife: number;
 }
 
-/** Raio do Nexus: zigue-zague curto do cristal até o alvo. */
+/** Ataque do Nexus: cada modelo tem o seu desenho, nas cores do Nexus da run (só visual). */
 interface Bolt {
   from: Point;
   to: Point;
   life: number;
   maxLife: number;
   seed: number;
+  model: NexusModelId;
+  /** Brilho (halo) e núcleo do ataque, vindos da paleta do Nexus. */
+  glow: string;
+  core: string;
+  /** Ainda viajando até o alvo (as faíscas do impacto saem na chegada). */
+  travels: boolean;
 }
+
+/** Duração de cada ataque do Nexus (os que viajam levam esse tempo até o alvo). */
+const NEXUS_SHOT_LIFE: Record<NexusModelId, number> = { crystal: 0.18, lotus: 0.26, glacier: 0.14, obelisk: 0.24, eye: 0.22 };
 
 interface Banner {
   text: string;
@@ -134,6 +145,8 @@ export class Effects {
   private rings: Ring[] = [];
   /** Posição do Nexus na run atual (efeitos do Nexus saem daqui). */
   nexusAt: { x: number; y: number } = { ...ARENA.center };
+  /** Modelo e cores do Nexus da run (o ataque dele sai no estilo do modelo). */
+  nexusLook: NexusAppearance = DEFAULT_NEXUS;
   private waves: Wave[] = [];
   private corpses: Corpse[] = [];
   private texts: FloatingText[] = [];
@@ -390,8 +403,11 @@ export class Effects {
         break;
       case 'nexusBolt': {
         const from = { x: this.nexusAt.x, y: this.nexusAt.y - 30 };
-        this.bolts.push({ from, to: event.to, life: 0.18, maxLife: 0.18, seed: Math.random() * 100 });
-        this.burst(event.to.x, event.to.y, 6, '#ffe9a8', 60, 0.3, 1.8, true);
+        const { model, palette } = this.nexusLook;
+        const life = NEXUS_SHOT_LIFE[model];
+        const travels = model === 'lotus' || model === 'glacier';
+        this.bolts.push({ from, to: event.to, life, maxLife: life, seed: Math.random() * 100, model, glow: palette.glow, core: palette.light, travels });
+        if (!travels) this.burst(event.to.x, event.to.y, 6, palette.glow, 60, 0.3, 1.8, true);
         break;
       }
       case 'nexusShieldUp':
@@ -714,7 +730,14 @@ export class Effects {
     this.waves = this.waves.filter((w) => w.life > 0);
     for (const b of this.beams) b.life -= dt;
     this.beams = this.beams.filter((b) => b.life > 0);
-    for (const b of this.bolts) b.life -= dt;
+    for (const b of this.bolts) {
+      b.life -= dt;
+      // projéteis que viajam (pétala, estilhaço): faíscas só quando chegam ao alvo
+      if (b.travels && b.life <= b.maxLife * 0.1) {
+        b.travels = false;
+        this.burst(b.to.x, b.to.y, b.model === 'glacier' ? 9 : 6, b.glow, 60, 0.3, 1.8, true);
+      }
+    }
     this.bolts = this.bolts.filter((b) => b.life > 0);
     for (const c of this.corpses) c.life -= dt;
     this.corpses = this.corpses.filter((c) => c.life > 0);
@@ -1295,26 +1318,146 @@ function drawShot(ctx: CanvasRenderingContext2D, shot: Shot): void {
   ctx.restore();
 }
 
+/** Ataque do Nexus no estilo do modelo (o dano é o mesmo para todos). */
 function drawBolt(ctx: CanvasRenderingContext2D, bolt: Bolt): void {
-  const steps = 6;
+  const fade = bolt.life / bolt.maxLife;
+  /** 0 → 1 ao longo da vida (posição de quem viaja até o alvo). */
+  const progress = 1 - fade;
+  const { from, to, glow, core } = bolt;
+  const angle = Math.atan2(to.y - from.y, to.x - from.x);
+  const at = (t: number) => ({ x: from.x + (to.x - from.x) * t, y: from.y + (to.y - from.y) * t });
   ctx.save();
-  ctx.globalAlpha = bolt.life / bolt.maxLife;
   ctx.globalCompositeOperation = 'lighter';
-  for (const [width, color] of [
-    [4, '#ffd25a66'],
-    [1.6, '#fffbe8'],
-  ] as const) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
-    ctx.beginPath();
-    ctx.moveTo(bolt.from.x, bolt.from.y);
-    for (let i = 1; i < steps; i++) {
-      const t = i / steps;
-      const jitter = Math.sin(bolt.seed + i * 7.3) * 6;
-      ctx.lineTo(bolt.from.x + (bolt.to.x - bolt.from.x) * t + jitter, bolt.from.y + (bolt.to.y - bolt.from.y) * t + jitter * 0.6);
+  ctx.lineCap = 'round';
+  switch (bolt.model) {
+    case 'crystal': {
+      // Cristal Rúnico: raio em zigue-zague e uma runa girando no alvo
+      ctx.globalAlpha = fade;
+      for (const [width, color] of [
+        [4, glow + '66'],
+        [1.6, core],
+      ] as const) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        for (let i = 1; i < 6; i++) {
+          const jitter = Math.sin(bolt.seed + i * 7.3) * 6;
+          const p = at(i / 6);
+          ctx.lineTo(p.x + jitter, p.y + jitter * 0.6);
+        }
+        ctx.lineTo(to.x, to.y);
+        ctx.stroke();
+      }
+      ctx.translate(to.x, to.y);
+      ctx.rotate(progress * 3);
+      ctx.strokeStyle = core;
+      ctx.lineWidth = 1.2;
+      const r = 4 + progress * 5;
+      ctx.strokeRect(-r / 2, -r / 2, r, r);
+      ctx.beginPath();
+      ctx.moveTo(0, -r);
+      ctx.lineTo(0, r);
+      ctx.stroke();
+      break;
     }
-    ctx.lineTo(bolt.to.x, bolt.to.y);
-    ctx.stroke();
+    case 'lotus': {
+      // Lótus Ancestral: pétala de luz que voa em arco, com pétalas menores atrás
+      for (let k = 0; k < 3; k++) {
+        const t = Math.max(0, progress - k * 0.12);
+        if (t <= 0) continue;
+        const p = at(t);
+        const lift = Math.sin(t * Math.PI) * 18;
+        ctx.save();
+        ctx.translate(p.x, p.y - lift);
+        ctx.rotate(angle + t * 6 + k);
+        ctx.globalAlpha = 1 - k * 0.3;
+        const size = 6.5 - k * 1.8;
+        ctx.shadowColor = glow;
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, size * 1.7, size, 0, 0, TAU);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = core;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, size, size * 0.5, 0, 0, TAU);
+        ctx.fill();
+        ctx.restore();
+      }
+      break;
+    }
+    case 'glacier': {
+      // Pináculo Glacial: estilhaço de gelo rápido com rastro
+      const tip = at(progress);
+      const tail = at(Math.max(0, progress - 0.4));
+      ctx.strokeStyle = glow + 'aa';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(tail.x, tail.y);
+      ctx.lineTo(tip.x, tip.y);
+      ctx.stroke();
+      ctx.translate(tip.x, tip.y);
+      ctx.rotate(angle);
+      ctx.shadowColor = glow;
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = core;
+      ctx.strokeStyle = glow;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(11, 0);
+      ctx.lineTo(0, -4);
+      ctx.lineTo(-8, 0);
+      ctx.lineTo(0, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      break;
+    }
+    case 'obelisk': {
+      // Obelisco Solar: feixe reto e grosso que afina, com um clarão na ponta do Obelisco
+      ctx.globalAlpha = fade;
+      for (const [width, color] of [
+        [9 * fade + 2, glow + '44'],
+        [4 * fade + 1, glow + 'aa'],
+        [1.6, '#ffffff'],
+      ] as const) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+        ctx.stroke();
+      }
+      ctx.fillStyle = core;
+      ctx.beginPath();
+      ctx.arc(from.x, from.y, 3 + 4 * fade, 0, TAU);
+      ctx.fill();
+      break;
+    }
+    case 'eye': {
+      // Olho Celeste: raio fino do olhar e um anel de marca que se fecha no alvo
+      ctx.globalAlpha = fade;
+      ctx.strokeStyle = glow + '88';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+      ctx.strokeStyle = core;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      const r = 12 - progress * 7;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(to.x, to.y, r, 0, TAU);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(to.x, to.y, r * 0.55, r * 0.28, 0, 0, TAU);
+      ctx.stroke();
+      break;
+    }
   }
   ctx.restore();
 }
