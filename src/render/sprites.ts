@@ -126,13 +126,13 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
       drawBloodMage(ctx, p);
       break;
     case 'fireDragon':
-      drawDragon(ctx, p, formB(p) ? (p.supreme ? APOCALYPSE_WYRM : INFERNAL_WYRM) : p.supreme ? PRIMORDIAL_DRAGON : FIRE_DRAGON);
+      drawDragon(ctx, p, dragonLook(id, p, formB(p) ? (p.supreme ? APOCALYPSE_WYRM : INFERNAL_WYRM) : p.supreme ? PRIMORDIAL_DRAGON : formA(p) ? ELDER_DRAGON : FIRE_DRAGON));
       break;
     case 'iceDragon':
-      drawDragon(ctx, p, formB(p) ? (p.supreme ? ABSOLUTE_ZERO : FROZEN_DRAGON) : p.supreme ? BOREAL_DRAGON : ICE_DRAGON);
+      drawDragon(ctx, p, dragonLook(id, p, formB(p) ? (p.supreme ? ABSOLUTE_ZERO : FROZEN_DRAGON) : p.supreme ? BOREAL_DRAGON : formA(p) ? GLACIAL_DRAGON : ICE_DRAGON));
       break;
     case 'storm':
-      drawDragon(ctx, p, formB(p) ? (p.supreme ? HURRICANE_DRAGON : TEMPEST_DRAGON) : formA(p) ? (p.supreme ? LIGHTNING_LORD : THUNDER_DRAGON) : STORM_DRAGON);
+      drawDragon(ctx, p, dragonLook(id, p, formB(p) ? (p.supreme ? HURRICANE_DRAGON : TEMPEST_DRAGON) : formA(p) ? (p.supreme ? LIGHTNING_LORD : THUNDER_DRAGON) : STORM_DRAGON));
       break;
     case 'howler':
       drawHowler(ctx, p);
@@ -1063,6 +1063,24 @@ function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
     }
   }
 
+  // Lorde de Sangue (A): asas de morcego de sangue abertas atrás
+  const lord = formA(p) && !p.supreme;
+  if (lord) {
+    const beat = Math.sin(p.time * 3) * 1.5;
+    for (const side of [-1, 1]) {
+      shape(ctx, vertical(ctx, -26, 6, sv ? sv.orb[0] : '#ff3a50', sv ? sv.robe[1] : '#5a0614'), () => {
+        ctx.moveTo(side * 3, -8);
+        ctx.lineTo(side * 18, -22 - beat);
+        ctx.lineTo(side * 16, -14 - beat);
+        ctx.lineTo(side * 21, -9 - beat);
+        ctx.lineTo(side * 15, -4);
+        ctx.lineTo(side * 17, 2);
+        ctx.lineTo(side * 5, 0);
+        ctx.closePath();
+      }, 1);
+    }
+  }
+
   // manto longo (no Mago de Sangue, a variante fica mais escura)
   const shadeB = (c: string) => (mage ? darken(c, 0.3) : c);
   shape(ctx, vertical(ctx, -10, 14, sv ? shadeB(sv.robe[0]) : mage ? '#6a2090' : '#8a1a30', sv ? sv.robe[1] : mage ? '#240a3a' : '#3a0a18'), () => {
@@ -1118,8 +1136,15 @@ function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.closePath();
   });
   if (formA(p)) {
-    shape(ctx, '#1a0a14', () => poly(ctx, [-6, hy - 6, -10, hy - 16, -3, hy - 9]), 1);
-    shape(ctx, '#1a0a14', () => poly(ctx, [6, hy - 6, 10, hy - 16, 3, hy - 9]), 1);
+    // chifres longos e curvados para trás
+    for (const side of [-1, 1]) {
+      shape(ctx, vertical(ctx, hy - 20, hy - 5, '#4a2a34', '#14060c'), () => {
+        ctx.moveTo(side * 5, hy - 6);
+        ctx.quadraticCurveTo(side * 13, hy - 12, side * 10, hy - 21);
+        ctx.quadraticCurveTo(side * 9, hy - 13, side * 2.5, hy - 9);
+        ctx.closePath();
+      }, 1);
+    }
   }
   if (mage) {
     // coroa de runas flutuando acima do capuz
@@ -1181,6 +1206,28 @@ function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
     }
   }
 
+  if (mage) {
+    // grimório aberto flutuando ao lado, com as páginas brilhando
+    const by = -2 + Math.sin(p.time * 2) * 1.2;
+    ctx.save();
+    ctx.translate(-12, by);
+    ctx.rotate(-0.2);
+    shape(ctx, sv ? darken(sv.robe[0], 0.4) : '#3a0c5a', () => ctx.roundRect(-6, -4, 12, 8, 1), 1);
+    shape(ctx, '#f4e8ff', () => poly(ctx, [-5.2, -3.2, -0.3, -2.4, -0.3, 3, -5.2, 2.4]), 0.5);
+    shape(ctx, '#f4e8ff', () => poly(ctx, [0.3, -2.4, 5.2, -3.2, 5.2, 2.4, 0.3, 3]), 0.5);
+    ctx.strokeStyle = sv ? sv.orb[1] : '#c03ae0';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    for (const y of [-1.2, 0.4, 2]) {
+      ctx.moveTo(-4.4, y);
+      ctx.lineTo(-1.2, y + 0.3);
+      ctx.moveTo(1.2, y + 0.3);
+      ctx.lineTo(4.4, y);
+    }
+    ctx.stroke();
+    halo(ctx, 0, -1, 8, sv ? sv.orb[1] : '#c03ae0', 0.4 + cast * 0.4);
+    ctx.restore();
+  }
   if (arcane) {
     // círculo de runas de sangue girando em volta
     for (let i = 0; i < 6; i++) {
@@ -1282,32 +1329,37 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
     halo(ctx, 0, -12, 12, '#ff3a50', 0.35);
   }
 
-  if (blade) {
-    // segunda lâmina, atrás do corpo
-    line(ctx, dv ? dv.blade : '#ff5a6a', 1.4, () => {
-      ctx.moveTo(-4, 1);
-      ctx.lineTo(-17 - p.attack * 4, -6);
-    });
-  }
+  // Conde (A): manto real bem mais largo, até o chão, com filete dourado e gola de arminho
+  const count = formA(p) && !prince;
   // capa com forro vermelho e gola alta (na Lâmina Carmesim, a variante escurece a capa)
   const capeTop = dv ? (blade ? darken(dv.cape[0], 0.3) : dv.cape[0]) : blade ? '#a0101e' : '#2c1745';
   const capeBottom = dv ? dv.cape[1] : blade ? '#40060c' : '#120822';
+  const w = count ? 1.35 : 1;
   shape(ctx, vertical(ctx, -10, 14, capeTop, capeBottom), () =>
-    poly(ctx, [-5, -9, -16, 13 + flutter, -7, 10, 0, 14, 7, 10, 15, 13 - flutter, 5, -9]),
+    poly(ctx, [-5, -9, -16 * w, 14 + flutter, -7 * w, 11, 0, 15, 7 * w, 11, 15 * w, 14 - flutter, 5, -9]),
   );
   shape(ctx, vertical(ctx, -8, 12, dv ? dv.lining[0] : '#d0243a', dv ? dv.lining[1] : '#6e0c1c'), () =>
-    poly(ctx, [-4, -7, -11, 11 + flutter, -3, 9, 3, 9, 11, 11 - flutter, 4, -7]),
+    poly(ctx, [-4, -7, -11 * w, 12 + flutter, -3, 9, 3, 9, 11 * w, 12 - flutter, 4, -7]),
     0,
   );
-  if (formA(p) && !prince) {
-    // Conde: filete dourado na barra da capa
-    line(ctx, GOLD, 1, () => {
-      ctx.moveTo(-16, 13 + flutter);
-      ctx.lineTo(-7, 10);
-      ctx.lineTo(0, 14);
-      ctx.lineTo(7, 10);
-      ctx.lineTo(15, 13 - flutter);
+  if (count) {
+    line(ctx, GOLD, 1.2, () => {
+      ctx.moveTo(-16 * w, 14 + flutter);
+      ctx.lineTo(-7 * w, 11);
+      ctx.lineTo(0, 15);
+      ctx.lineTo(7 * w, 11);
+      ctx.lineTo(15 * w, 14 - flutter);
     }, false);
+  }
+  if (blade) {
+    // Lâmina Carmesim: rabo de cavalo branco esvoaçando atrás
+    const sw = Math.sin(p.time * 3) * 1.5;
+    shape(ctx, vertical(ctx, -22, -4, '#ffffff', '#b8b8d0'), () => {
+      ctx.moveTo(-5, -21);
+      ctx.quadraticCurveTo(-14, -20 + sw, -19, -10 + sw);
+      ctx.quadraticCurveTo(-13, -13 + sw, -7, -14);
+      ctx.closePath();
+    }, 0.9);
   }
   // corpo
   shape(ctx, vertical(ctx, -9, 10, dv ? dv.body[0] : '#3a2550', dv ? dv.body[1] : '#1c1030'), () => ctx.roundRect(-5.5, -9, 11, 19, [4, 4, 2, 2]));
@@ -1319,6 +1371,16 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
   // gola alta atrás da cabeça
   shape(ctx, dv ? dv.collar : '#b01a30', () => poly(ctx, [-3, -9, -10, -25, -7, -11]), 1);
   shape(ctx, dv ? dv.collar : '#b01a30', () => poly(ctx, [3, -9, 9, -24, 7, -11]), 1);
+  if (count) {
+    // gola de arminho sobre os ombros (branca com pintas pretas)
+    shape(ctx, vertical(ctx, -11, -4, '#ffffff', '#d8d0e0'), () => ctx.roundRect(-9, -10.5, 18, 5.5, 2.8), 1);
+    for (const x of [-6, -2, 2.5, 6.5]) shape(ctx, '#14101c', () => poly(ctx, [x, -9, x + 0.8, -7, x, -6.5, x - 0.8, -7]), 0);
+  }
+  if (blade) {
+    // ombreira de armadura vermelha no ombro da frente
+    shape(ctx, vertical(ctx, -11, -4, dv ? dv.lining[0] : '#ff5a6a', dv ? darken(dv.lining[1], 0.2) : '#7a0c1c'), () => ctx.roundRect(1, -11, 8, 6, [4, 4, 1.5, 1.5]), 1);
+    shape(ctx, dv ? dv.collar : GOLD, () => ctx.rect(1.5, -6.5, 7, 0.9), 0);
+  }
 
   // rapieira (de sombra com fio vermelho no Senhor do Eclipse)
   const thrust = p.attack * 7;
@@ -1338,6 +1400,14 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.moveTo(6, 0);
     ctx.lineTo(19 + thrust, -5 - thrust * 0.2);
   }, p.variant !== 'legendary');
+  if (blade) {
+    // segunda lâmina na outra mão, cruzando a primeira à frente do corpo
+    line(ctx, dv ? dv.blade : '#ff8a96', 1.4, () => {
+      ctx.moveTo(3, 4);
+      ctx.lineTo(18 + thrust * 0.6, 9 - thrust * 0.3);
+    });
+    shape(ctx, dv ? dv.collar : '#f0c35a', () => circle(ctx, 3.5, 4, 2), 1);
+  }
   if (glowBlade) ctx.restore();
   shape(ctx, dv ? dv.collar : '#f0c35a', () => circle(ctx, 6.5, 0, 2.2), 1);
 
@@ -1448,6 +1518,68 @@ interface DragonPalette {
   stormCloud?: boolean;
   /** Olho brilhante no peito e vento girando (Furacão). */
   eye?: boolean;
+  // Formas A (nível 3) reforçadas
+  /** Bigodes longos, barba e chifres curvados de dragão velho (Dragão Ancião). */
+  elder?: boolean;
+  /** Coroa de cristais de gelo e barba de pingentes (Gelo A). */
+  iceCrown?: boolean;
+  /** Crina de raios amarelos ao longo do pescoço e das costas (Dragão do Trovão). */
+  thunderMane?: boolean;
+  // Variantes do Altar
+  /** Fumaça saindo das narinas (Vulcânico). */
+  smoke?: boolean;
+  /** Penas de fogo nas asas, crista de chamas e plumas na cauda (Dragão-Fênix). */
+  phoenix?: boolean;
+  /** Juba de neve no pescoço e pingentes sob o queixo (Neves Eternas). */
+  snowMane?: boolean;
+  /** Aurora correndo pelo corpo (Dragão Boreal da variante). */
+  auroraBody?: boolean;
+  /** Rebites de bronze e para-raios nos chifres (Dragão de Bronze). */
+  bronze?: boolean;
+  /** Bigodes longos ondulando, nuvens douradas e pérola flutuando (Serpente Celeste). */
+  celestial?: boolean;
+}
+
+/** Variantes dos dragões: cores trocadas e marcas próprias (as marcas da forma continuam). */
+type DragonVariant = Partial<DragonPalette>;
+const DRAGON_VARIANTS: Partial<Record<CreatureId, Record<'rare' | 'epic' | 'legendary', DragonVariant>>> = {
+  fireDragon: {
+    // Dragão Dourado
+    rare: { body: '#f0c040', bodyDark: '#a0701a', belly: '#fff4d0', wing: '#c8901a', membrane: '#ffe08a', horn: '#fff8e0', iris: '#c06a10', breath: '#ffd25a' },
+    // Dragão Vulcânico: rocha com lava, chifres de obsidiana, fumaça
+    epic: { body: '#6a5a58', bodyDark: '#2a1c1a', belly: '#ff9a3a', wing: '#3a2a28', membrane: '#ff5a1a', horn: '#1a1014', iris: '#ffb030', breath: '#ff7a1a', lava: true, smoke: true },
+    // Dragão-Fênix: asas de penas em chamas
+    legendary: { body: '#ff6a1a', bodyDark: '#b82a0a', belly: '#ffe07a', wing: '#ff9a1a', membrane: '#ffd04a', horn: '#fff0a0', iris: '#ffffff', breath: '#ffe07a', phoenix: true },
+  },
+  iceDragon: {
+    // Dragão de Quartzo Rosa
+    rare: { body: '#f0a0c8', bodyDark: '#b0507a', belly: '#fff0f6', wing: '#c86a9a', membrane: '#ffd0e8', horn: '#ffffff', iris: '#c03a7a', breath: '#ffd0e8' },
+    // Dragão das Neves Eternas: juba de neve e pingentes
+    epic: { body: '#a8bcd4', bodyDark: '#56688a', belly: '#e8f0f8', wing: '#7a90b4', membrane: '#dce8f8', horn: '#cfeeff', iris: '#3a8ad8', breath: '#ffffff', snowMane: true },
+    // Dragão Boreal: aurora no corpo e nas asas
+    legendary: { body: '#6ad8d0', bodyDark: '#3a4ab0', belly: '#e0fff8', wing: '#4a6ad0', membrane: '#c8a8ff', horn: '#ffffff', iris: '#ffffff', breath: '#c8fff0', aurora: true, auroraBody: true },
+  },
+  storm: {
+    // Dragão do Crepúsculo
+    rare: { body: '#e88a4a', bodyDark: '#7a3a8a', belly: '#ffe0c0', wing: '#8a4aa0', membrane: '#ffb070', horn: '#fff0e0', iris: '#ffe060', breath: '#fff6a0' },
+    // Dragão de Bronze: placas com rebites, para-raios nos chifres
+    epic: { body: '#c08a4a', bodyDark: '#6a4a1a', belly: '#e8d0a0', wing: '#8a5a2a', membrane: '#e0b070', horn: '#d8dce4', iris: '#7af0ff', breath: '#bff8ff', bronze: true },
+    // Serpente Celeste: dourada, bigodes longos, nuvens e pérola
+    legendary: { body: '#ffe8a0', bodyDark: '#c89020', belly: '#fff8e0', wing: '#e0b040', membrane: '#fff0b0', horn: '#ffffff', iris: '#c02a2a', breath: '#ffffff', celestial: true },
+  },
+};
+
+/** Paleta final do dragão: a da forma, com as cores e marcas da variante (a forma B escurece a variante). */
+function dragonLook(id: CreatureId, p: Required<SpritePose>, base: DragonPalette): DragonPalette {
+  const variant = p.variant ? DRAGON_VARIANTS[id]?.[p.variant] : undefined;
+  if (!variant) return base;
+  const look = { ...base, ...variant };
+  if (formB(p)) {
+    look.body = darken(look.body, 0.3);
+    look.bodyDark = darken(look.bodyDark, 0.3);
+    look.wing = darken(look.wing, 0.25);
+  }
+  return look;
 }
 
 const FIRE_DRAGON: DragonPalette = {
@@ -1489,13 +1621,13 @@ const INFERNAL_WYRM: DragonPalette = {
 };
 
 /** Dragão Primordial (suprema do Dragão Ancião): vermelho-ouro antigo, chifres longos. */
-const PRIMORDIAL_DRAGON: DragonPalette = { ...FIRE_DRAGON, body: '#c8401a', bodyDark: '#5a1408', belly: '#ffe9a8', wing: '#7a1a0a', membrane: '#ffb040', horn: '#ffe9a8', iris: '#ffd25a', breath: '#ffd25a', primal: true };
+const PRIMORDIAL_DRAGON: DragonPalette = { ...FIRE_DRAGON, body: '#c8401a', bodyDark: '#5a1408', belly: '#ffe9a8', wing: '#7a1a0a', membrane: '#ffb040', horn: '#ffe9a8', iris: '#ffd25a', breath: '#ffd25a', primal: true, elder: true };
 
 /** Wyrm do Apocalipse (suprema do Wyrm Infernal): negro em chamas vivas. */
 const APOCALYPSE_WYRM: DragonPalette = { ...INFERNAL_WYRM, body: '#2a1418', bodyDark: '#0a0204', membrane: '#ff4a1a', flames: true };
 
 /** Dragão Boreal (suprema do Glacial): asas translúcidas com aurora. */
-const BOREAL_DRAGON: DragonPalette = { ...ICE_DRAGON, body: '#bfe8ff', bodyDark: '#4a7ab8', wing: '#6aa8d8', membrane: '#dff8ff', aurora: true };
+const BOREAL_DRAGON: DragonPalette = { ...ICE_DRAGON, body: '#bfe8ff', bodyDark: '#4a7ab8', wing: '#6aa8d8', membrane: '#dff8ff', aurora: true, iceCrown: true };
 
 /** Zero Absoluto (suprema do Congelante): cristal com névoa congelante. */
 /** Dragão Congelante (Gelo B): branco-cristal com espinhos de gelo. */
@@ -1530,8 +1662,14 @@ const STORM_DRAGON: DragonPalette = {
 };
 
 /** Senhor dos Raios e Furacão (supremas da Tempestade) ficam logo abaixo das bases. */
-/** Dragão do Trovão (Tempestade A): escuro com raios amarelos. */
-const THUNDER_DRAGON: DragonPalette = { ...STORM_DRAGON, body: '#4a4a8a', bodyDark: '#1e1e48', wing: '#2a2a60', membrane: '#7a7ad0', belly: '#ffe9a0' };
+/** Dragão do Trovão (Tempestade A): escuro com raios amarelos e crina de raios. */
+const THUNDER_DRAGON: DragonPalette = { ...STORM_DRAGON, body: '#4a4a8a', bodyDark: '#1e1e48', wing: '#2a2a60', membrane: '#7a7ad0', belly: '#ffe9a0', thunderMane: true };
+
+/** Dragão Ancião (Fogo A): bigodes, barba e chifres curvados. */
+const ELDER_DRAGON: DragonPalette = { ...FIRE_DRAGON, body: '#e06a2a', bodyDark: '#8a2a10', elder: true };
+
+/** Gelo A: coroa de cristais e barba de pingentes. */
+const GLACIAL_DRAGON: DragonPalette = { ...ICE_DRAGON, body: '#4aa8e8', bodyDark: '#1e4a98', iceCrown: true };
 
 /** Olho da Tormenta (Tempestade B): azul-céu com nuvens girando. */
 const TEMPEST_DRAGON: DragonPalette = { ...STORM_DRAGON, body: '#6aa8e0', bodyDark: '#2a5a90', wing: '#3a78b8', membrane: '#cfeaff', iris: '#bfeaff', breath: '#e8fbff', clouds: true };
@@ -1542,7 +1680,17 @@ const LIGHTNING_LORD: DragonPalette = { ...THUNDER_DRAGON, iris: '#fff6a0', stor
 /** Furacão (suprema do Olho da Tormenta): olho no peito e vento girando. */
 const HURRICANE_DRAGON: DragonPalette = { ...TEMPEST_DRAGON, eye: true };
 
-function dragonWing(ctx: Ctx, c: DragonPalette, flap: number, front: boolean): void {
+function dragonWing(ctx: Ctx, c: DragonPalette, flap: number, front: boolean, scale = 1): void {
+  ctx.save();
+  // asas maiores nas formas A: crescem a partir do ombro
+  ctx.translate(0, -6);
+  ctx.scale(scale, scale);
+  ctx.translate(0, 6);
+  dragonWingShape(ctx, c, flap, front);
+  ctx.restore();
+}
+
+function dragonWingShape(ctx: Ctx, c: DragonPalette, flap: number, front: boolean): void {
   const tipY = -22 + flap * 6;
   const dark = front ? c.wing : c.bodyDark;
   const membrane = front ? c.membrane : c.wing;
@@ -1564,6 +1712,8 @@ function dragonWing(ctx: Ctx, c: DragonPalette, flap: number, front: boolean): v
 function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
   const flap = Math.sin(p.time * 7);
   const tail = Math.sin(p.time * 3) * 2;
+  // formas A (e suas Supremas): asas bem maiores, para mudar a silhueta
+  const wingScale = formA(p) ? 1.35 : 1;
 
   if (c.frost) {
     // névoa congelante girando em volta
@@ -1585,7 +1735,13 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     }
     ctx.restore();
   }
-  dragonWing(ctx, c, flap, false);
+  if (c.celestial) {
+    // nuvens douradas sob o corpo
+    for (const [x, y, r] of [[-12, 13, 4], [-6, 15, 5], [2, 15, 5], [9, 13, 4]] as const) {
+      shape(ctx, vertical(ctx, y - r, y + r, '#fff4c0', '#e0a830'), () => circle(ctx, x + Math.sin(p.time * 1.5 + x) * 0.8, y, r), 0.6);
+    }
+  }
+  dragonWing(ctx, c, flap, false, wingScale);
   // cauda
   shape(ctx, c.body, () => {
     ctx.moveTo(-6, 4);
@@ -1594,6 +1750,16 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     ctx.closePath();
   });
   shape(ctx, c.bodyDark, () => poly(ctx, [-19, 1 + tail, -23, -2 + tail, -20, 4 + tail]), 1);
+  if (c.phoenix) {
+    // plumas de fogo na ponta da cauda
+    for (let i = 0; i < 3; i++) {
+      const h = 7 + Math.sin(p.time * 9 + i * 1.7) * 1.5;
+      const a = -2.6 + i * 0.45;
+      shape(ctx, vertical(ctx, -6 + tail, 6 + tail, '#ffe07a', '#ff4a1a'), () =>
+        poly(ctx, [-20, 1 + tail, -20 + Math.cos(a - 0.2) * h * 0.5, 1 + tail + Math.sin(a - 0.2) * h * 0.5, -20 + Math.cos(a) * h, 1 + tail + Math.sin(a) * h, -20 + Math.cos(a + 0.25) * h * 0.5, 1 + tail + Math.sin(a + 0.25) * h * 0.5]),
+      0.5);
+    }
+  }
   // pernas
   shape(ctx, c.bodyDark, () => ctx.roundRect(-6, 8, 4.5, 6, 2), 1);
   shape(ctx, c.bodyDark, () => ctx.roundRect(2, 8, 4.5, 6, 2), 1);
@@ -1607,6 +1773,28 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     ctx.moveTo(-1, y);
     ctx.quadraticCurveTo(2.5, y + 1.2, 6.5, y);
     ctx.stroke();
+  }
+  if (c.auroraBody) {
+    // faixas de aurora correndo pelo corpo
+    ['#7affc8', '#7ac8ff', '#e08aff'].forEach((color, i) => {
+      ctx.save();
+      ctx.globalAlpha *= 0.5 + Math.sin(p.time * 2.5 + i * 1.3) * 0.25;
+      line(ctx, color, 1.4, () => {
+        ctx.moveTo(-8, -2 + i * 3);
+        ctx.quadraticCurveTo(-3, -5 + i * 3 + Math.sin(p.time * 3 + i) * 1.5, 1, -1 + i * 3);
+      }, false);
+      ctx.restore();
+    });
+  }
+  if (c.bronze) {
+    // placas de bronze com rebites
+    line(ctx, c.bodyDark, 0.8, () => {
+      ctx.moveTo(-8, -2);
+      ctx.quadraticCurveTo(-4, 0, -2, -6);
+      ctx.moveTo(-8, 6);
+      ctx.quadraticCurveTo(-4, 7, -2, 3);
+    }, false);
+    for (const [x, y] of [[-7, -1], [-4, -4], [-7, 7], [-4, 5]] as const) shape(ctx, '#f0d8a0', () => circle(ctx, x, y, 0.8), 0.3);
   }
   if (c.clouds) {
     // nuvens girando sob o corpo
@@ -1662,7 +1850,27 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     shape(ctx, c.breath, () => poly(ctx, [2.5, -1, 5, 2, 2.5, 5, 0, 2]), 0.8);
     ctx.restore();
   }
-  dragonWing(ctx, c, flap, true);
+  dragonWing(ctx, c, flap, true, wingScale);
+  if (c.phoenix) {
+    // penas de fogo na borda da asa da frente
+    const tipY = -22 + flap * 6;
+    for (let i = 0; i < 4; i++) {
+      const bx = -11 - i * 2.5;
+      const by = tipY + 10 + i * 3;
+      const h = 5 + Math.sin(p.time * 10 + i) * 1.2;
+      shape(ctx, vertical(ctx, by - 2, by + h, '#ffe07a', '#ff4a1a'), () => poly(ctx, [bx + 1.5, by - 1, bx - 1.5, by, bx - 1, by + h]), 0.4);
+    }
+  }
+  if (c.thunderMane) {
+    // crina de raios amarelos ao longo do pescoço e das costas
+    ctx.save();
+    ctx.shadowColor = '#fff6a0';
+    ctx.shadowBlur = 5;
+    for (const [x, y, s] of [[-8, -2, 1.3], [-5, -8, 1.6], [-2, -14, 1.8], [1, -20, 1.9]] as const) {
+      shape(ctx, '#ffe060', () => poly(ctx, [x, y, x - 3 * s, y - 3 * s, x - 1 * s, y - 3.4 * s, x - 3.6 * s, y - 7 * s, x + 1 * s, y - 3 * s, x - 0.6 * s, y - 2.6 * s]), 0.6);
+    }
+    ctx.restore();
+  }
   if (c.aurora) {
     // faixas de aurora sobre a asa da frente
     const colors = ['#7affc8', '#7ac8ff', '#c08aff'];
@@ -1705,6 +1913,17 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
       shape(ctx, '#ffe9a8', () => poly(ctx, [4 + Math.cos(a) * 7, hy + Math.sin(a) * 7, 4 + Math.cos(a) * 14, hy + Math.sin(a) * 14, 4 + Math.cos(a + 0.15) * 7, hy + Math.sin(a + 0.15) * 7]), 0.6);
     }
   }
+  if (c.phoenix) {
+    // crista de chamas atrás da cabeça
+    for (let i = 0; i < 3; i++) {
+      const h = 9 + Math.sin(p.time * 9 + i * 2) * 2;
+      shape(ctx, vertical(ctx, hy - 8 - h, hy - 4, '#ffe07a', '#ff4a1a'), () => poly(ctx, [-1 + i * 3, hy - 5, -4 + i * 2.5, hy - 6 - h, 2 + i * 3, hy - 7]), 0.5);
+    }
+  }
+  if (c.snowMane) {
+    // juba de neve fofa em volta do pescoço
+    for (const [x, y, r] of [[-3, hy + 4, 4], [-5, hy, 3.6], [-4, hy - 4, 3.2], [0, hy + 7, 3.6]] as const) shape(ctx, '#ffffff', () => circle(ctx, x, y, r), 0.7);
+  }
   if (c.crest) {
     for (const [x, y] of [
       [-4, -6],
@@ -1726,8 +1945,28 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     }
   }
   const horn = c.primal ? 2.1 : ascended(p) ? 1.5 : 1;
-  shape(ctx, formA(p) ? GOLD : c.horn, () => poly(ctx, [-1, hy - 6, -1 - 7 * horn, hy - 6 - 7 * horn, 2, hy - 8]), 1);
-  shape(ctx, formA(p) ? GOLD : c.horn, () => poly(ctx, [3, hy - 7, 3 - 4 * horn, hy - 7 - 8 * horn, 6, hy - 8]), 1);
+  const hornColor = formA(p) && !p.variant ? GOLD : c.horn;
+  if (c.elder) {
+    // chifres longos curvados para trás (dragão velho)
+    for (const [x, len] of [[-1, 1.3], [3, 1.1]] as const) {
+      shape(ctx, vertical(ctx, hy - 26, hy - 6, '#fff4dc', p.variant ? c.horn : '#c8a060'), () => {
+        ctx.moveTo(x - 1, hy - 6);
+        ctx.quadraticCurveTo(x - 6 * len, hy - 19 * len, x - 16 * len, hy - 17 * len);
+        ctx.quadraticCurveTo(x - 6 * len, hy - 12 * len, x + 4, hy - 8);
+        ctx.closePath();
+      }, 1);
+    }
+  } else {
+    shape(ctx, hornColor, () => poly(ctx, [-1, hy - 6, -1 - 7 * horn, hy - 6 - 7 * horn, 2, hy - 8]), 1);
+    shape(ctx, hornColor, () => poly(ctx, [3, hy - 7, 3 - 4 * horn, hy - 7 - 8 * horn, 6, hy - 8]), 1);
+  }
+  if (c.bronze) {
+    // para-raios: pontas de aço com faísca
+    for (const [x, y] of [[-1 - 7 * horn, hy - 6 - 7 * horn], [3 - 4 * horn, hy - 7 - 8 * horn]] as const) {
+      shape(ctx, '#ffffff', () => circle(ctx, x, y, 0.9), 0.4);
+      if (Math.sin(p.time * 8 + x) > 0.4) halo(ctx, x, y, 3, '#7af0ff', 0.9);
+    }
+  }
   shape(ctx, radial(ctx, 4, hy, 9, c.body, c.bodyDark), () => circle(ctx, 4, hy, 8.5));
   const jaw = p.attack * 3;
   shape(ctx, radial(ctx, 11, hy + 2, 6, c.body, c.bodyDark), () => ellipse(ctx, 11, hy + 2.5, 6, 4.2));
@@ -1748,6 +1987,43 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
   ctx.fill();
   eye(ctx, 5.5, hy - 1.5, 3.3, c.iris, 0.3);
   blush(ctx, 8.5, hy + 3.5);
+  if (c.elder || c.celestial) {
+    // bigodes longos saindo do focinho (ondulam na Serpente Celeste) e barba no queixo
+    const wave = Math.sin(p.time * 2.5) * (c.celestial ? 3 : 1.2);
+    const len = c.celestial ? 1.5 : 1;
+    line(ctx, c.celestial ? '#fff4c0' : c.horn, c.celestial ? 1 : 0.9, () => {
+      ctx.moveTo(14, hy + 2.5);
+      ctx.quadraticCurveTo(20 * len, hy + 6 + wave, 26 * len, hy + 12 - wave);
+      ctx.moveTo(13, hy + 4);
+      ctx.quadraticCurveTo(16 * len, hy + 10 - wave, 19 * len, hy + 16 + wave);
+    }, false);
+    if (c.elder) shape(ctx, c.horn, () => poly(ctx, [7, hy + 5, 11, hy + 5.5, 9, hy + 11]), 0.7);
+  }
+  if (c.iceCrown) {
+    // coroa de cristais de gelo e barba de pingentes
+    halo(ctx, 3, hy - 13, 9, '#bff0ff', 0.5);
+    for (const [x, h] of [[-3, 7], [0, 10], [3, 13], [6, 10], [9, 7]] as const) {
+      shape(ctx, vertical(ctx, hy - 8 - h, hy - 7, '#ffffff', '#8ad8ff'), () => poly(ctx, [x - 2, hy - 7.5, x, hy - 8 - h, x + 2, hy - 7.5]), 0.8);
+    }
+    for (const x of [8, 10.5, 13]) shape(ctx, vertical(ctx, hy + 5, hy + 10, '#ffffff', '#8ad8ff'), () => poly(ctx, [x - 0.9, hy + 5.5, x, hy + 10, x + 0.9, hy + 5.5]), 0.5);
+  }
+  if (c.snowMane) {
+    // pingentes de gelo sob o queixo
+    for (const x of [8, 10.5, 13]) shape(ctx, vertical(ctx, hy + 5, hy + 10, '#ffffff', '#a8c8e8'), () => poly(ctx, [x - 0.9, hy + 5.5, x, hy + 10.5, x + 0.9, hy + 5.5]), 0.5);
+  }
+  if (c.smoke) {
+    // fumaça subindo das narinas
+    for (let i = 0; i < 3; i++) {
+      const t = (p.time * 0.7 + i / 3) % 1;
+      halo(ctx, 15 + t * 3, hy - t * 12, 2 + t * 3, '#8a8088', 0.6 * (1 - t));
+    }
+  }
+  if (c.celestial) {
+    // pérola flutuando à frente
+    const py = hy + 9 + Math.sin(p.time * 2) * 1.5;
+    halo(ctx, 19, py, 6, '#fff4c0', 0.7);
+    shape(ctx, radial(ctx, 18.4, py - 0.6, 2.6, '#ffffff', '#c8d8f0'), () => circle(ctx, 19, py, 2.2), 0.6);
+  }
   if (c.stormCloud) {
     // nuvem de tempestade sobre a cabeça, com raio piscando
     for (const [x, y, r] of [

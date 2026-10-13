@@ -433,8 +433,35 @@ export function drawBatSwarm(ctx: Ctx, p: Pose): void {
     ctx.beginPath();
     circle(ctx, 0, 0, 20);
     ctx.fill();
+    if (!eclipse) {
+      // Nuvem Sangrenta: nuvem carmesim densa, de bolhas que pulsam, envolvendo os morcegos
+      const mist = sw ? sw.wing : '#a0182c';
+      ctx.save();
+      ctx.globalAlpha *= 0.55;
+      for (let i = 0; i < 7; i++) {
+        const a = (i / 7) * TAU + p.time * 0.4;
+        const r = 7 + Math.sin(p.time * 2 + i * 1.7) * 1.2;
+        shape(ctx, mist, () => circle(ctx, Math.cos(a) * 12, Math.sin(a) * 6 + 2, r), 0);
+      }
+      ctx.restore();
+    }
   }
-  const count = eclipse ? 9 : hunger ? 7 : 5;
+  if (hunger) {
+    // Revoada Faminta: rastros de velocidade girando com o enxame
+    ctx.save();
+    ctx.strokeStyle = sw ? sw.wing : '#c86aff';
+    ctx.globalAlpha *= 0.6;
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 4; i++) {
+      const a = p.time * 3.2 + (i * TAU) / 4;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 18, 10, 0, a, a + 1.1);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  const count = eclipse ? 9 : hunger ? 8 : 5;
   const spread = (eclipse ? 17 : 12) + p.attack * 5;
   const speed = hunger ? 3.2 : 2.4;
   if (blood && !eclipse) {
@@ -471,8 +498,12 @@ export function drawBatSwarm(ctx: Ctx, p: Pose): void {
     const a = p.time * speed + (i * TAU) / count;
     tinyBat(ctx, Math.cos(a) * spread, Math.sin(a) * spread * 0.6, eternal ? 1.6 : 1.15, p.time + i, body, eyes, wing);
   }
-  // morcego-líder no centro
-  tinyBat(ctx, 0, -1, 2.1, p.time * 0.8, sw ? sw.leader : hunger ? '#7a3ab0' : blood ? '#8a1a34' : '#6a2a5a', eyes, wing);
+  // morcego-líder no centro (maior e de boca aberta na Revoada Faminta)
+  tinyBat(ctx, 0, -1, hunger ? 2.6 : 2.1, p.time * 0.8, sw ? sw.leader : hunger ? '#7a3ab0' : blood ? '#8a1a34' : '#6a2a5a', eyes, wing);
+  if (hunger) {
+    shape(ctx, '#1a0410', () => ellipse(ctx, 0, 1.6, 2.2, 1.3 + p.attack), 0);
+    for (const x of [-1.1, 1.1]) shape(ctx, '#ffffff', () => poly(ctx, [x - 0.5, 0.6, x + 0.5, 0.6, x, 2.2]), 0);
+  }
   ctx.restore();
   if (p.variant === 'legendary') halo(ctx, 0, -1, 14, '#ff7a1a', 0.35);
 }

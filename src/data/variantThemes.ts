@@ -69,6 +69,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Enxame Espectral', colors: ['#c8fff0', '#4ae0c0', '#1a6a6a'], strength: 0, accent: '#6affe0', particles: 'wisp', art: true },
     legendary: { name: 'Enxame Infernal', colors: ['#ffe07a', '#ff7a1a', '#a01a0a'], strength: 0, accent: '#ff7a1a', particles: 'ember', art: true },
   },
+  fireDragon: {
+    rare: { name: 'Dragão Dourado', colors: ['#fff0a0', '#f0c040', '#a0701a'], strength: 0, accent: '#ffd25a', art: true },
+    epic: { name: 'Dragão Vulcânico', colors: ['#ffb040', '#ff5a1a', '#3a2a28'], strength: 0, accent: '#ff6a1a', particles: 'ember', art: true },
+    legendary: { name: 'Dragão-Fênix', colors: ['#ffe07a', '#ff9a1a', '#ff4a1a'], strength: 0, accent: '#ffb040', particles: 'ember', art: true },
+  },
+  iceDragon: {
+    rare: { name: 'Dragão de Quartzo Rosa', colors: ['#ffe0f0', '#f0a0c8', '#b0507a'], strength: 0, accent: '#ff9ad0', art: true },
+    epic: { name: 'Dragão das Neves Eternas', colors: ['#ffffff', '#cfe4f8', '#8aa0c0'], strength: 0, accent: '#e8f4ff', particles: 'frost', art: true },
+    legendary: { name: 'Dragão Boreal', colors: ['#2affc8', '#4a7aff', '#ff4ad8'], strength: 0, accent: '#9af0ff', particles: 'star', art: true },
+  },
+  storm: {
+    rare: { name: 'Dragão do Crepúsculo', colors: ['#ffd0a0', '#e88a4a', '#7a3a8a'], strength: 0, accent: '#ffb070', art: true },
+    epic: { name: 'Dragão de Bronze', colors: ['#bff8ff', '#7af0ff', '#6a4a1a'], strength: 0, accent: '#7af0ff', art: true },
+    legendary: { name: 'Serpente Celeste', colors: ['#fff8e0', '#ffe8a0', '#c89020'], strength: 0, accent: '#ffe07a', particles: 'star', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
