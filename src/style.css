@@ -1718,25 +1718,46 @@ button.danger {
 }
 
 /* primeiro companheiro */
+/* primeira criatura: cartas horizontais compactas, todas cabem sem rolagem */
+.panel.starter-pick {
+  width: min(100%, 1240px);
+}
+
 .starter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
 }
 
 .starter-option {
   --card-color: var(--accent);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 10px 6px;
+  gap: 8px;
+  padding: 5px 8px 5px 4px;
+  text-align: left;
   border-color: color-mix(in srgb, var(--card-color) 50%, var(--line));
 }
 
 .starter-option canvas {
-  width: 72px;
-  height: 72px;
+  flex: none;
+  width: 54px;
+  height: 54px;
+}
+
+.starter-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.starter-text .choice-kind {
+  font-size: 11px;
+}
+
+.starter-text b {
+  font-size: 15px;
 }
 
 .starter-option small {
@@ -2499,6 +2520,20 @@ body:not([data-mode='run']) #side-panel {
 
 #menu-hud {
   flex: 1;
+}
+
+/* fora da run: logo | indicadores no centro exato da tela | botões (laterais com a mesma largura) */
+body:not([data-mode='run']) #top-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+body:not([data-mode='run']) #brand {
+  min-width: 0;
+}
+
+body:not([data-mode='run']) .top-buttons {
+  justify-self: end;
 }
 
 /* ficha do herói: no chip do HUD (hover) e na pausa */

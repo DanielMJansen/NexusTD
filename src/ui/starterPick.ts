@@ -20,14 +20,12 @@ export function showStarterPick(profile: Profile, onPick: (id: CreatureId) => vo
       const def = CREATURES[id];
       return `<button class="starter-option" style="--card-color:${def.color}" data-action="view" data-value="${id}">
         <canvas data-sprite="${id}"></canvas>
-        <span class="choice-kind">${def.race}</span>
-        <b>${def.name}</b>
-        <small>${def.role}</small>
+        <span class="starter-text"><span class="choice-kind">${def.race}</span><b>${def.name}</b><small>${def.role}</small></span>
       </button>`;
     })
     .join('');
   showOverlay(
-    `<div class="panel wide">
+    `<div class="panel wide starter-pick">
       <h2>Escolha seu primeiro companheiro</h2>
       <p class="subtitle">Uma criatura mística entra de graça na sua coleção e na sua equipe. Clique para ver os detalhes.</p>
       <div class="starter-grid">${cards}</div>
