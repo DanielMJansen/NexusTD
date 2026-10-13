@@ -1,4 +1,5 @@
 // Regras gerais e números soltos. Valores de referência: GDD seção 9.
+import type { CreatureId } from './creatures';
 
 export const GAME_TITLE = 'NEXUS TD';
 /** Versão mostrada no menu e em Configurações → Sobre (1.0 = lançamento). */
@@ -10,6 +11,12 @@ export const ARENA = {
   height: 360,
   center: { x: 320, y: 180 },
 };
+
+/**
+ * Primeiro companheiro (grátis, escolha única): uma criatura mística por papel — alvo único, área e
+ * suporte. Bot no Cemitério sem talentos (Humanos + a escolhida): 24/30 vitórias cada (13/10/2026).
+ */
+export const STARTER_CHOICES = ['duelist', 'fireDragon', 'alpha'] as const satisfies readonly CreatureId[];
 
 export const NEXUS = {
   baseHp: 100,

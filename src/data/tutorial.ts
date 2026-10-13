@@ -31,6 +31,12 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     highlight: '.chip.gold',
   },
   {
+    title: 'Suas criaturas são as torres',
+    text: 'As cartas da barra de baixo são a sua equipe. Cada criatura custa ouro, fica parada onde você colocar e ataca sozinha quem chegar no alcance, como uma torre. Cada uma tem um papel (dano, área, suporte…): passe o mouse na carta para ver. Há um limite de criaturas em campo, então escolha bem o lugar: perto das trilhas e do Nexus.',
+    advance: 'read',
+    highlight: '#card-list',
+  },
+  {
     title: 'Invoque uma criatura',
     text: 'Arraste uma carta do painel até a arena — ou aperte 1 e clique no chão. Verde = dá para invocar.',
     advance: 'creaturePlaced',

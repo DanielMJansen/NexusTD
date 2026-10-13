@@ -1,33 +1,37 @@
-import { CREATURES, CREATURE_IDS, isMystical, type CreatureId } from '../data/creatures';
+import { STARTER_CHOICES } from '../data/config';
+import { CREATURES, isMystical, type CreatureId } from '../data/creatures';
 import type { Profile } from '../game/profile';
 import { gold } from './currency';
 import { abilityText, ascendedFormsHtml, creatureStats } from './describe';
 import { showOverlay } from './overlay';
 
-/** Criaturas místicas que podem ser o primeiro companheiro (as que ainda não estão na coleção). */
+/** Opções do primeiro companheiro (as três fixas que ainda não estão na coleção). */
 export function starterOptions(profile: Profile): CreatureId[] {
-  return CREATURE_IDS.filter((id) => isMystical(CREATURES[id]) && !profile.ownedCreatures.includes(id));
+  return STARTER_CHOICES.filter((id) => !profile.ownedCreatures.includes(id));
 }
 
 /** Precisa escolher o primeiro companheiro? (Ninguém começa sem uma criatura mística.) */
 export const needsStarter = (profile: Profile): boolean =>
   !profile.ownedCreatures.some((id) => isMystical(CREATURES[id])) && starterOptions(profile).length > 0;
 
-/** Escolha única de uma criatura mística gratuita: lista compacta e depois confirmação. */
+/** Escolha única de uma criatura mística gratuita: três cartas (uma por papel) e depois confirmação. */
 export function showStarterPick(profile: Profile, onPick: (id: CreatureId) => void): void {
   const cards = starterOptions(profile)
     .map((id) => {
       const def = CREATURES[id];
       return `<button class="starter-option" style="--card-color:${def.color}" data-action="view" data-value="${id}">
         <canvas data-sprite="${id}"></canvas>
-        <span class="starter-text"><span class="choice-kind">${def.race}</span><b>${def.name}</b><small>${def.role}</small></span>
+        <span class="choice-kind">${def.race}</span>
+        <b>${def.name}</b>
+        <span class="starter-role">${def.role}</span>
+        <small>${def.description}</small>
       </button>`;
     })
     .join('');
   showOverlay(
     `<div class="panel wide starter-pick">
       <h2>Escolha seu primeiro companheiro</h2>
-      <p class="subtitle">Uma criatura mística entra de graça na sua coleção e na sua equipe. Clique para ver os detalhes.</p>
+      <p class="subtitle">Uma criatura mística entra de graça na sua coleção e na sua equipe, ao lado dos Humanos. As outras você libera depois, com Essência, na Coleção.</p>
       <div class="starter-grid">${cards}</div>
     </div>`,
     { view: (id) => showStarterConfirm(profile, id as CreatureId, onPick) },

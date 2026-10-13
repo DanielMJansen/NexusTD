@@ -1718,46 +1718,52 @@ button.danger {
 }
 
 /* primeiro companheiro */
-/* primeira criatura: cartas horizontais compactas, todas cabem sem rolagem */
+/* primeira criatura: três cartas grandes, uma por papel */
 .panel.starter-pick {
-  width: min(100%, 1240px);
+  width: min(100%, 980px);
 }
 
 .starter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .starter-option {
   --card-color: var(--accent);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 5px 8px 5px 4px;
-  text-align: left;
+  gap: 4px;
+  padding: 14px 14px 16px;
   border-color: color-mix(in srgb, var(--card-color) 50%, var(--line));
+  background: radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--card-color) 18%, transparent), transparent 60%), #140d22cc;
+}
+
+.starter-option:hover {
+  border-color: var(--card-color);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--card-color) 45%, transparent);
 }
 
 .starter-option canvas {
-  flex: none;
-  width: 54px;
-  height: 54px;
+  width: 130px;
+  height: 130px;
 }
 
-.starter-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  line-height: 1.15;
+.starter-option b {
+  font-size: 22px;
+  color: var(--card-color);
 }
 
-.starter-text .choice-kind {
-  font-size: 11px;
-}
-
-.starter-text b {
+.starter-grid .starter-option small {
   font-size: 15px;
+  line-height: 1.3;
+}
+
+.starter-role {
+  font: 600 14px var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .starter-option small {
