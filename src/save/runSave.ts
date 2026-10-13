@@ -77,7 +77,7 @@ function deserialize(raw: Record<string, unknown>): RunState {
     guards: ((raw.guards as RunState['guards'] | undefined) ?? []).map((g) => ({ ...g, lastHitAt: -Infinity })),
     // Relíquias (runs salvas antes delas não têm estes campos)
     relicsFound: (raw.relicsFound as RunState['relicsFound'] | undefined) ?? [],
-    relicBosses: (raw.relicBosses as RunState['relicBosses'] | undefined) ?? [],
+    relicPity: typeof raw.relicPity === 'number' ? raw.relicPity : 0,
     ankh: (raw.ankh as RunState['ankh'] | undefined) ?? null,
     // Portais e vento (runs salvas antes da Fase 5)
     portals: (raw.portals as RunState['portals'] | undefined) ?? [],

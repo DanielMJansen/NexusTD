@@ -1,39 +1,39 @@
-import { RELIC_DROPS, RELIC_IDS, RELICS, type RelicId } from '../data/relics';
+import { RELIC_DROPS, RELIC_IDS, relicLevel, type EquippedRelic } from '../data/relics';
 import { STAGES } from '../data/stages';
 import { random } from './random';
 import type { Enemy, RunState } from './state';
 import type { TalentBonuses } from './talents';
 
-// Relíquias na run: bônus somados aos talentos, queda nos chefes e o Ankh.
+// Relíquias na run: bônus somados aos talentos, baús deixados pelos chefes e o Ankh.
 
-/** Soma os bônus das Relíquias equipadas aos dos talentos. */
-export function withRelicBonuses(base: TalentBonuses, equipped: readonly RelicId[]): TalentBonuses {
+/** Soma os bônus das Relíquias equipadas (no nível de cada uma) aos dos talentos. */
+export function withRelicBonuses(base: TalentBonuses, equipped: readonly EquippedRelic[]): TalentBonuses {
   const result = { ...base };
-  for (const id of equipped) {
-    for (const [kind, value] of Object.entries(RELICS[id].bonuses)) result[kind as keyof TalentBonuses] += value;
+  for (const { id, level } of equipped) {
+    for (const [kind, value] of Object.entries(relicLevel(id, level).bonuses)) result[kind as keyof TalentBonuses] += value;
   }
   return result;
 }
 
-/** Chance de um chefe deixar Relíquia depois do 1º abate (maior no final e nas fases avançadas). */
+/** Chance de um chefe deixar um baú de Relíquia (maior no final e nas fases avançadas). */
 export function relicDropChance(state: RunState, enemy: Enemy): number {
   const stage = STAGES[state.stage];
   const final = stage.bosses.at(-1)?.enemy === enemy.def.id;
-  return (final ? RELIC_DROPS.finalChance : RELIC_DROPS.midChance) * (1 + RELIC_DROPS.perStage * (stage.number - 1));
+  const odds = final ? RELIC_DROPS.final : RELIC_DROPS.mid;
+  return odds.base + odds.perStage * (stage.number - 1);
 }
 
-/** Chefe morto: 1º abate garante uma Relíquia nova; depois, sorteio pela chance. */
+/** Chefe morto: sorteia o baú (com garantia depois de vários chefes sem nenhum); o baú traz qualquer Relíquia. */
 export function rollRelicDrop(state: RunState, enemy: Enemy): void {
   const relics = state.relics;
   if (!relics?.unlocked || !enemy.def.isBoss || enemy.summonedAlly) return;
-  const missing = RELIC_IDS.filter((id) => !relics.owned.includes(id) && !state.relicsFound.includes(id));
-  if (!missing.length) return;
-  const first = !relics.firstKills.includes(enemy.def.id) && !state.relicBosses.includes(enemy.def.id);
-  if (first) state.relicBosses.push(enemy.def.id);
-  if (!first && random() >= relicDropChance(state, enemy)) return;
-  const relic = missing[Math.floor(random() * missing.length)]!;
+  state.relicPity++;
+  if (state.relicPity < RELIC_DROPS.pity && random() >= relicDropChance(state, enemy)) return;
+  state.relicPity = 0;
+  const relic = RELIC_IDS[Math.floor(random() * RELIC_IDS.length)]!;
+  const fresh = !relics.owned.includes(relic) && !state.relicsFound.includes(relic);
   state.relicsFound.push(relic);
-  state.events.push({ type: 'relicFound', relic, x: enemy.x, y: enemy.y });
+  state.events.push({ type: 'relicFound', relic, fresh, x: enemy.x, y: enemy.y });
 }
 
 /**

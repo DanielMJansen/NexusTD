@@ -1,5 +1,5 @@
 import { ASCENSION, MAX_ASCENSION } from '../data/ascension';
-import { RELICS, type RelicId } from '../data/relics';
+import { relicLevel, type EquippedRelic, type RelicId } from '../data/relics';
 import type { MutationId } from '../data/mutations';
 import { HERO_SPAWN_SHIELD } from '../data/heroUpgrades';
 import type { NexusLook } from '../data/nexusSkins';
@@ -336,9 +336,9 @@ export interface RunResult {
   endless: boolean;
   /** Abates já contados no perfil antes do Sem Fim. */
   previousKills: number;
-  /** Relíquias achadas e chefes com o 1º abate registrado nesta run. */
+  /** Relíquias dos baús desta parte da run (repetidas inclusive) e chefes seguidos sem baú (garantia). */
   relicsFound: RelicId[];
-  relicBosses: EnemyId[];
+  relicPity: number;
 }
 
 /** Inimigo na fila de entrada. */
@@ -381,8 +381,8 @@ export interface RunSetup {
   hero: HeroId;
   /** Cores da skin do herói (só visual). */
   heroPalette: SkinPalette;
-  /** Relíquias: liberadas?, já possuídas, chefes já abatidos (1º abate garante) e equipadas (Ankh). */
-  relics?: { unlocked: boolean; owned: RelicId[]; firstKills: EnemyId[]; equipped: RelicId[] };
+  /** Relíquias: liberadas?, já possuídas, equipadas com nível (Ankh) e chefes seguidos sem baú. */
+  relics?: { unlocked: boolean; owned: RelicId[]; equipped: EquippedRelic[]; pity: number };
 }
 
 export interface RunState {
@@ -450,10 +450,10 @@ export interface RunState {
   pools: Pool[];
   /** Égide rúnica: o próximo golpe no Nexus nesta onda é anulado. */
   wardReady: boolean;
-  /** Relíquias: regras de queda, achadas nesta run e chefes com 1º abate nesta run. */
+  /** Relíquias: regras dos baús, achadas nesta parte da run e chefes seguidos sem baú. */
   relics?: RunSetup['relics'];
   relicsFound: RelicId[];
-  relicBosses: EnemyId[];
+  relicPity: number;
   /** Ankh equipado: salva um ponto vital uma vez. */
   ankh: { hp: number; used: boolean } | null;
   /** Estatísticas da run para conquistas. */
@@ -526,6 +526,13 @@ export const noHeroStats = (): Record<HeroStat, number> => ({
 
 /** Modificadores de um nível de Ascensão (fora do intervalo: normal). */
 export const ascensionLevel = (level = 0) => ASCENSION.levels[Math.max(0, Math.min(MAX_ASCENSION, level))]!;
+
+/** Ankh equipado: vida com que o ponto vital volta, pelo nível da Relíquia. */
+function ankhOf(equipped: readonly EquippedRelic[]): RunState['ankh'] {
+  const ankh = equipped.find((r) => r.id === 'ankh');
+  const special = ankh && relicLevel('ankh', ankh.level).special;
+  return special ? { hp: special.hp, used: false } : null;
+}
 
 export function createRun(setup: RunSetup): RunState {
   const t = setup.talents;
@@ -621,8 +628,8 @@ export function createRun(setup: RunSetup): RunState {
     wardReady: false,
     relics: setup.relics,
     relicsFound: [],
-    relicBosses: [],
-    ankh: setup.relics?.equipped.includes('ankh') ? { hp: RELICS.ankh.special?.hp ?? 0.3, used: false } : null,
+    relicPity: setup.relics?.pity ?? 0,
+    ankh: ankhOf(setup.relics?.equipped ?? []),
     lowestNexusRatio: 1,
     ascendedPeak: 0,
     spawnQueue: [],

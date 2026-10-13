@@ -4277,10 +4277,10 @@ b.awakened {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  width: 150px;
-  min-height: 96px;
-  padding: 8px;
+  gap: 2px;
+  width: 170px;
+  min-height: 70px;
+  padding: 6px 8px;
   border: 1px solid var(--line-strong);
   border-radius: 12px;
   background: #110b1ecc;
@@ -4288,7 +4288,7 @@ b.awakened {
 }
 
 .relic-slot span {
-  font-size: 30px;
+  font-size: 24px;
 }
 
 .relic-slot small {
@@ -4316,16 +4316,28 @@ b.awakened {
 
 .relic-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.relic-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.15;
+}
+
+.relic-head .relic-icon {
+  font-size: 24px;
 }
 
 .relic-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 10px;
+  gap: 3px;
+  padding: 8px 8px 10px;
   border: 1px solid var(--line-strong);
   border-radius: 12px;
   background: linear-gradient(#1c1430e6, #110b1ee6);
@@ -4356,8 +4368,42 @@ b.awakened {
   font-size: 12px;
 }
 
-.relic-card button {
+.relic-card > button {
   margin-top: auto;
+}
+
+.relic-level {
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+.relic-card p.relic-next {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* cópias repetidas: subir de nível ou trocar por Essência */
+.relic-copies {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 6px;
+  margin: 2px 0;
+  padding: 4px 6px;
+  border: 1px dashed var(--gold-dim);
+  border-radius: 8px;
+}
+
+.relic-copies small {
+  color: var(--gold);
+  font: 600 12px var(--font-label);
+}
+
+.relic-copies button {
+  padding: 3px 8px;
+  font-size: 12px;
 }
 
 /* ilustração animada dos tutoriais das telas */

@@ -1,7 +1,7 @@
 // Bot de calibragem: joga runs reais com a simulação (sem DOM) e mede vitórias, onda e Sem Fim por raça.
 // Uso: npm run calib -- [filtro de raça]. Variáveis: STAGE=graveyard|swamp|tundra|desert, TAL=none|2500|max, N=30,
 // SYN=1 (sinergias), ENDLESS=1 (segue no Sem Fim), HERO=<id>, TEAM=a,b,c (time próprio), AWAKE=1 (equipe
-// desperta) ou AWAKEN=a,b (despertas escolhidas; o bot compra estrelas até ★5).
+// desperta) ou AWAKEN=a,b (despertas escolhidas; o bot compra estrelas até ★5), RELICS=a,b:2 (Relíquias equipadas; nível 3 se omitido).
 import type { CreatureId } from '../src/data/creatures';
 import type { HeroId } from '../src/data/heroes';
 import { NEXUS_UPGRADES } from '../src/data/nexusUpgrades';
@@ -18,6 +18,8 @@ import type { StageId } from '../src/data/stages';
 import { noTalentBonuses, talentBonuses, type TalentLevels } from '../src/game/talents';
 import { enterEndless, startRun, updateRun } from '../src/game/update';
 import { entrances } from '../src/game/paths';
+import type { EquippedRelic, RelicId } from '../src/data/relics';
+import { withRelicBonuses } from '../src/game/relics';
 
 const N = Number(process.env.N ?? 30);
 /** Portais do Céu: inimigos impedidos ao selar e abates (diagnóstico com DIAG=1). */
@@ -25,6 +27,11 @@ let sealedTotal = 0;
 let killedTotal = 0;
 const ENDLESS = process.env.ENDLESS === '1';
 const TAL = process.env.TAL ?? 'none';
+/** Relíquias equipadas (RELICS=ankh,eyeOfHorus:2; nível 3 se omitido); não caem novas durante o teste. */
+const RELICS_ON: EquippedRelic[] = (process.env.RELICS ? process.env.RELICS.split(',') : []).map((r) => {
+  const [id, level] = r.split(':');
+  return { id: id as RelicId, level: Number(level ?? 3) };
+});
 
 /** Perfis de talento: nenhum, "meio da árvore" (~1.500 de Essência) e árvore completa. */
 function talents() {
@@ -164,7 +171,16 @@ function trial(label: string, team: CreatureId[], hero: HeroId): void {
   let levels = 0;
   const losses: number[] = [];
   for (let k = 0; k < N; k++) {
-    const run = startRun({ stage: (process.env.STAGE ?? 'graveyard') as StageId, talents: talents(), team, hero, heroPalette: {}, synergies: process.env.SYN === '1', awakened: process.env.AWAKE === '1' ? [...team] : process.env.AWAKEN ? (process.env.AWAKEN.split(',') as CreatureId[]) : [] });
+    const run = startRun({
+      stage: (process.env.STAGE ?? 'graveyard') as StageId,
+      talents: withRelicBonuses(talents(), RELICS_ON),
+      team,
+      hero,
+      heroPalette: {},
+      synergies: process.env.SYN === '1',
+      awakened: process.env.AWAKE === '1' ? [...team] : process.env.AWAKEN ? (process.env.AWAKEN.split(',') as CreatureId[]) : [],
+      relics: { unlocked: false, owned: RELICS_ON.map((r) => r.id), equipped: [...RELICS_ON], pity: 0 },
+    });
     let t = 0;
     let won = false;
     while (t < 20000) {

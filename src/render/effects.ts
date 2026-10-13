@@ -252,7 +252,12 @@ export class Effects {
         this.burst(event.x, event.y - 10, 10, '#c8a0ff', 50, 0.5, 2, true);
         break;
       case 'relicFound':
-        this.banner(`Relíquia: ${RELICS[event.relic].icon} ${RELICS[event.relic].name}`, 'Equipe no menu, em Relíquias', '#f0c35a', 2.6);
+        this.banner(
+          `Baú de Relíquia: ${RELICS[event.relic].icon} ${RELICS[event.relic].name}`,
+          event.fresh ? 'Nova! Equipe no menu, em Relíquias' : 'Repetida: suba o nível ou troque por Essência, em Relíquias',
+          '#f0c35a',
+          2.8,
+        );
         this.ring(event.x, event.y, 60, '#f0c35a', 0.8, 4);
         this.burst(event.x, event.y, 30, '#ffe9a0', 120, 0.9, 3, true, -40);
         break;

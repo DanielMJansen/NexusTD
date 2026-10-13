@@ -8,8 +8,8 @@ import { FIRST_STAGE, STAGE_IDS, type StageId } from '../data/stages';
 import { ALL_CREATURE_IDS, type CreatureId, CREATURES } from '../data/creatures';
 import { GIFT_IDS } from '../data/gifts';
 import { ACHIEVEMENT_IDS } from '../data/achievements';
-import { ENEMY_IDS, type EnemyId } from '../data/enemies';
-import { RELIC_IDS, type RelicId } from '../data/relics';
+import { ENEMY_IDS } from '../data/enemies';
+import { RELIC_DROPS, RELIC_IDS, RELIC_MAX_LEVEL, type RelicId } from '../data/relics';
 import { ALL_HERO_IDS, STARTER_HERO, type HeroId } from '../data/heroes';
 import { findSkin } from '../data/skins';
 import { TALENT_IDS, talentMaxLevel, type TalentId } from '../data/talents';
@@ -161,7 +161,16 @@ function sanitize(data: unknown): Profile {
   const relicList = (value: unknown) => [...new Set(Array.isArray(value) ? value : [])].filter((id): id is RelicId => RELIC_IDS.includes(id as RelicId));
   profile.relics = relicList(raw.relics);
   profile.equippedRelics = relicList(raw.equippedRelics).filter((id) => profile.relics.includes(id));
-  profile.relicBosses = [...new Set(Array.isArray(raw.relicBosses) ? raw.relicBosses : [])].filter((id): id is EnemyId => ENEMY_IDS.includes(id as EnemyId));
+  // níveis e cópias (12/10/2026; antes: nível 1, sem cópias) e a garantia dos baús
+  const levels = (raw.relicLevels ?? {}) as Record<string, unknown>;
+  const copies = (raw.relicCopies ?? {}) as Record<string, unknown>;
+  for (const id of profile.relics) {
+    const level = Math.max(1, Math.min(RELIC_MAX_LEVEL, Math.floor(toNumber(levels[id]))));
+    if (level > 1) profile.relicLevels[id] = level;
+    const count = Math.floor(toNumber(copies[id]));
+    if (count > 0) profile.relicCopies[id] = count;
+  }
+  profile.relicPity = Math.max(0, Math.min(RELIC_DROPS.pity, Math.floor(toNumber(raw.relicPity))));
   // Santuário (campos novos: padrão vazio)
   const fragments = (raw.fragments ?? {}) as Record<string, unknown>;
   const races = new Set(ALL_CREATURE_IDS.map((id) => CREATURES[id].race));

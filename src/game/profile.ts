@@ -1,5 +1,5 @@
 import { ASCENSION, MAX_ASCENSION } from '../data/ascension';
-import { RELIC_SLOTS, type RelicId } from '../data/relics';
+import { RELIC_DROPS, RELIC_MAX_LEVEL, RELIC_SLOTS, type EquippedRelic, type RelicId } from '../data/relics';
 import { withRelicBonuses } from './relics';
 import { GIFT_IDS, GIFTS, type GiftId } from '../data/gifts';
 import { ALL_CREATURE_IDS } from '../data/creatures';
@@ -70,10 +70,13 @@ export interface Profile {
   selectedStage: StageId;
   /** Recordes por fase (vitórias e onda mais alta). */
   stageRecords: Partial<Record<StageId, StageRecord>>;
-  /** Relíquias possuídas, equipadas e chefes já abatidos com elas liberadas (1º abate garante uma). */
+  /** Relíquias possuídas e equipadas; nível de cada uma (sem registro = 1) e cópias guardadas. */
   relics: RelicId[];
   equippedRelics: RelicId[];
-  relicBosses: EnemyId[];
+  relicLevels: Partial<Record<RelicId, number>>;
+  relicCopies: Partial<Record<RelicId, number>>;
+  /** Chefes abatidos seguidos sem baú de Relíquia (garantia). */
+  relicPity: number;
   /** Ascensão por fase: maior nível liberado e o escolhido para a próxima run. */
   ascension: Partial<Record<StageId, { unlocked: number; selected: number }>>;
 }
@@ -112,7 +115,9 @@ export function createProfile(): Profile {
     stageRecords: {},
     relics: [],
     equippedRelics: [],
-    relicBosses: [],
+    relicLevels: {},
+    relicCopies: {},
+    relicPity: 0,
     ascension: {},
   };
   profile.loadouts = Array.from({ length: LOADOUTS.free }, (_, i) => ({ name: loadoutName(i), hero: profile.selectedHero, team: [...profile.team] }));
@@ -330,6 +335,37 @@ export function relicSlots(profile: Profile): number {
 export const activeRelics = (profile: Profile): RelicId[] =>
   profile.equippedRelics.filter((id) => profile.relics.includes(id)).slice(0, relicSlots(profile));
 
+/** Nível de uma Relíquia possuída (1–3). */
+export const relicLevelOf = (profile: Profile, id: RelicId): number => profile.relicLevels[id] ?? 1;
+
+/** Relíquias equipadas com o nível de cada uma (o que vai para a run). */
+export const equippedRelicLevels = (profile: Profile): EquippedRelic[] => activeRelics(profile).map((id) => ({ id, level: relicLevelOf(profile, id) }));
+
+/** Relíquias dos baús de uma run: as novas entram no nível 1, as repetidas viram cópias. */
+export function addFoundRelics(profile: Profile, found: readonly RelicId[]): void {
+  for (const id of found) {
+    if (!profile.relics.includes(id)) profile.relics.push(id);
+    else profile.relicCopies[id] = (profile.relicCopies[id] ?? 0) + 1;
+  }
+}
+
+/** Gasta uma cópia para subir o nível (até o máximo). */
+export function upgradeRelic(profile: Profile, id: RelicId): boolean {
+  const level = relicLevelOf(profile, id);
+  if (!profile.relics.includes(id) || level >= RELIC_MAX_LEVEL || !profile.relicCopies[id]) return false;
+  profile.relicCopies[id]!--;
+  profile.relicLevels[id] = level + 1;
+  return true;
+}
+
+/** Troca uma cópia por Essência. */
+export function convertRelicCopy(profile: Profile, id: RelicId): boolean {
+  if (!profile.relicCopies[id]) return false;
+  profile.relicCopies[id]!--;
+  profile.essence += RELIC_DROPS.copyEssence;
+  return true;
+}
+
 /** Equipa ou desequipa uma Relíquia; sem vaga livre, não equipa. */
 export function toggleRelic(profile: Profile, id: RelicId): boolean {
   if (!profile.relics.includes(id)) return false;
@@ -381,9 +417,9 @@ export function runSetup(profile: Profile): RunSetup {
     synergies: isStageUnlocked(profile, 'tundra'),
     variants: { ...profile.selectedVariants },
     nexusLook: { ...nexusLookFor(profile, isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE) },
-    talents: withRelicBonuses(talentBonuses(profile.talents), activeRelics(profile)),
+    talents: withRelicBonuses(talentBonuses(profile.talents), equippedRelicLevels(profile)),
     ascension: selectedAscension(profile, isStageUnlocked(profile, profile.selectedStage) ? profile.selectedStage : FIRST_STAGE),
-    relics: { unlocked: relicsUnlocked(profile), owned: [...profile.relics], firstKills: [...profile.relicBosses], equipped: activeRelics(profile) },
+    relics: { unlocked: relicsUnlocked(profile), owned: [...profile.relics], equipped: equippedRelicLevels(profile), pity: profile.relicPity },
     team: profile.team.filter((id) => ownsCreature(profile, id)),
     hero: ownsHero(profile, profile.selectedHero) ? profile.selectedHero : STARTER_HERO,
     heroPalette: heroSkin(profile, profile.selectedHero).palette,

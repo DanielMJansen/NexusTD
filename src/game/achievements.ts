@@ -1,5 +1,5 @@
 import { MAX_ASCENSION } from '../data/ascension';
-import { ascensionOpen, ascensionUnlocked } from './profile';
+import { addFoundRelics, ascensionOpen, ascensionUnlocked } from './profile';
 import { ACHIEVEMENT_IDS, ACHIEVEMENTS, type AchievementDef, type AchievementId } from '../data/achievements';
 import { CREATURE_IDS } from '../data/creatures';
 import type { Profile } from './profile';
@@ -15,8 +15,8 @@ export function recordRun(profile: Profile, result: RunResult): void {
   profile.bestWave = Math.max(profile.bestWave, result.wave);
   for (const [race, amount] of Object.entries(result.fragments)) profile.fragments[race] = (profile.fragments[race] ?? 0) + amount;
   profile.crystals += result.crystals ?? 0;
-  for (const id of result.relicsFound ?? []) if (!profile.relics.includes(id)) profile.relics.push(id);
-  for (const id of result.relicBosses ?? []) if (!profile.relicBosses.includes(id)) profile.relicBosses.push(id);
+  addFoundRelics(profile, result.relicsFound ?? []);
+  profile.relicPity = result.relicPity ?? profile.relicPity;
   const record = (profile.stageRecords[result.stage] ??= { wins: 0, bestWave: 0 });
   if (result.victory) record.wins++;
   // Ascensão: vencer no nível mais alto liberado abre o próximo

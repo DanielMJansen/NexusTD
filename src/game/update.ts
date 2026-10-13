@@ -104,6 +104,8 @@ export function enterEndless(state: RunState): void {
   if (!state.result?.victory || state.endless) return;
   state.endless = true;
   state.endlessKills = state.kills;
+  // as Relíquias das 20 ondas já foram para o perfil na vitória: o Sem Fim só conta as novas
+  state.relicsFound = [];
   state.result = null;
   offerChoices(state);
 }
@@ -167,7 +169,7 @@ function endRun(state: RunState, victory: boolean): void {
     endless: state.endless,
     previousKills: state.endless ? state.endlessKills : 0,
     relicsFound: [...state.relicsFound],
-    relicBosses: [...state.relicBosses],
+    relicPity: state.relicPity,
   };
   state.events.push({ type: 'runEnded', result: state.result });
 }

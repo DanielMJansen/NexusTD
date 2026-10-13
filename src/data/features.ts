@@ -108,9 +108,9 @@ export const FEATURES: Record<FeatureId, FeatureDef> = {
       subtitle: 'Tesouros deixados pelos chefes: equipe antes da run.',
       color: '#f0c35a',
       tips: [
-        { icon: '👑', title: 'Chefes deixam', text: 'A partir de agora, chefes de todas as fases deixam Relíquias. O 1º abate de cada chefe garante uma nova; depois, a chance cresce com a dificuldade do chefe.' },
+        { icon: '👑', title: 'Baús raros', text: 'A partir de agora, chefes de todas as fases podem deixar um baú de Relíquia. Chefes finais e fases avançadas dão mais chance; depois de muitos chefes sem baú, o próximo vem garantido.' },
+        { icon: '⬆', title: 'Níveis', text: 'Cada Relíquia tem 3 níveis. Uma repetida vira cópia: use para subir o nível ou troque por Essência.' },
         { icon: '◎', title: 'Vagas', text: 'Começa com 1 vaga. Vencer o Deserto abre a 2ª; chegar à onda 30 do Sem Fim no Deserto abre a 3ª.' },
-        { icon: '☥', title: 'Efeitos', text: 'Cada Relíquia vale a run inteira: mais dano, ouro, vida do Nexus, Pulso mais rápido, até salvar o Obelisco uma vez (Ankh).' },
       ],
     },
   },

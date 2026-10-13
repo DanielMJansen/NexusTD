@@ -40,7 +40,8 @@ export type GameEvent =
   | { type: 'creatureReleased'; x: number; y: number }
   | { type: 'enemyBurrow'; x: number; y: number; surfacing: boolean; radius?: number }
   | { type: 'enemyRevived'; x: number; y: number; boss: boolean; rising: boolean }
-  | { type: 'relicFound'; relic: RelicId; x: number; y: number }
+  /** Baú de Relíquia de um chefe: `fresh` = Relíquia que o jogador ainda não tinha (senão, cópia). */
+  | { type: 'relicFound'; relic: RelicId; fresh: boolean; x: number; y: number }
   | { type: 'ankhSaved' }
   | { type: 'enemyAegis'; x: number; y: number; radius: number }
   | { type: 'enemyEvaded'; x: number; y: number }
