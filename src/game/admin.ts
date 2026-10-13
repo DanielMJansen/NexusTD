@@ -1,4 +1,4 @@
-import { RELIC_IDS } from '../data/relics';
+import { RELIC_IDS, RELIC_MAX_LEVEL } from '../data/relics';
 // Painel de administrador: edita o perfil local à vontade (para testar). Simulação pura: só mexe no perfil;
 // quem chama salva e passa o perfil pela limpeza do save (equipe, herói e equipes salvas válidos).
 import { ACHIEVEMENT_IDS, type AchievementId } from '../data/achievements';
@@ -108,10 +108,62 @@ export function setGift(profile: Profile, gift: GiftId, on: boolean): void {
   for (const id of ALL_HERO_IDS) if (HEROES[id].gift === gift) setHeroOwned(profile, id, false);
 }
 
-/** Relíquias: todas ou nenhuma (tira as equipadas junto). */
+/** Relíquias: todas ou nenhuma (tira as equipadas, níveis e cópias junto). */
 export function setAllRelics(profile: Profile, all: boolean): void {
   profile.relics = all ? [...RELIC_IDS] : [];
-  if (!all) profile.equippedRelics = [];
+  if (!all) {
+    profile.equippedRelics = [];
+    profile.relicLevels = {};
+    profile.relicCopies = {};
+  }
+}
+
+/** Todas as Relíquias no nível máximo (ou de volta ao 1). */
+export function setAllRelicLevels(profile: Profile, max: boolean): void {
+  profile.relicLevels = {};
+  if (max) for (const id of profile.relics) profile.relicLevels[id] = RELIC_MAX_LEVEL;
+}
+
+// ---------- marcar/desmarcar tudo de uma vez ----------
+
+/** Criaturas: todas na coleção ou só as iniciais. */
+export function setAllCreatures(profile: Profile, on: boolean): void {
+  for (const id of ALL_CREATURE_IDS) if (CREATURES[id].unlock.kind !== 'start') setCreatureOwned(profile, id, on);
+}
+
+export function setAllAwakened(profile: Profile, on: boolean): void {
+  for (const id of ALL_CREATURE_IDS) setAwakened(profile, id, on);
+}
+
+export function setAllSanctuary(profile: Profile, max: boolean): void {
+  for (const id of ALL_CREATURE_IDS) setSanctuaryLevel(profile, id, max ? SANCTUARY.maxLevel : 0);
+}
+
+/** Variantes: as três raridades de todas as criaturas, ou nenhuma. */
+export function setAllVariants(profile: Profile, on: boolean): void {
+  for (const id of ALL_CREATURE_IDS) {
+    if (on) profile.variants[id] = [...VARIANT_TIERS];
+    else delete profile.variants[id];
+  }
+  if (!on) profile.selectedVariants = {};
+}
+
+export function setAllHeroes(profile: Profile, on: boolean): void {
+  for (const id of ALL_HERO_IDS) setHeroOwned(profile, id, on);
+}
+
+export function setAllStages(profile: Profile, won: boolean): void {
+  for (const id of STAGE_IDS) setStageWon(profile, id, won);
+}
+
+/** Cores do Nexus que não vêm de conquista. */
+export function setAllNexusColors(profile: Profile, on: boolean): void {
+  const ids = NEXUS_COLORS.filter((c) => c.unlock.kind !== 'achievement').map((c) => c.id);
+  profile.nexusColors = on ? [...new Set([...profile.nexusColors, ...ids])] : profile.nexusColors.filter((c) => !ids.includes(c));
+}
+
+export function setAllGifts(profile: Profile, on: boolean): void {
+  for (const gift of GIFT_IDS) setGift(profile, gift, on);
 }
 
 /** Libera tudo: criaturas, heróis, conquistas (skins), fases, cores, talentos e presentes. */

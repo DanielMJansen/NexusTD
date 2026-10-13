@@ -1,5 +1,6 @@
 import { boundKeyLabel as k } from '../input/bindings';
 import type { RunState } from '../game/state';
+import { ADMIN_RUN_ACTIONS, type AdminRunAction } from '../game/adminRun';
 import { heroSheetHtml } from './describe';
 import { showOverlay } from './overlay';
 
@@ -12,9 +13,16 @@ export interface PauseHandlers {
   onSaveAndQuit(): void;
   /** Desiste da run: apaga o save, sem Essência. */
   onAbandon(): void;
+  /** Só com o modo administrador: ações na run (ouro, nível, vida, inimigos). */
+  onAdmin?(action: AdminRunAction): void;
 }
 
 export function showPause(handlers: PauseHandlers, run?: RunState): void {
+  const admin = handlers.onAdmin
+    ? `<div class="pause-admin"><small>🛠 Admin da run${run ? ` · ${run.gold} ◉ · herói nível ${run.hero.level}` : ''}</small><div class="row-buttons">${ADMIN_RUN_ACTIONS.map(
+        (a) => `<button data-action="admin" data-value="${a.id}">${a.label}</button>`,
+      ).join('')}</div></div>`
+    : '';
   const move = ['up', 'left', 'down', 'right'].map((a) => k(a as 'up')).join('');
   showOverlay(
     `<div class="panel">
@@ -27,6 +35,7 @@ export function showPause(handlers: PauseHandlers, run?: RunState): void {
         <button data-action="save">💾 Salvar e sair para o menu</button>
         <button data-action="abandon">Abandonar run</button>
       </div>
+      ${admin}
       <details class="pause-controls"><summary>Controles</summary><dl class="controls">
         <dt>${move} / setas</dt><dd>mover o herói</dd>
         <dt>Clique no chão</dt><dd>guiar o herói</dd>
@@ -49,6 +58,7 @@ export function showPause(handlers: PauseHandlers, run?: RunState): void {
       intro: () => handlers.onStageIntro(),
       save: () => handlers.onSaveAndQuit(),
       abandon: () => handlers.onAbandon(),
+      admin: (action) => handlers.onAdmin?.(action as AdminRunAction),
     },
   );
 }

@@ -21,6 +21,7 @@ import {
   radial,
   shape,
   skin,
+  darken,
   star,
   starDots,
   TAU,
@@ -559,9 +560,15 @@ const ARCHER_VARIANTS = {
 
 function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
   const breathe = Math.sin(p.time * 2.2) * 0.6;
-  const vc = p.variant ? ARCHER_VARIANTS[p.variant] : null;
-  // Atirador de Elite: capuz carmesim, arco longo escuro, pena e lente
+  // Atirador de Elite: capuz carmesim, arco longo escuro, pena, lente e lenço na boca
   const elite = formB(p);
+  // Patrulheiro (A): capa curta nos ombros, braçadeira e duas flechas no arco
+  const ranger = formA(p);
+  const base = p.variant ? ARCHER_VARIANTS[p.variant] : null;
+  // na variante, o Atirador fica em tons mais escuros (a forma continua diferente da A)
+  const vc = base && elite
+    ? { ...base, cloak: [darken(base.cloak[0], 0.35), darken(base.cloak[1], 0.35)] as const, hood: [darken(base.hood[0], 0.3), darken(base.hood[1], 0.3)] as const }
+    : base;
   const pull = p.attack > 0.5 ? 0 : 1 - p.attack * 2; // após o tiro, a corda volta a ser puxada
   // Formas Supremas: Mestre Arqueiro (A) e Olho do Falcão (B)
   const master = p.supreme && !elite;
@@ -601,6 +608,19 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
   );
   shape(ctx, '#2b2018', () => ctx.rect(-6, 3, 12, 2.2), 0.8);
   if (p.variant === 'legendary') starDots(ctx, p.time, [[-4, 9], [3, 6], [6, 11], [-6, 1]]);
+  if (ranger) {
+    // capa curta sobre os ombros, com filete dourado
+    shape(ctx, vertical(ctx, -9, 0, vc ? darken(vc.hood[0], 0.15) : '#2f7a48', vc ? darken(vc.hood[1], 0.2) : '#174a2a'), () =>
+      poly(ctx, [-8, -7 + breathe, 6, -8 + breathe, 9, -2, 4, 1, -1, -1, -6, 1, -10, -2]),
+    1);
+    line(ctx, GOLD, 0.9, () => {
+      ctx.moveTo(9, -2);
+      ctx.lineTo(4, 1);
+      ctx.lineTo(-1, -1);
+      ctx.lineTo(-6, 1);
+      ctx.lineTo(-10, -2);
+    }, false);
+  }
 
   // capuz e rosto
   const hy = -14 + breathe;
@@ -668,8 +688,17 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.beginPath();
     circle(ctx, 5, hy + 0.6, 2.5);
     ctx.stroke();
-  }
-  blush(ctx, 0.5, hy + 3.4);
+    // lenço cobrindo a boca, com a ponta solta atrás
+    const scarf = vc ? darken(vc.cloak[0], 0.25) : '#3a1418';
+    shape(ctx, scarf, () => poly(ctx, [-6, hy + 6, -11, hy + 9, -9.5, hy + 4.5, -5, hy + 2.5]), 0.7);
+    shape(ctx, scarf, () => {
+      ctx.moveTo(-2.5, hy + 2.6);
+      ctx.quadraticCurveTo(3, hy + 1.8, 8.4, hy + 2.6);
+      ctx.lineTo(7.4, hy + 6.2);
+      ctx.quadraticCurveTo(2, hy + 7.4, -3, hy + 6.4);
+      ctx.closePath();
+    }, 0.8);
+  } else blush(ctx, 0.5, hy + 3.4);
 
   // arco
   const bx = 5;
@@ -709,15 +738,18 @@ function drawArcher(ctx: Ctx, p: Required<SpritePose>): void {
     shape(ctx, vc ? vc.tip : '#c0444e', () => circle(ctx, bottom.x, bottom.y, 1.3), 0.6);
   }
   if (pull > 0.2) {
-    line(ctx, '#d8c8a8', 1.2, () => {
-      ctx.moveTo(nock.x, nock.y);
-      ctx.lineTo(nock.x + 15, nock.y);
-    });
-    shape(ctx, '#cfd8e8', () => poly(ctx, [nock.x + 15, nock.y - 2, nock.x + 19, nock.y, nock.x + 15, nock.y + 2]), 0.8);
+    // Patrulheiro: duas flechas em leque (multi-tiro)
+    for (const lift of ranger ? [-3.2, 0] : [0]) {
+      line(ctx, '#d8c8a8', 1.2, () => {
+        ctx.moveTo(nock.x, nock.y);
+        ctx.lineTo(nock.x + 15, nock.y + lift);
+      });
+      shape(ctx, vc ? vc.tip : '#cfd8e8', () => poly(ctx, [nock.x + 15, nock.y + lift - 2, nock.x + 19, nock.y + lift * 1.25, nock.x + 15, nock.y + lift + 2]), 0.8);
+    }
   }
   shape(ctx, '#f2cfae', () => circle(ctx, nock.x, nock.y, 1.9), 0.9);
 
-  if (master) {
+  if (ranger || master) {
     // braçadeira de couro reforçada na mão do arco
     shape(ctx, '#6a4020', () => ctx.roundRect(nock.x - 2.5, nock.y - 1.6, 4, 3.2, 1), 0.6);
     shape(ctx, GOLD, () => ctx.rect(nock.x - 1, nock.y - 1.6, 1, 3.2), 0);
@@ -750,9 +782,59 @@ const GUARD_VARIANTS = {
   rare: { armor: ['#f4f6fa', '#9aa4b8'], tabard: ['#d0283e', '#6a0a1a'], trim: GOLD, plume: '#ffffff', helm: ['#ffffff', '#aab4c8'], shield: ['#f4f4fa', '#9aa0b8'], emblem: GOLD, eyes: '#9fdcff' },
   // Templário: elmo fechado com fenda em cruz, tabardo branco com cruz vermelha
   epic: { armor: ['#c8ccd6', '#6a7080'], tabard: ['#ffffff', '#c8c8d4'], trim: '#c01828', plume: '#c01828', helm: ['#d8dce4', '#6a7080'], shield: ['#ffffff', '#c0c4d0'], emblem: '#c01828', eyes: '#ff8a5a' },
-  // Paladino do Sol: armadura dourada, coroa de raios, escudo-sol
-  legendary: { armor: ['#fff0a8', '#c8901a'], tabard: ['#ffffff', '#ffe08a'], trim: '#fff4c8', plume: '#ffd23a', helm: ['#fff4c0', '#d8a020'], shield: ['#fff4c0', '#e0a020'], emblem: '#ff9a1a', eyes: '#fff0a0' },
+  // Paladino do Sol: armadura branca com ouro, elmo alado, disco de sol atrás da cabeça, escudo-sol
+  legendary: { armor: ['#ffffff', '#c4c8d8'], tabard: ['#ffffff', '#f0dca0'], trim: GOLD, plume: '#ffd23a', helm: ['#ffffff', '#c4c8d8'], shield: ['#fff8dc', '#e8b030'], emblem: '#ff9a1a', eyes: '#fff0a0' },
 } as const;
+
+/** Capa da Guarda (Paladino e Paladino do Sol): de vermelho, ou nas cores da variante. */
+function guardCape(ctx: Ctx, sway: number, time: number, top: string, bottom: string): void {
+  const wind = Math.sin(time * 2.5) * 1.2;
+  shape(ctx, vertical(ctx, -9, 15, top, bottom), () => {
+    ctx.moveTo(-6, -8 + sway);
+    ctx.quadraticCurveTo(-12 + wind, 2, -13 + wind, 15);
+    ctx.lineTo(-7 + wind * 0.5, 13);
+    ctx.lineTo(-2, 15);
+    ctx.lineTo(3, -8 + sway);
+    ctx.closePath();
+  }, 1);
+}
+
+/** Disco de sol atrás da cabeça (Paladino do Sol): anel fino e raios girando devagar. */
+function sunDisc(ctx: Ctx, x: number, y: number, time: number): void {
+  halo(ctx, x, y, 18, '#ffd23a', 0.4 + Math.sin(time * 2) * 0.1);
+  ctx.save();
+  ctx.translate(x, y);
+  // anel liso e um anel pontilhado girando devagar por fora
+  ctx.strokeStyle = '#ffe48a';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  circle(ctx, 0, 0, 12);
+  ctx.stroke();
+  ctx.globalAlpha *= 0.7;
+  ctx.lineWidth = 0.9;
+  ctx.setLineDash([1.5, 2.5]);
+  ctx.lineDashOffset = -time * 4;
+  ctx.beginPath();
+  circle(ctx, 0, 0, 14.5);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Asas douradas abertas nos lados do elmo, com três penas (Paladino do Sol). */
+function helmWings(ctx: Ctx, hy: number): void {
+  for (const [x, dir] of [[-7.5, -1], [7.5, 1]] as const) {
+    shape(ctx, vertical(ctx, hy - 11, hy, '#ffffff', '#e0a828'), () => {
+      ctx.moveTo(x, hy - 1);
+      ctx.quadraticCurveTo(x + dir * 5, hy - 4, x + dir * 10, hy - 10);
+      ctx.lineTo(x + dir * 8.2, hy - 6.6);
+      ctx.lineTo(x + dir * 9.4, hy - 5.6);
+      ctx.lineTo(x + dir * 6.6, hy - 3.6);
+      ctx.lineTo(x + dir * 7.4, hy - 2);
+      ctx.lineTo(x + dir * 3, hy - 0.6);
+      ctx.closePath();
+    }, 0.8);
+  }
+}
 
 /** Brasão de sol (Paladino do Sol): disco com raios que pulsa e brilha mais no golpe. */
 function sunEmblem(ctx: Ctx, x: number, y: number, r: number, time: number, attack: number): void {
@@ -773,9 +855,11 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
   const trim = gv ? gv.trim : holy ? '#9fdcff' : ascended(p) ? GOLD : '#8a96b0';
   const hy = -16 + sway;
 
-  if (p.variant === 'legendary') {
-    // auréola de sol atrás do Paladino
-    halo(ctx, 0, hy - 2, 16, '#ffd23a', 0.45 + Math.sin(p.time * 2) * 0.1);
+  // Paladino (A): capa e ombreiras grandes (o Bastião supremo tem as próprias)
+  const paladin = formA(p);
+  if (p.variant === 'legendary') sunDisc(ctx, 0, hy, p.time);
+  if (paladin || p.variant === 'legendary') {
+    guardCape(ctx, sway, p.time, gv ? (p.variant === 'legendary' ? '#fff4c8' : gv.tabard[0]) : '#d0283e', gv ? (p.variant === 'legendary' ? '#d8a020' : darken(gv.tabard[1], 0.2)) : '#5a0a1a');
   }
 
   // pernas e corpo com armadura
@@ -791,6 +875,13 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
     shape(ctx, '#ffb020', () => star(ctx, 0, 0.5 + sway, 2.6), 0.5);
   } else if (holy) shape(ctx, '#5aa8ff', () => circle(ctx, 0, 0 + sway, 2.2), 0.6);
   shape(ctx, trim, () => ctx.rect(-7, 2, 14, 2.4), 0.8);
+  if (paladin && !p.supreme) {
+    // ombreiras grandes e arredondadas
+    for (const x of [-10, 4]) {
+      shape(ctx, vertical(ctx, -12, -4, gv ? gv.armor[0] : '#fff0b0', gv ? trim : '#c8901a'), () => ctx.roundRect(x, -11 + sway, 7, 6.5, [4, 4, 1.5, 1.5]), 0.9);
+      shape(ctx, trim, () => ctx.rect(x + 0.5, -6.2 + sway, 6, 1), 0);
+    }
+  }
 
   if (holy) {
     // martelo de guerra erguido: desce no ataque
@@ -817,18 +908,7 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
   }
 
   // elmo com viseira e pluma
-  if (p.variant === 'legendary') {
-    // coroa de raios de sol em volta do elmo
-    ctx.save();
-    ctx.translate(0, hy);
-    ctx.rotate(Math.sin(p.time) * 0.08);
-    for (let i = 0; i < 9; i++) {
-      const a = -Math.PI + (i / 8) * Math.PI;
-      const long = i % 2 ? 14 : 12;
-      shape(ctx, vertical(ctx, -15, 0, '#fff4b0', '#ff9a1a'), () => poly(ctx, [Math.cos(a - 0.14) * 8, Math.sin(a - 0.14) * 8, Math.cos(a) * long, Math.sin(a) * long, Math.cos(a + 0.14) * 8, Math.sin(a + 0.14) * 8]), 0.6);
-    }
-    ctx.restore();
-  } else if (p.variant !== 'epic') {
+  if (p.variant !== 'epic' && p.variant !== 'legendary') {
     shape(ctx, gv ? gv.plume : holy ? '#5aa8ff' : ascended(p) ? GOLD : '#e0243a', () => {
       ctx.moveTo(-2, hy - 8);
       ctx.quadraticCurveTo(-10, hy - 16, -12, hy - 6);
@@ -850,6 +930,7 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
     glowingEye(ctx, 2.3, hy, 1.1, gv ? gv.eyes : '#9fdcff');
     glowingEye(ctx, 5.6, hy, 1.1, gv ? gv.eyes : '#9fdcff');
     shape(ctx, trim, () => ctx.rect(-0.8, hy - 8.5, 1.6, 6), 0.6);
+    if (p.variant === 'legendary') helmWings(ctx, hy);
   }
 
   // escudo grande na frente

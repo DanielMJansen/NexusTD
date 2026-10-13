@@ -1,5 +1,6 @@
 import { showAdmin } from './ui/adminScreen';
 import { ADMIN_HASH } from './game/admin';
+import { applyAdminRunAction } from './game/adminRun';
 import { GIFTS } from './data/gifts';
 import { showIntro, showStageIntro } from './ui/stageIntro';
 import { RenderQuality } from './render/quality';
@@ -902,6 +903,13 @@ export class App {
         clearRun();
         this.openMenu();
       },
+      onAdmin: this.settings.admin
+        ? (action) => {
+            applyAdminRunAction(this.run, action);
+            this.sound.play('coin');
+            this.showPauseScreen();
+          }
+        : undefined,
     }, this.run);
   }
 }

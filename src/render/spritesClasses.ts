@@ -2,6 +2,7 @@
 // (Tempestade usa o desenho de dragão em sprites.ts; Uivador usa a cabeça de lobo em spritesMystic.ts.)
 import {
   circle,
+  darken,
   ellipse,
   eye,
   formA,
@@ -54,11 +55,23 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
   const robeDark = cv ? (inq ? cv.inq[1] : cv.robe[1]) : inq ? '#1a0608' : formA(p) ? '#d8b860' : '#b8b0d0';
   const trim = cv ? cv.trim : inq ? '#ff7a3a' : GOLD;
 
+  // Sacerdotisa (A): mitra alta e estola dourada (o que a separa da Clériga base em qualquer variante)
+  const priestess = formA(p) && !inq;
+
   // túnica
   shape(ctx, vertical(ctx, -10, 14, robe, robeDark), () =>
     poly(ctx, [-5, -9 + breathe, 5, -9 + breathe, 9, 14, -9, 14]),
   );
-  shape(ctx, trim, () => ctx.rect(-1.2, -8 + breathe, 2.4, 22), 0.6);
+  if (priestess) {
+    // estola: duas faixas largas do ombro até a barra, com cruzes
+    for (const x of [-4.2, 1.6]) {
+      shape(ctx, vertical(ctx, -8, 14, cv ? cv.trim : '#ffe48a', cv ? darken(cv.trim, 0.3) : '#c8901a'), () => poly(ctx, [x, -8 + breathe, x + 2.6, -8 + breathe, x + 3.2 + (x > 0 ? 1.2 : -0.4), 14, x - 0.6 + (x > 0 ? 1.2 : -0.4), 14]), 0.7);
+      shape(ctx, '#ffffff', () => {
+        ctx.rect(x + 0.9, 6, 0.9, 3.4);
+        ctx.rect(x + 0.1, 7, 2.4, 0.9);
+      }, 0);
+    }
+  } else shape(ctx, trim, () => ctx.rect(-1.2, -8 + breathe, 2.4, 22), 0.6);
   shape(ctx, trim, () => ctx.rect(-7, 4, 14, 1.6), 0.6);
 
   // cajado (ou maça flamejante)
@@ -129,10 +142,14 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
       eye(ctx, 4.8, hy + 0.6, 1.6, cv ? cv.eyes : '#5a8ad8', 0.4);
     }
   }
+  if (priestess) mitre(ctx, hy, cv ? cv.veil : ['#ffffff', '#e8dcc0'], cv ? cv.trim : GOLD);
   if (p.variant === 'rare') lily(ctx, -5, hy - 6);
   if (p.variant === 'legendary' && !inq) {
-    // auréola de sete cores (no lugar da dourada)
-    rainbowHalo(ctx, 1, hy - 12, p.time);
+    // auréola de sete cores (no lugar da dourada), acima da mitra na Sacerdotisa
+    rainbowHalo(ctx, 1, hy - (priestess ? 21 : 12), p.time);
+  } else if (priestess) {
+    // na Sacerdotisa, a auréola vira um brilho atrás da mitra
+    halo(ctx, 1, hy - 10, 11, cv ? cv.glow : '#ffe48a', 0.45 + Math.sin(p.time * 2) * 0.1);
   } else if (formA(p)) {
     ctx.save();
     ctx.strokeStyle = '#ffe48a';
@@ -211,6 +228,26 @@ function drawSaint(ctx: Ctx, p: Pose): void {
   if (p.variant === 'epic') blindfold(ctx, hy);
   if (p.variant === 'rare') lily(ctx, -5, hy - 6);
   shape(ctx, '#ffe6cf', () => poly(ctx, [1, -6, 3, -10, 5, -6, 3, -3]), 0.6);
+}
+
+/** Mitra alta da Sacerdotisa, com filete e cruz. */
+function mitre(ctx: Ctx, hy: number, colors: readonly [string, string], trim: string): void {
+  shape(ctx, vertical(ctx, hy - 21, hy - 6, colors[0], colors[1]), () => {
+    ctx.moveTo(-5.5, hy - 6.5);
+    ctx.quadraticCurveTo(-6, hy - 15, 1, hy - 21);
+    ctx.quadraticCurveTo(8, hy - 15, 7.5, hy - 6.5);
+    ctx.closePath();
+  }, 1);
+  line(ctx, trim, 1.2, () => {
+    ctx.moveTo(-5.5, hy - 7);
+    ctx.lineTo(7.5, hy - 7);
+    ctx.moveTo(1, hy - 20);
+    ctx.lineTo(1, hy - 7);
+  }, false);
+  shape(ctx, trim, () => {
+    ctx.rect(0.2, hy - 16, 1.6, 6);
+    ctx.rect(-1.6, hy - 14, 5.2, 1.5);
+  }, 0);
 }
 
 /** Venda dourada sobre os olhos (Oráculo), com um olho bordado. */

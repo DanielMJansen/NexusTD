@@ -84,6 +84,13 @@ export function poly(ctx: Ctx, points: number[]): void {
   ctx.closePath();
 }
 
+/** Escurece uma cor #rrggbb (0 = igual, 1 = preto); usada para diferenciar formas dentro de uma variante. */
+export function darken(color: string, amount: number): string {
+  const n = parseInt(color.slice(1, 7), 16);
+  const f = (shift: number) => Math.round(((n >> shift) & 255) * (1 - amount)).toString(16).padStart(2, '0');
+  return `#${f(16)}${f(8)}${f(0)}`;
+}
+
 /** Caminho de uma estrela de 4 pontas (usar dentro de `shape`). */
 export function star(ctx: Ctx, x: number, y: number, r: number): void {
   const k = r * 0.3;

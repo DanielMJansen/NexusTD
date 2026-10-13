@@ -20,6 +20,15 @@ import {
   setSanctuaryLevel,
   setStageWon,
   setAllRelics,
+  setAllAwakened,
+  setAllCreatures,
+  setAllGifts,
+  setAllHeroes,
+  setAllNexusColors,
+  setAllRelicLevels,
+  setAllSanctuary,
+  setAllStages,
+  setAllVariants,
   setTalentsMax,
   toggleNexusColor,
   toggleVariant,
@@ -48,6 +57,10 @@ const TABS: Tab[] = [
 const toggle = (on: boolean, action: string, label = on ? 'Sim' : 'Não'): string =>
   `<button class="admin-toggle${on ? ' on' : ''}" data-action="do" data-value="${action}">${label}</button>`;
 
+/** Linha de botões "marcar/desmarcar tudo": [ação, rótulo]. */
+const bulk = (...buttons: [string, string][]): string =>
+  `<div class="row-buttons admin-bulk">${buttons.map(([action, label]) => `<button data-action="do" data-value="${action}">${label}</button>`).join('')}</div>`;
+
 function currencyTab(profile: Profile): string {
   const row = (label: string, key: string, value: number, shown: string) =>
     `<div class="admin-row"><span>${label} <small>(${shown})</small></span>
@@ -62,7 +75,9 @@ function currencyTab(profile: Profile): string {
 }
 
 function creaturesTab(profile: Profile): string {
-  return ALL_CREATURE_IDS.map((id) => {
+  const head = bulk(['all:creatures:on', 'Todas na coleção'], ['all:creatures:off', 'Só as iniciais'], ['all:variants:on', 'Todas as variantes'], ['all:variants:off', 'Nenhuma variante']) +
+    bulk(['all:sanctuary:on', 'Santuário no máximo'], ['all:sanctuary:off', 'Santuário zerado'], ['all:awaken:on', 'Todas despertas'], ['all:awaken:off', 'Nenhuma desperta']);
+  return head + ALL_CREATURE_IDS.map((id) => {
     const def = CREATURES[id];
     const owned = profile.ownedCreatures.includes(id);
     const level = profile.sanctuary[id] ?? 0;
@@ -79,7 +94,7 @@ function creaturesTab(profile: Profile): string {
 }
 
 function heroesTab(profile: Profile): string {
-  return ALL_HERO_IDS.map((id) => {
+  return bulk(['all:heroes:on', 'Todos liberados'], ['all:heroes:off', 'Só o inicial']) + ALL_HERO_IDS.map((id) => {
     const owned = profile.ownedHeroes.includes(id);
     return `<div class="admin-row"><span><b>${HEROES[id].name}</b> <small>${HEROES[id].race}${HEROES[id].gift ? ' · exclusivo' : ''}</small></span>${
       id === STARTER_HERO ? '<small>herói inicial</small>' : toggle(owned, `hero:${id}`, owned ? 'Liberado' : 'Bloqueado')
@@ -105,7 +120,12 @@ function stagesTab(profile: Profile): string {
   const colors = NEXUS_COLORS.filter((c) => c.unlock.kind !== 'achievement').map(
     (c) => `<div class="admin-row"><span><b>Cor do Nexus · ${c.name}</b></span>${toggle(profile.nexusColors.includes(c.id), `color:${c.id}`)}</div>`,
   );
-  return [...stages, '<p class="hint">Cores ganhas por conquista ficam na aba de conquistas.</p>', ...colors].join('');
+  return [
+    bulk(['all:stages:on', 'Todas vencidas'], ['all:stages:off', 'Nenhuma vencida'], ['all:colors:on', 'Todas as cores'], ['all:colors:off', 'Nenhuma cor']),
+    ...stages,
+    '<p class="hint">Cores ganhas por conquista ficam na aba de conquistas.</p>',
+    ...colors,
+  ].join('');
 }
 
 function extrasTab(profile: Profile): string {
@@ -113,6 +133,8 @@ function extrasTab(profile: Profile): string {
   return [
     '<div class="row-buttons"><button data-action="do" data-value="talents:max">Talentos no máximo</button><button data-action="do" data-value="talents:none">Zerar talentos</button></div>',
     '<div class="row-buttons"><button data-action="do" data-value="relics:all">Todas as Relíquias</button><button data-action="do" data-value="relics:none">Tirar as Relíquias</button></div>',
+    bulk(['all:relicLevels:on', 'Relíquias no nível 3'], ['all:relicLevels:off', 'Relíquias no nível 1']),
+    bulk(['all:gifts:on', 'Todos os presentes'], ['all:gifts:off', 'Nenhum presente']),
     ...gifts,
     '<div class="row-buttons"><button class="play-button" data-action="do" data-value="everything">Liberar tudo</button><button data-action="do" data-value="intros">Rever tutoriais das fases</button></div>',
   ].join('');
@@ -157,6 +179,23 @@ function changeFor(action: string): ((p: Profile) => void) | null {
       return (p) => setGift(p, a as GiftId, !p.gifts.includes(a as GiftId));
     case 'everything':
       return (p) => unlockEverything(p);
+    case 'all': {
+      // all:<grupo>:on|off
+      const on = b === 'on';
+      const setters: Record<string, (p: Profile, on: boolean) => void> = {
+        creatures: setAllCreatures,
+        variants: setAllVariants,
+        sanctuary: setAllSanctuary,
+        awaken: setAllAwakened,
+        heroes: setAllHeroes,
+        stages: setAllStages,
+        colors: setAllNexusColors,
+        gifts: setAllGifts,
+        relicLevels: setAllRelicLevels,
+      };
+      const set = setters[a!];
+      return set ? (p) => set(p, on) : null;
+    }
     case 'intros':
       return (p) => {
         p.seenStageIntros = [];
