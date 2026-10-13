@@ -377,12 +377,12 @@ function stainedHalo(ctx: Ctx, x: number, y: number, t: number, glow: number): v
 }
 
 /** Um morcego pequeno (asas batendo). */
-function tinyBat(ctx: Ctx, x: number, y: number, s: number, t: number, body: string, eyes: string): void {
+function tinyBat(ctx: Ctx, x: number, y: number, s: number, t: number, body: string, eyes: string, wing = body): void {
   const flap = Math.sin(t * 18) * 3 * s;
   ctx.save();
   ctx.translate(x, y);
   for (const side of [-1, 1]) {
-    shape(ctx, body, () => poly(ctx, [0, 0, side * 7 * s, -3 * s - flap, side * 5 * s, 1 * s, side * 3 * s, 2 * s]), 0.7);
+    shape(ctx, wing, () => poly(ctx, [0, 0, side * 7 * s, -3 * s - flap, side * 5 * s, 1 * s, side * 3 * s, 2 * s]), 0.7);
   }
   shape(ctx, body, () => ellipse(ctx, 0, 0, 2.2 * s, 2.6 * s), 0.7);
   ctx.fillStyle = eyes;
@@ -393,15 +393,27 @@ function tinyBat(ctx: Ctx, x: number, y: number, s: number, t: number, body: str
   ctx.restore();
 }
 
-/** Enxame: vários morcegos girando. A: Nuvem Sangrenta (névoa vermelha); B: Revoada Faminta (mais morcegos, roxos). */
+/** Cores do Enxame em cada variante: corpo, asas, olhos e o morcego-líder. */
+const SWARM_VARIANTS = {
+  // Morcegos Albinos: brancos de olhos de rubi
+  rare: { body: '#f4eef2', wing: '#d8c8d4', eyes: '#ff2a40', leader: '#ffffff' },
+  // Enxame Espectral: morcegos fantasmas verde-água, translúcidos, com rastro de névoa
+  epic: { body: '#6affe0', wing: '#3ac8b0', eyes: '#ffffff', leader: '#9afff0' },
+  // Enxame Infernal: corpos em brasa com asas de fogo
+  legendary: { body: '#3a0e06', wing: '#ff7a1a', eyes: '#ffe07a', leader: '#5a1a08' },
+} as const;
+
+/** Enxame: vários morcegos girando. A: Nuvem Sangrenta (névoa vermelha, gotas de sangue); B: Revoada Faminta (mais morcegos, roxos). */
 export function drawBatSwarm(ctx: Ctx, p: Pose): void {
   const blood = formA(p);
   const hunger = formB(p);
   // Formas Supremas: Eclipse (A, nuvem negra que escurece o chão) e Fome Eterna (B, morcegos maiores de olhos dourados)
   const eclipse = p.supreme && blood;
   const eternal = p.supreme && hunger;
-  const body = eclipse ? '#1a0a14' : hunger ? '#5a2a8a' : '#4a2a50';
-  const eyes = eternal ? '#ffd25a' : hunger ? '#e0a0ff' : '#ff3a4a';
+  const sw = p.variant ? SWARM_VARIANTS[p.variant] : null;
+  const body = sw ? sw.body : eclipse ? '#1a0a14' : hunger ? '#5a2a8a' : blood ? '#6a1a30' : '#4a2a50';
+  const eyes = eternal ? '#ffd25a' : sw ? sw.eyes : hunger ? '#e0a0ff' : '#ff3a4a';
+  const wing = sw ? sw.wing : body;
   if (eclipse) {
     // sombra escurecendo o chão e disco negro de borda vermelha
     shape(ctx, '#05020a88', () => ellipse(ctx, 0, 13, 26, 7), 0);
@@ -424,12 +436,45 @@ export function drawBatSwarm(ctx: Ctx, p: Pose): void {
   }
   const count = eclipse ? 9 : hunger ? 7 : 5;
   const spread = (eclipse ? 17 : 12) + p.attack * 5;
+  const speed = hunger ? 3.2 : 2.4;
+  if (blood && !eclipse) {
+    // Nuvem Sangrenta: gotas de sangue pingando da nuvem
+    for (let i = 0; i < 4; i++) {
+      const t = (p.time * 0.9 + i * 0.25) % 1;
+      shape(ctx, '#e0182c', () => ellipse(ctx, -9 + i * 6, 4 + t * 14, 0.9, 1.5), 0);
+    }
+  }
+  if (p.variant === 'epic') {
+    // rastro de névoa atrás de cada morcego fantasma
+    for (let i = 0; i < count; i++) {
+      for (let k = 1; k <= 3; k++) {
+        const a = p.time * speed + (i * TAU) / count - k * 0.25;
+        halo(ctx, Math.cos(a) * spread, Math.sin(a) * spread * 0.6, 4 - k * 0.8, '#6affe0', 0.35 - k * 0.08);
+      }
+    }
+  }
+  if (p.variant === 'legendary') {
+    // faíscas subindo da nuvem em brasa
+    for (let i = 0; i < 5; i++) {
+      const t = (p.time * 0.7 + i * 0.2) % 1;
+      ctx.fillStyle = i % 2 ? '#ffe07a' : '#ff7a1a';
+      ctx.globalAlpha = 1 - t;
+      ctx.beginPath();
+      circle(ctx, Math.sin(i * 2.3 + p.time) * 12, 6 - t * 26, 0.9);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  ctx.save();
+  if (p.variant === 'epic') ctx.globalAlpha *= 0.75;
   for (let i = 0; i < count; i++) {
-    const a = p.time * (hunger ? 3.2 : 2.4) + (i * TAU) / count;
-    tinyBat(ctx, Math.cos(a) * spread, Math.sin(a) * spread * 0.6, eternal ? 1.6 : 1.15, p.time + i, body, eyes);
+    const a = p.time * speed + (i * TAU) / count;
+    tinyBat(ctx, Math.cos(a) * spread, Math.sin(a) * spread * 0.6, eternal ? 1.6 : 1.15, p.time + i, body, eyes, wing);
   }
   // morcego-líder no centro
-  tinyBat(ctx, 0, -1, 2.1, p.time * 0.8, hunger ? '#7a3ab0' : '#6a2a5a', eyes);
+  tinyBat(ctx, 0, -1, 2.1, p.time * 0.8, sw ? sw.leader : hunger ? '#7a3ab0' : blood ? '#8a1a34' : '#6a2a5a', eyes, wing);
+  ctx.restore();
+  if (p.variant === 'legendary') halo(ctx, 0, -1, 14, '#ff7a1a', 0.35);
 }
 
 /** Possessor: sombra roxa com mãos longas. A: Marionetista (fios nas mãos); B: Devorador (boca enorme, vermelho). */

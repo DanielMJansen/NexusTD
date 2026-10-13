@@ -1022,12 +1022,23 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
 
 // ---------- vampiro sanguinário ----------
 
+/** Cores do Sanguinário em cada variante: manto, capuz, filete, orbe e olhos. */
+const SANGUINE_VARIANTS = {
+  // Cultista de Ônix: manto preto com ouro, sangue escuro
+  rare: { robe: ['#2e2834', '#0a080c'], hood: ['#423a4a', '#14101a'], trim: GOLD, orb: ['#ff7080', '#6a0010'], eyes: '#ffd25a' },
+  // Sacerdote da Lua de Sangue: manto branco-osso com carmesim, lua no capuz, cálice no lugar do orbe, runas
+  epic: { robe: ['#f0e6e2', '#8a6e6e'], hood: ['#faf2ee', '#a08484'], trim: '#c0102a', orb: ['#ff8a96', '#a00c24'], eyes: '#ff3a4a' },
+  // Avatar Escarlate: manto de sangue líquido, coroa de espinhos de sangue cristalizado
+  legendary: { robe: ['#ff3a50', '#4a0010'], hood: ['#e02038', '#5a0010'], trim: '#ffb0b8', orb: ['#ffb0b8', '#c0102a'], eyes: '#ffffff' },
+} as const;
+
 function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
   const float = Math.sin(p.time * 2.5) * 1.2;
   const cast = p.attack;
   // Mago de Sangue: manto roxo, coroa de runas e orbes roxos
   const mage = formB(p);
-  const orb = mage ? '#c03ae0' : '#ff2040';
+  const sv = p.variant ? SANGUINE_VARIANTS[p.variant] : null;
+  const orb = sv ? sv.orb[1] : mage ? '#c03ae0' : '#ff2040';
   // Formas Supremas: Soberano Escarlate (A) e Arcano Rubro (B)
   const sovereign = p.supreme && !mage;
   const arcane = p.supreme && mage;
@@ -1052,8 +1063,9 @@ function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
     }
   }
 
-  // manto longo
-  shape(ctx, vertical(ctx, -10, 14, mage ? '#6a2090' : '#8a1a30', mage ? '#240a3a' : '#3a0a18'), () => {
+  // manto longo (no Mago de Sangue, a variante fica mais escura)
+  const shadeB = (c: string) => (mage ? darken(c, 0.3) : c);
+  shape(ctx, vertical(ctx, -10, 14, sv ? shadeB(sv.robe[0]) : mage ? '#6a2090' : '#8a1a30', sv ? sv.robe[1] : mage ? '#240a3a' : '#3a0a18'), () => {
     ctx.moveTo(-5, -9);
     ctx.lineTo(5, -9);
     ctx.quadraticCurveTo(10, 4, 11, 14);
@@ -1062,11 +1074,44 @@ function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.closePath();
   });
   shape(ctx, '#1a0a14', () => poly(ctx, [-1.5, -8, 1.5, -8, 2.5, 14, -2.5, 14]), 0);
-  shape(ctx, GOLD, () => ctx.rect(-8, 4, 16, 1.6), 0.6);
+  shape(ctx, sv ? sv.trim : GOLD, () => ctx.rect(-8, 4, 16, 1.6), 0.6);
+  if (p.variant === 'epic') {
+    // runas de sangue acesas no manto
+    ctx.save();
+    ctx.globalAlpha *= 0.6 + Math.sin(p.time * 3) * 0.3;
+    ctx.strokeStyle = '#ff6a7a';
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    for (const [rx, ry] of [[-6, 8], [5, 9], [-4, -2]] as const) {
+      ctx.moveTo(rx - 1.2, ry - 1.2);
+      ctx.lineTo(rx + 1.2, ry + 1.2);
+      ctx.moveTo(rx + 1.2, ry - 1.2);
+      ctx.lineTo(rx, ry);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+  if (p.variant === 'legendary') {
+    // o manto escorre: gotas caindo da barra
+    for (let i = 0; i < 4; i++) {
+      const t = (p.time * 0.8 + i * 0.27) % 1;
+      shape(ctx, '#e0182c', () => ellipse(ctx, -8 + i * 5.3, 14 + t * 5, 0.9 + (1 - t) * 0.4, 1.5), 0);
+    }
+  }
 
   // capuz e rosto
   const hy = -15;
-  shape(ctx, vertical(ctx, hy - 11, hy + 8, mage ? '#8a3ab8' : '#a02040', mage ? '#3a0c5a' : '#5a0c20'), () => {
+  if (p.variant === 'legendary') {
+    // coroa de espinhos de sangue cristalizado
+    for (let i = 0; i < 7; i++) {
+      const a = -Math.PI / 2 + (i - 3) * 0.32;
+      const len = i % 2 ? 6 : 9;
+      shape(ctx, vertical(ctx, hy - 20, hy - 8, '#ffb0b8', '#a00c24'), () =>
+        poly(ctx, [Math.cos(a - 0.12) * 9, hy - 2 + Math.sin(a - 0.12) * 9, Math.cos(a) * (9 + len), hy - 2 + Math.sin(a) * (9 + len), Math.cos(a + 0.12) * 9, hy - 2 + Math.sin(a + 0.12) * 9]),
+      0.6);
+    }
+  }
+  shape(ctx, vertical(ctx, hy - 11, hy + 8, sv ? shadeB(sv.hood[0]) : mage ? '#8a3ab8' : '#a02040', sv ? sv.hood[1] : mage ? '#3a0c5a' : '#5a0c20'), () => {
     ctx.moveTo(-8.5, hy + 7);
     ctx.quadraticCurveTo(-11, hy - 8, 0, hy - 10.5);
     ctx.quadraticCurveTo(11, hy - 8, 8.5, hy + 7);
@@ -1085,24 +1130,56 @@ function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
       const a = -Math.PI / 2 + (i - 2) * 0.45;
       const rx = Math.cos(a) * 9;
       const ry = hy - 6 + Math.sin(a) * 6 + Math.sin(p.time * 3 + i) * 0.6;
-      shape(ctx, '#f0c8ff', () => poly(ctx, [rx, ry - 2, rx + 1.4, ry, rx, ry + 2, rx - 1.4, ry]), 0);
+      shape(ctx, sv ? sv.orb[0] : '#f0c8ff', () => poly(ctx, [rx, ry - 2, rx + 1.4, ry, rx, ry + 2, rx - 1.4, ry]), 0);
     }
     ctx.restore();
   }
+  if (p.variant === 'epic') {
+    // lua crescente vermelha presa no capuz
+    halo(ctx, 0, hy - 8, 5, '#ff3a4a', 0.7);
+    shape(ctx, '#ff4a5a', () => {
+      ctx.arc(0, hy - 8, 3.2, 0, TAU);
+      ctx.arc(1.4, hy - 8.8, 2.6, TAU, 0, true);
+    }, 0.5);
+  }
   shape(ctx, '#1a0812', () => ellipse(ctx, 1.5, hy + 0.5, 6, 6), 0);
   shape(ctx, radial(ctx, 2, hy + 1, 5, '#fbf6ff', '#cdbfe0'), () => ellipse(ctx, 2, hy + 1.2, 4.8, 5), 0);
-  glowingEye(ctx, 0.6, hy + 0.4, 1.3, orb);
-  glowingEye(ctx, 4.2, hy + 0.4, 1.3, orb);
+  glowingEye(ctx, 0.6, hy + 0.4, 1.3, sv ? sv.eyes : orb);
+  glowingEye(ctx, 4.2, hy + 0.4, 1.3, sv ? sv.eyes : orb);
   shape(ctx, '#ffffff', () => poly(ctx, [1.4, hy + 3.6, 2.2, hy + 3.6, 1.8, hy + 5]), 0.4);
   shape(ctx, '#ffffff', () => poly(ctx, [3.2, hy + 3.6, 4, hy + 3.6, 3.6, hy + 5]), 0.4);
 
-  // mão e orbe de sangue (cresce ao lançar)
+  // mão e orbe de sangue (cresce ao lançar); no Sacerdote, um cálice dourado com sangue
   shape(ctx, '#e8dff0', () => circle(ctx, 9, 0 + float, 2), 0.8);
   ctx.save();
   ctx.shadowColor = orb;
   ctx.shadowBlur = 10;
-  shape(ctx, radial(ctx, 12, -5 + float, 4, mage ? '#f0a8ff' : '#ff8090', mage ? '#6a0c8a' : '#a00c24'), () => circle(ctx, 12, -5 + float, 3 + cast * 1.5), 0.8);
+  if (p.variant === 'epic') {
+    const cy = -6 + float;
+    shape(ctx, vertical(ctx, cy - 3, cy + 6, '#ffe48a', '#c8901a'), () => {
+      ctx.moveTo(8.5, cy - 3);
+      ctx.lineTo(15.5, cy - 3);
+      ctx.quadraticCurveTo(15, cy + 2, 12.6, cy + 2.6);
+      ctx.lineTo(12.6, cy + 5);
+      ctx.lineTo(14.2, cy + 6);
+      ctx.lineTo(9.8, cy + 6);
+      ctx.lineTo(11.4, cy + 5);
+      ctx.lineTo(11.4, cy + 2.6);
+      ctx.quadraticCurveTo(9, cy + 2, 8.5, cy - 3);
+      ctx.closePath();
+    }, 0.8);
+    shape(ctx, '#c00c24', () => ellipse(ctx, 12, cy - 2.6, 3.2, 0.9 + cast * 0.6), 0);
+  } else {
+    shape(ctx, radial(ctx, 12, -5 + float, 4, sv ? sv.orb[0] : mage ? '#f0a8ff' : '#ff8090', sv ? sv.orb[1] : mage ? '#6a0c8a' : '#a00c24'), () => circle(ctx, 12, -5 + float, 3 + cast * 1.5), 0.8);
+  }
   ctx.restore();
+  if (p.variant === 'legendary' && !ascended(p)) {
+    // três orbes de sangue orbitando (nas formas evoluídas eles já aparecem)
+    for (let i = 0; i < 3; i++) {
+      const a = p.time * 2 + (i * TAU) / 3;
+      shape(ctx, '#ff3a50', () => circle(ctx, Math.cos(a) * 13, -6 + Math.sin(a) * 5, 1.8), 0.4);
+    }
+  }
 
   if (arcane) {
     // círculo de runas de sangue girando em volta
@@ -1110,14 +1187,14 @@ function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
       const a = p.time * 1.2 + (i * TAU) / 6;
       const rx = Math.cos(a) * 15;
       const ry = -2 + Math.sin(a) * 7;
-      shape(ctx, '#f0a8ff', () => poly(ctx, [rx, ry - 2.4, rx + 1.6, ry, rx, ry + 2.4, rx - 1.6, ry]), 0.4);
+      shape(ctx, sv ? sv.orb[0] : '#f0a8ff', () => poly(ctx, [rx, ry - 2.4, rx + 1.6, ry, rx, ry + 2.4, rx - 1.6, ry]), 0.4);
     }
-    halo(ctx, 12, -5 + float, 9, '#c03ae0', 0.5 + cast * 0.4);
+    halo(ctx, 12, -5 + float, 9, sv ? sv.orb[1] : '#c03ae0', 0.5 + cast * 0.4);
   }
   if (ascended(p)) {
     for (let i = 0; i < 3; i++) {
       const a = p.time * (mage ? 3 : 2) + (i * TAU) / 3;
-      ctx.fillStyle = mage ? '#d070ff' : '#e0243a';
+      ctx.fillStyle = sv ? sv.orb[1] : mage ? '#d070ff' : '#e0243a';
       ctx.beginPath();
       circle(ctx, Math.cos(a) * 13, -6 + Math.sin(a) * 5, 1.6);
       ctx.fill();
@@ -1127,20 +1204,57 @@ function drawBloodMage(ctx: Ctx, p: Required<SpritePose>): void {
 
 // ---------- vampiro duelista ----------
 
+/** Cores do Duelista em cada variante: capa, forro, roupa, gola, lâmina e olhos. */
+const DUELIST_VARIANTS = {
+  // Duelista do Luar: azul-noite com forro prata, espada prateada
+  rare: { cape: ['#24346a', '#0a1028'], lining: ['#dce4f4', '#7a84a4'], body: ['#2e3c6e', '#141c3a'], collar: '#b8c4e4', blade: '#cfe8ff', eyes: '#8ad0ff' },
+  // Mascarado do Baile: vinho bordado em ouro, máscara e chapéu de três pontas
+  epic: { cape: ['#6a0c30', '#26040f'], lining: ['#f0c040', '#8a5a10'], body: ['#521036', '#200614'], collar: '#e8b030', blade: '#ffe8a0', eyes: '#ff3048' },
+  // Senhor do Eclipse: negro com forro vermelho, eclipse atrás e espada de sombra
+  legendary: { cape: ['#140c1e', '#020104'], lining: ['#ff2a40', '#5a0010'], body: ['#1a1428', '#06040a'], collar: '#ff2a40', blade: '#ff3a50', eyes: '#ff2a40' },
+} as const;
+
+/** Morcegos pequenos orbitando (Senhor do Eclipse). */
+function orbitBats(ctx: Ctx, time: number, count: number, rx: number, ry: number, cy: number): void {
+  for (let i = 0; i < count; i++) {
+    const a = time * 1.3 + (i * TAU) / count;
+    const x = Math.cos(a) * rx;
+    const y = cy + Math.sin(a) * ry;
+    const flap = Math.sin(time * 16 + i) * 1.4;
+    shape(ctx, '#0e0610', () => poly(ctx, [x - 4, y - 1 - flap, x - 1, y, x, y - 1, x + 1, y, x + 4, y - 1 - flap, x + 1.6, y + 1.6, x - 1.6, y + 1.6]), 0.4);
+    ctx.fillStyle = '#ff2a40';
+    ctx.fillRect(x - 0.6, y - 0.2, 0.5, 0.5);
+    ctx.fillRect(x + 0.2, y - 0.2, 0.5, 0.5);
+  }
+}
+
 function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
   const lunge = p.attack * 4;
   const flutter = Math.sin(p.time * 4) * 1.5;
-  ctx.translate(lunge, 0);
   // Lâmina Carmesim: capa toda vermelha, cabelo branco e duas lâminas
   const blade = formB(p);
   // Formas Supremas: Príncipe da Noite (A) e Dança das Lâminas (B)
   const prince = p.supreme && !blade;
   const dance = p.supreme && blade;
+  const dv = p.variant ? DUELIST_VARIANTS[p.variant] : null;
+  if (p.variant === 'legendary') {
+    // eclipse atrás: disco negro com anel vermelho
+    halo(ctx, 0, -18, 20, '#ff2a40', 0.45 + Math.sin(p.time * 2) * 0.1);
+    shape(ctx, '#05020a', () => circle(ctx, 0, -18, 13), 0);
+    ctx.save();
+    ctx.strokeStyle = '#ff5a6a';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    circle(ctx, 0, -18, 13);
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.translate(lunge, 0);
   if (prince) {
     // capa enorme em asas de morcego, com morcegos saindo da barra
     const beat = Math.sin(p.time * 3) * 2;
     for (const side of [-1, 1]) {
-      shape(ctx, vertical(ctx, -24, 14, '#2a0a1a', '#0a0208'), () => {
+      shape(ctx, vertical(ctx, -24, 14, dv ? dv.cape[0] : '#2a0a1a', dv ? dv.cape[1] : '#0a0208'), () => {
         ctx.moveTo(side * 2, -10);
         ctx.lineTo(side * 22, -22 - beat);
         ctx.lineTo(side * 19, -12 - beat);
@@ -1170,43 +1284,62 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
 
   if (blade) {
     // segunda lâmina, atrás do corpo
-    line(ctx, '#ff5a6a', 1.4, () => {
+    line(ctx, dv ? dv.blade : '#ff5a6a', 1.4, () => {
       ctx.moveTo(-4, 1);
       ctx.lineTo(-17 - p.attack * 4, -6);
     });
   }
-  // capa com forro vermelho e gola alta
-  shape(ctx, vertical(ctx, -10, 14, blade ? '#a0101e' : '#2c1745', blade ? '#40060c' : '#120822'), () =>
+  // capa com forro vermelho e gola alta (na Lâmina Carmesim, a variante escurece a capa)
+  const capeTop = dv ? (blade ? darken(dv.cape[0], 0.3) : dv.cape[0]) : blade ? '#a0101e' : '#2c1745';
+  const capeBottom = dv ? dv.cape[1] : blade ? '#40060c' : '#120822';
+  shape(ctx, vertical(ctx, -10, 14, capeTop, capeBottom), () =>
     poly(ctx, [-5, -9, -16, 13 + flutter, -7, 10, 0, 14, 7, 10, 15, 13 - flutter, 5, -9]),
   );
-  shape(ctx, vertical(ctx, -8, 12, '#d0243a', '#6e0c1c'), () =>
+  shape(ctx, vertical(ctx, -8, 12, dv ? dv.lining[0] : '#d0243a', dv ? dv.lining[1] : '#6e0c1c'), () =>
     poly(ctx, [-4, -7, -11, 11 + flutter, -3, 9, 3, 9, 11, 11 - flutter, 4, -7]),
     0,
   );
+  if (formA(p) && !prince) {
+    // Conde: filete dourado na barra da capa
+    line(ctx, GOLD, 1, () => {
+      ctx.moveTo(-16, 13 + flutter);
+      ctx.lineTo(-7, 10);
+      ctx.lineTo(0, 14);
+      ctx.lineTo(7, 10);
+      ctx.lineTo(15, 13 - flutter);
+    }, false);
+  }
   // corpo
-  shape(ctx, vertical(ctx, -9, 10, '#3a2550', '#1c1030'), () => ctx.roundRect(-5.5, -9, 11, 19, [4, 4, 2, 2]));
+  shape(ctx, vertical(ctx, -9, 10, dv ? dv.body[0] : '#3a2550', dv ? dv.body[1] : '#1c1030'), () => ctx.roundRect(-5.5, -9, 11, 19, [4, 4, 2, 2]));
   shape(ctx, '#f4eef8', () => poly(ctx, [-2.4, -9, 2.4, -9, 0, -3]), 0.8);
-  shape(ctx, '#c01830', () => poly(ctx, [-1.2, -7, 1.2, -7, 0, -4.5]), 0);
+  shape(ctx, dv ? dv.collar : '#c01830', () => poly(ctx, [-1.2, -7, 1.2, -7, 0, -4.5]), 0);
   shape(ctx, '#1a0f26', () => ctx.roundRect(-4.5, 9, 3.6, 5, 1), 1);
   shape(ctx, '#1a0f26', () => ctx.roundRect(1, 9, 3.6, 5, 1), 1);
 
   // gola alta atrás da cabeça
-  shape(ctx, '#b01a30', () => poly(ctx, [-3, -9, -10, -25, -7, -11]), 1);
-  shape(ctx, '#b01a30', () => poly(ctx, [3, -9, 9, -24, 7, -11]), 1);
+  shape(ctx, dv ? dv.collar : '#b01a30', () => poly(ctx, [-3, -9, -10, -25, -7, -11]), 1);
+  shape(ctx, dv ? dv.collar : '#b01a30', () => poly(ctx, [3, -9, 9, -24, 7, -11]), 1);
 
-  // rapieira
+  // rapieira (de sombra com fio vermelho no Senhor do Eclipse)
   const thrust = p.attack * 7;
-  if (blade) {
+  const glowBlade = blade || p.variant === 'legendary';
+  if (glowBlade) {
     ctx.save();
-    ctx.shadowColor = '#ff2a40';
+    ctx.shadowColor = dv ? dv.blade : '#ff2a40';
     ctx.shadowBlur = 6;
   }
-  line(ctx, blade ? '#ff8a96' : '#dfe6f4', 1.4, () => {
+  if (p.variant === 'legendary') {
+    line(ctx, '#0a0410', 2.2, () => {
+      ctx.moveTo(6, 0);
+      ctx.lineTo(19 + thrust, -5 - thrust * 0.2);
+    });
+  }
+  line(ctx, dv ? dv.blade : blade ? '#ff8a96' : '#dfe6f4', p.variant === 'legendary' ? 0.7 : 1.4, () => {
     ctx.moveTo(6, 0);
     ctx.lineTo(19 + thrust, -5 - thrust * 0.2);
-  });
-  if (blade) ctx.restore();
-  shape(ctx, '#f0c35a', () => circle(ctx, 6.5, 0, 2.2), 1);
+  }, p.variant !== 'legendary');
+  if (glowBlade) ctx.restore();
+  shape(ctx, dv ? dv.collar : '#f0c35a', () => circle(ctx, 6.5, 0, 2.2), 1);
 
   // cabeça pálida, cabelo com bico, olhos vermelhos, presas
   const hy = -16;
@@ -1221,8 +1354,22 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.lineTo(-5, hy - 3);
     ctx.closePath();
   });
-  glowingEye(ctx, 1.5, hy + 0.8, 1.5, '#ff3048');
-  glowingEye(ctx, 5.4, hy + 0.8, 1.5, '#ff3048');
+  glowingEye(ctx, 1.5, hy + 0.8, 1.5, dv ? dv.eyes : '#ff3048');
+  glowingEye(ctx, 5.4, hy + 0.8, 1.5, dv ? dv.eyes : '#ff3048');
+  if (p.variant === 'epic') {
+    // máscara veneziana dourada (com os furos dos olhos) e ponta curva ao lado
+    shape(ctx, vertical(ctx, hy - 2, hy + 3, '#ffe48a', '#c8901a'), () => {
+      ctx.moveTo(-2, hy - 1);
+      ctx.quadraticCurveTo(3.5, hy - 3, 8.5, hy - 1);
+      ctx.quadraticCurveTo(8, hy + 2.6, 5.2, hy + 2.8);
+      ctx.quadraticCurveTo(3.5, hy + 1.6, 1.8, hy + 2.8);
+      ctx.quadraticCurveTo(-1, hy + 2.6, -2, hy - 1);
+      ctx.closePath();
+    }, 0.8);
+    shape(ctx, '#e8b030', () => poly(ctx, [-2, hy - 0.5, -6, hy - 4, -4, hy + 1]), 0.6);
+    glowingEye(ctx, 1.5, hy + 0.8, 1.1, dv!.eyes);
+    glowingEye(ctx, 5.4, hy + 0.8, 1.1, dv!.eyes);
+  }
   ctx.strokeStyle = OUTLINE;
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -1235,14 +1382,37 @@ function drawVampire(ctx: Ctx, p: Required<SpritePose>): void {
   ctx.stroke();
   shape(ctx, '#ffffff', () => poly(ctx, [2.6, hy + 4.4, 3.6, hy + 4.6, 3.1, hy + 6.2]), 0.5);
   shape(ctx, '#ffffff', () => poly(ctx, [4.6, hy + 4.4, 5.6, hy + 4.2, 5.2, hy + 5.9]), 0.5);
-  if (formA(p)) {
-    // Príncipe da Noite: coroa mais alta, de ônix com rubis
-    const tall = prince ? 1.6 : 1;
-    shape(ctx, prince ? '#2a1a2a' : GOLD, () => poly(ctx, [-4.5, hy - 8, -5, hy - 8 - 5 * tall, -2, hy - 8 - 2.5 * tall, 0.5, hy - 8 - 6 * tall, 3, hy - 8 - 2.5 * tall, 6, hy - 8 - 5 * tall, 5.5, hy - 8]), 0.9);
-    shape(ctx, '#e0243a', () => circle(ctx, 0.5, hy - 10, prince ? 1.5 : 1), 0.5);
-    if (prince) for (const x of [-4, 5]) shape(ctx, '#e0243a', () => circle(ctx, x, hy - 9.5, 0.9), 0.4);
-    shape(ctx, GOLD, () => circle(ctx, 0, -3, 2), 0.8);
+  // Mascarado: chapéu de três pontas com pluma (a coroa do Conde vai por cima)
+  const hatLift = p.variant === 'epic' ? 5 : 0;
+  if (p.variant === 'epic') {
+    shape(ctx, vertical(ctx, hy - 18, hy - 6, '#ffd8e8', '#c04a7a'), () => {
+      ctx.moveTo(-6, hy - 10);
+      ctx.quadraticCurveTo(-14, hy - 18, -10, hy - 22);
+      ctx.quadraticCurveTo(-8, hy - 15, -3, hy - 11);
+      ctx.closePath();
+    }, 0.8);
+    shape(ctx, vertical(ctx, hy - 14, hy - 6, '#3a0a20', '#14040a'), () => {
+      ctx.moveTo(-10, hy - 7);
+      ctx.quadraticCurveTo(-8, hy - 15, 0.5, hy - 14);
+      ctx.quadraticCurveTo(9, hy - 15, 11, hy - 7);
+      ctx.quadraticCurveTo(0.5, hy - 10, -10, hy - 7);
+      ctx.closePath();
+    }, 1);
+    line(ctx, GOLD, 0.9, () => {
+      ctx.moveTo(-9.5, hy - 7.4);
+      ctx.quadraticCurveTo(0.5, hy - 10.4, 10.5, hy - 7.4);
+    }, false);
   }
+  if (formA(p)) {
+    // Conde: coroa maior; Príncipe da Noite: ainda mais alta, de ônix com rubis
+    const tall = prince ? 1.6 : 1.3;
+    const cy = hy - hatLift;
+    shape(ctx, prince ? '#2a1a2a' : GOLD, () => poly(ctx, [-5, cy - 8, -5.5, cy - 8 - 5 * tall, -2, cy - 8 - 2.5 * tall, 0.5, cy - 8 - 6 * tall, 3, cy - 8 - 2.5 * tall, 6.5, cy - 8 - 5 * tall, 6, cy - 8]), 0.9);
+    shape(ctx, '#e0243a', () => circle(ctx, 0.5, cy - 10.5, prince ? 1.5 : 1.2), 0.5);
+    for (const x of [-4, 5]) shape(ctx, '#e0243a', () => circle(ctx, x, cy - 9.5, 0.9), 0.4);
+    shape(ctx, GOLD, () => circle(ctx, 0, -3, 2.2), 0.8);
+  }
+  if (p.variant === 'legendary') orbitBats(ctx, p.time, 3, 17, 6, -12);
 }
 
 // ---------- dragões ----------

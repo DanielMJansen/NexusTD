@@ -54,6 +54,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Templário', colors: ['#ffb070', '#e03a2a', '#7a1010'], strength: 0, accent: '#ff5a3a', particles: 'ember', art: true },
     legendary: { name: 'Paladino do Sol', colors: ['#fff4b0', '#ffd23a', '#ff9a1a'], strength: 0, accent: '#ffe07a', particles: 'star', art: true },
   },
+  duelist: {
+    rare: { name: 'Duelista do Luar', colors: ['#e8f4ff', '#8ab8ff', '#2a3a8a'], strength: 0, accent: '#9ad0ff', art: true },
+    epic: { name: 'Mascarado do Baile', colors: ['#ffe48a', '#e0a020', '#8a1040'], strength: 0, accent: '#f0c040', particles: 'star', art: true },
+    legendary: { name: 'Senhor do Eclipse', colors: ['#ff6a7a', '#ff2a40', '#3a0010'], strength: 0, accent: '#ff2a40', art: true },
+  },
+  sanguine: {
+    rare: { name: 'Cultista de Ônix', colors: ['#ffd25a', '#8a1020', '#1a0a10'], strength: 0, accent: '#e0b030', art: true },
+    epic: { name: 'Sacerdote da Lua de Sangue', colors: ['#ff8a8a', '#e0182c', '#5a0010'], strength: 0, accent: '#ff3a4a', particles: 'ember', art: true },
+    legendary: { name: 'Avatar Escarlate', colors: ['#ffb0b8', '#ff2a40', '#6a0010'], strength: 0, accent: '#ff4a5a', art: true },
+  },
+  batSwarm: {
+    rare: { name: 'Morcegos Albinos', colors: ['#ffffff', '#e8d8e0', '#c0182c'], strength: 0, accent: '#ff3a50', art: true },
+    epic: { name: 'Enxame Espectral', colors: ['#c8fff0', '#4ae0c0', '#1a6a6a'], strength: 0, accent: '#6affe0', particles: 'wisp', art: true },
+    legendary: { name: 'Enxame Infernal', colors: ['#ffe07a', '#ff7a1a', '#a01a0a'], strength: 0, accent: '#ff7a1a', particles: 'ember', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
