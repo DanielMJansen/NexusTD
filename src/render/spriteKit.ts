@@ -1,5 +1,6 @@
 // Ferramentas de desenho compartilhadas pelos sprites vetoriais (contorno, gradientes, olhos).
 import type { SkinPalette } from '../data/skins';
+import type { VariantTier } from '../data/altar';
 
 /** Como o personagem está agora; tudo opcional exceto o tempo de animação. */
 export interface SpritePose {
@@ -18,6 +19,8 @@ export interface SpritePose {
   palette?: SkinPalette;
   /** Forma Suprema (despertada em ★5): cada sprite desenha a sua versão única. */
   supreme?: boolean;
+  /** Variante do Altar (criaturas com arte própria desenham cores e acessórios dela). */
+  variant?: VariantTier | null;
 }
 
 export const TAU = Math.PI * 2;
@@ -79,6 +82,26 @@ export function poly(ctx: Ctx, points: number[]): void {
   ctx.moveTo(points[0]!, points[1]!);
   for (let i = 2; i < points.length; i += 2) ctx.lineTo(points[i]!, points[i + 1]!);
   ctx.closePath();
+}
+
+/** Caminho de uma estrela de 4 pontas (usar dentro de `shape`). */
+export function star(ctx: Ctx, x: number, y: number, r: number): void {
+  const k = r * 0.3;
+  poly(ctx, [x, y - r, x + k, y - k, x + r, y, x + k, y + k, x, y + r, x - k, y + k, x - r, y, x - k, y - k]);
+}
+
+/** Estrelinhas brancas que cintilam em pontos fixos (roupas estreladas das variantes). */
+export function starDots(ctx: Ctx, time: number, points: readonly (readonly [number, number])[]): void {
+  ctx.save();
+  ctx.fillStyle = '#ffffff';
+  points.forEach(([x, y], i) => {
+    const twinkle = 0.5 + 0.5 * Math.sin(time * 3 + i * 1.9);
+    ctx.globalAlpha = 0.35 + 0.65 * twinkle;
+    ctx.beginPath();
+    star(ctx, x, y, 0.8 + twinkle * 0.7);
+    ctx.fill();
+  });
+  ctx.restore();
 }
 
 /** Olho expressivo: branco, íris, pupila e brilho. */

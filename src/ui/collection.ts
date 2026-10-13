@@ -27,9 +27,10 @@ function variantRow(profile: Profile, id: CreatureId): string {
   const owned = profile.variants[id] ?? [];
   if (!owned.length) return '';
   const current = profile.selectedVariants[id] ?? '';
-  const button = (tier: VariantTier | '', label: string, color: string) =>
-    `<button class="variant-chip${current === tier ? ' selected' : ''}" style="--chip-color:${color}" data-action="variant" data-value="${id}:${tier}">${label}</button>`;
-  return `<div class="variant-row"><span>Variante:</span>${button('', 'Normal', '#9a8ab8')}${owned.map((t) => button(t, `${VARIANTS[t].name} · ${variantTheme(id, t).name}`, VARIANTS[t].color)).join('')}</div>`;
+  // só o nome da variante no botão (a raridade vem da cor e do título), para caber numa linha
+  const button = (tier: VariantTier | '', label: string, color: string, title: string) =>
+    `<button class="variant-chip${current === tier ? ' selected' : ''}" style="--chip-color:${color}" title="${title}" data-action="variant" data-value="${id}:${tier}">${label}</button>`;
+  return `<div class="variant-row"><span>Variante:</span>${button('', 'Normal', '#9a8ab8', 'Visual original')}${owned.map((t) => button(t, variantTheme(id, t).name, VARIANTS[t].color, `${VARIANTS[t].name} · ${variantTheme(id, t).name}`)).join('')}</div>`;
 }
 
 /** Rodapé do card: na equipe/coleção ou o botão de desbloquear. */

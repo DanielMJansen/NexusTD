@@ -2717,15 +2717,15 @@ body:not([data-mode='run']) .top-buttons {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 3px 4px;
+  margin-top: 2px;
   font: 400 13px var(--font-body);
   color: var(--muted);
 }
 
 .variant-chip {
-  padding: 2px 9px;
-  font-size: 12px;
+  padding: 1px 7px;
+  font-size: 11px;
   border-color: color-mix(in srgb, var(--chip-color) 60%, transparent);
   color: var(--chip-color);
 }
@@ -3578,6 +3578,16 @@ body:not([data-mode='run']) .panel.screen {
 
 .creature-grid.three .cc-portraits {
   align-self: center;
+}
+
+/* Coleção: retrato principal e rodapé um pouco menores, para caber com todas as variantes */
+.creature-grid.three .cc-portraits > canvas:first-child {
+  width: 70px;
+  height: 70px;
+}
+
+.creature-grid.three .cc-footer {
+  margin-top: 2px;
 }
 
 

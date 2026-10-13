@@ -62,6 +62,7 @@ export function drawPortrait(canvas: HTMLCanvasElement, id: SpriteId, time: numb
       level: options.level ?? 1,
       branch: options.branch ?? 0,
       palette: options.palette ?? {},
+      variant: creature ? variant : null,
     }),
   );
   if (creature) drawVariantParticles(ctx, creature, variant!, x, y - 8 * scale, scale, time);

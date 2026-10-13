@@ -19,11 +19,26 @@ import {
   type Pose,
 } from './spriteKit';
 
+/** Cores da Clériga em cada variante: túnica, túnica da Inquisidora, véu, filetes, luz do cajado e olhos. */
+const CLERIC_VARIANTS = {
+  // Irmã do Lírio: hábito branco e lilás, lírio no véu, luz lilás
+  rare: { robe: ['#fbf6ff', '#b898e8'], inq: ['#6a3a9a', '#24103a'], veil: ['#ffffff', '#d4c0f4'], trim: '#b08ae0', orb: '#e8d8ff', glow: '#c8a0ff', eyes: '#8a5ad8' },
+  // Oráculo: azul-meia-noite e ouro, venda dourada, cajado com olho de cristal, runas aos pés
+  epic: { robe: ['#4a4ab8', '#14143e'], inq: ['#3a2a7a', '#0e0a24'], veil: ['#f4ecd8', '#c8b88a'], trim: GOLD, orb: '#bfe8ff', glow: '#ffd25a', eyes: '#5a8ad8' },
+  // Santa da Aurora: branco com reflexos de aurora, asas de luz, auréola de sete cores, flores aos pés
+  legendary: { robe: ['#ffffff', '#a8e8ff'], inq: ['#4a6ac8', '#1a1a5a'], veil: ['#ffffff', '#d0f4ff'], trim: '#9af0ff', orb: '#ffffff', glow: '#9af0ff', eyes: '#4ab8c8' },
+} as const;
+
 /** Clériga: túnica clara, véu e cajado com sol. A: Sacerdotisa dourada com auréola; B: Inquisidora de vermelho e preto com maça em chamas. */
 export function drawCleric(ctx: Ctx, p: Pose): void {
   // Santa (suprema A): flutua, auréola de vitral e véu longo; Grã-Inquisidora (suprema B): livro em chamas
   const saint = p.supreme && formA(p);
   const grand = p.supreme && formB(p);
+  if (p.variant === 'epic') runeCircle(ctx, 0, 14, p.time, p.attack ?? 0);
+  if (p.variant === 'legendary') {
+    auroraWings(ctx, 0, saint ? -12 : -7, p.time);
+    groundFlowers(ctx, p.time);
+  }
   if (saint) {
     const lift = -4 + Math.sin(p.time * 2) * 1.2;
     ctx.save();
@@ -34,9 +49,10 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
   }
   const breathe = Math.sin(p.time * 2) * 0.6;
   const inq = formB(p);
-  const robe = inq ? '#5a1418' : formA(p) ? '#fff6dc' : '#f4f0f8';
-  const robeDark = inq ? '#1a0608' : formA(p) ? '#d8b860' : '#b8b0d0';
-  const trim = inq ? '#ff7a3a' : GOLD;
+  const cv = p.variant ? CLERIC_VARIANTS[p.variant] : null;
+  const robe = cv ? (inq ? cv.inq[0] : cv.robe[0]) : inq ? '#5a1418' : formA(p) ? '#fff6dc' : '#f4f0f8';
+  const robeDark = cv ? (inq ? cv.inq[1] : cv.robe[1]) : inq ? '#1a0608' : formA(p) ? '#d8b860' : '#b8b0d0';
+  const trim = cv ? cv.trim : inq ? '#ff7a3a' : GOLD;
 
   // túnica
   shape(ctx, vertical(ctx, -10, 14, robe, robeDark), () =>
@@ -61,11 +77,20 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
       const h = 4 + Math.sin(p.time * 12 + i * 2) * 1.5;
       shape(ctx, '#ffb040', () => poly(ctx, [-3 + i * 3, -21, -1.5 + i * 3, -21 - h, 0 + i * 3, -21]), 0);
     }
+  } else if (p.variant === 'epic') {
+    // olho de cristal no topo do cajado, dentro de um aro dourado
+    ctx.shadowColor = '#bfe8ff';
+    ctx.shadowBlur = 8 + (p.attack ?? 0) * 8;
+    shape(ctx, GOLD, () => circle(ctx, 0, -18, 4.2), 0.8);
+    ctx.shadowBlur = 0;
+    shape(ctx, '#ffffff', () => ellipse(ctx, 0, -18, 3.2, 2.2), 0.4);
+    shape(ctx, '#3a8ad8', () => circle(ctx, 0.4, -18, 1.5), 0);
+    shape(ctx, '#0e0a14', () => circle(ctx, 0.5, -18, 0.7), 0);
   } else {
-    ctx.shadowColor = '#ffe9a8';
+    ctx.shadowColor = cv ? cv.glow : '#ffe9a8';
     ctx.shadowBlur = 8 + p.attack * 8;
-    shape(ctx, '#fff0b0', () => circle(ctx, 0, -18, 3), 0.8);
-    ctx.strokeStyle = GOLD;
+    shape(ctx, cv ? cv.orb : '#fff0b0', () => circle(ctx, 0, -18, 3), 0.8);
+    ctx.strokeStyle = cv ? cv.glow : GOLD;
     ctx.lineWidth = 0.9;
     ctx.beginPath();
     for (let i = 0; i < 8; i++) {
@@ -81,13 +106,16 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
   const hy = -15 + breathe;
   shape(ctx, radial(ctx, 1, hy, 7, '#ffe6cf', '#e9b994'), () => circle(ctx, 1, hy, 6.5));
   if (inq) {
-    shape(ctx, vertical(ctx, hy - 14, hy + 8, '#8a1a20', '#2a0608'), () =>
+    shape(ctx, vertical(ctx, hy - 14, hy + 8, cv ? cv.inq[0] : '#8a1a20', cv ? cv.inq[1] : '#2a0608'), () =>
       poly(ctx, [-8, hy + 7, -7, hy - 4, 0, hy - 15, 7, hy - 4, 8, hy + 7, 5, hy + 5, 5, hy - 2, -4, hy - 2, -5, hy + 5]),
     );
-    glowingEye(ctx, 0.5, hy + 0.5, 1.2, '#ffb040');
-    glowingEye(ctx, 4, hy + 0.5, 1.2, '#ffb040');
+    if (p.variant === 'epic') blindfold(ctx, hy);
+    else {
+      glowingEye(ctx, 0.5, hy + 0.5, 1.2, cv ? cv.glow : '#ffb040');
+      glowingEye(ctx, 4, hy + 0.5, 1.2, cv ? cv.glow : '#ffb040');
+    }
   } else {
-    shape(ctx, vertical(ctx, hy - 9, hy + 8, '#ffffff', '#c8c0e0'), () => {
+    shape(ctx, vertical(ctx, hy - 9, hy + 8, cv ? cv.veil[0] : '#ffffff', cv ? cv.veil[1] : '#c8c0e0'), () => {
       ctx.moveTo(-7.5, hy + 7);
       ctx.quadraticCurveTo(-9, hy - 8, 1, hy - 8.5);
       ctx.quadraticCurveTo(8, hy - 8, 6.5, hy - 3);
@@ -95,10 +123,17 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
       ctx.lineTo(-4, hy + 7);
       ctx.closePath();
     });
-    eye(ctx, 1.4, hy + 0.6, 1.6, '#5a8ad8', 0.4);
-    eye(ctx, 4.8, hy + 0.6, 1.6, '#5a8ad8', 0.4);
+    if (p.variant === 'epic') blindfold(ctx, hy);
+    else {
+      eye(ctx, 1.4, hy + 0.6, 1.6, cv ? cv.eyes : '#5a8ad8', 0.4);
+      eye(ctx, 4.8, hy + 0.6, 1.6, cv ? cv.eyes : '#5a8ad8', 0.4);
+    }
   }
-  if (formA(p)) {
+  if (p.variant === 'rare') lily(ctx, -5, hy - 6);
+  if (p.variant === 'legendary' && !inq) {
+    // auréola de sete cores (no lugar da dourada)
+    rainbowHalo(ctx, 1, hy - 12, p.time);
+  } else if (formA(p)) {
     ctx.save();
     ctx.strokeStyle = '#ffe48a';
     ctx.shadowColor = '#ffe48a';
@@ -139,8 +174,9 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
 /** Santa (Forma Suprema da Sacerdotisa): véu longo, auréola de vitral e mãos em prece; flutua. */
 function drawSaint(ctx: Ctx, p: Pose): void {
   const t = p.time;
+  const cv = p.variant ? CLERIC_VARIANTS[p.variant] : null;
   // véu longo atrás, ondulando
-  shape(ctx, vertical(ctx, -22, 16, '#ffffff', '#d8d0f0'), () => {
+  shape(ctx, vertical(ctx, -22, 16, cv ? cv.veil[0] : '#ffffff', cv ? cv.veil[1] : '#d8d0f0'), () => {
     ctx.moveTo(-3, -22);
     ctx.quadraticCurveTo(-13, -6, -12 + Math.sin(t * 2) * 1.5, 16);
     ctx.lineTo(10 + Math.sin(t * 2 + 1) * 1.5, 16);
@@ -148,14 +184,15 @@ function drawSaint(ctx: Ctx, p: Pose): void {
     ctx.closePath();
   }, 0.9);
   // túnica branca e dourada que some em luz embaixo
-  shape(ctx, vertical(ctx, -10, 14, '#fffaf0', '#f0d890'), () => poly(ctx, [-5, -9, 5, -9, 8, 10, 0, 14, -8, 10]));
-  shape(ctx, GOLD, () => ctx.rect(-1.2, -8, 2.4, 18), 0.5);
-  halo(ctx, 0, 14, 10, '#fff2b0', 0.6);
+  shape(ctx, vertical(ctx, -10, 14, cv ? cv.robe[0] : '#fffaf0', cv ? cv.robe[1] : '#f0d890'), () => poly(ctx, [-5, -9, 5, -9, 8, 10, 0, 14, -8, 10]));
+  shape(ctx, cv ? cv.trim : GOLD, () => ctx.rect(-1.2, -8, 2.4, 18), 0.5);
+  halo(ctx, 0, 14, 10, cv ? cv.glow : '#fff2b0', 0.6);
   // auréola atrás da cabeça, depois rosto e mãos em prece
   const hy = -15;
-  stainedHalo(ctx, 1, hy - 2, t, 0.35 + p.attack * 0.4);
+  if (p.variant === 'legendary') rainbowHalo(ctx, 1, hy - 2, t, 10);
+  else stainedHalo(ctx, 1, hy - 2, t, 0.35 + p.attack * 0.4);
   shape(ctx, radial(ctx, 1, hy, 7, '#ffe6cf', '#e9b994'), () => circle(ctx, 1, hy, 6.5));
-  shape(ctx, '#ffffff', () => {
+  shape(ctx, cv ? cv.veil[0] : '#ffffff', () => {
     ctx.moveTo(-7, hy + 6);
     ctx.quadraticCurveTo(-8.5, hy - 8, 1, hy - 8.5);
     ctx.quadraticCurveTo(8, hy - 8, 6.5, hy - 3);
@@ -171,7 +208,116 @@ function drawSaint(ctx: Ctx, p: Pose): void {
   ctx.moveTo(6, hy + 0.6);
   ctx.arc(4.8, hy + 0.6, 1.2, 0.2, Math.PI - 0.2);
   ctx.stroke();
+  if (p.variant === 'epic') blindfold(ctx, hy);
+  if (p.variant === 'rare') lily(ctx, -5, hy - 6);
   shape(ctx, '#ffe6cf', () => poly(ctx, [1, -6, 3, -10, 5, -6, 3, -3]), 0.6);
+}
+
+/** Venda dourada sobre os olhos (Oráculo), com um olho bordado. */
+function blindfold(ctx: Ctx, hy: number): void {
+  shape(ctx, vertical(ctx, hy - 1.5, hy + 2.5, '#ffe48a', '#c8901a'), () => {
+    ctx.moveTo(-6.5, hy - 1.2);
+    ctx.lineTo(7.2, hy - 1.6);
+    ctx.lineTo(7, hy + 2.4);
+    ctx.lineTo(-6.5, hy + 2.2);
+    ctx.closePath();
+  }, 0.7);
+  // pontas soltas atrás
+  shape(ctx, '#e0b030', () => poly(ctx, [-6.5, hy - 0.5, -10, hy + 3, -8, hy + 4, -6.5, hy + 1.5]), 0.5);
+  shape(ctx, '#ffffff', () => ellipse(ctx, 3, hy + 0.4, 1.6, 0.9), 0);
+  shape(ctx, '#3a8ad8', () => circle(ctx, 3.2, hy + 0.4, 0.6), 0);
+}
+
+/** Lírio branco preso no véu (Irmã do Lírio). */
+function lily(ctx: Ctx, x: number, y: number): void {
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * TAU - Math.PI / 2;
+    shape(ctx, '#ffffff', () => ellipse(ctx, x + Math.cos(a) * 1.6, y + Math.sin(a) * 1.6, 1.5, 0.8, a), 0.4);
+  }
+  shape(ctx, '#ffd25a', () => circle(ctx, x, y, 0.8), 0);
+}
+
+/** Círculo de runas girando aos pés (Oráculo); acende na bênção. */
+function runeCircle(ctx: Ctx, x: number, y: number, t: number, attack: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(1, 0.32);
+  ctx.globalAlpha = 0.45 + attack * 0.5;
+  ctx.strokeStyle = '#ffd25a';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  circle(ctx, 0, 0, 14);
+  ctx.stroke();
+  ctx.rotate(t * 0.8);
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * TAU;
+    ctx.save();
+    ctx.translate(Math.cos(a) * 11, Math.sin(a) * 11);
+    ctx.rotate(a);
+    ctx.beginPath();
+    ctx.moveTo(-1.5, -1.5);
+    ctx.lineTo(1.5, 1.5);
+    ctx.moveTo(1.5, -1.5);
+    ctx.lineTo(0, 0);
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+  if (attack > 0) halo(ctx, x, y, 14, '#ffd25a', attack * 0.6);
+}
+
+/** Asas de luz com as cores da aurora (Santa da Aurora), batendo devagar. */
+function auroraWings(ctx: Ctx, x: number, y: number, t: number): void {
+  const flap = Math.sin(t * 2.4) * 0.12;
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.translate(x - 1, y);
+    ctx.scale(side, 1);
+    ctx.rotate(-0.25 + flap);
+    ctx.globalAlpha = 0.85;
+    shape(ctx, vertical(ctx, -14, 10, '#9affe0', '#c06aff'), () => {
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(10, -16, 20, -12);
+      ctx.quadraticCurveTo(16, -6, 18, -2);
+      ctx.quadraticCurveTo(13, 0, 15, 5);
+      ctx.quadraticCurveTo(8, 4, 2, 6);
+      ctx.closePath();
+    }, 0.6);
+    ctx.restore();
+  }
+  halo(ctx, x, y - 4, 16, '#9af0ff', 0.35);
+}
+
+/** Florzinhas brotando no chão em volta (Santa da Aurora). */
+function groundFlowers(ctx: Ctx, t: number): void {
+  const colors = ['#ff8ad8', '#9affe0', '#ffe07a', '#8ab8ff'];
+  [-11, -5, 7, 12].forEach((fx, i) => {
+    const grow = 0.75 + Math.sin(t * 1.5 + i * 1.3) * 0.25;
+    const fy = 13 + (i % 2) * 1.5;
+    line(ctx, '#5ac878', 0.7, () => {
+      ctx.moveTo(fx, fy);
+      ctx.lineTo(fx, fy - 2.5 * grow);
+    }, false);
+    shape(ctx, colors[i]!, () => circle(ctx, fx, fy - 2.8 * grow, 1.1 * grow), 0.3);
+  });
+}
+
+/** Auréola de sete cores girando (Santa da Aurora). */
+function rainbowHalo(ctx: Ctx, x: number, y: number, t: number, r = 6.5): void {
+  const colors = ['#ff5a6a', '#ff9a3a', '#ffe04a', '#5ae87a', '#4ac8ff', '#6a7aff', '#c06aff'];
+  halo(ctx, x, y, r + 6, '#ffffff', 0.4);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(1, r > 7 ? 1 : 0.32);
+  ctx.rotate(t * 0.6);
+  ctx.lineWidth = r > 7 ? 2.4 : 1.6;
+  for (let i = 0; i < 7; i++) {
+    ctx.strokeStyle = colors[i]!;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, (i / 7) * TAU, ((i + 1) / 7) * TAU);
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 /** Auréola de vitral da Santa: gomos coloridos girando devagar, atrás da cabeça. */

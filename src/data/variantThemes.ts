@@ -34,7 +34,32 @@ export interface VariantTheme {
   /** Cor principal (aura, rótulos, partículas dos ataques). */
   accent: string;
   particles?: ThemeParticle;
+  /** O próprio sprite desenha a variante (cores e forma próprias): sem recolorido por cima. */
+  art?: boolean;
 }
+
+/**
+ * Variantes com arte própria (12/10/2026): cada criatura ganha temas únicos por raridade. A Rara muda
+ * cores; a Épica e a Lendária também mudam a forma (acessórios), em todas as formas da criatura. `colors`
+ * e `accent` pintam ataques, aura e partículas; o desenho em si fica no sprite (`pose.variant`).
+ */
+const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantTheme>>> = {
+  archer: {
+    rare: { name: 'Patrulheiro do Outono', colors: ['#ffb04a', '#c0601a'], strength: 0, accent: '#ff9a3a', art: true },
+    epic: { name: 'Caçador de Bestas', colors: ['#ffc860', '#c07a20', '#6a3a10'], strength: 0, accent: '#ffb030', art: true },
+    legendary: { name: 'Arqueiro Estelar', colors: ['#e8f4ff', '#8ab8ff', '#3a4ac8'], strength: 0, accent: '#bfe0ff', particles: 'star', art: true },
+  },
+  guard: {
+    rare: { name: 'Guarda Real', colors: ['#7aa8ff', '#2a4ab0'], strength: 0, accent: '#ffd25a', art: true },
+    epic: { name: 'Templário', colors: ['#ffb070', '#e03a2a', '#7a1010'], strength: 0, accent: '#ff5a3a', particles: 'ember', art: true },
+    legendary: { name: 'Paladino do Sol', colors: ['#fff4b0', '#ffd23a', '#ff9a1a'], strength: 0, accent: '#ffe07a', particles: 'star', art: true },
+  },
+  cleric: {
+    rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
+    epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
+    legendary: { name: 'Santa da Aurora', colors: ['#2affc8', '#4a7aff', '#ff4ad8'], strength: 0, accent: '#9af0ff', particles: 'ribbon', art: true },
+  },
+};
 
 export const VARIANT_THEMES: Record<VariantThemeId, VariantTheme> = {
   jade: { name: 'Jade', colors: ['#3aff9a', '#0a8a5a'], strength: 0.85, accent: '#5affa0' },
@@ -80,6 +105,8 @@ const TIER_INDEX: Record<VariantTier, number> = { rare: 0, epic: 1, legendary: 2
 
 /** Tema da variante de uma criatura. */
 export function variantTheme(id: CreatureId, tier: VariantTier): VariantTheme {
+  const own = CREATURE_VARIANTS[id]?.[tier];
+  if (own) return own;
   const themeId = BY_CREATURE[id]?.[tier] ?? BY_RACE[CREATURES[id].race]?.[TIER_INDEX[tier]] ?? (['jade', 'abyss', 'celestial'] as const)[TIER_INDEX[tier]];
   return VARIANT_THEMES[themeId];
 }

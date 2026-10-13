@@ -429,6 +429,7 @@ function drawCreatureBody(ctx: CanvasRenderingContext2D, state: RunState, creatu
       level: creature.level,
       branch: creature.branch,
       supreme: isSupreme(creature),
+      variant,
     }),
   );
   if (variant) drawVariantParticles(ctx, creature.def.id, variant, creature.x, creature.y + hover - 6 * spriteScale, spriteScale, time);

@@ -7,6 +7,8 @@ import { halo, TAU, type Ctx, type LayerLook } from './spriteKit';
 /** Camada do sprite com o recolorido do tema (a Lendária ganha a faixa de brilho). */
 export function variantLayerLook(id: CreatureId, tier: VariantTier, time: number): LayerLook {
   const theme = variantTheme(id, tier);
+  // arte própria: o sprite já desenha a variante
+  if (theme.art) return {};
   return { recolor: { colors: theme.colors, strength: theme.strength, light: theme.light, dark: theme.dark, shimmer: tier === 'legendary' ? time : undefined } };
 }
 
