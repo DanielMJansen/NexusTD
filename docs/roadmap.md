@@ -68,6 +68,11 @@ A 1.0 é o jogo completo para jogar sozinho: 5 fases, coleção, meta-progressã
    - listar as variantes que ele tem;
    - tooltip mostrando as formas despertas (nível 3 A/B e Supremas), com e sem a skin/variante.
    Propor o formato com 1–2 exemplos antes de reescrever todos.
+10. `[ ]` **Ícone da raça nas criaturas** (pedido de 14/10/2026). Hoje cada forma tem um emoji próprio (♛, ⚔, ➶…), mostrado no emblema A/B da arena, na coleção e nas fichas. Isso não diz a raça. Já existe o brasão de raça desenhado em código (`src/render/raceIcons.ts`), mas ele só aparece na equipe do menu. Proposta:
+   - usar o brasão da raça como ícone principal da criatura em todo lugar (barra de invocar, coleção, equipe, fichas e tooltips);
+   - na arena, a forma desperta mostra o brasão da raça na cor da vertente (A/B), em vez do emoji;
+   - os emojis das formas ficam só no texto das fichas, ou saem.
+   Mostrar como fica em 2–3 telas antes de trocar em todas.
 
 ## 3. Próximas etapas
 
