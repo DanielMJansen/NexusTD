@@ -174,6 +174,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Sanguessuga Pestilenta', colors: ['#f0ffc8', '#c8ff6a', '#2a2620'], strength: 0, accent: '#c8ff6a', art: true },
     legendary: { name: 'Sanguessuga Abissal', colors: ['#f0d8ff', '#c86aff', '#140e24'], strength: 0, accent: '#c86aff', art: true },
   },
+  serpentArcher: {
+    rare: { name: 'Górgona do Deserto', colors: ['#fff0c8', '#e0b060', '#7a5a2a'], strength: 0, accent: '#e0b060', art: true },
+    epic: { name: 'Górgona Coral', colors: ['#ffe040', '#e0303a', '#14141a'], strength: 0, accent: '#e0303a', art: true },
+    legendary: { name: 'Górgona de Jade', colors: ['#e0fff0', '#2ae890', '#0e5a3e'], strength: 0, accent: '#2ae890', particles: 'star', art: true },
+  },
+  medusa: {
+    rare: { name: 'Medusa de Mármore', colors: ['#ffffff', '#c8c8d0', '#6a6a74'], strength: 0, accent: '#ffd25a', art: true },
+    epic: { name: 'Medusa Rainha do Nilo', colors: ['#fff0a0', '#ffd25a', '#3a6ad8'], strength: 0, accent: '#5ad8ff', art: true },
+    legendary: { name: 'Medusa Estelar', colors: ['#ffffff', '#8ad8ff', '#4a3aa8'], strength: 0, accent: '#8ad8ff', particles: 'star', art: true },
+  },
+  basilisk: {
+    rare: { name: 'Basilisco Albino', colors: ['#ffffff', '#ffb0b8', '#e05a6a'], strength: 0, accent: '#ff3a3a', art: true },
+    epic: { name: 'Basilisco de Lava', colors: ['#ffe07a', '#ff6a1a', '#4a3a36'], strength: 0, accent: '#ff6a1a', particles: 'ember', art: true },
+    legendary: { name: 'Basilisco Dourado Imperial', colors: ['#fff4c8', '#f0c040', '#3ad8ff'], strength: 0, accent: '#3ad8ff', particles: 'star', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },

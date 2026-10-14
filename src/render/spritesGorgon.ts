@@ -2,7 +2,10 @@
 import {
   halo,
   circle,
+  darken,
   ellipse,
+  flame,
+  starDots,
   formA,
   formB,
   glowingEye,
@@ -38,52 +41,89 @@ function nagaTail(ctx: Ctx, t: number, color: string, dark: string): void {
   ctx.stroke();
 }
 
-/** Cabelo de serpentes que se mexem. */
-function snakeHair(ctx: Ctx, hy: number, t: number, color: string, count = 5): void {
+/** Cabelo de serpentes que se mexem (`len` alonga, `width` engrossa). */
+function snakeHair(ctx: Ctx, hy: number, t: number, color: string, count = 5, len = 1, width = 1.4, eyes = '#ff3a3a'): void {
   for (let i = 0; i < count; i++) {
     const a = -2.6 + (i / (count - 1)) * 2.2;
     const x0 = 1 + Math.cos(a) * 5;
     const y0 = hy + Math.sin(a) * 5;
-    const wig = Math.sin(t * 5 + i) * 2;
-    line(ctx, color, 1.4, () => {
+    const wig = Math.sin(t * 5 + i) * 2 * len;
+    const tx = x0 + Math.cos(a) * 8 * len;
+    const ty = y0 + Math.sin(a) * 8 * len + wig;
+    line(ctx, color, width, () => {
       ctx.moveTo(x0, y0);
-      ctx.quadraticCurveTo(x0 + Math.cos(a) * 5 + wig, y0 + Math.sin(a) * 5, x0 + Math.cos(a) * 8, y0 + Math.sin(a) * 8 + wig);
+      ctx.quadraticCurveTo(x0 + Math.cos(a) * 5 * len + wig, y0 + Math.sin(a) * 5 * len, tx, ty);
     });
-    ctx.fillStyle = '#ff3a3a';
+    if (len > 1.2) shape(ctx, color, () => ellipse(ctx, tx, ty, 1.5, 1.1, a), 0.4);
+    ctx.fillStyle = eyes;
     ctx.beginPath();
-    circle(ctx, x0 + Math.cos(a) * 8, y0 + Math.sin(a) * 8 + wig, 0.5);
+    circle(ctx, tx, ty, 0.5);
     ctx.fill();
   }
 }
+
+/** Cores da Arqueira Serpente em cada variante: cauda, pele, cabelo, roupa e cobra companheira. */
+const ARCHER_SNAKE_VARIANTS = {
+  // Górgona do Deserto: escamas cor de areia
+  rare: { tail: ['#d8b070', '#7a5a2a'], skin: ['#f4e4c0', '#c8a878'], hair: '#c89a50', top: ['#a85a2a', '#5a2a10'], snake: ['#e0b060', '#7a5418'], eyes: '#ff8a2a' },
+  // Górgona Coral: listras vermelho, preto e amarelo
+  epic: { tail: ['#e0303a', '#5a0a10'], skin: ['#f0e0d0', '#c8a890'], hair: '#14141a', top: ['#f0c030', '#8a6a10'], snake: ['#e0303a', '#14141a'], eyes: '#ffe040' },
+  // Górgona de Jade: pele de jade, joias e cobras de esmeralda
+  legendary: { tail: ['#4ad8a0', '#0e5a3e'], skin: ['#c8ffe4', '#6ac8a0'], hair: '#1ea870', top: ['#ffe07a', '#c8901a'], snake: ['#2ae890', '#0a6a40'], eyes: '#ffffff' },
+} as const;
 
 /** Domadora de Serpentes: naga com flauta e uma cobra que dá o bote. A: Víbora (roxa, veneno forte); B: Naja (capuz de naja, cospe em leque). */
 export function drawSerpentArcher(ctx: Ctx, p: Pose): void {
   // Formas Supremas: Rainha das Víboras (A, serpente enorme enrolada) e Hidra Menor (B, três serpentes na mão)
   if (p.supreme && formA(p)) {
     const sway = Math.sin(p.time * 2) * 2;
-    line(ctx, '#3a1a5a', 6, () => {
+    const sv = p.variant ? ARCHER_SNAKE_VARIANTS[p.variant].snake : (['#8a4ac8', '#3a1a5a'] as const);
+    line(ctx, sv[1], 6, () => {
       ctx.moveTo(-14, 13);
       ctx.bezierCurveTo(-22, 2, -6, -4, -14, -16 + sway);
     });
-    line(ctx, '#8a4ac8', 4, () => {
+    line(ctx, sv[0], 4, () => {
       ctx.moveTo(-14, 13);
       ctx.bezierCurveTo(-22, 2, -6, -4, -14, -16 + sway);
     }, false);
-    shape(ctx, '#8a4ac8', () => ellipse(ctx, -12, -19 + sway, 4.5, 3, 0.4), 0.7);
+    shape(ctx, sv[0], () => ellipse(ctx, -12, -19 + sway, 4.5, 3, 0.4), 0.7);
     glowingEye(ctx, -10.5, -20 + sway, 0.9, '#ffe060');
   }
   const viper = formA(p);
   const cobra = formB(p);
-  const scale = viper ? '#8a4ad8' : cobra ? '#c8a03a' : '#4ab86a';
-  const dark = viper ? '#3a1a6a' : cobra ? '#5a4010' : '#1e5a2e';
-  nagaTail(ctx, p.time, '#5a8a5a', '#24402a');
-  shape(ctx, vertical(ctx, -10, 2, '#e8dcc0', '#a89878'), () => poly(ctx, [-5, -10, 5, -10, 6, 2, -6, 2]));
+  const av = p.variant ? ARCHER_SNAKE_VARIANTS[p.variant] : null;
+  const shadeB = (c: string) => (av && cobra ? darken(c, 0.25) : c);
+  const scale = av ? shadeB(av.snake[0]) : viper ? '#8a4ad8' : cobra ? '#c8a03a' : '#4ab86a';
+  const dark = av ? av.snake[1] : viper ? '#3a1a6a' : cobra ? '#5a4010' : '#1e5a2e';
+  if (viper && !p.supreme) {
+    // Víbora: cobra grande atrás, subindo pelas costas com o capuz aberto sobre o ombro
+    const sw = Math.sin(p.time * 2) * 1.5;
+    line(ctx, dark, 5, () => {
+      ctx.moveTo(-6, 10);
+      ctx.bezierCurveTo(-16, 4, -4, -8, -11, -20 + sw);
+    });
+    line(ctx, scale, 3.4, () => {
+      ctx.moveTo(-6, 10);
+      ctx.bezierCurveTo(-16, 4, -4, -8, -11, -20 + sw);
+    }, false);
+    shape(ctx, vertical(ctx, -28, -16, scale, dark), () => ellipse(ctx, -11, -21 + sw, 5.5, 6.5), 0.8);
+    shape(ctx, dark, () => ellipse(ctx, -11, -21 + sw, 2.4, 3.6), 0);
+    shape(ctx, scale, () => ellipse(ctx, -9, -24 + sw, 3, 2), 0.7);
+    glowingEye(ctx, -8, -24.5 + sw, 0.8, '#ffe060');
+  }
+  nagaTail(ctx, p.time, av ? av.tail[0] : '#5a8a5a', av ? av.tail[1] : '#24402a');
+  if (p.variant === 'epic') {
+    // listras de coral na cauda
+    for (const [x, c] of [[-4, '#14141a'], [0, '#f0c030'], [4, '#14141a'], [8, '#f0c030']] as const) shape(ctx, c, () => ctx.rect(x, 9, 1.6, 4), 0);
+  }
+  shape(ctx, vertical(ctx, -10, 2, av ? av.top[0] : '#e8dcc0', av ? av.top[1] : '#a89878'), () => poly(ctx, [-5, -10, 5, -10, 6, 2, -6, 2]));
   shape(ctx, scale, () => ctx.rect(-5.5, -4, 11, 1.6), 0.5);
+  if (p.variant === 'legendary') for (const x of [-3, 0, 3]) shape(ctx, '#2ae890', () => poly(ctx, [x, -8.6, x + 1, -7.2, x, -5.8, x - 1, -7.2]), 0.4);
   const hy = -15;
-  snakeHair(ctx, hy, p.time, '#5ab85a', 4);
-  shape(ctx, radial(ctx, 1, hy, 6, '#d8f0c8', '#8ab878'), () => circle(ctx, 1, hy, 6));
-  glowingEye(ctx, 0.5, hy, 1.1, '#ffd23a');
-  glowingEye(ctx, 4, hy, 1.1, '#ffd23a');
+  snakeHair(ctx, hy, p.time, av ? av.hair : '#5ab85a', 4);
+  shape(ctx, radial(ctx, 1, hy, 6, av ? av.skin[0] : '#d8f0c8', av ? av.skin[1] : '#8ab878'), () => circle(ctx, 1, hy, 6));
+  glowingEye(ctx, 0.5, hy, 1.1, av ? av.eyes : '#ffd23a');
+  glowingEye(ctx, 4, hy, 1.1, av ? av.eyes : '#ffd23a');
   // flauta
   line(ctx, '#8a5a2e', 1.4, () => {
     ctx.moveTo(4, hy + 3);
@@ -95,17 +135,21 @@ export function drawSerpentArcher(ctx: Ctx, p: Pose): void {
   const headX = 12 + strike * 8;
   const headY = -6 - (1 - strike) * 4 + sway * (1 - strike);
   shape(ctx, dark, () => ellipse(ctx, 10, 10, 6, 2.5), 0.8);
-  line(ctx, scale, 2.6, () => {
+  line(ctx, scale, cobra ? 3.6 : 2.6, () => {
     ctx.moveTo(8, 9);
     ctx.quadraticCurveTo(14, 4, 11, -1);
     ctx.quadraticCurveTo(9 + strike * 4, -5, headX, headY);
   });
-  if (cobra) {
+  if (cobra && !p.supreme) {
+    // Naja: capuz grande e largo, com o desenho de óculos
+    shape(ctx, vertical(ctx, headY - 8, headY + 6, av ? av.snake[0] : '#e8c060', av ? av.snake[1] : '#7a5a1a'), () => ellipse(ctx, headX - 1.5, headY, 5.4, 7.4), 0.8);
+    for (const dy of [-2.6, 2.2]) shape(ctx, '#2a1a0a', () => ellipse(ctx, headX - 2, headY + dy, 1.4, 1.1), 0);
+  } else if (cobra) {
     // capuz de naja
     shape(ctx, vertical(ctx, headY - 5, headY + 4, '#e8c060', '#7a5a1a'), () => ellipse(ctx, headX - 1, headY, 3.6, 4.6), 0.7);
   }
   shape(ctx, scale, () => ellipse(ctx, headX + 1.5, headY, 3, 2.1), 0.8);
-  ctx.fillStyle = viper ? '#ff6aff' : '#ffd23a';
+  ctx.fillStyle = av ? av.eyes : viper ? '#ff6aff' : '#ffd23a';
   ctx.beginPath();
   circle(ctx, headX + 2, headY - 0.8, 0.6);
   ctx.fill();
@@ -136,43 +180,84 @@ export function drawSerpentArcher(ctx: Ctx, p: Pose): void {
 }
 
 /** Medusa: serpentes no cabelo e olhar que brilha. A: Olhar Pétreo (olhos dourados intensos); B: Górgona Ancestral (coroa antiga, olhos vermelhos). */
+/** Cores da Medusa em cada variante: cauda, pele, cabelo, roupa e olhos. */
+const MEDUSA_VARIANTS = {
+  // Medusa de Mármore: pele cinza-pedra
+  rare: { tail: ['#a8a8b0', '#4a4a54'], skin: ['#f0f0f4', '#a8a8b4'], hair: '#8a8a96', top: ['#ffffff', '#b8b8c4'], eyes: '#ffd25a' },
+  // Medusa Rainha do Nilo: nemes listrado, delineado e cobras douradas
+  epic: { tail: ['#d0a040', '#6a4a10'], skin: ['#f0d8b0', '#c89a68'], hair: '#e8b830', top: ['#3a6ad8', '#14287a'], eyes: '#5ad8ff' },
+  // Medusa Estelar: cabelo de cobras de luz azul, pele de galáxia
+  legendary: { tail: ['#4a3aa8', '#120a3a'], skin: ['#6a5ad8', '#2a1a7a'], hair: '#8ad8ff', top: ['#2a2a7a', '#0a0a2a'], eyes: '#ffffff' },
+} as const;
+
 export function drawMedusa(ctx: Ctx, p: Pose): void {
   const stone = formA(p);
   const ancient = formB(p);
-  nagaTail(ctx, p.time, '#6a9a5a', '#2a4a24');
-  shape(ctx, vertical(ctx, -10, 2, '#e8e0c8', '#a8a08a'), () => poly(ctx, [-5, -10, 5, -10, 6, 2, -6, 2]));
+  const mv = p.variant ? MEDUSA_VARIANTS[p.variant] : null;
+  const shadeB = (c: string) => (mv && ancient ? darken(c, 0.2) : c);
+  if (stone && !p.supreme) {
+    // Olhar Pétreo: estátuas de pedra pequenas aos pés (vítimas petrificadas)
+    for (const [x, s] of [[-12, 1], [-7, 0.8]] as const) {
+      shape(ctx, vertical(ctx, 14 - 9 * s, 14, '#c8c8c8', '#6a6a6a'), () => ctx.roundRect(x - 2 * s, 14 - 7 * s, 4 * s, 7 * s, 1), 0.7);
+      shape(ctx, '#b0b0b0', () => circle(ctx, x, 14 - 8.5 * s, 2 * s), 0.7);
+    }
+  }
+  nagaTail(ctx, p.time, mv ? shadeB(mv.tail[0]) : '#6a9a5a', mv ? mv.tail[1] : '#2a4a24');
+  shape(ctx, vertical(ctx, -10, 2, mv ? mv.top[0] : '#e8e0c8', mv ? mv.top[1] : '#a8a08a'), () => poly(ctx, [-5, -10, 5, -10, 6, 2, -6, 2]));
   shape(ctx, GOLD, () => ctx.rect(-5.5, -3, 11, 1.4), 0.5);
+  if (p.variant === 'legendary') starDots(ctx, p.time, [[-3, -7], [3, -5], [0, 4], [5, 8], [-4, 7]]);
   const hy = -15;
-  snakeHair(ctx, hy, p.time, ancient ? '#4a7a3a' : '#5ab85a', 7);
-  shape(ctx, radial(ctx, 1, hy, 6.4, '#e0f0d8', '#98b890'), () => circle(ctx, 1, hy, 6.3));
+  if (p.variant === 'epic' && !ancient) {
+    // nemes listrado azul e dourado caindo pelos ombros
+    shape(ctx, vertical(ctx, hy - 7, hy + 9, '#3a6ad8', '#14287a'), () => poly(ctx, [-6, hy - 4, 7, hy - 4, 8.5, hy + 9, 4, hy + 9, 4, hy + 2, -3, hy + 2, -3, hy + 9, -7.5, hy + 9]), 0.8);
+    line(ctx, '#ffd25a', 0.8, () => {
+      for (const y of [hy + 4, hy + 6.5]) {
+        ctx.moveTo(-7.2, y);
+        ctx.lineTo(-3, y);
+        ctx.moveTo(4, y);
+        ctx.lineTo(8.2, y);
+      }
+    }, false);
+  }
+  if (p.variant === 'legendary') halo(ctx, 1, hy - 4, 14, '#8ad8ff', 0.4);
+  snakeHair(ctx, hy, p.time, mv ? mv.hair : ancient ? '#4a7a3a' : '#5ab85a', ancient && !p.supreme ? 9 : 7, ancient && !p.supreme ? 1.5 : 1, ancient && !p.supreme ? 1.8 : 1.4);
+  shape(ctx, radial(ctx, 1, hy, 6.4, mv ? mv.skin[0] : '#e0f0d8', mv ? mv.skin[1] : '#98b890'), () => circle(ctx, 1, hy, 6.3));
   const gaze = 1 + p.attack * 0.8;
-  const eyes = ancient ? '#ff3a3a' : stone ? '#ffd25a' : '#c8ff6a';
+  const eyes = mv ? mv.eyes : ancient ? '#ff3a3a' : stone ? '#ffd25a' : '#c8ff6a';
+  if (stone && !p.supreme) halo(ctx, 2, hy, 7, eyes, 0.7);
   ctx.save();
   ctx.shadowColor = eyes;
   ctx.shadowBlur = 6 + p.attack * 10;
-  glowingEye(ctx, 0, hy, 1.4 * gaze, eyes);
-  glowingEye(ctx, 4, hy, 1.4 * gaze, eyes);
+  glowingEye(ctx, 0, hy, 1.4 * gaze * (stone ? 1.2 : 1), eyes);
+  glowingEye(ctx, 4, hy, 1.4 * gaze * (stone ? 1.2 : 1), eyes);
   ctx.restore();
-  if (p.attack > 0.2) {
-    // raio do olhar
+  if (p.variant === 'epic') {
+    // delineado egípcio
+    line(ctx, '#14141a', 0.7, () => {
+      ctx.moveTo(-1.6, hy - 0.6);
+      ctx.lineTo(-3.4, hy + 0.4);
+      ctx.moveTo(5.6, hy - 0.6);
+      ctx.lineTo(7.2, hy + 0.6);
+    }, false);
+  }
+  if (p.attack > 0.2 || (stone && !p.supreme)) {
+    // raio do olhar (sempre aceso no Olhar Pétreo)
+    ctx.save();
+    ctx.globalAlpha *= stone && p.attack <= 0.2 ? 0.35 + Math.sin(p.time * 3) * 0.1 : 1;
     ctx.strokeStyle = eyes + '88';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = stone ? 3 : 2;
     ctx.beginPath();
     ctx.moveTo(5, hy);
-    ctx.lineTo(18, hy + 3);
+    ctx.lineTo(20, hy + 3);
     ctx.stroke();
+    ctx.restore();
   }
   if (ancient) {
-    shape(ctx, vertical(ctx, hy - 12, hy - 5, '#e8d090', '#8a6a2a'), () =>
-      poly(ctx, [-4.5, hy - 5, -5, hy - 10, -2, hy - 7, 1, hy - 12, 4, hy - 7, 7, hy - 10, 6.5, hy - 5]),
+    // coroa antiga (maior, com cobras douradas na Górgona Ancestral)
+    shape(ctx, vertical(ctx, hy - 14, hy - 5, '#ffe090', '#8a6a2a'), () =>
+      poly(ctx, [-5.5, hy - 5, -6, hy - 11, -2.5, hy - 7.5, 1, hy - 14, 4.5, hy - 7.5, 8, hy - 11, 7.5, hy - 5]),
     );
-  }
-  if (stone) {
-    // pedrinhas girando (estátuas em miniatura)
-    for (let i = 0; i < 2; i++) {
-      const a = p.time * 1.5 + i * Math.PI;
-      shape(ctx, '#9a9a9a', () => ctx.roundRect(Math.cos(a) * 13 - 1.5, -4 + Math.sin(a) * 4, 3, 4, 0.8), 0.5);
-    }
+    for (const x of [-6, 1, 8]) shape(ctx, '#ff3a3a', () => circle(ctx, x, hy - (x === 1 ? 14 : 11), 0.9), 0);
   }
   if (p.supreme && formA(p)) {
     // cabelo de serpentes erguido e olhar brilhando
@@ -198,18 +283,36 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
 }
 
 /** Basilisco: lagarto-serpente de crista. A: Basilisco Rei (crista coroada); B: Cuspidor (baba ácida verde). */
+/** Cores do Basilisco em cada variante: corpo, escuro, barriga, crista e espinhos. */
+const BASILISK_VARIANTS = {
+  // Basilisco Albino: branco de olhos vermelhos
+  rare: { body: '#e8e8e4', dark: '#8a8a88', belly: '#fff4f0', crest: '#e05a6a', spine: '#c03a4a', eye: '#ff3a3a' },
+  // Basilisco de Lava: escamas de rocha e crista de fogo
+  epic: { body: '#4a3a36', dark: '#140a08', belly: '#ff8a2a', crest: '#ff6a1a', spine: '#ff8a2a', eye: '#ffe060' },
+  // Basilisco Dourado Imperial: escamas de ouro e crista de joias
+  legendary: { body: '#f0c040', dark: '#7a5208', belly: '#fff4c8', crest: '#3ad8ff', spine: '#ff3a8a', eye: '#3ad8ff' },
+} as const;
+
 export function drawBasilisk(ctx: Ctx, p: Pose): void {
   // Basilisco: serpente gigante enrolada, pescoço erguido em S e olhar mortal.
-  // A: Basilisco Rei (coroa de cristas douradas); B: Cuspidor (ácido verde).
+  // A: Basilisco Rei (corpo maior, crista enorme e coroa); B: Cuspidor (ácido verde, glândulas brilhando).
   const king = formA(p);
   const spitter = formB(p);
-  const body = king ? '#3a6a3a' : spitter ? '#4a7a2a' : '#3a5a3a';
-  const dark = king ? '#0e2a14' : spitter ? '#1a3a0c' : '#122414';
-  const belly = '#c8c890';
+  const bv = p.variant ? BASILISK_VARIANTS[p.variant] : null;
+  const body = bv ? (spitter ? darken(bv.body, 0.2) : bv.body) : king ? '#3a6a3a' : spitter ? '#4a7a2a' : '#3a5a3a';
+  const dark = bv ? bv.dark : king ? '#0e2a14' : spitter ? '#1a3a0c' : '#122414';
+  const belly = bv ? bv.belly : '#c8c890';
   const sway = Math.sin(p.time * 1.6) * 1.5;
   const strike = p.attack;
-  // um pouco maior que as outras criaturas: imponente
-  ctx.scale(1.12, 1.12);
+  // um pouco maior que as outras criaturas: imponente (o Rei, ainda maior)
+  const grow = king ? 1.12 * 1.15 : 1.12;
+  ctx.translate(0, 14);
+  ctx.scale(grow, grow);
+  ctx.translate(0, -14);
+  if (spitter && !p.supreme) {
+    // poça de ácido aos pés
+    shape(ctx, '#9aff3a55', () => ellipse(ctx, 2, 13, 15, 3), 0);
+  }
 
   // espirais do corpo no chão (de trás para a frente)
   for (const [y, rx, ry] of [
@@ -258,15 +361,34 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
     const u = k / 5;
     const x = (1 - u) ** 3 * -3 + 3 * (1 - u) ** 2 * u * -11 + 3 * (1 - u) * u * u * (8 + sway) + u ** 3 * (hx - 4);
     const y = (1 - u) ** 3 * 5 + 3 * (1 - u) ** 2 * u * -4 + 3 * (1 - u) * u * u * -6 + u ** 3 * (hy + 3);
-    shape(ctx, king ? GOLD : '#7a2a2a', () => poly(ctx, [x - 3.6, y - 1, x - 6.5, y - 5, x - 2, y - 3.6]), 0.6);
+    shape(ctx, bv ? bv.spine : king ? GOLD : '#7a2a2a', () => poly(ctx, [x - 3.6, y - 1, x - 6.5, y - 5, x - 2, y - 3.6]), 0.6);
+    if (spitter && !p.supreme && k % 2 === 0) halo(ctx, x + 1, y + 1, 4, '#9aff3a', 0.7 + Math.sin(p.time * 4 + k) * 0.2);
   }
 
-  // crista em leque atrás da cabeça (espinhos com membrana)
+  // crista em leque atrás da cabeça (espinhos com membrana); enorme no Basilisco Rei, de fogo no de Lava
   ctx.save();
   ctx.translate(hx - 3, hy - 1);
-  for (let i = 0; i < 5; i++) {
-    const a = -2.5 + i * 0.32 + Math.sin(p.time * 2 + i) * 0.04;
-    shape(ctx, king ? '#c8901a' : '#6a1a1a', () => poly(ctx, [Math.cos(a) * 3, Math.sin(a) * 3, Math.cos(a) * 13, Math.sin(a) * 13, Math.cos(a + 0.2) * 4, Math.sin(a + 0.2) * 4]), 0.6);
+  if (p.variant === 'epic') {
+    for (let i = 0; i < 4; i++) flame(ctx, Math.cos(-2.4 + i * 0.4) * 5, Math.sin(-2.4 + i * 0.4) * 5, 2.4, king ? 13 : 9, -1.4 + i * 0.42, p.time + i);
+  } else {
+    const spikes = king ? 7 : 5;
+    const len = king ? 19 : 13;
+    if (king) {
+      // membrana entre os espinhos
+      shape(ctx, (bv ? bv.crest : '#c8901a') + '88', () => {
+        ctx.moveTo(0, 0);
+        for (let i = 0; i < spikes; i++) {
+          const a = -2.7 + i * 0.3;
+          ctx.lineTo(Math.cos(a) * (len - 3), Math.sin(a) * (len - 3));
+        }
+        ctx.closePath();
+      }, 0);
+    }
+    for (let i = 0; i < spikes; i++) {
+      const a = (king ? -2.7 + i * 0.3 : -2.5 + i * 0.32) + Math.sin(p.time * 2 + i) * 0.04;
+      shape(ctx, bv ? bv.crest : king ? '#c8901a' : '#6a1a1a', () => poly(ctx, [Math.cos(a) * 3, Math.sin(a) * 3, Math.cos(a) * len, Math.sin(a) * len, Math.cos(a + 0.2) * 4, Math.sin(a + 0.2) * 4]), 0.6);
+      if (p.variant === 'legendary') shape(ctx, '#ffffff', () => circle(ctx, Math.cos(a) * len, Math.sin(a) * len, 0.9), 0);
+    }
   }
   ctx.restore();
   // cabeça em cunha
@@ -302,8 +424,8 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
   // escamas grandes do topo e sobrancelha óssea
   shape(ctx, dark, () => poly(ctx, [-1, -6, 7, -6.6, 9, -4, 1, -3.6]), 0.6);
   // olho mortal: amarelo brilhante com pupila em fenda
-  halo(ctx, 4, -3.4, 6 + strike * 4, '#ffe14a', 0.6 + strike * 0.3);
-  shape(ctx, '#ffd23a', () => ellipse(ctx, 4, -3.4, 2.2, 1.6), 0.6);
+  halo(ctx, 4, -3.4, 6 + strike * 4, bv ? bv.eye : '#ffe14a', 0.6 + strike * 0.3);
+  shape(ctx, bv ? bv.eye : '#ffd23a', () => ellipse(ctx, 4, -3.4, 2.2, 1.6), 0.6);
   ctx.fillStyle = '#0a0a06';
   ctx.fillRect(3.7, -4.9, 0.6, 3);
   // narina
@@ -312,8 +434,9 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
   ellipse(ctx, 12.5, -1.2, 0.7, 0.45);
   ctx.fill();
   if (king) {
-    // coroa de cristas douradas atrás dos olhos
-    shape(ctx, vertical(ctx, -14, -5, '#ffe07a', '#c8901a'), () => poly(ctx, [-5, -4, -6, -12, -3, -7, -1, -14, 1, -7, 4, -12, 3, -5.5]), 0.6);
+    // coroa grande atrás dos olhos, com joias
+    shape(ctx, vertical(ctx, -17, -5, '#ffe07a', '#c8901a'), () => poly(ctx, [-6, -4, -7.5, -14, -3.5, -8, -1, -17, 1.5, -8, 5, -14, 4, -5.5]), 0.7);
+    for (const [x, y] of [[-7.5, -14], [-1, -17], [5, -14]] as const) shape(ctx, '#ff3a5a', () => circle(ctx, x, y, 1), 0.3);
   }
   if (spitter && strike > 0.2) halo(ctx, 13, 3, 7, '#9aff3a', strike);
   ctx.restore();
