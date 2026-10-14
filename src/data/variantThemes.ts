@@ -144,6 +144,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Fada Vaga-lume', colors: ['#f4ffb0', '#d8ff6a', '#3e6e2e'], strength: 0, accent: '#d8ff6a', art: true },
     legendary: { name: 'Fada Solar', colors: ['#fff4c0', '#ffd040', '#e07a10'], strength: 0, accent: '#ffd040', particles: 'ember', art: true },
   },
+  stoneWall: {
+    rare: { name: 'Golem de Arenito', colors: ['#fff0c8', '#e0c48a', '#5ac8ff'], strength: 0, accent: '#5ac8ff', art: true },
+    epic: { name: 'Golem de Musgo', colors: ['#e0ffb0', '#8ad85a', '#4a5a3a'], strength: 0, accent: '#8ad85a', art: true },
+    legendary: { name: 'Golem de Mármore Divino', colors: ['#ffffff', '#ffe08a', '#e0b030'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
+  },
+  crystalGolem: {
+    rare: { name: 'Golem de Topázio', colors: ['#fff0b0', '#ffc040', '#d07a10'], strength: 0, accent: '#ffc040', art: true },
+    epic: { name: 'Golem de Esmeralda', colors: ['#d0ffe8', '#4affa0', '#0e8a4a'], strength: 0, accent: '#4affa0', art: true },
+    legendary: { name: 'Golem de Diamante Arco-Íris', colors: ['#ff7a9a', '#ffe66a', '#7ac8ff'], strength: 0, accent: '#ffffff', particles: 'star', art: true },
+  },
+  magmaGolem: {
+    rare: { name: 'Golem de Lava Azul', colors: ['#d0f0ff', '#4ab8ff', '#1a4a8a'], strength: 0, accent: '#4ab8ff', art: true },
+    epic: { name: 'Golem de Obsidiana', colors: ['#f0d8ff', '#c86aff', '#2a2236'], strength: 0, accent: '#c86aff', art: true },
+    legendary: { name: 'Golem do Sol', colors: ['#ffffff', '#ffd040', '#ff8a10'], strength: 0, accent: '#ffd040', particles: 'ember', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
