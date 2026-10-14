@@ -159,6 +159,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Golem de Obsidiana', colors: ['#f0d8ff', '#c86aff', '#2a2236'], strength: 0, accent: '#c86aff', art: true },
     legendary: { name: 'Golem do Sol', colors: ['#ffffff', '#ffd040', '#ff8a10'], strength: 0, accent: '#ffd040', particles: 'ember', art: true },
   },
+  skeletonWarrior: {
+    rare: { name: 'Esqueleto de Ônix', colors: ['#c8ffd0', '#7aff8a', '#3a3640'], strength: 0, accent: '#7aff8a', art: true },
+    epic: { name: 'Esqueleto Pirata', colors: ['#fff0a0', '#ffd25a', '#2a1e1a'], strength: 0, accent: '#ffd25a', art: true },
+    legendary: { name: 'Rei dos Ossos', colors: ['#fff4b0', '#ffd040', '#a01a3a'], strength: 0, accent: '#ffd040', particles: 'star', art: true },
+  },
+  reaper: {
+    rare: { name: 'Ceifador Pálido', colors: ['#ffffff', '#c8d8f0', '#5ac8ff'], strength: 0, accent: '#8ad0ff', art: true },
+    epic: { name: 'Ceifador do Dia dos Mortos', colors: ['#ffd040', '#ff9a1a', '#ff5a8a'], strength: 0, accent: '#ff9a1a', art: true },
+    legendary: { name: 'Ceifador Cósmico', colors: ['#ffffff', '#bfd0ff', '#2a2a7a'], strength: 0, accent: '#bfd0ff', particles: 'star', art: true },
+  },
+  drainer: {
+    rare: { name: 'Sanguessuga Pálida', colors: ['#e0f0ff', '#8ad0ff', '#5a6a80'], strength: 0, accent: '#8ad0ff', art: true },
+    epic: { name: 'Sanguessuga Pestilenta', colors: ['#f0ffc8', '#c8ff6a', '#2a2620'], strength: 0, accent: '#c8ff6a', art: true },
+    legendary: { name: 'Sanguessuga Abissal', colors: ['#f0d8ff', '#c86aff', '#140e24'], strength: 0, accent: '#c86aff', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },

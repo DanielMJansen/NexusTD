@@ -3,7 +3,9 @@
 import {
   halo,
   circle,
+  darken,
   ellipse,
+  starDots,
   formA,
   formB,
   glowingEye,
@@ -21,9 +23,10 @@ import {
 const BONE = '#ece4cc';
 const BONE_DARK = '#a89c80';
 
-function skullHead(ctx: Ctx, x: number, y: number, r: number, eyes: string): void {
-  shape(ctx, radial(ctx, x, y, r, '#fffaf0', BONE_DARK), () => circle(ctx, x, y, r));
-  shape(ctx, BONE, () => ctx.roundRect(x - r * 0.45, y + r * 0.55, r * 1.1, r * 0.55, 1), 0.9);
+function skullHead(ctx: Ctx, x: number, y: number, r: number, eyes: string, bone = BONE): void {
+  const light = bone === BONE ? '#fffaf0' : bone;
+  shape(ctx, radial(ctx, x, y, r, light, bone === BONE ? BONE_DARK : darken(bone, 0.4)), () => circle(ctx, x, y, r));
+  shape(ctx, bone, () => ctx.roundRect(x - r * 0.45, y + r * 0.55, r * 1.1, r * 0.55, 1), 0.9);
   shape(ctx, '#140a1e', () => ellipse(ctx, x + r * 0.05, y, r * 0.3, r * 0.34), 0);
   shape(ctx, '#140a1e', () => ellipse(ctx, x + r * 0.62, y, r * 0.24, r * 0.32), 0);
   glowingEye(ctx, x + r * 0.08, y + 0.2, r * 0.14, eyes);
@@ -46,22 +49,43 @@ export function drawSkeletonWarrior(ctx: Ctx, p: Pose, ally = false): void {
   const knight = formA(p);
   const legion = formB(p);
   const step = p.moving ? Math.sin(p.time * 9) : 0;
-  const eyes = ally ? '#7affb0' : knight ? '#7affb0' : legion ? '#c86aff' : '#7affb0';
-  line(ctx, BONE, 1.8, () => {
+  const SV = {
+    // Esqueleto de Ônix: ossos negros, olhos verdes
+    rare: { bone: '#3a3640', boneDark: '#141218', eyes: '#7aff8a' },
+    // Esqueleto Pirata: chapéu de capitão, tapa-olho, cutelo
+    epic: { bone: '#ece4cc', boneDark: '#a89c80', eyes: '#ffd25a' },
+    // Rei dos Ossos: ossos dourados, coroa, capa real
+    legendary: { bone: '#ffe08a', boneDark: '#c8901a', eyes: '#ff5a5a' },
+  } as const;
+  const sv = !ally && p.variant ? SV[p.variant] : null;
+  const bone = sv ? sv.bone : BONE;
+  const eyes = sv ? sv.eyes : ally ? '#7affb0' : knight ? '#7affb0' : legion ? '#c86aff' : '#7affb0';
+  if (p.variant === 'legendary' && !ally) {
+    // capa real de veludo
+    shape(ctx, vertical(ctx, -10, 14, '#a01a3a', '#3a0614'), () => poly(ctx, [-5, -9, 5, -9, 9, 14, -10, 14]), 1);
+    shape(ctx, '#ffffff', () => ctx.roundRect(-6, -11, 12, 3, 1.5), 0.6);
+  }
+  if (knight && !ally && !p.supreme) {
+    // capa rasgada do Cavaleiro da Morte
+    shape(ctx, vertical(ctx, -10, 14, '#1e1e28', '#05050a'), () => poly(ctx, [-5, -10, 6, -10, 8, 12, 4, 9, 1, 14, -3, 10, -7, 13]), 1);
+  }
+  line(ctx, bone, 1.8, () => {
     ctx.moveTo(-2, 5);
     ctx.lineTo(-3 + step * 2, 14);
     ctx.moveTo(2, 5);
     ctx.lineTo(3 - step * 2, 14);
   });
   if (knight) {
-    shape(ctx, vertical(ctx, -10, 6, '#3a3a48', '#121218'), () => ctx.roundRect(-6, -10, 12, 16, 3));
+    // armadura de placas pesada com ombreiras
+    shape(ctx, vertical(ctx, -10, 6, sv ? sv.boneDark : '#3a3a48', '#121218'), () => ctx.roundRect(-6, -10, 12, 16, 3));
     shape(ctx, '#5adca0', () => ctx.rect(-6, -2, 12, 1.4), 0);
+    if (!ally) for (const x of [-9, 5]) shape(ctx, vertical(ctx, -12, -5, '#5a5a6a', '#1a1a22'), () => ctx.roundRect(x, -12, 5, 6, [3, 3, 1, 1]), 0.9);
   } else {
-    line(ctx, BONE, 1.6, () => {
+    line(ctx, bone, 1.6, () => {
       ctx.moveTo(0, -9);
       ctx.lineTo(0, 5);
     });
-    ctx.strokeStyle = BONE;
+    ctx.strokeStyle = bone;
     ctx.lineWidth = 1.2;
     ctx.beginPath();
     for (const y of [-6, -3, 0]) {
@@ -71,22 +95,69 @@ export function drawSkeletonWarrior(ctx: Ctx, p: Pose, ally = false): void {
     ctx.stroke();
   }
   // escudo redondo atrás
-  shape(ctx, radial(ctx, -7, -1, 6, knight ? '#5a5a6a' : '#8a6a3a', knight ? '#1a1a22' : '#4a3018'), () => circle(ctx, -7, -1, 5.5));
+  shape(ctx, radial(ctx, -7, -1, 6, knight ? '#5a5a6a' : sv ? sv.boneDark : '#8a6a3a', knight ? '#1a1a22' : '#4a3018'), () => circle(ctx, -7, -1, 5.5));
   shape(ctx, knight ? '#5adca0' : '#c8c0a0', () => circle(ctx, -7, -1, 1.4), 0.5);
-  // espada (golpe de cima para baixo)
+  // espada (golpe de cima para baixo); cutelo no Pirata, chamas verdes no Cavaleiro da Morte
   ctx.save();
   ctx.translate(5, -4);
   ctx.rotate(0.5 + p.attack * 1.2);
-  line(ctx, knight ? '#9affd0' : '#d0d8e4', 1.6, () => {
-    ctx.moveTo(0, 0);
-    ctx.lineTo(0, -15);
-  });
+  if (p.variant === 'epic' && !ally) {
+    shape(ctx, vertical(ctx, -15, 0, '#e8ecf4', '#8a92a8'), () => {
+      ctx.moveTo(-0.8, 0);
+      ctx.lineTo(-0.8, -13);
+      ctx.quadraticCurveTo(3.5, -15, 3.2, -9);
+      ctx.lineTo(1, 0);
+      ctx.closePath();
+    }, 0.7);
+  } else {
+    if (knight && !ally) halo(ctx, 0, -8, 7, '#5affb0', 0.6);
+    line(ctx, knight ? '#9affd0' : '#d0d8e4', knight && !ally ? 2.2 : 1.6, () => {
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, knight && !ally ? -18 : -15);
+    });
+  }
   shape(ctx, '#5a3a1a', () => ctx.rect(-2.5, -1, 5, 1.6), 0.6);
   ctx.restore();
-  skullHead(ctx, 1, -16, 5, eyes);
-  if (knight) {
+  skullHead(ctx, 1, -16, 5, eyes, bone);
+  if (knight && !ally) {
+    // elmo fechado com chifres grandes curvados
+    shape(ctx, vertical(ctx, -22, -11, '#4a4a5a', '#121218'), () => ctx.roundRect(-4, -22, 10, 11, [4, 4, 2, 2]), 0.9);
+    shape(ctx, '#05050a', () => ctx.rect(-2.6, -18, 7.6, 1.6), 0);
+    glowingEye(ctx, 0, -17.2, 0.7, '#7affb0');
+    glowingEye(ctx, 3.6, -17.2, 0.7, '#7affb0');
+    for (const side of [-1, 1]) {
+      const bx = side < 0 ? -3 : 5;
+      shape(ctx, vertical(ctx, -32, -18, '#e8e0cc', '#4a4a5a'), () => {
+        ctx.moveTo(bx, -19);
+        ctx.quadraticCurveTo(bx + side * 7, -22, bx + side * 6, -31);
+        ctx.quadraticCurveTo(bx + side * 4, -25, bx - side * 1, -21.5);
+        ctx.closePath();
+      }, 0.8);
+    }
+  } else if (knight) {
     shape(ctx, '#121218', () => poly(ctx, [-4, -20, -4.5, -27, 0, -21]), 0.8);
     shape(ctx, '#121218', () => poly(ctx, [5, -21, 8, -27, 6.5, -20]), 0.8);
+  }
+  if (p.variant === 'epic' && !ally && !knight) {
+    // chapéu de capitão com caveira e tapa-olho
+    shape(ctx, vertical(ctx, -28, -19, '#2a1e1a', '#0e0a08'), () => {
+      ctx.moveTo(-7, -19.5);
+      ctx.quadraticCurveTo(-5, -28, 1, -27);
+      ctx.quadraticCurveTo(7, -28, 9, -19.5);
+      ctx.quadraticCurveTo(1, -22, -7, -19.5);
+      ctx.closePath();
+    }, 0.9);
+    shape(ctx, '#ffffff', () => circle(ctx, 1, -24, 1.2), 0);
+    shape(ctx, '#0e0a08', () => ellipse(ctx, 1.3, -16, 1.9, 1.7), 0);
+    line(ctx, '#0e0a08', 0.6, () => {
+      ctx.moveTo(-3.6, -19);
+      ctx.lineTo(4.6, -14);
+    }, false);
+  }
+  if (p.variant === 'legendary' && !ally && !knight) {
+    // coroa dourada
+    shape(ctx, vertical(ctx, -27, -20, '#fff4b0', '#e0a020'), () => poly(ctx, [-3.5, -20.5, -4, -25.5, -1.5, -23, 1, -27, 3.5, -23, 6, -25.5, 5.5, -20.5]), 0.6);
+    shape(ctx, '#ff3a5a', () => circle(ctx, 1, -22.5, 0.9), 0);
   }
   if (legion) {
     // estandarte de ossos nas costas
@@ -108,21 +179,77 @@ export function drawSkeletonWarrior(ctx: Ctx, p: Pose, ally = false): void {
 }
 
 /** Ceifador: manto com capuz e foice. A: Ceifador Sombrio (chamas roxas, foice maior); B: Colhedor de Almas (lanterna de almas). */
+/** Cores do Ceifador em cada variante: manto (topo, base), capuz, rosto e olhos. */
+const REAPER_VARIANTS = {
+  // Ceifador Pálido: manto branco
+  rare: { robe: ['#e8e8f0', '#8a8aa0'], hood: '#f4f4fa', face: '#1a1a24', eyes: '#5ac8ff' },
+  // Ceifador do Dia dos Mortos: calavera pintada, flores de cempasúchil
+  epic: { robe: ['#3a1a4a', '#120818'], hood: '#4a2260', face: '#f4ecdc', eyes: '#ff5a8a' },
+  // Ceifador Cósmico: manto de galáxia, foice de lua, ampulheta de estrelas
+  legendary: { robe: ['#2a2a7a', '#06061a'], hood: '#34348a', face: '#05030a', eyes: '#ffffff' },
+} as const;
+
 export function drawReaper(ctx: Ctx, p: Pose): void {
   const dark = formA(p);
   const souls = formB(p);
+  const rv = p.variant ? REAPER_VARIANTS[p.variant] : null;
   const float = Math.sin(p.time * 2) * 1.2;
-  ctx.translate(0, float - 2);
-  const robe = dark ? '#2a1a3a' : '#2a2a30';
-  shape(ctx, vertical(ctx, -12, 14, robe, '#08060c'), () => {
-    ctx.moveTo(-6, -11);
-    ctx.lineTo(6, -11);
-    ctx.quadraticCurveTo(10, 4, 8, 14 + Math.sin(p.time * 4) * 1.5);
-    ctx.lineTo(0, 11);
-    ctx.lineTo(-8, 14 + Math.sin(p.time * 4 + 1) * 1.5);
-    ctx.quadraticCurveTo(-10, 4, -6, -11);
-    ctx.closePath();
-  });
+  // Ceifador Sombrio (A): flutua mais alto, com manto longo e esfarrapado
+  ctx.translate(0, float - (dark && !p.supreme ? 5 : 2));
+  const robe = rv ? (souls ? darken(rv.robe[0], 0.25) : rv.robe[0]) : dark ? '#2a1a3a' : '#2a2a30';
+  const robeBottom = rv ? rv.robe[1] : '#08060c';
+  if (dark && !p.supreme) {
+    // manto longo e esfarrapado, com tiras ondulando
+    shape(ctx, vertical(ctx, -12, 20, robe, robeBottom), () => {
+      ctx.moveTo(-6, -11);
+      ctx.lineTo(6, -11);
+      ctx.quadraticCurveTo(13, 4, 11, 20 + Math.sin(p.time * 4) * 2);
+      ctx.lineTo(6, 15);
+      ctx.lineTo(3, 21 + Math.sin(p.time * 4 + 2) * 2);
+      ctx.lineTo(-1, 15);
+      ctx.lineTo(-5, 21 + Math.sin(p.time * 4 + 1) * 2);
+      ctx.lineTo(-8, 15);
+      ctx.lineTo(-12, 19 + Math.sin(p.time * 4 + 3) * 2);
+      ctx.quadraticCurveTo(-13, 4, -6, -11);
+      ctx.closePath();
+    });
+    // correntes cruzando o manto
+    ctx.save();
+    ctx.strokeStyle = '#8a8ea0';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 6; i++) {
+      ctx.beginPath();
+      ellipse(ctx, -7 + i * 2.6, -4 + i * 1.6, 1.4, 0.9, 0.6 + (i % 2) * 1.5);
+      ctx.stroke();
+    }
+    ctx.restore();
+    // ampulheta na cintura
+    shape(ctx, '#c8a060', () => ctx.rect(-8.5, 1, 5, 1), 0.4);
+    shape(ctx, '#c8a060', () => ctx.rect(-8.5, 8, 5, 1), 0.4);
+    shape(ctx, '#e8f4ff88', () => poly(ctx, [-8, 2, -4, 2, -6, 4.8, -4, 8, -8, 8, -6, 4.8]), 0.5);
+    shape(ctx, '#e0c060', () => poly(ctx, [-7.6, 7.8, -4.4, 7.8, -6, 5.6]), 0);
+  } else {
+    shape(ctx, vertical(ctx, -12, 14, robe, robeBottom), () => {
+      ctx.moveTo(-6, -11);
+      ctx.lineTo(6, -11);
+      ctx.quadraticCurveTo(10, 4, 8, 14 + Math.sin(p.time * 4) * 1.5);
+      ctx.lineTo(0, 11);
+      ctx.lineTo(-8, 14 + Math.sin(p.time * 4 + 1) * 1.5);
+      ctx.quadraticCurveTo(-10, 4, -6, -11);
+      ctx.closePath();
+    });
+  }
+  if (p.variant === 'legendary') starDots(ctx, p.time, [[-4, -4], [3, 2], [-2, 8], [5, -6], [-6, 4]]);
+  if (p.variant === 'epic') {
+    // flores de cempasúchil na barra do manto
+    for (const [x, y] of [[-5, 10], [0, 8], [5, 10]] as const) {
+      for (let k = 0; k < 6; k++) {
+        const a = (k / 6) * TAU;
+        shape(ctx, '#ff9a1a', () => circle(ctx, x + Math.cos(a) * 1.3, y + Math.sin(a) * 1.3, 1), 0.2);
+      }
+      shape(ctx, '#ffd040', () => circle(ctx, x, y, 0.8), 0);
+    }
+  }
   // foice (corta de cima no ataque)
   ctx.save();
   ctx.translate(6, -2);
@@ -132,32 +259,39 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
     ctx.lineTo(0, -16);
   });
   const big = dark ? 1.35 : 1;
-  if (dark) {
-    ctx.shadowColor = '#b86aff';
+  const moon = p.variant === 'legendary';
+  if (dark || moon) {
+    ctx.shadowColor = moon ? '#bfd0ff' : '#b86aff';
     ctx.shadowBlur = 8;
   }
-  shape(ctx, vertical(ctx, -18, -8, '#e8ecf4', '#8a92a8'), () => {
+  shape(ctx, vertical(ctx, -18, -8, moon ? '#ffffff' : '#e8ecf4', moon ? '#bfd0ff' : '#8a92a8'), () => {
     ctx.moveTo(0, -16);
     ctx.quadraticCurveTo(12 * big, -20 * big, 16 * big, -9 * big);
     ctx.quadraticCurveTo(9 * big, -14 * big, 0, -12);
     ctx.closePath();
   });
   ctx.restore();
-  // capuz com rosto na sombra
-  shape(ctx, vertical(ctx, -27, -8, dark ? '#3a2050' : '#3a3a44', '#0a080e'), () => poly(ctx, [-8, -8, -6, -22, 0, -27, 7, -21, 8, -8]));
-  shape(ctx, '#05030a', () => ellipse(ctx, 1.5, -15, 4.5, 5), 0);
-  glowingEye(ctx, 0, -15.5, 1, dark ? '#c86aff' : '#ff3a4a');
-  glowingEye(ctx, 3.4, -15.5, 1, dark ? '#c86aff' : '#ff3a4a');
-  if (dark) {
-    ctx.save();
-    ctx.shadowColor = '#b86aff';
-    ctx.shadowBlur = 10;
-    for (let i = 0; i < 3; i++) {
-      const h = 4 + Math.sin(p.time * 9 + i * 2) * 1.5;
-      shape(ctx, '#c88aff', () => poly(ctx, [-6 + i * 4, 13, -4 + i * 4, 13 - h, -2 + i * 4, 13]), 0);
+  // capuz com rosto na sombra (calavera pintada no Dia dos Mortos)
+  shape(ctx, vertical(ctx, -27, -8, rv ? rv.hood : dark ? '#3a2050' : '#3a3a44', '#0a080e'), () => poly(ctx, [-8, -8, -6, -22, 0, -27, 7, -21, 8, -8]));
+  shape(ctx, rv ? rv.face : '#05030a', () => ellipse(ctx, 1.5, -15, 4.5, 5), 0);
+  if (p.variant === 'epic') {
+    // calavera: olhos pretos com contorno de flores e boca costurada
+    for (const x of [0, 3.4]) {
+      shape(ctx, '#ff5a8a', () => circle(ctx, x, -15.5, 1.9), 0);
+      shape(ctx, '#140a14', () => circle(ctx, x, -15.5, 1.2), 0);
     }
-    ctx.restore();
+    line(ctx, '#140a14', 0.5, () => {
+      ctx.moveTo(-1, -11.8);
+      ctx.lineTo(4.4, -11.8);
+      for (let i = 0; i < 4; i++) {
+        ctx.moveTo(-0.4 + i * 1.5, -12.6);
+        ctx.lineTo(-0.4 + i * 1.5, -11);
+      }
+    }, false);
+    shape(ctx, '#5ac8ff', () => circle(ctx, 1.7, -18.6, 0.8), 0);
   }
+  glowingEye(ctx, 0, -15.5, 1, rv ? rv.eyes : dark ? '#c86aff' : '#ff3a4a');
+  glowingEye(ctx, 3.4, -15.5, 1, rv ? rv.eyes : dark ? '#c86aff' : '#ff3a4a');
   if (souls) {
     // lanterna com almas verdes
     line(ctx, '#5a4a3a', 0.8, () => {
@@ -208,6 +342,16 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
 }
 
 /** Drenador: cultista curvado com garras de energia. A: Sanguessuga (gavinhas vermelhas); B: Corruptor (corrupção verde-ácida). */
+/** Cores do Drenador em cada variante: manto, máscara e energia. */
+const DRAINER_VARIANTS = {
+  // Sanguessuga Pálida: cinza-azulada
+  rare: { robe: '#5a6a80', mask: '#e8eef4', energy: '#8ad0ff' },
+  // Sanguessuga Pestilenta: máscara de médico da peste com bico
+  epic: { robe: '#2a2620', mask: '#e8dcc0', energy: '#c8ff6a' },
+  // Sanguessuga Abissal: olhos múltiplos no capuz e tentáculos de sombra
+  legendary: { robe: '#140e24', mask: '#05030a', energy: '#c86aff' },
+} as const;
+
 export function drawDrainer(ctx: Ctx, p: Pose): void {
   // Formas Supremas: Praga (A, nuvem de moscas) e Ruína (B, chão apodrecendo)
   if (p.supreme && formB(p)) {
@@ -219,10 +363,38 @@ export function drawDrainer(ctx: Ctx, p: Pose): void {
   }
   const leech = formA(p);
   const corrupt = formB(p);
-  const energy = leech ? '#ff3a5a' : corrupt ? '#9aff3a' : '#b86aff';
-  const robe = leech ? '#4a1420' : corrupt ? '#1e3a14' : '#2a1a40';
+  const dv = p.variant ? DRAINER_VARIANTS[p.variant] : null;
+  const energy = dv ? dv.energy : leech ? '#ff3a5a' : corrupt ? '#9aff3a' : '#b86aff';
+  const robe = dv ? (corrupt ? darken(dv.robe, 0.3) : dv.robe) : leech ? '#4a1420' : corrupt ? '#1e3a14' : '#2a1a40';
   ctx.rotate(0.08);
+  if ((leech && !p.supreme) || p.variant === 'legendary') {
+    // tentáculos saindo das costas (de sangue na Sanguessuga, de sombra na Abissal)
+    const tColor = p.variant === 'legendary' ? '#3a2a5a' : '#c0203a';
+    for (const [a, len] of [[-2.4, 16], [-2, 14], [-2.8, 12]] as const) {
+      const wave = Math.sin(p.time * 3 + a * 3) * 3;
+      line(ctx, tColor, 2.4, () => {
+        ctx.moveTo(-4, -4);
+        ctx.quadraticCurveTo(-4 + Math.cos(a) * len * 0.5 + wave, -4 + Math.sin(a) * len * 0.5, -4 + Math.cos(a) * len, -4 + Math.sin(a) * len + wave);
+      });
+      shape(ctx, p.variant === 'legendary' ? '#c86aff' : '#ff5a6a', () => circle(ctx, -4 + Math.cos(a) * len, -4 + Math.sin(a) * len + wave, 1.2), 0.4);
+    }
+  }
   shape(ctx, vertical(ctx, -9, 14, robe, '#08060c'), () => poly(ctx, [-6, -8, 5, -9, 9, 14, -9, 14]));
+  if (leech && !p.supreme) {
+    // coração pulsando no peito
+    const beat = 1 + Math.max(0, Math.sin(p.time * 6)) * 0.2;
+    halo(ctx, 0, -3, 5 * beat, '#ff3a5a', 0.6);
+    ctx.save();
+    ctx.translate(0, -3);
+    ctx.scale(beat, beat);
+    shape(ctx, '#e0203a', () => {
+      ctx.moveTo(0, 2.4);
+      ctx.bezierCurveTo(-3.6, -0.4, -2, -3.4, 0, -1.4);
+      ctx.bezierCurveTo(2, -3.4, 3.6, -0.4, 0, 2.4);
+      ctx.closePath();
+    }, 0.5);
+    ctx.restore();
+  }
   // mãos estendidas puxando energia
   line(ctx, robe, 2.4, () => {
     ctx.moveTo(3, -5);
@@ -245,9 +417,27 @@ export function drawDrainer(ctx: Ctx, p: Pose): void {
   ctx.restore();
   // capuz e máscara
   shape(ctx, vertical(ctx, -26, -8, robe, '#08060c'), () => poly(ctx, [-8, -8, -7, -21, 0, -25, 7, -20, 8, -8]));
-  shape(ctx, corrupt ? '#9aa88a' : '#d8ccc0', () => ellipse(ctx, 1.5, -15, 4, 4.6), 0.8);
-  glowingEye(ctx, 0, -16, 1.1, energy);
-  glowingEye(ctx, 3.4, -16, 1.1, energy);
+  shape(ctx, dv ? dv.mask : corrupt ? '#9aa88a' : '#d8ccc0', () => ellipse(ctx, 1.5, -15, 4, 4.6), 0.8);
+  if (p.variant === 'legendary') {
+    // olhos múltiplos no capuz
+    for (const [x, y, r] of [[-1, -16, 1], [2.6, -16.6, 1], [0.6, -13.4, 0.8], [4.2, -14, 0.7], [-2, -13.6, 0.6], [1.4, -19, 0.7]] as const) glowingEye(ctx, x, y, r, energy);
+  } else {
+    glowingEye(ctx, 0, -16, 1.1, energy);
+    glowingEye(ctx, 3.4, -16, 1.1, energy);
+  }
+  if (p.variant === 'epic') {
+    // bico longo de médico da peste
+    shape(ctx, vertical(ctx, -16, -9, '#f0e4c8', '#a8946a'), () => {
+      ctx.moveTo(3.5, -15);
+      ctx.quadraticCurveTo(10, -13.5, 13, -9);
+      ctx.quadraticCurveTo(8, -10, 3.5, -11);
+      ctx.closePath();
+    }, 0.8);
+    for (const x of [0, 3.4]) {
+      shape(ctx, '#3a3020', () => circle(ctx, x, -16, 1.5), 0.4);
+      glowingEye(ctx, x, -16, 0.8, energy);
+    }
+  }
   if (leech) {
     // gotas de sangue subindo
     ctx.fillStyle = '#ff3a5a';
