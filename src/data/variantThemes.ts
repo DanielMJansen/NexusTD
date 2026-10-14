@@ -167,12 +167,12 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   reaper: {
     rare: { name: 'Ceifador Pálido', colors: ['#ffffff', '#c8d8f0', '#5ac8ff'], strength: 0, accent: '#8ad0ff', art: true },
     epic: { name: 'Ceifador do Dia dos Mortos', colors: ['#ffd040', '#ff9a1a', '#ff5a8a'], strength: 0, accent: '#ff9a1a', art: true },
-    legendary: { name: 'Ceifador Cósmico', colors: ['#ffffff', '#ff6ad8', '#8a4ae0'], strength: 0, accent: '#c8a0ff', art: true },
+    legendary: { name: 'Caronte, o Barqueiro', colors: ['#c8ffe8', '#7affd0', '#5a3a24'], strength: 0, accent: '#7affd0', art: true },
   },
   drainer: {
     rare: { name: 'Sanguessuga Pálida', colors: ['#e0f0ff', '#8ad0ff', '#5a6a80'], strength: 0, accent: '#8ad0ff', art: true },
     epic: { name: 'Sanguessuga Pestilenta', colors: ['#f0ffc8', '#c8ff6a', '#2a2620'], strength: 0, accent: '#c8ff6a', art: true },
-    legendary: { name: 'Sanguessuga Abissal', colors: ['#f0d8ff', '#c86aff', '#140e24'], strength: 0, accent: '#c86aff', art: true },
+    legendary: { name: 'Sanguessuga Gigante', colors: ['#ffb0c0', '#ff5a7a', '#6a3a52'], strength: 0, accent: '#ff5a7a', art: true },
   },
   serpentArcher: {
     rare: { name: 'Górgona do Deserto', colors: ['#fff0c8', '#e0b060', '#7a5a2a'], strength: 0, accent: '#e0b060', art: true },
@@ -182,7 +182,7 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   medusa: {
     rare: { name: 'Medusa de Mármore', colors: ['#ffffff', '#c8c8d0', '#6a6a74'], strength: 0, accent: '#ffd25a', art: true },
     epic: { name: 'Medusa Rainha do Nilo', colors: ['#fff0a0', '#ffd25a', '#3a6ad8'], strength: 0, accent: '#5ad8ff', art: true },
-    legendary: { name: 'Medusa Estelar', colors: ['#ffffff', '#8ad8ff', '#4a3aa8'], strength: 0, accent: '#8ad8ff', particles: 'star', art: true },
+    legendary: { name: 'Medusa Água-viva', colors: ['#ffe0f4', '#ff9ad8', '#7ad8ff'], strength: 0, accent: '#ff9ad8', art: true },
   },
   basilisk: {
     rare: { name: 'Basilisco Albino', colors: ['#ffffff', '#ffb0b8', '#e05a6a'], strength: 0, accent: '#ff3a3a', art: true },

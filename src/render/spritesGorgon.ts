@@ -5,7 +5,6 @@ import {
   darken,
   ellipse,
   flame,
-  starDots,
   formA,
   formB,
   glowingEye,
@@ -186,9 +185,42 @@ const MEDUSA_VARIANTS = {
   rare: { tail: ['#a8a8b0', '#4a4a54'], skin: ['#f0f0f4', '#a8a8b4'], hair: '#8a8a96', top: ['#ffffff', '#b8b8c4'], eyes: '#ffd25a' },
   // Medusa Rainha do Nilo: nemes listrado, delineado e cobras douradas
   epic: { tail: ['#d0a040', '#6a4a10'], skin: ['#f0d8b0', '#c89a68'], hair: '#e8b830', top: ['#3a6ad8', '#14287a'], eyes: '#5ad8ff' },
-  // Medusa Estelar: cabelo de cobras de luz azul, pele de galáxia
-  legendary: { tail: ['#4a3aa8', '#120a3a'], skin: ['#6a5ad8', '#2a1a7a'], hair: '#8ad8ff', top: ['#2a2a7a', '#0a0a2a'], eyes: '#ffffff' },
+  // Medusa Água-viva: um sino de água-viva no lugar do cabelo, tentáculos compridos caindo atrás
+  legendary: { tail: ['#ff9ad8', '#8a2a7a'], skin: ['#eef6ff', '#a8c0e0'], hair: '#ff9ad8', top: ['#7ad8ff', '#2a6a9a'], eyes: '#ff6ad0' },
 } as const;
+
+/** Tentáculos da água-viva caindo da borda do sino, ondulando (finos e de babado). */
+function jellyTentacles(ctx: Ctx, hy: number, t: number, color: string): void {
+  ctx.save();
+  ctx.globalAlpha *= 0.8;
+  for (let i = 0; i < 6; i++) {
+    const x = -6 + i * 2.8;
+    const len = 18 + (i % 2) * 6;
+    line(ctx, color, i % 2 ? 0.8 : 1.8, () => {
+      ctx.moveTo(x, hy - 1);
+      for (let k = 1; k <= 4; k++) ctx.lineTo(x - k * 1.6 + Math.sin(t * 3 + i + k) * 1.4, hy - 1 + (len * k) / 4);
+    }, false);
+  }
+  ctx.restore();
+}
+
+/** Sino translúcido da água-viva sobre a cabeça, com borda ondulada e pintas que brilham. */
+function jellyBell(ctx: Ctx, hy: number, t: number, color: string): void {
+  const pulse = 1 + Math.sin(t * 3) * 0.05;
+  halo(ctx, 1, hy - 6, 11, color, 0.35);
+  ctx.save();
+  ctx.translate(1, hy - 1);
+  ctx.scale(pulse, 1 / pulse);
+  shape(ctx, vertical(ctx, -12, 0, '#ffe0f4ee', color + 'aa'), () => {
+    ctx.moveTo(-8, 0);
+    ctx.quadraticCurveTo(-9, -12, 0, -12);
+    ctx.quadraticCurveTo(9, -12, 8, 0);
+    for (let x = 8; x > -8; x -= 2) ctx.quadraticCurveTo(x - 1, 1.6, x - 2, 0);
+    ctx.closePath();
+  }, 0.8);
+  for (const [x, y] of [[-4, -6], [0, -9], [4, -5], [-1, -3]] as const) halo(ctx, x, y, 2, '#ffffff', 0.5 + Math.sin(t * 4 + x) * 0.3);
+  ctx.restore();
+}
 
 export function drawMedusa(ctx: Ctx, p: Pose): void {
   const stone = formA(p);
@@ -205,7 +237,7 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
   nagaTail(ctx, p.time, mv ? shadeB(mv.tail[0]) : '#6a9a5a', mv ? mv.tail[1] : '#2a4a24');
   shape(ctx, vertical(ctx, -10, 2, mv ? mv.top[0] : '#e8e0c8', mv ? mv.top[1] : '#a8a08a'), () => poly(ctx, [-5, -10, 5, -10, 6, 2, -6, 2]));
   shape(ctx, GOLD, () => ctx.rect(-5.5, -3, 11, 1.4), 0.5);
-  if (p.variant === 'legendary') starDots(ctx, p.time, [[-3, -7], [3, -5], [0, 4], [5, 8], [-4, 7]]);
+  const jelly = p.variant === 'legendary';
   const hy = -15;
   if (p.variant === 'epic' && !ancient) {
     // nemes listrado azul e dourado caindo pelos ombros
@@ -219,9 +251,10 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
       }
     }, false);
   }
-  if (p.variant === 'legendary') halo(ctx, 1, hy - 4, 14, '#8ad8ff', 0.4);
-  snakeHair(ctx, hy, p.time, mv ? mv.hair : ancient ? '#4a7a3a' : '#5ab85a', ancient && !p.supreme ? 9 : 7, ancient && !p.supreme ? 1.5 : 1, ancient && !p.supreme ? 1.8 : 1.4);
+  if (jelly) jellyTentacles(ctx, hy, p.time, ancient ? darken(mv!.hair, 0.3) : mv!.hair);
+  else snakeHair(ctx, hy, p.time, mv ? mv.hair : ancient ? '#4a7a3a' : '#5ab85a', ancient && !p.supreme ? 9 : 7, ancient && !p.supreme ? 1.5 : 1, ancient && !p.supreme ? 1.8 : 1.4);
   shape(ctx, radial(ctx, 1, hy, 6.4, mv ? mv.skin[0] : '#e0f0d8', mv ? mv.skin[1] : '#98b890'), () => circle(ctx, 1, hy, 6.3));
+  if (jelly) jellyBell(ctx, hy, p.time, ancient ? '#c86aff' : mv!.hair);
   const gaze = 1 + p.attack * 0.8;
   const eyes = mv ? mv.eyes : ancient ? '#ff3a3a' : stone ? '#ffd25a' : '#c8ff6a';
   if (stone && !p.supreme) halo(ctx, 2, hy, 7, eyes, 0.7);
@@ -264,11 +297,11 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
     for (let i = 0; i < 6; i++) {
       const x = -7 + i * 2.8;
       const h = 9 + Math.sin(p.time * 5 + i) * 2;
-      line(ctx, '#3a9a6a', 1.6, () => {
+      line(ctx, jelly ? '#ff7ac8' : '#3a9a6a', 1.6, () => {
         ctx.moveTo(x, -20);
         ctx.quadraticCurveTo(x - 2 + Math.sin(p.time * 3 + i) * 2, -20 - h * 0.6, x + 1, -20 - h);
       });
-      shape(ctx, '#5ad88a', () => circle(ctx, x + 1, -20 - h, 1.3), 0.4);
+      shape(ctx, jelly ? '#ffc0e8' : '#5ad88a', () => circle(ctx, x + 1, -20 - h, 1.3), 0.4);
     }
     halo(ctx, 2, -15, 8, '#e8ff6a', 0.5 + p.attack * 0.4);
   }

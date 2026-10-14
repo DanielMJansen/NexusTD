@@ -5,12 +5,11 @@ import {
   circle,
   darken,
   ellipse,
-  star,
-  starDots,
   formA,
   formB,
   glowingEye,
   line,
+  OUTLINE,
   poly,
   radial,
   shape,
@@ -186,17 +185,61 @@ const REAPER_VARIANTS = {
   rare: { robe: ['#e8e8f0', '#8a8aa0'], hood: '#f4f4fa', face: '#1a1a24', eyes: '#5ac8ff' },
   // Ceifador do Dia dos Mortos: calavera pintada, flores de cempasúchil
   epic: { robe: ['#3a1a4a', '#120818'], hood: '#4a2260', face: '#f4ecdc', eyes: '#ff5a8a' },
-  // Ceifador Cósmico: manto de galáxia, foice de lua, ampulheta de estrelas
-  legendary: { robe: ['#8a4ae0', '#120a3a'], hood: '#6a3ac8', face: '#05030a', eyes: '#ffffff' },
+  // Caronte, o Barqueiro: de pé num barco no rio dos mortos, remo no lugar da foice, rosto de caveira
+  legendary: { robe: ['#5a5448', '#1a1814'], hood: '#4a4438', face: '#e8e0cc', eyes: '#7affd0' },
 } as const;
+
+/** Barco de Caronte: casco curvo de madeira escura, proa enrolada com lanterna e água esverdeada. */
+function ferryBoat(ctx: Ctx, t: number, front: boolean): void {
+  if (!front) {
+    // água do rio dos mortos
+    shape(ctx, '#2a6a5a66', () => ellipse(ctx, 0, 13, 20, 3.4), 0);
+    line(ctx, '#7affd088', 0.7, () => {
+      for (const [x, w] of [[-14, 4], [10, 5]] as const) {
+        const off = Math.sin(t * 2 + x) * 1.5;
+        ctx.moveTo(x + off, 13.5);
+        ctx.quadraticCurveTo(x + off + w / 2, 12.5, x + off + w, 13.5);
+      }
+    }, false);
+    return;
+  }
+  const rock = Math.sin(t * 1.5) * 0.04;
+  ctx.save();
+  ctx.translate(0, 9);
+  ctx.rotate(rock);
+  shape(ctx, vertical(ctx, -3, 5, '#5a3a24', '#1e120a'), () => {
+    ctx.moveTo(-17, -3);
+    ctx.lineTo(13, -3);
+    ctx.quadraticCurveTo(17, -4, 18, -10);
+    ctx.quadraticCurveTo(20, -4, 15, 1);
+    ctx.quadraticCurveTo(0, 6, -14, 3);
+    ctx.quadraticCurveTo(-17, 0, -17, -3);
+    ctx.closePath();
+  });
+  line(ctx, '#7a5434', 0.6, () => {
+    ctx.moveTo(-15, 0);
+    ctx.quadraticCurveTo(0, 3, 14, -1);
+  }, false);
+  // lanterna pendurada na proa
+  line(ctx, '#2a2a20', 0.6, () => {
+    ctx.moveTo(18, -10);
+    ctx.lineTo(19, -7);
+  }, false);
+  halo(ctx, 19, -5, 5, '#7affd0', 0.7 + Math.sin(t * 4) * 0.15);
+  shape(ctx, '#2a2a20', () => ctx.roundRect(17.6, -7, 2.8, 3.6, 0.8), 0.5);
+  shape(ctx, '#c8ffe8', () => circle(ctx, 19, -5.2, 0.9), 0);
+  ctx.restore();
+}
 
 export function drawReaper(ctx: Ctx, p: Pose): void {
   const dark = formA(p);
   const souls = formB(p);
   const rv = p.variant ? REAPER_VARIANTS[p.variant] : null;
   const float = Math.sin(p.time * 2) * 1.2;
-  // Ceifador Sombrio (A): flutua mais alto, com manto longo e esfarrapado
-  ctx.translate(0, float - (dark && !p.supreme ? 5 : 2));
+  const charon = p.variant === 'legendary';
+  if (charon) ferryBoat(ctx, p.time, false);
+  // Ceifador Sombrio (A): flutua mais alto, com manto longo e esfarrapado (Caronte fica de pé no barco)
+  ctx.translate(0, charon ? -4 : float - (dark && !p.supreme ? 5 : 2));
   const robe = rv ? (souls ? darken(rv.robe[0], 0.25) : rv.robe[0]) : dark ? '#2a1a3a' : '#2a2a30';
   const robeBottom = rv ? rv.robe[1] : '#08060c';
   if (dark && !p.supreme) {
@@ -240,23 +283,13 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
       ctx.closePath();
     });
   }
-  if (p.variant === 'legendary') {
-    // faixas de nebulosa (rosa e azul) no manto e estrelas
-    for (const [color, y0] of [['#ff6ad8', -4], ['#5ac8ff', 4]] as const) {
-      ctx.save();
-      ctx.globalAlpha *= 0.55 + Math.sin(p.time * 2 + y0) * 0.15;
-      line(ctx, color, 2.2, () => {
-        ctx.moveTo(-7, y0);
-        ctx.quadraticCurveTo(0, y0 - 4 + Math.sin(p.time * 1.5) * 1.5, 7, y0 + 1);
-      }, false);
-      ctx.restore();
-    }
-    starDots(ctx, p.time, [[-4, -4], [3, 2], [-2, 8], [5, -6], [-6, 4], [1, 11]]);
-    // ampulheta de estrelas no peito
-    shape(ctx, '#ffe08a', () => ctx.rect(-2, -9, 4, 0.8), 0.3);
-    shape(ctx, '#ffe08a', () => ctx.rect(-2, -3.4, 4, 0.8), 0.3);
-    shape(ctx, '#c8e0ffaa', () => poly(ctx, [-1.6, -8.2, 1.6, -8.2, 0, -6.2, 1.6, -3.4, -1.6, -3.4, 0, -6.2]), 0.4);
-    halo(ctx, 0, -6, 3, '#ffffff', 0.7);
+  if (charon) {
+    // o casco cobre a barra do manto; moedas para a travessia no cinto
+    ctx.save();
+    ctx.translate(0, 4);
+    ferryBoat(ctx, p.time, true);
+    ctx.restore();
+    for (const x of [-3, -0.5]) shape(ctx, '#e0b040', () => circle(ctx, x, -1, 1), 0.4);
   }
   if (p.variant === 'epic') {
     // flores de cempasúchil na barra do manto
@@ -277,19 +310,18 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
     ctx.lineTo(0, -16);
   });
   const big = dark ? 1.35 : 1;
-  const moon = p.variant === 'legendary';
-  if (dark || moon) {
-    ctx.shadowColor = moon ? '#bfd0ff' : '#b86aff';
+  if (dark) {
+    ctx.shadowColor = '#b86aff';
     ctx.shadowBlur = 8;
   }
-  if (moon) {
-    // lâmina de lua crescente grande e brilhante
-    halo(ctx, 8, -16, 12, '#bfd0ff', 0.7);
-    shape(ctx, vertical(ctx, -28, -6, '#ffffff', '#a8c0ff'), () => {
-      ctx.arc(6, -15, 11, -2.6, 0.6);
-      ctx.arc(11, -19, 8, 0.75, -2.2, true);
-      ctx.closePath();
-    }, 0.6);
+  if (charon) {
+    // remo longo: a pá fica embaixo, na água
+    line(ctx, '#3a2a1a', 1.6, () => {
+      ctx.moveTo(0, 12);
+      ctx.lineTo(0, 20);
+    });
+    shape(ctx, vertical(ctx, 16, 26, '#6a4a2a', '#2a1a0a'), () => ellipse(ctx, 0, 22, 2.4, 5), 0.8);
+    if (dark) halo(ctx, 0, -16, 6, '#b86aff', 0.6);
   } else {
     shape(ctx, vertical(ctx, -18, -8, '#e8ecf4', '#8a92a8'), () => {
       ctx.moveTo(0, -16);
@@ -318,18 +350,21 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
     }, false);
     shape(ctx, '#5ac8ff', () => circle(ctx, 1.7, -18.6, 0.8), 0);
   }
+  if (charon) {
+    // caveira: órbitas fundas, nariz e dentes
+    for (const x of [0, 3.4]) shape(ctx, '#1a1410', () => circle(ctx, x, -15.5, 1.6), 0);
+    shape(ctx, '#1a1410', () => poly(ctx, [1.7, -13.6, 1.1, -12.4, 2.3, -12.4]), 0);
+    line(ctx, '#1a1410', 0.5, () => {
+      ctx.moveTo(-0.4, -11);
+      ctx.lineTo(3.8, -11);
+      for (let i = 0; i < 4; i++) {
+        ctx.moveTo(0 + i * 1.2, -11.8);
+        ctx.lineTo(0 + i * 1.2, -10.2);
+      }
+    }, false);
+  }
   glowingEye(ctx, 0, -15.5, 1, rv ? rv.eyes : dark ? '#c86aff' : '#ff3a4a');
   glowingEye(ctx, 3.4, -15.5, 1, rv ? rv.eyes : dark ? '#c86aff' : '#ff3a4a');
-  if (p.variant === 'legendary') {
-    // coroa de estrelas orbitando o capuz
-    for (let i = 0; i < 5; i++) {
-      const a = p.time * 1.2 + (i * TAU) / 5;
-      const sx = 0.5 + Math.cos(a) * 9;
-      const sy = -26 + Math.sin(a) * 2.6;
-      halo(ctx, sx, sy, 2.4, '#ffffff', 0.7);
-      shape(ctx, '#ffffff', () => star(ctx, sx, sy, 1.6), 0);
-    }
-  }
   if (souls) {
     // lanterna com almas verdes
     line(ctx, '#5a4a3a', 0.8, () => {
@@ -386,9 +421,47 @@ const DRAINER_VARIANTS = {
   rare: { robe: '#5a6a80', mask: '#e8eef4', energy: '#8ad0ff' },
   // Sanguessuga Pestilenta: máscara de médico da peste com bico
   epic: { robe: '#2a2620', mask: '#e8dcc0', energy: '#c8ff6a' },
-  // Sanguessuga Abissal: olhos múltiplos no capuz e tentáculos de sombra
-  legendary: { robe: '#140e24', mask: '#05030a', energy: '#c86aff' },
+  // Sanguessuga Gigante: um verme enorme erguido, de anéis brilhantes e boca redonda cheia de dentes
+  legendary: { robe: '#9a4a6a', mask: '#3a1428', energy: '#ff5a7a' },
 } as const;
+
+/** Sanguessuga Gigante: corpo em anéis erguido do chão e a boca-ventosa voltada para a frente. */
+function giantLeech(ctx: Ctx, t: number, body: string, dark: string, energy: string, attack: number): void {
+  const n = 9;
+  const pts: [number, number, number][] = [];
+  for (let i = 0; i <= n; i++) {
+    const k = i / n;
+    const sway = Math.sin(t * 2.5 - k * 3) * 2 * k;
+    pts.push([-11 + k * 16 + sway, 10 - k * 22 + Math.sin(k * Math.PI) * -3, 6.4 - k * 2.2]);
+  }
+  pts.forEach(([x, y, r]) => shape(ctx, OUTLINE, () => circle(ctx, x, y, r + 0.9), 0));
+  pts.forEach(([x, y, r], i) => {
+    shape(ctx, radial(ctx, x - r * 0.4, y - r * 0.4, r * 1.6, darken(body, -0.35), body), () => circle(ctx, x, y, r), 0);
+    if (i % 2) line(ctx, dark, 0.9, () => ctx.arc(x, y, r * 0.92, -2.4, -0.6), false);
+  });
+  // brilho de muco nas costas
+  ctx.save();
+  ctx.globalAlpha *= 0.5;
+  line(ctx, '#ffffff', 0.8, () => {
+    ctx.moveTo(pts[1][0] - 2, pts[1][1] - 3);
+    ctx.quadraticCurveTo(pts[4][0] - 3, pts[4][1] - 3, pts[7][0] - 2.5, pts[7][1] - 2.5);
+  }, false);
+  ctx.restore();
+  // boca-ventosa: disco com anéis de dentes, abrindo no ataque
+  const [hx, hy] = pts[n];
+  const mr = 3.6 + attack * 1.2;
+  shape(ctx, dark, () => ellipse(ctx, hx + 2, hy, mr, mr + 0.6), 0.9);
+  shape(ctx, '#3a0a14', () => ellipse(ctx, hx + 2.4, hy, mr * 0.55, mr * 0.65), 0);
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * TAU + t * 0.5;
+    const tx = hx + 2.4 + Math.cos(a) * mr * 0.75;
+    const ty = hy + Math.sin(a) * mr * 0.85;
+    shape(ctx, '#fff4e8', () => poly(ctx, [tx + Math.cos(a + 0.5) * 0.6, ty + Math.sin(a + 0.5) * 0.6, tx + Math.cos(a - 0.5) * 0.6, ty + Math.sin(a - 0.5) * 0.6, tx - Math.cos(a) * 1.4, ty - Math.sin(a) * 1.4]), 0);
+  }
+  halo(ctx, hx + 2.4, hy, 4 + attack * 3, energy, 0.4 + attack * 0.4);
+  // olhinhos em cima da cabeça
+  for (const dx of [-1.6, 0.6]) glowingEye(ctx, hx + dx, hy - 3.6, 0.6, energy);
+}
 
 export function drawDrainer(ctx: Ctx, p: Pose): void {
   // Formas Supremas: Praga (A, nuvem de moscas) e Ruína (B, chão apodrecendo)
@@ -404,18 +477,30 @@ export function drawDrainer(ctx: Ctx, p: Pose): void {
   const dv = p.variant ? DRAINER_VARIANTS[p.variant] : null;
   const energy = dv ? dv.energy : leech ? '#ff3a5a' : corrupt ? '#9aff3a' : '#b86aff';
   const robe = dv ? (corrupt ? darken(dv.robe, 0.3) : dv.robe) : leech ? '#4a1420' : corrupt ? '#1e3a14' : '#2a1a40';
+  const giant = p.variant === 'legendary';
+  if (giant) {
+    // Sanguessuga Gigante: o corpo todo é o verme; as marcas das formas vêm por cima
+    giantLeech(ctx, p.time, robe, dv!.mask, energy, p.attack);
+    if (leech && !p.supreme) {
+      const beat = 1 + Math.max(0, Math.sin(p.time * 6)) * 0.2;
+      halo(ctx, -4, 2, 5 * beat, '#ff3a5a', 0.7);
+    }
+  }
   ctx.rotate(0.08);
-  if ((leech && !p.supreme) || p.variant === 'legendary') {
-    // tentáculos saindo das costas (de sangue na Sanguessuga, de sombra na Abissal)
-    const tColor = p.variant === 'legendary' ? '#3a2a5a' : '#c0203a';
+  if (leech && !p.supreme && !giant) {
+    // tentáculos de sangue saindo das costas
     for (const [a, len] of [[-2.4, 16], [-2, 14], [-2.8, 12]] as const) {
       const wave = Math.sin(p.time * 3 + a * 3) * 3;
-      line(ctx, tColor, 2.4, () => {
+      line(ctx, '#c0203a', 2.4, () => {
         ctx.moveTo(-4, -4);
         ctx.quadraticCurveTo(-4 + Math.cos(a) * len * 0.5 + wave, -4 + Math.sin(a) * len * 0.5, -4 + Math.cos(a) * len, -4 + Math.sin(a) * len + wave);
       });
-      shape(ctx, p.variant === 'legendary' ? '#c86aff' : '#ff5a6a', () => circle(ctx, -4 + Math.cos(a) * len, -4 + Math.sin(a) * len + wave, 1.2), 0.4);
+      shape(ctx, '#ff5a6a', () => circle(ctx, -4 + Math.cos(a) * len, -4 + Math.sin(a) * len + wave, 1.2), 0.4);
     }
+  }
+  if (giant) {
+    drainerMarks(ctx, p, leech, corrupt);
+    return;
   }
   shape(ctx, vertical(ctx, -9, 14, robe, '#08060c'), () => poly(ctx, [-6, -8, 5, -9, 9, 14, -9, 14]));
   if (leech && !p.supreme) {
@@ -456,13 +541,8 @@ export function drawDrainer(ctx: Ctx, p: Pose): void {
   // capuz e máscara
   shape(ctx, vertical(ctx, -26, -8, robe, '#08060c'), () => poly(ctx, [-8, -8, -7, -21, 0, -25, 7, -20, 8, -8]));
   shape(ctx, dv ? dv.mask : corrupt ? '#9aa88a' : '#d8ccc0', () => ellipse(ctx, 1.5, -15, 4, 4.6), 0.8);
-  if (p.variant === 'legendary') {
-    // olhos múltiplos no capuz
-    for (const [x, y, r] of [[-1, -16, 1], [2.6, -16.6, 1], [0.6, -13.4, 0.8], [4.2, -14, 0.7], [-2, -13.6, 0.6], [1.4, -19, 0.7]] as const) glowingEye(ctx, x, y, r, energy);
-  } else {
-    glowingEye(ctx, 0, -16, 1.1, energy);
-    glowingEye(ctx, 3.4, -16, 1.1, energy);
-  }
+  glowingEye(ctx, 0, -16, 1.1, energy);
+  glowingEye(ctx, 3.4, -16, 1.1, energy);
   if (p.variant === 'epic') {
     // bico longo de médico da peste
     shape(ctx, vertical(ctx, -16, -9, '#f0e4c8', '#a8946a'), () => {
@@ -476,6 +556,11 @@ export function drawDrainer(ctx: Ctx, p: Pose): void {
       glowingEye(ctx, x, -16, 0.8, energy);
     }
   }
+  drainerMarks(ctx, p, leech, corrupt);
+}
+
+/** Marcas das formas do Drenador: gotas de sangue (A), poça ácida (B) e moscas (Praga). */
+function drainerMarks(ctx: Ctx, p: Pose, leech: boolean, corrupt: boolean): void {
   if (leech) {
     // gotas de sangue subindo
     ctx.fillStyle = '#ff3a5a';
