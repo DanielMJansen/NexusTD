@@ -204,6 +204,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Sedutora das Cartas', colors: ['#fff0a0', '#ffd25a', '#8a0a1e'], strength: 0, accent: '#ffd25a', art: true },
     legendary: { name: 'Anjo Caído', colors: ['#fff4c8', '#ffd25a', '#14101e'], strength: 0, accent: '#ffd25a', art: true },
   },
+  cherub: {
+    rare: { name: 'Querubim Rosado', colors: ['#ffe0f0', '#ffb8d8', '#d84a8a'], strength: 0, accent: '#ffb8d8', art: true },
+    epic: { name: 'Cupido', colors: ['#ffd0dc', '#ff4a6a', '#a01a3a'], strength: 0, accent: '#ff4a6a', art: true },
+    legendary: { name: 'Querubim de Vitral', colors: ['#ff6a8a', '#ffd040', '#6ab8ff'], strength: 0, accent: '#ffd040', art: true },
+  },
+  valkyrie: {
+    rare: { name: 'Valquíria Rubra', colors: ['#ffd0d0', '#e05a5a', '#7a1414'], strength: 0, accent: '#e05a5a', art: true },
+    epic: { name: 'Valquíria Nórdica', colors: ['#ffe0b0', '#d8602a', '#3a4050'], strength: 0, accent: '#d8602a', art: true },
+    legendary: { name: 'Valquíria do Corcel Alado', colors: ['#ffffff', '#e8eeff', '#c8a040'], strength: 0, accent: '#ffffff', art: true },
+  },
+  guardianAngel: {
+    rare: { name: 'Guardião de Bronze', colors: ['#ffe0b0', '#e8b070', '#8a5a2a'], strength: 0, accent: '#e8b070', art: true },
+    epic: { name: 'Anjo de Pedra', colors: ['#e8e4dc', '#c8c4bc', '#5a9a4a'], strength: 0, accent: '#c8c4bc', art: true },
+    legendary: { name: 'Ofanim', colors: ['#fff8e0', '#ffe08a', '#e0a830'], strength: 0, accent: '#ffe08a', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
