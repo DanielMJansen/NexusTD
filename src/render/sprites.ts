@@ -1549,7 +1549,7 @@ const DRAGON_VARIANTS: Partial<Record<CreatureId, Record<'rare' | 'epic' | 'lege
     // Dragão Vulcânico: rocha com lava, chifres de obsidiana, fumaça
     epic: { body: '#6a5a58', bodyDark: '#2a1c1a', belly: '#ff9a3a', wing: '#3a2a28', membrane: '#ff5a1a', horn: '#1a1014', iris: '#ffb030', breath: '#ff7a1a', lava: true, smoke: true },
     // Dragão-Fênix: asas de penas em chamas
-    legendary: { body: '#ff6a1a', bodyDark: '#b82a0a', belly: '#ffe07a', wing: '#ff9a1a', membrane: '#ffd04a', horn: '#fff0a0', iris: '#ffffff', breath: '#ffe07a', phoenix: true },
+    legendary: { body: '#fff2c4', bodyDark: '#f0a020', belly: '#ffffff', wing: '#ff5a1a', membrane: '#ff9a2a', horn: '#ffffff', iris: '#ff4a1a', breath: '#ffe07a', phoenix: true },
   },
   iceDragon: {
     // Dragão de Quartzo Rosa
@@ -1557,7 +1557,7 @@ const DRAGON_VARIANTS: Partial<Record<CreatureId, Record<'rare' | 'epic' | 'lege
     // Dragão das Neves Eternas: juba de neve e pingentes
     epic: { body: '#a8bcd4', bodyDark: '#56688a', belly: '#e8f0f8', wing: '#7a90b4', membrane: '#dce8f8', horn: '#cfeeff', iris: '#3a8ad8', breath: '#ffffff', snowMane: true },
     // Dragão Boreal: aurora no corpo e nas asas
-    legendary: { body: '#6ad8d0', bodyDark: '#3a4ab0', belly: '#e0fff8', wing: '#4a6ad0', membrane: '#c8a8ff', horn: '#ffffff', iris: '#ffffff', breath: '#c8fff0', aurora: true, auroraBody: true },
+    legendary: { body: '#3a2470', bodyDark: '#120a2e', belly: '#c8f4ff', wing: '#1e1448', membrane: '#3ad8b0', horn: '#e8fcff', iris: '#7affd8', breath: '#c8fff0', aurora: true, auroraBody: true },
   },
   storm: {
     // Dragão do Crepúsculo
