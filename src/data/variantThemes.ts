@@ -189,6 +189,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Basilisco de Lava', colors: ['#ffe07a', '#ff6a1a', '#4a3a36'], strength: 0, accent: '#ff6a1a', particles: 'ember', art: true },
     legendary: { name: 'Basilisco Dourado Imperial', colors: ['#fff4c8', '#f0c040', '#3ad8ff'], strength: 0, accent: '#3ad8ff', particles: 'star', art: true },
   },
+  imp: {
+    rare: { name: 'Diabrete Azul', colors: ['#cfe4ff', '#5a8aff', '#10246a'], strength: 0, accent: '#5a8aff', art: true },
+    epic: { name: 'Diabrete Mecânico', colors: ['#fff0b0', '#e0b860', '#5a3a14'], strength: 0, accent: '#7af0ff', art: true },
+    legendary: { name: 'Cavaleiro do Cão Infernal', colors: ['#ffe07a', '#ff6a1a', '#3a2a3a'], strength: 0, accent: '#ff6a1a', art: true },
+  },
+  infernal: {
+    rare: { name: 'Infernal de Cinzas', colors: ['#ffd090', '#ff8a2a', '#5a5450'], strength: 0, accent: '#ff8a2a', art: true },
+    epic: { name: 'Infernal Gladiador', colors: ['#ffffff', '#d8dce4', '#d02a2a'], strength: 0, accent: '#d8dce4', art: true },
+    legendary: { name: 'Arquiduque Infernal', colors: ['#f0e0ff', '#a84aff', '#2a1a2e'], strength: 0, accent: '#a84aff', art: true },
+  },
+  succubus: {
+    rare: { name: 'Sedutora Esmeralda', colors: ['#d0ffe4', '#7affb0', '#14502e'], strength: 0, accent: '#7affb0', art: true },
+    epic: { name: 'Sedutora das Cartas', colors: ['#fff0a0', '#ffd25a', '#8a0a1e'], strength: 0, accent: '#ffd25a', art: true },
+    legendary: { name: 'Anjo Caído', colors: ['#fff4c8', '#ffd25a', '#14101e'], strength: 0, accent: '#ffd25a', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
