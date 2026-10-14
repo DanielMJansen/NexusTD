@@ -84,6 +84,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Dragão de Bronze', colors: ['#bff8ff', '#7af0ff', '#6a4a1a'], strength: 0, accent: '#7af0ff', art: true },
     legendary: { name: 'Serpente Celeste', colors: ['#fff8e0', '#ffe8a0', '#c89020'], strength: 0, accent: '#ffe07a', particles: 'star', art: true },
   },
+  hunter: {
+    rare: { name: 'Lobo do Ártico', colors: ['#ffffff', '#c8d8ec', '#4ab8ff'], strength: 0, accent: '#8ad0ff', art: true },
+    epic: { name: 'Caçador de Runas', colors: ['#bff4ff', '#5ad8ff', '#2a2a36'], strength: 0, accent: '#5ad8ff', art: true },
+    legendary: { name: 'Lobo Celestial', colors: ['#ffffff', '#8a9aff', '#2e3e94'], strength: 0, accent: '#bfd0ff', particles: 'star', art: true },
+  },
+  alpha: {
+    rare: { name: 'Alfa de Prata', colors: ['#ffffff', '#dce0ec', '#2c2c34'], strength: 0, accent: '#dce0ec', art: true },
+    epic: { name: 'Rei das Montanhas', colors: ['#d8d2ca', '#a8a29a', '#5a544e'], strength: 0, accent: '#ffb040', art: true },
+    legendary: { name: 'Fenrir', colors: ['#bfeaff', '#5ac8ff', '#1c1c28'], strength: 0, accent: '#5ac8ff', art: true },
+  },
+  howler: {
+    rare: { name: 'Lobo do Deserto', colors: ['#ffe8b8', '#dcb47c', '#8a6030'], strength: 0, accent: '#ffd23a', art: true },
+    epic: { name: 'Lobo Xamã', colors: ['#d8ffe0', '#7affa0', '#2e241a'], strength: 0, accent: '#7affa0', art: true },
+    legendary: { name: 'Lobo Espiritual', colors: ['#e0fff8', '#8affe8', '#2a9a8a'], strength: 0, accent: '#7affe0', particles: 'wisp', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },

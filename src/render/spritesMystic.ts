@@ -4,7 +4,9 @@ import {
   formA,
   formB,
   circle,
+  darken,
   ellipse,
+  starDots,
   eye,
   glowingEye,
   GOLD,
@@ -51,49 +53,133 @@ function wolfHead(ctx: Ctx, hy: number, fur: string, furDark: string, eyeColor: 
   ctx.restore();
 }
 
+/** Cores do Caçador em cada variante: pelo, barriga, calça e olhos. */
+const HUNTER_VARIANTS = {
+  // Lobo do Ártico: branco, olhos azuis
+  rare: { fur: '#f2f6fc', furDark: '#a4b0c6', belly: '#ffffff', pants: '#4a5a7a', eyes: '#4ab8ff' },
+  // Caçador de Runas: cinza-escuro com runas azuis, colar de dentes e braçadeira
+  epic: { fur: '#6e6e7c', furDark: '#2a2a36', belly: '#a8a8b8', pants: '#3a2a1a', eyes: '#5ad8ff' },
+  // Lobo Celestial: azul-noite com constelações e cauda de nebulosa
+  legendary: { fur: '#2e3e94', furDark: '#0e1444', belly: '#6070d0', pants: '#141a40', eyes: '#ffffff' },
+} as const;
+
 export function drawHunter(ctx: Ctx, p: Pose): void {
   const crouch = Math.sin(p.time * 3) * 0.6;
   const swipe = p.attack;
-  // Caçador Feral: pelo ruivo, cicatrizes e olhos vermelhos
+  // Caçador Feral: pelo ruivo, cicatrizes, olhos vermelhos, corpo maior e garras enormes
   const feral = formB(p);
+  // Caçador Lunar (A): capa curta com capuz e lua bordada, garras prateadas longas
+  const lunar = formA(p) && !p.supreme;
   // Formas Supremas: Lua Sangrenta (A, pelagem prateada e lua vermelha) e Fera Primal (B, maior, olhos em brasa)
   const blood = p.supreme && !feral;
   const primal = p.supreme && feral;
-  const fur = blood ? '#c8ccd8' : feral ? '#b8582a' : '#8a6a4a';
-  const furDark = blood ? '#5a6078' : feral ? '#6a2a14' : '#5a4030';
+  const hv = p.variant ? HUNTER_VARIANTS[p.variant] : null;
+  const shadeB = (c: string) => (hv && feral ? darken(c, 0.25) : c);
+  const fur = hv ? shadeB(hv.fur) : blood ? '#c8ccd8' : feral ? '#b8582a' : '#8a6a4a';
+  const furDark = hv ? shadeB(hv.furDark) : blood ? '#5a6078' : feral ? '#6a2a14' : '#5a4030';
   if (blood) {
     halo(ctx, -6, -24, 14, '#ff3a3a', 0.5);
     shape(ctx, radial(ctx, -7, -25, 8, '#ff8a7a', '#a01a1a'), () => circle(ctx, -6, -24, 7), 0.6);
   }
-  if (primal) ctx.scale(1.15, 1.15);
+  if (feral) {
+    // cresce a partir dos pés
+    const s = primal ? 1.18 : 1.1;
+    ctx.translate(0, 14);
+    ctx.scale(s, s);
+    ctx.translate(0, -14);
+  }
+  if (lunar) {
+    // capa curta de caçador nas costas
+    shape(ctx, vertical(ctx, -14, 8, hv ? darken(hv.fur, 0.45) : '#2a3a6a', '#0e1430'), () => {
+      ctx.moveTo(-3, -12 + crouch);
+      ctx.quadraticCurveTo(-13, -6, -13, 7);
+      ctx.lineTo(-8, 5);
+      ctx.lineTo(-5, 8);
+      ctx.lineTo(-1, -6 + crouch);
+      ctx.closePath();
+    }, 1);
+  }
 
-  // cauda e pernas
-  shape(ctx, furDark, () => {
+  // cauda (de nebulosa no Lobo Celestial) e pernas
+  shape(ctx, p.variant === 'legendary' ? vertical(ctx, -6, 8, '#e08aff', '#2a3a94') : furDark, () => {
     ctx.moveTo(-6, 4);
     ctx.quadraticCurveTo(-16, 2 + crouch, -17, -4);
     ctx.quadraticCurveTo(-12, 4, -5, 8);
     ctx.closePath();
   });
+  if (p.variant === 'legendary') starDots(ctx, p.time, [[-14, -2], [-11, 2], [-8, 5]]);
   shape(ctx, furDark, () => poly(ctx, [-6, 6, -2, 6, -1, 14, -7, 14]));
   shape(ctx, furDark, () => poly(ctx, [1, 6, 5, 6, 6, 14, 0, 14]));
   // tronco curvado para frente, calça rasgada
   ctx.save();
   ctx.rotate(0.15);
   shape(ctx, radial(ctx, 0, 0, 11, fur, furDark), () => ellipse(ctx, 0, -1 + crouch, 8, 10));
-  shape(ctx, '#c8a880', () => ellipse(ctx, 3, 1 + crouch, 4, 6), 0.8);
-  shape(ctx, '#3a3050', () => poly(ctx, [-7, 4, 7, 4, 6, 9, 3, 7, 0, 9, -3, 7, -6, 9]), 1);
+  shape(ctx, hv ? hv.belly : '#c8a880', () => ellipse(ctx, 3, 1 + crouch, 4, 6), 0.8);
+  shape(ctx, hv ? hv.pants : '#3a3050', () => poly(ctx, [-7, 4, 7, 4, 6, 9, 3, 7, 0, 9, -3, 7, -6, 9]), 1);
+  if (p.variant === 'epic') {
+    // runas azuis acesas no corpo
+    ctx.save();
+    ctx.shadowColor = '#5ad8ff';
+    ctx.shadowBlur = 5;
+    line(ctx, '#7ae8ff', 1, () => {
+      ctx.moveTo(-5, -6 + crouch);
+      ctx.lineTo(-3, -2 + crouch);
+      ctx.lineTo(-5, 1 + crouch);
+      ctx.moveTo(-2, -8 + crouch);
+      ctx.lineTo(-1, -4 + crouch);
+    }, false);
+    ctx.restore();
+  }
+  if (p.variant === 'legendary') {
+    // constelação no peito: estrelas ligadas por linhas finas
+    ctx.save();
+    ctx.globalAlpha *= 0.5;
+    line(ctx, '#bfd0ff', 0.4, () => {
+      ctx.moveTo(-4, -6 + crouch);
+      ctx.lineTo(-1, -3 + crouch);
+      ctx.lineTo(-4, 1 + crouch);
+      ctx.lineTo(1, 3 + crouch);
+    }, false);
+    ctx.restore();
+    starDots(ctx, p.time + 2, [[-4, -6 + crouch], [-1, -3 + crouch], [-4, 1 + crouch], [1, 3 + crouch]]);
+  }
   ctx.restore();
-  // braço com garras: golpe de cima para baixo
+  // braço com garras: golpe de cima para baixo (prateadas e longas no Lunar, enormes no Feral)
+  const clawLen = feral ? 7 : lunar ? 6 : 4;
+  const clawColor = lunar ? '#e8f4ff' : '#f4ecd8';
   ctx.save();
   ctx.translate(5, -5 + crouch);
   ctx.rotate(-0.8 + swipe * 1.6);
-  line(ctx, fur, 3.6, () => {
+  line(ctx, fur, feral ? 4.4 : 3.6, () => {
     ctx.moveTo(0, 0);
     ctx.lineTo(10, 2);
   });
-  for (const dy of [-1.5, 0.5, 2.5]) shape(ctx, '#f4ecd8', () => poly(ctx, [10, dy, 14, dy + 0.6, 10, dy + 1.2]), 0.5);
+  if (p.variant === 'epic') shape(ctx, '#5a3a1e', () => ctx.roundRect(4, -0.6, 4, 4, 1), 0.6);
+  if (lunar) halo(ctx, 12, 1, 5, '#bfe8ff', 0.6);
+  for (const dy of [-1.5, 0.5, 2.5]) shape(ctx, clawColor, () => poly(ctx, [10, dy, 10 + clawLen, dy + 0.6, 10, dy + 1.2 + (feral ? 0.4 : 0)]), 0.5);
   ctx.restore();
-  wolfHead(ctx, -15 + crouch, fur, furDark, feral ? '#ff2a2a' : ascended(p) ? '#9fdcff' : '#ffd23a', 0, swipe);
+  if (p.variant === 'epic') {
+    // colar de dentes
+    for (let i = 0; i < 5; i++) shape(ctx, '#f4ecd8', () => poly(ctx, [-3 + i * 2.2, -9 + crouch, -1.6 + i * 2.2, -9 + crouch, -2.3 + i * 2.2, -6 + crouch]), 0.4);
+  }
+  wolfHead(ctx, -15 + crouch, fur, furDark, hv ? hv.eyes : feral ? '#ff2a2a' : ascended(p) ? '#9fdcff' : '#ffd23a', 0, swipe);
+  if (lunar) {
+    // capuz sobre a cabeça, com a lua bordada
+    const hy = -15 + crouch;
+    shape(ctx, vertical(ctx, hy - 10, hy + 4, hv ? darken(hv.fur, 0.45) : '#33447a', '#141a3a'), () => {
+      ctx.moveTo(-5, hy + 4);
+      ctx.quadraticCurveTo(-8, hy - 6, 1, hy - 9);
+      ctx.quadraticCurveTo(7, hy - 9.5, 9, hy - 4);
+      ctx.quadraticCurveTo(4, hy - 5.5, 2, hy - 3);
+      ctx.quadraticCurveTo(-1, hy + 1, -1, hy + 5);
+      ctx.closePath();
+    }, 1);
+    shape(ctx, '#e8f6ff', () => {
+      ctx.arc(-1.5, hy - 4, 2.2, 0.6, TAU - 0.6);
+      ctx.arc(-0.4, hy - 4, 1.6, TAU - 0.9, 0.9, true);
+      ctx.closePath();
+    }, 0);
+  }
   if (feral) {
     // cicatrizes de garra no peito e pelos eriçados nas costas
     ctx.strokeStyle = '#3a0a0a';
@@ -119,8 +205,8 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
     ctx.restore();
     halo(ctx, 6.5, -16.5 + crouch, 5, '#ff6a1a', 0.8);
   }
-  if (formA(p)) {
-    // marca da lua na testa
+  if (blood) {
+    // marca da lua na testa (Lua Sangrenta)
     ctx.save();
     ctx.shadowColor = '#9fdcff';
     ctx.shadowBlur = 8;
@@ -133,16 +219,65 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
   }
 }
 
+/** Cores do Alfa em cada variante: pelo, juba e olhos. */
+const ALPHA_VARIANTS = {
+  // Alfa de Prata: preto com a juba prateada
+  rare: { fur: '#2c2c34', furDark: '#0e0e14', mane: '#dce0ec', eyes: '#c8d8ff' },
+  // Rei das Montanhas: cinza-pedra, juba espessa, ombreiras de rocha e cicatriz
+  epic: { fur: '#6e6862', furDark: '#2a2624', mane: '#b0aca6', eyes: '#ffb040' },
+  // Fenrir: negro, sombra atrás, olhos de fogo azul e correntes quebradas
+  legendary: { fur: '#1c1c28', furDark: '#06060c', mane: '#3e3e5e', eyes: '#5ac8ff' },
+} as const;
+
 export function drawAlpha(ctx: Ctx, p: Pose): void {
   const howl = Math.max(0, Math.sin(p.time * 0.8) - 0.85) * 6;
   const bite = p.attack;
-  // Fera Devastadora: pelo quase negro, juba cinza-escura e coleira de espinhos
+  // Fera Devastadora: pelo quase negro, juba cinza-escura, coleira de espinhos, corpo maior e antebraço enorme
   const beast = formB(p);
+  // Líder da Matilha (A): estandarte de guerra nas costas
+  const leader = formA(p) && !p.supreme;
   // Formas Supremas: Rei Lobo (A, juba branca e coroa de ossos) e Destruidor (B, garras gigantes, chão rachado)
   const king = p.supreme && !beast;
   const wrecker = p.supreme && beast;
-  const fur = beast ? '#3a3238' : '#5a4a3a';
-  const furDark = beast ? '#141014' : '#2e241c';
+  const av = p.variant ? ALPHA_VARIANTS[p.variant] : null;
+  const shadeB = (c: string) => (av && beast ? darken(c, 0.25) : c);
+  const fur = av ? shadeB(av.fur) : beast ? '#3a3238' : '#5a4a3a';
+  const furDark = av ? shadeB(av.furDark) : beast ? '#141014' : '#2e241c';
+  if (p.variant === 'legendary') {
+    // Fenrir: sombra crescendo atrás
+    halo(ctx, 0, -6, 24 + Math.sin(p.time * 1.5) * 2, '#2a2a5a', 0.8);
+  }
+  if (leader) {
+    // estandarte de guerra: mastro e bandeira esfarrapada tremulando
+    const wave = Math.sin(p.time * 3) * 1.5;
+    line(ctx, '#5a3a1e', 1.6, () => {
+      ctx.moveTo(-7, 8);
+      ctx.lineTo(-10, -34);
+    });
+    shape(ctx, vertical(ctx, -34, -18, av ? av.mane : '#c0302a', av ? darken(av.mane, 0.4) : '#6a1010'), () => {
+      ctx.moveTo(-10, -34);
+      ctx.quadraticCurveTo(-17, -33 + wave, -23, -34 + wave);
+      ctx.lineTo(-21, -27 + wave);
+      ctx.lineTo(-24, -21 + wave);
+      ctx.lineTo(-18, -22 + wave * 0.5);
+      ctx.lineTo(-16, -18);
+      ctx.lineTo(-11, -21);
+      ctx.closePath();
+    }, 1);
+    // marca de garra na bandeira
+    line(ctx, '#f4ecd8', 0.8, () => {
+      for (const dx of [0, 2, 4]) {
+        ctx.moveTo(-19 + dx, -31 + wave * 0.7);
+        ctx.lineTo(-17 + dx, -25 + wave * 0.7);
+      }
+    }, false);
+  }
+  if (beast) {
+    // cresce a partir dos pés
+    ctx.translate(0, 14);
+    ctx.scale(1.12, 1.12);
+    ctx.translate(0, -14);
+  }
   if (wrecker) {
     // chão rachado sob as patas
     line(ctx, '#1a1018', 1.2, () => {
@@ -166,9 +301,24 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
   });
   shape(ctx, furDark, () => ctx.roundRect(-7, 6, 5, 8, 2));
   shape(ctx, furDark, () => ctx.roundRect(2, 6, 5, 8, 2));
+  if (p.variant === 'legendary') {
+    // correntes quebradas presas nas patas
+    for (const x of [-4.5, 4.5]) {
+      shape(ctx, '#8a8ea0', () => ctx.roundRect(x - 3, 9, 6, 2, 1), 0.6);
+      for (let i = 0; i < 2; i++) {
+        ctx.save();
+        ctx.strokeStyle = '#8a8ea0';
+        ctx.lineWidth = 0.9;
+        ctx.beginPath();
+        ellipse(ctx, x + (x < 0 ? -2 : 2) - i * (x < 0 ? 1.6 : -1.6), 12.5 + i * 2.2, 1.2, 1.6, 0.4);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
   // corpo largo e juba
   shape(ctx, radial(ctx, 0, 0, 13, fur, furDark), () => ellipse(ctx, 0, 0, 10, 11));
-  shape(ctx, beast ? '#5a5260' : '#9a8a7a', () => {
+  shape(ctx, av ? av.mane : beast ? '#5a5260' : '#9a8a7a', () => {
     for (let i = 0; i < 7; i++) {
       const a = -2.6 + i * 0.45;
       const x = Math.cos(a) * 9;
@@ -186,9 +336,25 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
     for (let i = 0; i < 5; i++) shape(ctx, '#f4ecd8', () => poly(ctx, [-6 + i * 3, -1, -4.6 + i * 3, -1, -5.3 + i * 3, 3]), 0.6);
   }
   if (beast) {
-    // coleira de couro com espinhos de ferro
+    // coleira de couro com espinhos de ferro e um pedaço de corrente quebrada pendurado
     shape(ctx, '#4a2a1a', () => ctx.roundRect(-8, -3, 16, 3, 1.2), 0.8);
     for (let i = 0; i < 5; i++) shape(ctx, '#c8ccd8', () => poly(ctx, [-6.5 + i * 3.2, -3, -5 + i * 3.2, -7, -3.5 + i * 3.2, -3]), 0.6);
+    ctx.save();
+    ctx.strokeStyle = '#a8acb8';
+    ctx.lineWidth = 1.1;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ellipse(ctx, -3 - i * 1.2, 1.5 + i * 2.6, 1.3, 1.7, 0.3);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  if (p.variant === 'epic') {
+    // ombreiras de rocha
+    for (const [x, flip] of [[-9, -1], [8, 1]] as const) {
+      shape(ctx, vertical(ctx, -10, -2, '#a8a29a', '#5a544e'), () => poly(ctx, [x - 4, -3, x - 3.5, -8, x + flip * 0.5, -10.5, x + 3.5, -8, x + 4, -3]), 1);
+      shape(ctx, '#7a746e', () => poly(ctx, [x - 1, -8, x + 1.5, -7, x, -5]), 0);
+    }
   }
   if (king) {
     // juba branca volumosa por trás da cabeça
@@ -203,7 +369,30 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
       ctx.closePath();
     }, 0.8);
   }
-  wolfHead(ctx, -16, fur, furDark, beast ? '#ff3a1a' : '#ff9a3a', howl, bite);
+  if (beast) {
+    // antebraço enorme à frente, com garras grossas
+    ctx.save();
+    ctx.translate(6, -2);
+    ctx.rotate(0.6 - bite * 0.8);
+    line(ctx, fur, 5.5, () => {
+      ctx.moveTo(0, 0);
+      ctx.lineTo(9, 3);
+    });
+    for (const dy of [-1.6, 0.6, 2.8]) shape(ctx, '#f4ecd8', () => poly(ctx, [9, dy + 0.6, 14.5, dy + 1.6, 9, dy + 2.4]), 0.6);
+    ctx.restore();
+  }
+  wolfHead(ctx, -16, fur, furDark, av ? av.eyes : beast ? '#ff3a1a' : '#ff9a3a', howl, bite);
+  if (p.variant === 'legendary') {
+    // olhos de fogo azul
+    halo(ctx, 6.5, -17.5, 5, '#5ac8ff', 0.9);
+  }
+  if (p.variant === 'epic') {
+    // cicatriz atravessando o olho
+    line(ctx, '#e8a0a0', 1, () => {
+      ctx.moveTo(5, -22);
+      ctx.lineTo(8.5, -14);
+    }, false);
+  }
   if (king) {
     // coroa de ossos
     for (let i = 0; i < 5; i++) shape(ctx, '#f4ecd8', () => poly(ctx, [-3 + i * 2.6, -27, -2 + i * 2.6, -33 - (i % 2) * 2, -1 + i * 2.6, -27]), 0.6);
@@ -228,29 +417,41 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
 }
 
 /** Uivador: lobo sentado que ergue a cabeça e uiva. A: Uivo Lunar (pelo prateado e lua); B: Grito de Guerra (pintura de guerra e chifre de osso). */
+/** Cores do Uivador em cada variante: pelo e olhos. */
+const HOWLER_VARIANTS = {
+  // Lobo do Deserto: cor de areia com manchas
+  rare: { fur: '#dcb47c', furDark: '#8a6030', eyes: '#ffd23a' },
+  // Lobo Xamã: marrom-terra, máscara de crânio de cervo com galhada, contas
+  epic: { fur: '#6e5e4c', furDark: '#2e241a', eyes: '#7affa0' },
+  // Lobo Espiritual: verde-água translúcido e brilhante
+  legendary: { fur: '#8affe8', furDark: '#2a9a8a', eyes: '#ffffff' },
+} as const;
+
 export function drawHowler(ctx: Ctx, p: Pose): void {
   const lunar = formA(p);
   const war = formB(p);
   // Formas Supremas: Uivo do Eclipse (A, lua negra com coroa de luz) e Trompa da Matilha (B, trompa de chifre e penas)
   const eclipse = p.supreme && lunar;
   const horn = p.supreme && war;
-  const fur = lunar ? '#c8d0e0' : war ? '#7a5a3a' : '#8a8aa0';
-  const furDark = lunar ? '#7a84a0' : war ? '#3a2614' : '#4a4a60';
+  const wv = p.variant ? HOWLER_VARIANTS[p.variant] : null;
+  const shadeB = (c: string) => (wv && war ? darken(c, 0.25) : c);
+  const fur = wv ? shadeB(wv.fur) : lunar ? '#c8d0e0' : war ? '#7a5a3a' : '#8a8aa0';
+  const furDark = wv ? shadeB(wv.furDark) : lunar ? '#7a84a0' : war ? '#3a2614' : '#4a4a60';
   // uiva no ataque e, de vez em quando, sozinho
   const howl = Math.max(p.attack, Math.max(0, Math.sin(p.time * 0.9) - 0.8) * 5);
   if (eclipse) {
     halo(ctx, -9, -24, 13, '#e8d8ff', 0.6);
     shape(ctx, '#0a0612', () => circle(ctx, -9, -24, 6.5), 0.8);
   } else if (lunar) {
-    ctx.save();
-    ctx.shadowColor = '#bfe8ff';
-    ctx.shadowBlur = 12;
-    shape(ctx, '#e8f6ff', () => {
-      ctx.arc(-9, -24, 5, 0.5, TAU - 0.5);
-      ctx.arc(-7.5, -24, 4, TAU - 0.8, 0.8, true);
-      ctx.closePath();
-    }, 0.6);
-    ctx.restore();
+    // Uivo Lunar: lua cheia grande atrás, com crateras
+    halo(ctx, -8, -24, 16, '#bfe8ff', 0.55);
+    shape(ctx, radial(ctx, -10, -26, 10, '#ffffff', '#c8dcf0'), () => circle(ctx, -8, -24, 9), 0.6);
+    for (const [x, y, r] of [[-11, -27, 1.8], [-6, -21, 1.4], [-5, -27, 1]] as const) shape(ctx, '#b8cce4', () => circle(ctx, x, y, r), 0);
+  }
+  if (p.variant === 'legendary') {
+    // Lobo Espiritual: brilho e corpo translúcido
+    halo(ctx, 0, -4, 20, '#7affe0', 0.45);
+    ctx.globalAlpha *= 0.82;
   }
   // cauda e corpo sentado
   shape(ctx, furDark, () => {
@@ -263,6 +464,24 @@ export function drawHowler(ctx: Ctx, p: Pose): void {
   shape(ctx, furDark, () => ctx.roundRect(-6, 9, 5, 5, 2));
   shape(ctx, furDark, () => ctx.roundRect(2, 9, 5, 5, 2));
   shape(ctx, fur, () => ellipse(ctx, 3, 0, 3.5, 7, 0.2), 1);
+  if (p.variant === 'rare') {
+    // manchas de lobo do deserto
+    for (const [x, y, r] of [[-5, 0, 1.6], [-3, 6, 1.3], [-7, 5, 1.1], [-4, -5, 1.2]] as const) shape(ctx, darken(wv!.fur, 0.35), () => ellipse(ctx, x, y, r * 1.3, r), 0);
+  }
+  if (p.variant === 'epic') {
+    // colar de contas e amuleto
+    for (let i = 0; i < 6; i++) shape(ctx, i % 2 ? '#e05a3a' : '#f4ecd8', () => circle(ctx, -3 + i * 1.8, -6 + Math.abs(i - 2.5) * 0.5, 1), 0.4);
+    shape(ctx, '#7affa0', () => poly(ctx, [1.5, -4.5, 3, -2, 1.5, 0.5, 0, -2]), 0.5);
+  }
+  if (war) {
+    // tambor de couro no quadril
+    shape(ctx, vertical(ctx, 2, 11, '#c89a5a', '#7a5428'), () => ctx.roundRect(4, 3, 7, 8, 2), 1);
+    shape(ctx, '#f4e4c8', () => ellipse(ctx, 7.5, 3, 3.5, 1.3), 0.7);
+    line(ctx, '#d0302a', 0.8, () => {
+      ctx.moveTo(4.5, 7);
+      ctx.lineTo(10.5, 7);
+    }, false);
+  }
   if (war) {
     // pintura de guerra e chifre de osso pendurado
     ctx.strokeStyle = '#d0302a';
@@ -281,7 +500,44 @@ export function drawHowler(ctx: Ctx, p: Pose): void {
       ctx.closePath();
     }, 0.8);
   }
-  wolfHead(ctx, -15, fur, furDark, war ? '#ff3a1a' : lunar ? '#9fdcff' : '#ffd23a', Math.min(1, howl), 0);
+  wolfHead(ctx, -15, fur, furDark, wv ? wv.eyes : war ? '#ff3a1a' : lunar ? '#9fdcff' : '#ffd23a', Math.min(1, howl), 0);
+  if (war && !horn) {
+    // penas de guerra presas na cabeça
+    for (const [x, a, color] of [[-1, -0.5, '#d0302a'], [1.5, -0.2, '#f4ecd8'], [4, 0.1, '#d0302a']] as const) {
+      ctx.save();
+      ctx.translate(x, -24);
+      ctx.rotate(a - Math.min(1, howl) * 0.5);
+      shape(ctx, color, () => ellipse(ctx, 0, -3.5, 1.5, 4.2), 0.6);
+      ctx.restore();
+    }
+  }
+  if (p.variant === 'epic') {
+    // máscara de crânio de cervo com galhada grossa (acompanha o uivo)
+    ctx.save();
+    ctx.translate(3, -15);
+    ctx.rotate(-Math.min(1, howl) * 0.6);
+    for (const side of [-1, 1]) {
+      shape(ctx, vertical(ctx, -20, -6, '#f4ecd8', '#c8b490'), () => {
+        ctx.moveTo(side * 1.5 - 1, -6);
+        ctx.quadraticCurveTo(side * 5 - 1, -12, side * 4 - 1, -19);
+        ctx.lineTo(side * 6.5 - 1, -18);
+        ctx.quadraticCurveTo(side * 7 - 1, -14, side * 8.5 - 1, -14);
+        ctx.lineTo(side * 8 - 1, -11.5);
+        ctx.quadraticCurveTo(side * 6 - 1, -11, side * 3.5 - 1, -5.5);
+        ctx.closePath();
+      }, 0.9);
+    }
+    shape(ctx, vertical(ctx, -8, 3, '#fbf4e4', '#d8c8a8'), () => {
+      ctx.moveTo(-5, -5);
+      ctx.quadraticCurveTo(1, -9, 7, -5);
+      ctx.quadraticCurveTo(11, -2, 10, 1);
+      ctx.quadraticCurveTo(4, 2, -4, 1);
+      ctx.closePath();
+    }, 0.9);
+    for (const x of [1.5, 5.5]) shape(ctx, '#1a1410', () => ellipse(ctx, x, -2, 1.4, 1.1), 0);
+    halo(ctx, 3.5, -2, 4, '#7affa0', 0.6);
+    ctx.restore();
+  }
   if (horn) {
     // trompa de chifre presa ao ombro e penas na cabeça
     shape(ctx, vertical(ctx, -10, 2, '#f4ecd8', '#a88a5a'), () => {
