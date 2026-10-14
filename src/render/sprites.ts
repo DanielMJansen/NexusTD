@@ -1518,13 +1518,13 @@ interface DragonPalette {
   stormCloud?: boolean;
   /** Olho brilhante no peito e vento girando (Furacão). */
   eye?: boolean;
-  // Formas A (nível 3) reforçadas
-  /** Bigodes longos, barba e chifres curvados de dragão velho (Dragão Ancião). */
-  elder?: boolean;
-  /** Coroa de cristais de gelo e barba de pingentes (Gelo A). */
-  iceCrown?: boolean;
-  /** Crina de raios amarelos ao longo do pescoço e das costas (Dragão do Trovão). */
-  thunderMane?: boolean;
+  // Formas A (nível 3): dragão adulto (maior, chifres grossos, placas no peito) com a marca do elemento
+  /** Brasa acesa no peito e chama na ponta da cauda (Fogo A). */
+  emberChest?: boolean;
+  /** Cristais de gelo nos ombros (Gelo A). */
+  shoulderCrystals?: boolean;
+  /** Listras de raio pelo corpo (Dragão do Trovão). */
+  stormStripes?: boolean;
   // Variantes do Altar
   /** Fumaça saindo das narinas (Vulcânico). */
   smoke?: boolean;
@@ -1621,13 +1621,13 @@ const INFERNAL_WYRM: DragonPalette = {
 };
 
 /** Dragão Primordial (suprema do Dragão Ancião): vermelho-ouro antigo, chifres longos. */
-const PRIMORDIAL_DRAGON: DragonPalette = { ...FIRE_DRAGON, body: '#c8401a', bodyDark: '#5a1408', belly: '#ffe9a8', wing: '#7a1a0a', membrane: '#ffb040', horn: '#ffe9a8', iris: '#ffd25a', breath: '#ffd25a', primal: true, elder: true };
+const PRIMORDIAL_DRAGON: DragonPalette = { ...FIRE_DRAGON, body: '#c8401a', bodyDark: '#5a1408', belly: '#ffe9a8', wing: '#7a1a0a', membrane: '#ffb040', horn: '#ffe9a8', iris: '#ffd25a', breath: '#ffd25a', primal: true, emberChest: true };
 
 /** Wyrm do Apocalipse (suprema do Wyrm Infernal): negro em chamas vivas. */
 const APOCALYPSE_WYRM: DragonPalette = { ...INFERNAL_WYRM, body: '#2a1418', bodyDark: '#0a0204', membrane: '#ff4a1a', flames: true };
 
 /** Dragão Boreal (suprema do Glacial): asas translúcidas com aurora. */
-const BOREAL_DRAGON: DragonPalette = { ...ICE_DRAGON, body: '#bfe8ff', bodyDark: '#4a7ab8', wing: '#6aa8d8', membrane: '#dff8ff', aurora: true, iceCrown: true };
+const BOREAL_DRAGON: DragonPalette = { ...ICE_DRAGON, body: '#bfe8ff', bodyDark: '#4a7ab8', wing: '#6aa8d8', membrane: '#dff8ff', aurora: true, shoulderCrystals: true };
 
 /** Zero Absoluto (suprema do Congelante): cristal com névoa congelante. */
 /** Dragão Congelante (Gelo B): branco-cristal com espinhos de gelo. */
@@ -1663,13 +1663,13 @@ const STORM_DRAGON: DragonPalette = {
 
 /** Senhor dos Raios e Furacão (supremas da Tempestade) ficam logo abaixo das bases. */
 /** Dragão do Trovão (Tempestade A): escuro com raios amarelos e crina de raios. */
-const THUNDER_DRAGON: DragonPalette = { ...STORM_DRAGON, body: '#4a4a8a', bodyDark: '#1e1e48', wing: '#2a2a60', membrane: '#7a7ad0', belly: '#ffe9a0', thunderMane: true };
+const THUNDER_DRAGON: DragonPalette = { ...STORM_DRAGON, body: '#4a4a8a', bodyDark: '#1e1e48', wing: '#2a2a60', membrane: '#7a7ad0', belly: '#ffe9a0', stormStripes: true };
 
 /** Dragão Ancião (Fogo A): bigodes, barba e chifres curvados. */
-const ELDER_DRAGON: DragonPalette = { ...FIRE_DRAGON, body: '#e06a2a', bodyDark: '#8a2a10', elder: true };
+const ELDER_DRAGON: DragonPalette = { ...FIRE_DRAGON, body: '#e06a2a', bodyDark: '#8a2a10', emberChest: true };
 
 /** Gelo A: coroa de cristais e barba de pingentes. */
-const GLACIAL_DRAGON: DragonPalette = { ...ICE_DRAGON, body: '#4aa8e8', bodyDark: '#1e4a98', iceCrown: true };
+const GLACIAL_DRAGON: DragonPalette = { ...ICE_DRAGON, body: '#4aa8e8', bodyDark: '#1e4a98', shoulderCrystals: true };
 
 /** Olho da Tormenta (Tempestade B): azul-céu com nuvens girando. */
 const TEMPEST_DRAGON: DragonPalette = { ...STORM_DRAGON, body: '#6aa8e0', bodyDark: '#2a5a90', wing: '#3a78b8', membrane: '#cfeaff', iris: '#bfeaff', breath: '#e8fbff', clouds: true };
@@ -1680,17 +1680,27 @@ const LIGHTNING_LORD: DragonPalette = { ...THUNDER_DRAGON, iris: '#fff6a0', stor
 /** Furacão (suprema do Olho da Tormenta): olho no peito e vento girando. */
 const HURRICANE_DRAGON: DragonPalette = { ...TEMPEST_DRAGON, eye: true };
 
-function dragonWing(ctx: Ctx, c: DragonPalette, flap: number, front: boolean, scale = 1): void {
+/** Chama em forma de gota, tremulando (cauda e crista dos dragões de fogo). `angle` 0 = para cima. */
+function flame(ctx: Ctx, x: number, y: number, w: number, h: number, angle: number, time: number): void {
+  const flicker = 1 + Math.sin(time * 11) * 0.08;
   ctx.save();
-  // asas maiores nas formas A: crescem a partir do ombro
-  ctx.translate(0, -6);
-  ctx.scale(scale, scale);
-  ctx.translate(0, 6);
-  dragonWingShape(ctx, c, flap, front);
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  halo(ctx, 0, -h * 0.4, h * 0.7, '#ffb040', 0.6);
+  for (const [scale, top, bottom] of [[1, '#ffd040', '#ff4a1a'], [0.55, '#ffffff', '#ffe07a']] as const) {
+    const fw = w * scale;
+    const fh = h * scale * flicker;
+    shape(ctx, vertical(ctx, -fh, 0, top, bottom), () => {
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(-fw * 1.3, -fh * 0.35, 0, -fh);
+      ctx.quadraticCurveTo(fw * 1.3, -fh * 0.35, 0, 0);
+      ctx.closePath();
+    }, scale === 1 ? 0.5 : 0);
+  }
   ctx.restore();
 }
 
-function dragonWingShape(ctx: Ctx, c: DragonPalette, flap: number, front: boolean): void {
+function dragonWing(ctx: Ctx, c: DragonPalette, flap: number, front: boolean): void {
   const tipY = -22 + flap * 6;
   const dark = front ? c.wing : c.bodyDark;
   const membrane = front ? c.membrane : c.wing;
@@ -1712,8 +1722,13 @@ function dragonWingShape(ctx: Ctx, c: DragonPalette, flap: number, front: boolea
 function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
   const flap = Math.sin(p.time * 7);
   const tail = Math.sin(p.time * 3) * 2;
-  // formas A (e suas Supremas): asas bem maiores, para mudar a silhueta
-  const wingScale = formA(p) ? 1.35 : 1;
+  // formas A (e suas Supremas): dragão adulto, 15% maior (cresce a partir dos pés)
+  const adult = formA(p);
+  if (adult) {
+    ctx.translate(0, 14);
+    ctx.scale(1.15, 1.15);
+    ctx.translate(0, -14);
+  }
 
   if (c.frost) {
     // névoa congelante girando em volta
@@ -1741,7 +1756,7 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
       shape(ctx, vertical(ctx, y - r, y + r, '#fff4c0', '#e0a830'), () => circle(ctx, x + Math.sin(p.time * 1.5 + x) * 0.8, y, r), 0.6);
     }
   }
-  dragonWing(ctx, c, flap, false, wingScale);
+  dragonWing(ctx, c, flap, false);
   // cauda
   shape(ctx, c.body, () => {
     ctx.moveTo(-6, 4);
@@ -1750,15 +1765,10 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     ctx.closePath();
   });
   shape(ctx, c.bodyDark, () => poly(ctx, [-19, 1 + tail, -23, -2 + tail, -20, 4 + tail]), 1);
-  if (c.phoenix) {
-    // plumas de fogo na ponta da cauda
-    for (let i = 0; i < 3; i++) {
-      const h = 7 + Math.sin(p.time * 9 + i * 1.7) * 1.5;
-      const a = -2.6 + i * 0.45;
-      shape(ctx, vertical(ctx, -6 + tail, 6 + tail, '#ffe07a', '#ff4a1a'), () =>
-        poly(ctx, [-20, 1 + tail, -20 + Math.cos(a - 0.2) * h * 0.5, 1 + tail + Math.sin(a - 0.2) * h * 0.5, -20 + Math.cos(a) * h, 1 + tail + Math.sin(a) * h, -20 + Math.cos(a + 0.25) * h * 0.5, 1 + tail + Math.sin(a + 0.25) * h * 0.5]),
-      0.5);
-    }
+  if (c.phoenix || c.emberChest) {
+    // chama em gota na ponta da cauda (maior na Fênix)
+    const size = c.phoenix ? 1.6 : 1.3;
+    flame(ctx, -21, 1 + tail, 2.6 * size, 7 * size, -0.9, p.time);
   }
   // pernas
   shape(ctx, c.bodyDark, () => ctx.roundRect(-6, 8, 4.5, 6, 2), 1);
@@ -1773,6 +1783,21 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     ctx.moveTo(-1, y);
     ctx.quadraticCurveTo(2.5, y + 1.2, 6.5, y);
     ctx.stroke();
+  }
+  if (adult) {
+    // placas de armadura no peito (dragão adulto)
+    for (const y of [-0.5, 3, 6.5]) shape(ctx, vertical(ctx, y, y + 3.4, c.belly, darken(c.belly, 0.18)), () => ctx.roundRect(-1.2, y, 7.6, 3.4, 1.6), 0.6);
+  }
+  if (c.emberChest) {
+    // brasa acesa no peito
+    halo(ctx, 2.6, 2, 6 + Math.sin(p.time * 4) * 0.8, '#ff8a2a', 0.8);
+    shape(ctx, radial(ctx, 2.6, 2, 2.6, '#fff4b0', '#ff6a1a'), () => circle(ctx, 2.6, 2, 2.2), 0.6);
+  }
+  if (c.stormStripes) {
+    // listras de raio pelo flanco
+    for (const y of [-3, 3]) {
+      shape(ctx, '#ffe060', () => poly(ctx, [-8.5, y, -5, y - 1.6, -4, y + 0.4, -0.5, y - 1.2, -1.5, y + 1.4, -5, y + 2.4, -6, y + 0.6, -8.8, y + 1.6]), 0.5);
+    }
   }
   if (c.auroraBody) {
     // faixas de aurora correndo pelo corpo
@@ -1843,33 +1868,32 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     ctx.stroke();
     ctx.restore();
   }
-  if (ascended(p)) {
+  if (ascended(p) && !c.emberChest) {
     ctx.save();
     ctx.shadowColor = c.breath;
     ctx.shadowBlur = 8;
     shape(ctx, c.breath, () => poly(ctx, [2.5, -1, 5, 2, 2.5, 5, 0, 2]), 0.8);
     ctx.restore();
   }
-  dragonWing(ctx, c, flap, true, wingScale);
+  dragonWing(ctx, c, flap, true);
   if (c.phoenix) {
-    // penas de fogo na borda da asa da frente
-    const tipY = -22 + flap * 6;
-    for (let i = 0; i < 4; i++) {
-      const bx = -11 - i * 2.5;
-      const by = tipY + 10 + i * 3;
-      const h = 5 + Math.sin(p.time * 10 + i) * 1.2;
-      shape(ctx, vertical(ctx, by - 2, by + h, '#ffe07a', '#ff4a1a'), () => poly(ctx, [bx + 1.5, by - 1, bx - 1.5, by, bx - 1, by + h]), 0.4);
-    }
+    // brilho de fogo na asa da frente
+    halo(ctx, -10, -14 + flap * 3, 10, '#ffb040', 0.45 + Math.sin(p.time * 5) * 0.1);
   }
-  if (c.thunderMane) {
-    // crina de raios amarelos ao longo do pescoço e das costas
-    ctx.save();
-    ctx.shadowColor = '#fff6a0';
-    ctx.shadowBlur = 5;
-    for (const [x, y, s] of [[-8, -2, 1.3], [-5, -8, 1.6], [-2, -14, 1.8], [1, -20, 1.9]] as const) {
-      shape(ctx, '#ffe060', () => poly(ctx, [x, y, x - 3 * s, y - 3 * s, x - 1 * s, y - 3.4 * s, x - 3.6 * s, y - 7 * s, x + 1 * s, y - 3 * s, x - 0.6 * s, y - 2.6 * s]), 0.6);
+  if (c.shoulderCrystals) {
+    // cristais de gelo no ombro, em cacho
+    halo(ctx, -8, -6, 10, '#7ad8ff', 0.5);
+    for (const [x, y, h, lean] of [[-11, 0, 8, -0.75], [-8.5, -3, 11, -0.4], [-5, -4, 8, -0.05]] as const) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(lean);
+      shape(ctx, vertical(ctx, -h, 0, '#e8fcff', '#2a9ae0'), () => poly(ctx, [-2.4, 0, -2.4, -h * 0.7, 0, -h, 2.4, -h * 0.7, 2.4, 0]), 0.9);
+      line(ctx, '#ffffff', 0.6, () => {
+        ctx.moveTo(-0.8, -1);
+        ctx.lineTo(-0.8, -h * 0.75);
+      }, false);
+      ctx.restore();
     }
-    ctx.restore();
   }
   if (c.aurora) {
     // faixas de aurora sobre a asa da frente
@@ -1914,15 +1938,9 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     }
   }
   if (c.phoenix) {
-    // crista de chamas atrás da cabeça
-    for (let i = 0; i < 3; i++) {
-      const h = 9 + Math.sin(p.time * 9 + i * 2) * 2;
-      shape(ctx, vertical(ctx, hy - 8 - h, hy - 4, '#ffe07a', '#ff4a1a'), () => poly(ctx, [-1 + i * 3, hy - 5, -4 + i * 2.5, hy - 6 - h, 2 + i * 3, hy - 7]), 0.5);
-    }
-  }
-  if (c.snowMane) {
-    // juba de neve fofa em volta do pescoço
-    for (const [x, y, r] of [[-3, hy + 4, 4], [-5, hy, 3.6], [-4, hy - 4, 3.2], [0, hy + 7, 3.6]] as const) shape(ctx, '#ffffff', () => circle(ctx, x, y, r), 0.7);
+    // crista de chamas em gota atrás da cabeça
+    flame(ctx, -2, hy - 4, 2.6, 9, -0.5, p.time);
+    flame(ctx, 2, hy - 6, 2.4, 8, -0.15, p.time + 1);
   }
   if (c.crest) {
     for (const [x, y] of [
@@ -1946,13 +1964,13 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
   }
   const horn = c.primal ? 2.1 : ascended(p) ? 1.5 : 1;
   const hornColor = formA(p) && !p.variant ? GOLD : c.horn;
-  if (c.elder) {
-    // chifres longos curvados para trás (dragão velho)
-    for (const [x, len] of [[-1, 1.3], [3, 1.1]] as const) {
-      shape(ctx, vertical(ctx, hy - 26, hy - 6, '#fff4dc', p.variant ? c.horn : '#c8a060'), () => {
-        ctx.moveTo(x - 1, hy - 6);
-        ctx.quadraticCurveTo(x - 6 * len, hy - 19 * len, x - 16 * len, hy - 17 * len);
-        ctx.quadraticCurveTo(x - 6 * len, hy - 12 * len, x + 4, hy - 8);
+  if (adult) {
+    // chifres grossos curvados para trás (dragão adulto)
+    for (const [x, len] of [[-1, 1.25], [3, 1.05]] as const) {
+      shape(ctx, vertical(ctx, hy - 20, hy - 6, hornColor, darken(hornColor, 0.35)), () => {
+        ctx.moveTo(x - 2.5, hy - 6);
+        ctx.quadraticCurveTo(x - 5 * len, hy - 15 * len, x - 11 * len, hy - 16 * len);
+        ctx.quadraticCurveTo(x - 4 * len, hy - 10 * len, x + 3.5, hy - 7.5);
         ctx.closePath();
       }, 1);
     }
@@ -1987,29 +2005,18 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
   ctx.fill();
   eye(ctx, 5.5, hy - 1.5, 3.3, c.iris, 0.3);
   blush(ctx, 8.5, hy + 3.5);
-  if (c.elder || c.celestial) {
-    // bigodes longos saindo do focinho (ondulam na Serpente Celeste) e barba no queixo
-    const wave = Math.sin(p.time * 2.5) * (c.celestial ? 3 : 1.2);
-    const len = c.celestial ? 1.5 : 1;
-    line(ctx, c.celestial ? '#fff4c0' : c.horn, c.celestial ? 1 : 0.9, () => {
-      ctx.moveTo(14, hy + 2.5);
-      ctx.quadraticCurveTo(20 * len, hy + 6 + wave, 26 * len, hy + 12 - wave);
-      ctx.moveTo(13, hy + 4);
-      ctx.quadraticCurveTo(16 * len, hy + 10 - wave, 19 * len, hy + 16 + wave);
-    }, false);
-    if (c.elder) shape(ctx, c.horn, () => poly(ctx, [7, hy + 5, 11, hy + 5.5, 9, hy + 11]), 0.7);
-  }
-  if (c.iceCrown) {
-    // coroa de cristais de gelo e barba de pingentes
-    halo(ctx, 3, hy - 13, 9, '#bff0ff', 0.5);
-    for (const [x, h] of [[-3, 7], [0, 10], [3, 13], [6, 10], [9, 7]] as const) {
-      shape(ctx, vertical(ctx, hy - 8 - h, hy - 7, '#ffffff', '#8ad8ff'), () => poly(ctx, [x - 2, hy - 7.5, x, hy - 8 - h, x + 2, hy - 7.5]), 0.8);
-    }
-    for (const x of [8, 10.5, 13]) shape(ctx, vertical(ctx, hy + 5, hy + 10, '#ffffff', '#8ad8ff'), () => poly(ctx, [x - 0.9, hy + 5.5, x, hy + 10, x + 0.9, hy + 5.5]), 0.5);
-  }
   if (c.snowMane) {
-    // pingentes de gelo sob o queixo
-    for (const x of [8, 10.5, 13]) shape(ctx, vertical(ctx, hy + 5, hy + 10, '#ffffff', '#a8c8e8'), () => poly(ctx, [x - 0.9, hy + 5.5, x, hy + 10.5, x + 0.9, hy + 5.5]), 0.5);
+    // neve acumulada no alto da cabeça (gorro de neve) e nas costas
+    shape(ctx, vertical(ctx, hy - 10, hy - 4, '#ffffff', '#dceaf8'), () => {
+      ctx.moveTo(-3.5, hy - 4.5);
+      ctx.quadraticCurveTo(-3, hy - 10, 3, hy - 9.6);
+      ctx.quadraticCurveTo(9, hy - 10, 10.5, hy - 5);
+      ctx.quadraticCurveTo(8, hy - 6.5, 6, hy - 5.6);
+      ctx.quadraticCurveTo(3, hy - 7, 0, hy - 5.4);
+      ctx.quadraticCurveTo(-2, hy - 6, -3.5, hy - 4.5);
+      ctx.closePath();
+    }, 0.8);
+    shape(ctx, '#ffffff', () => ellipse(ctx, -7, -3, 4, 2.2, -0.5), 0.7);
   }
   if (c.smoke) {
     // fumaça subindo das narinas
@@ -2019,10 +2026,10 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     }
   }
   if (c.celestial) {
-    // pérola flutuando à frente
-    const py = hy + 9 + Math.sin(p.time * 2) * 1.5;
-    halo(ctx, 19, py, 6, '#fff4c0', 0.7);
-    shape(ctx, radial(ctx, 18.4, py - 0.6, 2.6, '#ffffff', '#c8d8f0'), () => circle(ctx, 19, py, 2.2), 0.6);
+    // pérola flutuando acima do focinho
+    const py = hy - 8 + Math.sin(p.time * 2) * 1.5;
+    halo(ctx, 15, py, 6, '#fff4c0', 0.7);
+    shape(ctx, radial(ctx, 14.4, py - 0.6, 2.6, '#ffffff', '#c8d8f0'), () => circle(ctx, 15, py, 2.4), 0.6);
   }
   if (c.stormCloud) {
     // nuvem de tempestade sobre a cabeça, com raio piscando
