@@ -219,6 +219,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Anjo de Pedra', colors: ['#e8e4dc', '#c8c4bc', '#5a9a4a'], strength: 0, accent: '#c8c4bc', art: true },
     legendary: { name: 'Ofanim', colors: ['#fff8e0', '#ffe08a', '#e0a830'], strength: 0, accent: '#ffe08a', art: true },
   },
+  starFoal: {
+    rare: { name: 'Potro Noturno', colors: ['#c8d0ff', '#4a4a80', '#22224a'], strength: 0, accent: '#c8d0ff', art: true },
+    epic: { name: 'Potro de Algodão-Doce', colors: ['#ffeef8', '#ffb0d8', '#b0e0ff'], strength: 0, accent: '#ffb0d8', art: true },
+    legendary: { name: 'Cavalo de Carrossel', colors: ['#fffaf0', '#e0243a', '#ffd25a'], strength: 0, accent: '#ffd25a', art: true },
+  },
+  guardianUnicorn: {
+    rare: { name: 'Unicórnio Lunar', colors: ['#eef4ff', '#a8c0ff', '#3a4a8a'], strength: 0, accent: '#a8c0ff', art: true },
+    epic: { name: 'Unicórnio Silvestre', colors: ['#ece4cc', '#8ac860', '#5a4a3a'], strength: 0, accent: '#8ac860', art: true },
+    legendary: { name: 'Qilin', colors: ['#f4d878', '#40d8a0', '#d8243a'], strength: 0, accent: '#40d8a0', art: true },
+  },
+  warPegasus: {
+    rare: { name: 'Pégaso Ruão', colors: ['#ecc8b8', '#a85a3a', '#4a2016'], strength: 0, accent: '#a85a3a', art: true },
+    epic: { name: 'Pégaso Morcego', colors: ['#c8a0e0', '#4e3e60', '#ffd040'], strength: 0, accent: '#9a6ab8', art: true },
+    legendary: { name: 'Hipogrifo', colors: ['#fbf8f0', '#b8844e', '#e8b040'], strength: 0, accent: '#e8b040', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
