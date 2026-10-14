@@ -1192,7 +1192,6 @@ button:disabled {
   pointer-events: none;
 }
 
-.cc-branches:hover ~ .forms-pop,
 .forms-btn:hover ~ .forms-pop {
   display: block;
 }
