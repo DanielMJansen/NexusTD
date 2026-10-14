@@ -179,9 +179,36 @@ const ENCHANTRESS_VARIANTS = {
   rare: { dress: ['#bc8ef0', '#6a3aa8'], hair: '#f4e8ff', eyes: '#7a4ad8', wing: '#e4ccff', flower: '#d8b8ff' },
   // Fada Borboleta: asas de monarca e antenas
   epic: { dress: ['#ffa040', '#a04a0a'], hair: '#3a2a1a', eyes: '#a04a0a', wing: '#ff9a2a', flower: '#ffb040' },
-  // Fada de Cristal: asas de vitral facetado e vestido de cristal
-  legendary: { dress: ['#eef8ff', '#8ab8e8'], hair: '#ffffff', eyes: '#4ab8ff', wing: '#bfe8ff', flower: '#bfe8ff' },
+  // Fada no Beija-flor: montada num beija-flor verde-esmeralda, vestido fúcsia
+  legendary: { dress: ['#ff6a9a', '#a01a4a'], hair: '#ffd25a', eyes: '#2a8a5a', wing: '#c8fff0', flower: '#ff6a9a' },
 } as const;
+
+/** Beija-flor de montaria: corpo esmeralda, garganta vermelha, bico longo e asas em borrão. */
+function hummingbird(ctx: Ctx, t: number, attack: number): void {
+  // asa de trás em borrão
+  ctx.save();
+  ctx.globalAlpha *= 0.45;
+  shape(ctx, '#c8fff0', () => ellipse(ctx, -3, 1, 3, 10, -0.5 + Math.sin(t * 40) * 0.5), 0);
+  ctx.restore();
+  // cauda em leque
+  shape(ctx, vertical(ctx, 6, 16, '#2a9a7a', '#0e3a30'), () => poly(ctx, [-6, 9, -15, 10, -14, 13, -16, 15, -6, 11]), 0.8);
+  shape(ctx, radial(ctx, -1, 6, 10, '#5affc0', '#0e6a5a'), () => ellipse(ctx, 0, 9, 8, 4.6, -0.25));
+  shape(ctx, '#e8fff4', () => ellipse(ctx, 1, 11.5, 5, 1.8, -0.2), 0);
+  // cabeça, garganta vermelha e bico (avança no ataque)
+  shape(ctx, radial(ctx, 6, 3, 5, '#5affc0', '#0e6a5a'), () => circle(ctx, 7, 4.5, 3.6));
+  shape(ctx, '#ff3a5a', () => ellipse(ctx, 7.6, 7.2, 2.4, 1.5, 0.3), 0.4);
+  line(ctx, '#1a1a14', 1, () => {
+    ctx.moveTo(10, 4.4);
+    ctx.lineTo(19 + attack * 3, 5.4);
+  }, false);
+  shape(ctx, '#1a1a14', () => circle(ctx, 8.4, 3.8, 0.9), 0);
+  shape(ctx, '#ffffff', () => circle(ctx, 8.7, 3.5, 0.3), 0);
+  // asa da frente em borrão
+  ctx.save();
+  ctx.globalAlpha *= 0.55;
+  shape(ctx, '#e8fffa', () => ellipse(ctx, 1, 0, 3.4, 11, -0.3 + Math.sin(t * 40 + 1) * 0.6), 0);
+  ctx.restore();
+}
 
 /** Antenas de inseto (borboleta, vaga-lume). */
 function antennae(ctx: Ctx, hy: number, color: string): void {
@@ -202,6 +229,12 @@ export function drawEnchantress(ctx: Ctx, p: Pose): void {
   const valkyrie = p.supreme && warrior;
   const ev = p.variant ? ENCHANTRESS_VARIANTS[p.variant] : null;
   ctx.translate(0, -1 + Math.sin(p.time * 3) * 1.5);
+  if (p.variant === 'legendary') {
+    // montada no beija-flor: a fada fica menor e mais alta, sentada nas costas dele
+    hummingbird(ctx, p.time, p.attack);
+    ctx.translate(-2, -9);
+    ctx.scale(0.85, 0.85);
+  }
   if (spring) {
     for (let i = 0; i < 4; i++) {
       const t = (p.time * 0.5 + i / 4) % 1;
@@ -210,7 +243,6 @@ export function drawEnchantress(ctx: Ctx, p: Pose): void {
   }
   // asas: borboleta e cristal nas variantes; pétalas na Rainha das Flores; libélula no resto
   if (p.variant === 'epic') styledWings(ctx, p.time, 'butterfly', ev!.wing);
-  else if (p.variant === 'legendary') styledWings(ctx, p.time, 'crystal', ev!.wing);
   else if (bloom) styledWings(ctx, p.time, 'petal', ev ? ev.wing : '#ff7ac8');
   else faeWings(ctx, p.time, valkyrie ? '#bfe8ff' : warrior ? '#ffd8a0' : ev ? ev.wing : '#ffc8f0', valkyrie ? 1.6 : 1.35);
   const hy = faeBody(ctx, p, warrior ? '#c8cede' : ev ? ev.dress[0] : '#ff8ad0', warrior ? '#6a7290' : ev ? ev.dress[1] : '#b03a8a', ev ? ev.hair : '#ffe08a', ev ? ev.eyes : '#c03a9a');
@@ -262,10 +294,6 @@ export function drawEnchantress(ctx: Ctx, p: Pose): void {
   }
   shape(ctx, GOLD, () => circle(ctx, 0, -10, 1), 0);
   ctx.restore();
-  if (p.variant === 'legendary') {
-    // tiara de cristal
-    shape(ctx, vertical(ctx, hy - 12, hy - 5, '#ffffff', '#8ad0ff'), () => poly(ctx, [-3, hy - 5.5, -1.5, hy - 9, 0.5, hy - 6.5, 2, hy - 11, 3.5, hy - 6.5, 5.5, hy - 9, 6.5, hy - 5.5]), 0.6);
-  }
   if (bloom) {
     // coroa de flores grande (Rainha das Flores)
     for (let i = 0; i < 5; i++) {

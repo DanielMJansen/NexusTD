@@ -132,7 +132,7 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   enchantress: {
     rare: { name: 'Fada da Lavanda', colors: ['#f4e8ff', '#d8b8ff', '#6a3aa8'], strength: 0, accent: '#d8b8ff', art: true },
     epic: { name: 'Fada Borboleta', colors: ['#ffe0a0', '#ff9a2a', '#a04a0a'], strength: 0, accent: '#ff9a2a', art: true },
-    legendary: { name: 'Fada de Cristal', colors: ['#ffffff', '#bfe8ff', '#ffc8f0'], strength: 0, accent: '#bfe8ff', particles: 'star', art: true },
+    legendary: { name: 'Fada no Beija-flor', colors: ['#5affc0', '#ff6a9a', '#0e6a5a'], strength: 0, accent: '#5affc0', art: true },
   },
   trickster: {
     rare: { name: 'Fada do Bosque Noturno', colors: ['#e0e4ff', '#a8b8ff', '#5a6ad8'], strength: 0, accent: '#a8b8ff', art: true },
@@ -147,17 +147,17 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   stoneWall: {
     rare: { name: 'Golem de Arenito', colors: ['#fff0c8', '#e0c48a', '#5ac8ff'], strength: 0, accent: '#5ac8ff', art: true },
     epic: { name: 'Golem de Musgo', colors: ['#e0ffb0', '#8ad85a', '#4a5a3a'], strength: 0, accent: '#8ad85a', art: true },
-    legendary: { name: 'Golem de Mármore Divino', colors: ['#ffffff', '#ffe08a', '#e0b030'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
+    legendary: { name: 'Moai', colors: ['#ffd25a', '#a8a094', '#b85a3a'], strength: 0, accent: '#ffd25a', art: true },
   },
   crystalGolem: {
     rare: { name: 'Golem de Topázio', colors: ['#fff0b0', '#ffc040', '#d07a10'], strength: 0, accent: '#ffc040', art: true },
     epic: { name: 'Golem de Esmeralda', colors: ['#d0ffe8', '#4affa0', '#0e8a4a'], strength: 0, accent: '#4affa0', art: true },
-    legendary: { name: 'Golem de Diamante Arco-Íris', colors: ['#ff7a9a', '#ffe66a', '#7ac8ff'], strength: 0, accent: '#ffffff', particles: 'star', art: true },
+    legendary: { name: 'Golem Geodo', colors: ['#f0d8ff', '#7a3ab8', '#9a8a7a'], strength: 0, accent: '#c88aff', art: true },
   },
   magmaGolem: {
     rare: { name: 'Golem de Lava Azul', colors: ['#d0f0ff', '#4ab8ff', '#1a4a8a'], strength: 0, accent: '#4ab8ff', art: true },
     epic: { name: 'Golem de Obsidiana', colors: ['#f0d8ff', '#c86aff', '#2a2236'], strength: 0, accent: '#c86aff', art: true },
-    legendary: { name: 'Golem do Sol', colors: ['#ffffff', '#ffd040', '#ff8a10'], strength: 0, accent: '#ffd040', particles: 'ember', art: true },
+    legendary: { name: 'Golem Fornalha', colors: ['#ffd25a', '#ff8a2a', '#9a4430'], strength: 0, accent: '#ff8a2a', particles: 'ember', art: true },
   },
   skeletonWarrior: {
     rare: { name: 'Esqueleto de Ônix', colors: ['#c8ffd0', '#7aff8a', '#3a3640'], strength: 0, accent: '#7aff8a', art: true },

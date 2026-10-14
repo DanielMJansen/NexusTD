@@ -9,7 +9,6 @@ import {
   glowingEye,
   halo,
   line,
-  starDots,
   poly,
   radial,
   shape,
@@ -32,9 +31,25 @@ const WALL_VARIANTS = {
   rare: { light: '#e0c48a', dark: '#9a7a44', eyes: '#5ac8ff', accent: '#5ac8ff' },
   // Golem de Musgo: pedra coberta de musgo e cogumelos, passarinho no ombro
   epic: { light: '#8a9a7a', dark: '#4a5a3a', eyes: '#c8ff6a', accent: '#5ab84a' },
-  // Golem de Mármore Divino: mármore branco com veios dourados e auréola de pedra
-  legendary: { light: '#fbf8f0', dark: '#c8c0b0', eyes: '#ffd25a', accent: '#e0b030' },
+  // Moai: pedra vulcânica, cabeça enorme e alongada com testa pesada e chapéu de pedra vermelha
+  legendary: { light: '#a8a094', dark: '#5a544c', eyes: '#ffd25a', accent: '#b85a3a' },
 } as const;
+
+/** Cabeça de Moai: bloco alto, testa saliente, nariz longo, orelhas compridas e pukao vermelho. */
+function moaiHead(ctx: Ctx, light: string, dark: string, eyes: string, t: number): void {
+  for (const x of [-7.5, 5.5]) rock(ctx, x, -24, 2, 9, light, dark, 1);
+  rock(ctx, -6.5, -32, 13, 24, light, dark, 2.5);
+  shape(ctx, vertical(ctx, -38, -31, '#c8704a', '#7a3a1e'), () => ctx.roundRect(-5, -37.5, 10, 6, 2), 1);
+  // testa pesada fazendo sombra sobre os olhos
+  shape(ctx, dark, () => ctx.roundRect(-6.5, -25.5, 13, 3, 1.2), 0.6);
+  glowingEye(ctx, -2.4, -21.5, 1.1 + Math.sin(t * 3) * 0.1, eyes);
+  glowingEye(ctx, 2.4, -21.5, 1.1 + Math.sin(t * 3) * 0.1, eyes);
+  shape(ctx, vertical(ctx, -23, -14, light, dark), () => poly(ctx, [-1.2, -23, 1.2, -23, 2.8, -14.5, -2.8, -14.5]), 0.7);
+  line(ctx, '#2a2620', 1, () => {
+    ctx.moveTo(-3.6, -12);
+    ctx.lineTo(3.6, -12);
+  }, false);
+}
 
 export function drawWall(ctx: Ctx, p: Pose): void {
   const fort = formA(p);
@@ -59,17 +74,7 @@ export function drawWall(ctx: Ctx, p: Pose): void {
       shape(ctx, wv ? wv.accent : '#d0303a', () => poly(ctx, [9, -42, 16, -40 + wave, 9, -37.5]), 0.6);
     }
   }
-  if (p.variant === 'legendary') {
-    // auréola de pedra dourada atrás da cabeça
-    ctx.save();
-    ctx.strokeStyle = '#e0b030';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(0, -24, 8, 2.6, 0, 0, TAU);
-    ctx.stroke();
-    ctx.restore();
-    halo(ctx, 0, -24, 9, '#ffe08a', 0.5);
-  }
+  const moai = p.variant === 'legendary';
   // pernas grossas
   rock(ctx, -9, 7, 7, 7, light, dark, 2);
   rock(ctx, 2, 7, 7, 7, light, dark, 2);
@@ -109,14 +114,10 @@ export function drawWall(ctx: Ctx, p: Pose): void {
       }, 0.4);
     }
   }
-  if (p.variant === 'legendary') {
-    // veios dourados no mármore
-    line(ctx, '#e0b030', 0.9, () => {
-      ctx.moveTo(-10, -6);
-      ctx.quadraticCurveTo(-4, -4, -2, 3);
-      ctx.moveTo(10, -4);
-      ctx.quadraticCurveTo(5, 1, 7, 7);
-    }, false);
+  if (moai) {
+    // marcas de pedra vulcânica e um colar de pedra gravado
+    for (const [x, y] of [[-7, 3], [6, -5], [3, 5]] as const) shape(ctx, wv!.dark, () => circle(ctx, x, y, 0.8), 0);
+    line(ctx, wv!.accent, 1, () => ctx.arc(0, -9, 6, 0.4, Math.PI - 0.4), false);
   }
   // braços (punho desce no golpe)
   for (const side of [-1, 1]) {
@@ -129,10 +130,13 @@ export function drawWall(ctx: Ctx, p: Pose): void {
       }
     }
   }
-  // cabeça pequena com olhos
-  rock(ctx, -6, -18, 12, 9, light, dark, 3);
-  glowingEye(ctx, -2, -14, 1.3, wv ? wv.eyes : snow ? '#9fdcff' : '#ffb84a');
-  glowingEye(ctx, 2.5, -14, 1.3, wv ? wv.eyes : snow ? '#9fdcff' : '#ffb84a');
+  // cabeça pequena com olhos (cabeça de Moai na Lendária)
+  if (moai) moaiHead(ctx, light, dark, snow ? '#9fdcff' : wv!.eyes, p.time);
+  else {
+    rock(ctx, -6, -18, 12, 9, light, dark, 3);
+    glowingEye(ctx, -2, -14, 1.3, wv ? wv.eyes : snow ? '#9fdcff' : '#ffb84a');
+    glowingEye(ctx, 2.5, -14, 1.3, wv ? wv.eyes : snow ? '#9fdcff' : '#ffb84a');
+  }
   if (p.variant === 'epic') {
     // passarinho no ombro
     const hop = Math.abs(Math.sin(p.time * 3)) * 1;
@@ -142,7 +146,7 @@ export function drawWall(ctx: Ctx, p: Pose): void {
   }
   if (fort) {
     // ameias de torre e escudo-muralha grande
-    for (let i = 0; i < 3; i++) rock(ctx, -6 + i * 4.5, -22, 3, 4, light, dark, 0.5);
+    if (!moai) for (let i = 0; i < 3; i++) rock(ctx, -6 + i * 4.5, -22, 3, 4, light, dark, 0.5);
     shape(ctx, vertical(ctx, -9, 13, wv ? wv.light : '#c8c0b0', wv ? wv.dark : '#7a7266'), () => {
       ctx.moveTo(-18, -9);
       ctx.lineTo(-5, -9);
@@ -162,23 +166,25 @@ export function drawWall(ctx: Ctx, p: Pose): void {
     }, false);
   }
   if (snow) {
-    // neve no topo
+    // neve no topo (no Moai, por cima do chapéu de pedra)
+    const sy = moai ? -37 : -17;
     shape(ctx, '#ffffff', () => {
-      ctx.moveTo(-7, -17);
-      ctx.quadraticCurveTo(0, -22, 7, -17);
-      ctx.lineTo(5, -15.5);
-      ctx.lineTo(2, -17);
-      ctx.lineTo(-2, -15.5);
-      ctx.lineTo(-5, -17);
+      ctx.moveTo(-7, sy);
+      ctx.quadraticCurveTo(0, sy - 5, 7, sy);
+      ctx.lineTo(5, sy + 1.5);
+      ctx.lineTo(2, sy);
+      ctx.lineTo(-2, sy + 1.5);
+      ctx.lineTo(-5, sy);
       ctx.closePath();
     }, 0.6);
   }
   // Formas Supremas: Montanha Viva (A, musgo e pinheiros no alto) e Terremoto (B, pedras orbitando à frente)
   if (p.supreme && formA(p)) {
-    shape(ctx, '#3a8a3a', () => ellipse(ctx, 0, -17, 12, 3), 0.6);
+    const ty = moai ? -37 : -17;
+    shape(ctx, '#3a8a3a', () => ellipse(ctx, 0, ty, 12, 3), 0.6);
     for (const [x, h] of [[-7, 9], [0, 12], [7, 8]] as const) {
-      shape(ctx, '#2a6a3a', () => poly(ctx, [x - 3.5, -17, x, -17 - h, x + 3.5, -17]), 0.7);
-      shape(ctx, '#5a3a1a', () => ctx.rect(x - 0.6, -17, 1.2, 2), 0);
+      shape(ctx, '#2a6a3a', () => poly(ctx, [x - 3.5, ty, x, ty - h, x + 3.5, ty]), 0.7);
+      shape(ctx, '#5a3a1a', () => ctx.rect(x - 0.6, ty, 1.2, 2), 0);
     }
   }
   if (p.supreme && formB(p)) {
@@ -219,21 +225,14 @@ export function drawCrystalGolem(ctx: Ctx, p: Pose): void {
     rare: { color: '#d07a10', glow: '#ffe08a' },
     // Golem de Esmeralda
     epic: { color: '#0e8a4a', glow: '#8affc0' },
-    // Golem de Diamante Arco-Íris: transparente com cores girando
-    legendary: { color: '#a8c8e8', glow: '#ffffff' },
+    // Golem Geodo: casca de rocha rachada ao meio, ametista por dentro
+    legendary: { color: '#7a3ab8', glow: '#f0d8ff' },
   } as const;
   const cv = p.variant ? CV[p.variant] : null;
+  const geode = p.variant === 'legendary';
   const color = cv ? (amp ? darken(cv.color, 0.25) : cv.color) : amp ? '#3a8ad8' : '#8a4ad8';
   const glow = cv ? cv.glow : amp ? '#bfeaff' : '#e0c0ff';
   if (p.variant === 'epic') halo(ctx, 0, -2, 16 + Math.sin(p.time * 3) * 2, '#4affa0', 0.4);
-  if (p.variant === 'legendary') {
-    // cores girando dentro do diamante
-    const rainbow = ['#ff7a9a', '#ffe66a', '#7ae8a0', '#7ac8ff', '#c08aff'];
-    rainbow.forEach((c, i) => {
-      const a = p.time * 1.2 + (i * TAU) / rainbow.length;
-      halo(ctx, Math.cos(a) * 6, -2 + Math.sin(a) * 6, 6, c, 0.45);
-    });
-  }
   // pernas e corpo (Prisma: corpo de prisma grande e facetado)
   crystal(ctx, -4, 10, 3, 5, color, glow);
   crystal(ctx, 4, 10, 3, 5, color, glow);
@@ -248,9 +247,39 @@ export function drawCrystalGolem(ctx: Ctx, p: Pose): void {
   } else {
     crystal(ctx, 0, -1, 9, 10, color, glow);
   }
-  crystal(ctx, -10, -2, 3, 6, color, glow);
-  crystal(ctx, 10, -2 - p.attack * 2, 3, 6, color, glow);
-  if (p.variant === 'legendary') starDots(ctx, p.time, [[-4, -6], [5, 2], [-2, 5]]);
+  if (geode) {
+    // casca de rocha rachada: duas metades abertas, com a ametista à mostra no meio
+    for (const side of [-1, 1]) {
+      shape(ctx, vertical(ctx, -12, 10, '#9a8a7a', '#4a3e34'), () => {
+        ctx.moveTo(side * 1.5, -12);
+        ctx.quadraticCurveTo(side * 13, -11, side * 12.5, 0);
+        ctx.quadraticCurveTo(side * 12, 9, side * 2, 10);
+        ctx.lineTo(side * 5, 6);
+        ctx.lineTo(side * 3.5, 2);
+        ctx.lineTo(side * 6, -2);
+        ctx.lineTo(side * 4, -6);
+        ctx.lineTo(side * 5.5, -9);
+        ctx.closePath();
+      });
+      // borda de quartzo branco na rachadura
+      line(ctx, '#f4ecff', 0.9, () => {
+        ctx.moveTo(side * 2, 10);
+        ctx.lineTo(side * 5, 6);
+        ctx.lineTo(side * 3.5, 2);
+        ctx.lineTo(side * 6, -2);
+        ctx.lineTo(side * 4, -6);
+        ctx.lineTo(side * 5.5, -9);
+      }, false);
+    }
+    // punhos de rocha com pontas de cristal
+    for (const [x, y] of [[-10, -2], [10, -2 - p.attack * 2]] as const) {
+      shape(ctx, vertical(ctx, y - 5, y + 5, '#9a8a7a', '#4a3e34'), () => ctx.roundRect(x - 3.5, y - 4, 7, 9, 3));
+      crystal(ctx, x, y - 5, 1.6, 3, color, glow);
+    }
+  } else {
+    crystal(ctx, -10, -2, 3, 6, color, glow);
+    crystal(ctx, 10, -2 - p.attack * 2, 3, 6, color, glow);
+  }
   // núcleo pulsante
   ctx.save();
   ctx.shadowColor = glow;
@@ -284,11 +313,21 @@ export function drawCrystalGolem(ctx: Ctx, p: Pose): void {
         ctx.stroke();
       });
     }
+  } else if (geode) {
+    // cabeça de pedra redonda com cristais brotando do alto
+    for (const [x, h, a] of [[-2.5, 5, -0.4], [0.5, 7, 0], [3.5, 4.5, 0.4]] as const) {
+      ctx.save();
+      ctx.translate(x, -21);
+      ctx.rotate(a);
+      crystal(ctx, 0, -h * 0.6, 1.5, h * 0.6, color, glow);
+      ctx.restore();
+    }
+    shape(ctx, radial(ctx, -1, -18, 7, '#9a8a7a', '#4a3e34'), () => ellipse(ctx, 0, -16.5, 6, 5));
   } else {
     crystal(ctx, 0, -17, 5, 6, color, glow);
   }
-  glowingEye(ctx, -1.5, -17, 1, '#ffffff');
-  glowingEye(ctx, 1.8, -17, 1, '#ffffff');
+  glowingEye(ctx, -1.5, -17, 1, geode ? glow : '#ffffff');
+  glowingEye(ctx, 1.8, -17, 1, geode ? glow : '#ffffff');
   if (amp) {
     for (let i = 0; i < 2; i++) {
       ctx.save();
@@ -335,9 +374,43 @@ const MAGMA_VARIANTS = {
   rare: { body: '#2a2e3a', bodyDark: '#0c0e14', lava: '#4ab8ff', eyes: '#8ad8ff' },
   // Golem de Obsidiana: vidro negro com rachaduras roxas
   epic: { body: '#2a2236', bodyDark: '#06040a', lava: '#c86aff', eyes: '#e0a8ff' },
-  // Golem do Sol: plasma dourado com coroa de chamas solares
-  legendary: { body: '#ffb030', bodyDark: '#c05a0a', lava: '#ffffff', eyes: '#ffffff' },
+  // Golem Fornalha: fornalha de tijolos com porta de ferro, chaminés nos ombros e martelo
+  legendary: { body: '#9a4430', bodyDark: '#3a140c', lava: '#ffb040', eyes: '#ffd25a' },
 } as const;
+
+/** Corpo de fornalha: tijolos, porta de grade com fogo dentro, chaminés fumegando nos ombros. */
+function furnaceBody(ctx: Ctx, t: number, body: string, bodyDark: string, attack: number): void {
+  for (const x of [-10, 7]) {
+    shape(ctx, vertical(ctx, -22, -8, '#4a4650', '#1a1820'), () => ctx.rect(x, -21, 3.4, 12), 0.8);
+    shape(ctx, '#2a2830', () => ctx.rect(x - 0.6, -22.5, 4.6, 2), 0.6);
+    for (let i = 0; i < 2; i++) {
+      const k = (t * 0.6 + i / 2 + (x > 0 ? 0.25 : 0)) % 1;
+      halo(ctx, x + 1.7 + Math.sin(k * 6) * 1.5, -24 - k * 10, 2 + k * 2.5, '#6a6068', 0.7 * (1 - k));
+    }
+  }
+  shape(ctx, vertical(ctx, -12, 9, body, bodyDark), () => ctx.roundRect(-11.5, -12, 23, 20, 3));
+  line(ctx, darken(bodyDark, 0.3), 0.6, () => {
+    for (let r = 0; r < 5; r++) {
+      const y = -8 + r * 4;
+      ctx.moveTo(-11, y);
+      ctx.lineTo(11, y);
+      for (let x = -9 + (r % 2) * 3; x < 11; x += 6) {
+        ctx.moveTo(x, y - 4);
+        ctx.lineTo(x, y);
+      }
+    }
+  }, false);
+  // porta de ferro com o fogo aceso dentro (aumenta no ataque)
+  shape(ctx, '#1a0a06', () => ctx.roundRect(-5.5, -6, 11, 10, 2), 1);
+  flame(ctx, 0, 3.5, 3.5 + attack, 7 + attack * 3, 0, t);
+  line(ctx, '#3a3640', 1, () => {
+    for (const x of [-2.8, 0, 2.8]) {
+      ctx.moveTo(x, -6);
+      ctx.lineTo(x, 4);
+    }
+  }, false);
+  halo(ctx, 0, 0, 8 + attack * 4, '#ff8a2a', 0.4);
+}
 
 export function drawMagmaGolem(ctx: Ctx, p: Pose): void {
   const volcano = formA(p);
@@ -347,7 +420,7 @@ export function drawMagmaGolem(ctx: Ctx, p: Pose): void {
   const body = mv ? (living ? darken(mv.body, 0.2) : mv.body) : living ? '#5a2a1a' : '#3a2a2a';
   const bodyDark = mv ? mv.bodyDark : living ? '#2a0e08' : '#140c0c';
   const lava = mv ? mv.lava : '#ff8a2a';
-  if (p.variant === 'legendary') halo(ctx, 0, -6, 20, '#ffb030', 0.55 + Math.sin(p.time * 3) * 0.1);
+  const furnace = p.variant === 'legendary';
   if (volcano && !p.supreme) {
     // Vulcão: costas em forma de montanha, com lava escorrendo pelos ombros
     shape(ctx, vertical(ctx, -30, 6, mv ? mv.body : '#7a5a4e', mv ? darken(mv.body, 0.3) : '#3a2622'), () => poly(ctx, [-17, 6, -5, -28, 5, -28, 17, 6]), 1.1);
@@ -363,42 +436,66 @@ export function drawMagmaGolem(ctx: Ctx, p: Pose): void {
       }, 0);
     }
   }
-  rock(ctx, -8, 7, 6, 7, body, bodyDark, 2);
-  rock(ctx, 2, 7, 6, 7, body, bodyDark, 2);
-  shape(ctx, radial(ctx, 0, -1, 13, body, bodyDark), () => ellipse(ctx, 0, -1, 11, 11));
-  // rachaduras de lava
-  ctx.save();
-  ctx.shadowColor = lava;
-  ctx.shadowBlur = 8;
-  ctx.strokeStyle = mv ? lava : `rgba(255, ${120 + Math.round(glowPulse * 80)}, 40, 1)`;
-  ctx.lineWidth = 1.3;
-  ctx.beginPath();
-  ctx.moveTo(-6, -7);
-  ctx.lineTo(-2, -2);
-  ctx.lineTo(-5, 3);
-  ctx.moveTo(3, -8);
-  ctx.lineTo(5, -2);
-  ctx.lineTo(2, 4);
-  ctx.lineTo(5, 8);
-  ctx.stroke();
-  ctx.restore();
-  // braços
-  line(ctx, body, 4, () => {
-    ctx.moveTo(-9, -3);
-    ctx.lineTo(-14, 4);
-    ctx.moveTo(9, -3);
-    ctx.lineTo(14, 3 - p.attack * 4);
-  });
+  rock(ctx, -8, 7, 6, 7, furnace ? '#4a4650' : body, furnace ? '#1a1820' : bodyDark, 2);
+  rock(ctx, 2, 7, 6, 7, furnace ? '#4a4650' : body, furnace ? '#1a1820' : bodyDark, 2);
+  if (furnace) {
+    furnaceBody(ctx, p.time, body, bodyDark, p.attack);
+    // braços de cano de ferro e o martelo de ferreiro na mão da frente
+    line(ctx, '#4a4650', 3.4, () => {
+      ctx.moveTo(-11, -6);
+      ctx.lineTo(-15, 3);
+      ctx.moveTo(11, -6);
+      ctx.lineTo(15, 1 - p.attack * 4);
+    });
+    ctx.save();
+    ctx.translate(15, 1 - p.attack * 4);
+    ctx.rotate(-0.5 + p.attack * 1.4);
+    line(ctx, '#6a4a2a', 1.6, () => {
+      ctx.moveTo(0, 2);
+      ctx.lineTo(0, -10);
+    });
+    shape(ctx, vertical(ctx, -13, -8, '#8a8890', '#3a3840'), () => ctx.roundRect(-4, -13, 8, 5, 1), 0.8);
+    ctx.restore();
+    // cabeça: capacete de ferro com viseira acesa
+    const fy = -17;
+    shape(ctx, radial(ctx, -1, fy - 1, 7, '#6a6670', '#1a1820'), () => ctx.roundRect(-6, fy - 5.5, 12, 10, [5, 5, 2, 2]));
+    shape(ctx, mv!.eyes, () => ctx.roundRect(-4, fy - 1, 8, 1.8, 0.8), 0);
+    halo(ctx, 0, fy, 5, mv!.eyes, 0.5);
+    for (const x of [-4.5, 4.5]) shape(ctx, '#9a98a0', () => circle(ctx, x, fy + 2.5, 0.6), 0);
+  } else {
+    shape(ctx, radial(ctx, 0, -1, 13, body, bodyDark), () => ellipse(ctx, 0, -1, 11, 11));
+  }
+  if (!furnace) {
+    // rachaduras de lava
+    ctx.save();
+    ctx.shadowColor = lava;
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = mv ? lava : `rgba(255, ${120 + Math.round(glowPulse * 80)}, 40, 1)`;
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.moveTo(-6, -7);
+    ctx.lineTo(-2, -2);
+    ctx.lineTo(-5, 3);
+    ctx.moveTo(3, -8);
+    ctx.lineTo(5, -2);
+    ctx.lineTo(2, 4);
+    ctx.lineTo(5, 8);
+    ctx.stroke();
+    ctx.restore();
+    // braços
+    line(ctx, body, 4, () => {
+      ctx.moveTo(-9, -3);
+      ctx.lineTo(-14, 4);
+      ctx.moveTo(9, -3);
+      ctx.lineTo(14, 3 - p.attack * 4);
+    });
+  }
   // cabeça
   const hy = -15;
-  shape(ctx, radial(ctx, 0, hy, 7, body, bodyDark), () => circle(ctx, 0, hy, 6.5));
-  glowingEye(ctx, -2, hy, 1.4, mv ? mv.eyes : '#ffb03a');
-  glowingEye(ctx, 2.6, hy, 1.4, mv ? mv.eyes : '#ffb03a');
-  if (p.variant === 'legendary') {
-    // coroa de chamas solares
-    for (const [x, h, a] of [[-4, 7, -0.4], [0, 10, 0], [4, 7, 0.4]] as const) {
-      flame(ctx, x, hy - 5, 2.4, h, a, p.time + x, { outer: ['#fff4b0', '#ffb020'], inner: ['#ffffff', '#fff4c0'], glow: '#ffd040' });
-    }
+  if (!furnace) {
+    shape(ctx, radial(ctx, 0, hy, 7, body, bodyDark), () => circle(ctx, 0, hy, 6.5));
+    glowingEye(ctx, -2, hy, 1.4, mv ? mv.eyes : '#ffb03a');
+    glowingEye(ctx, 2.6, hy, 1.4, mv ? mv.eyes : '#ffb03a');
   }
   if (volcano && p.supreme) {
     shape(ctx, '#2a1a18', () => poly(ctx, [-5, hy - 4, -3, hy - 10, 3, hy - 10, 5, hy - 4]), 0.9);
