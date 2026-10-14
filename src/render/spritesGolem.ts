@@ -463,7 +463,32 @@ export function drawMagmaGolem(ctx: Ctx, p: Pose): void {
     halo(ctx, 0, fy, 5, mv!.eyes, 0.5);
     for (const x of [-4.5, 4.5]) shape(ctx, '#9a98a0', () => circle(ctx, x, fy + 2.5, 0.6), 0);
   } else {
+    if (p.variant === 'epic') {
+      // Obsidiana: lascas grandes de vidro vulcânico saindo dos ombros e das costas
+      for (const [x, y, h, a] of [[-9, -6, 11, -0.6], [-5, -9, 13, -0.25], [8, -6, 10, 0.55], [4, -9, 9, 0.2]] as const) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(a);
+        shape(ctx, vertical(ctx, -h, 0, '#5a4a6e', '#08060c'), () => poly(ctx, [-2.4, 1, -1.2, -h * 0.7, 0.4, -h, 2.4, 1]), 0.8);
+        line(ctx, '#e0c8ff', 0.6, () => {
+          ctx.moveTo(-0.6, -1);
+          ctx.lineTo(0, -h * 0.8);
+        }, false);
+        ctx.restore();
+      }
+    }
     shape(ctx, radial(ctx, 0, -1, 13, body, bodyDark), () => ellipse(ctx, 0, -1, 11, 11));
+    if (p.variant === 'epic') {
+      // facetas de vidro: planos lisos com reflexo
+      shape(ctx, '#3a2e4aaa', () => poly(ctx, [-9, -5, -3, -10, 1, -4, -5, 1]), 0);
+      shape(ctx, '#4a3a5eaa', () => poly(ctx, [2, -9, 9, -4, 6, 3, 1, -2]), 0);
+      line(ctx, '#ffffffaa', 0.7, () => {
+        ctx.moveTo(-7, -5);
+        ctx.lineTo(-3, -8.5);
+        ctx.moveTo(4, -7.5);
+        ctx.lineTo(7.5, -4.5);
+      }, false);
+    }
   }
   if (!furnace) {
     // rachaduras de lava
@@ -493,6 +518,16 @@ export function drawMagmaGolem(ctx: Ctx, p: Pose): void {
   // cabeça
   const hy = -15;
   if (!furnace) {
+    if (p.variant === 'epic' && !volcano) {
+      // coroa de lascas na cabeça
+      for (const [x, h, a] of [[-3.5, 6, -0.4], [0, 8, 0], [3.5, 6, 0.4]] as const) {
+        ctx.save();
+        ctx.translate(x, hy - 4);
+        ctx.rotate(a);
+        shape(ctx, vertical(ctx, -h, 0, '#5a4a6e', '#08060c'), () => poly(ctx, [-1.5, 1, 0, -h, 1.5, 1]), 0.7);
+        ctx.restore();
+      }
+    }
     shape(ctx, radial(ctx, 0, hy, 7, body, bodyDark), () => circle(ctx, 0, hy, 6.5));
     glowingEye(ctx, -2, hy, 1.4, mv ? mv.eyes : '#ffb03a');
     glowingEye(ctx, 2.6, hy, 1.4, mv ? mv.eyes : '#ffb03a');

@@ -184,10 +184,31 @@ export function drawCherub(ctx: Ctx, p: Pose): void {
 
 /** Valquíria: guerreira alada de lança. A: Matadora de Reis (armadura dourada); B: Lança Celeste (lança azul brilhante). */
 /** Corcel alado branco (montaria da Valquíria do Corcel Alado). */
-function wingedSteed(ctx: Ctx, t: number, charge: number): void {
+function wingedSteed(ctx: Ctx, t: number, charge: number, part: 'body' | 'head'): void {
   const gallop = Math.sin(t * 7);
-  // asa de trás
-  featherWings(ctx, t * 1.2, '#c8d8ff', 1.1, -2);
+  if (part === 'head') {
+    // pescoço, cabeça e crina na frente da amazona
+    ctx.save();
+    ctx.translate(9, -2);
+    ctx.rotate(-0.6 - charge * 0.2);
+    shape(ctx, radial(ctx, 4, -4, 7, '#ffffff', '#c8ccd8'), () => {
+      ctx.moveTo(-3, 3);
+      ctx.lineTo(2, -7);
+      ctx.lineTo(9, -6);
+      ctx.quadraticCurveTo(11.5, -3, 8, -1.6);
+      ctx.lineTo(4, -2);
+      ctx.lineTo(3.5, 4);
+      ctx.closePath();
+    }, 1);
+    for (let i = 0; i < 4; i++) shape(ctx, '#ffe8a0', () => poly(ctx, [1.6 - i * 1.1, -6 + i * 2.2, -1.6 - i * 1.2 + Math.sin(t * 6 + i) * 0.6, -4.5 + i * 2.4, 0.6 - i * 1.1, -4 + i * 2.2]), 0.4);
+    shape(ctx, '#e8e4dc', () => poly(ctx, [2.6, -7, 2, -9.5, 4, -7.2]), 0.5);
+    shape(ctx, '#1a1a24', () => circle(ctx, 5.2, -5, 0.9), 0);
+    shape(ctx, '#c8a040', () => ctx.rect(6.5, -4.4, 2.6, 0.9), 0);
+    ctx.restore();
+    return;
+  }
+  // asas abertas atrás da amazona
+  featherWings(ctx, t * 1.2, '#c8d8ff', 1.25, -3);
   // patas
   for (const [x, ph] of [[-8, 0], [-4, 1.5], [5, 0.8], [9, 2.3]] as const) {
     line(ctx, '#d8dce8', 2.4, () => {
@@ -205,27 +226,12 @@ function wingedSteed(ctx: Ctx, t: number, charge: number): void {
   }, 0.7);
   // corpo
   shape(ctx, radial(ctx, 0, 0, 12, '#ffffff', '#c8ccd8'), () => ellipse(ctx, 0, 1, 12, 5.5), 1);
-  // pescoço e cabeça
-  ctx.save();
-  ctx.translate(9, -2);
-  ctx.rotate(-0.6 - charge * 0.2);
-  shape(ctx, radial(ctx, 4, -4, 7, '#ffffff', '#c8ccd8'), () => {
-    ctx.moveTo(-2, 2);
-    ctx.lineTo(2, -7);
-    ctx.lineTo(9, -6);
-    ctx.quadraticCurveTo(11, -3, 8, -2);
-    ctx.lineTo(4, -2);
+  // manta azul com franja dourada sob a sela
+  shape(ctx, vertical(ctx, -4, 5, '#4a6ae8', '#1a2a8a'), () => ctx.roundRect(-6, -4.5, 9, 8, 2), 0.7);
+  line(ctx, '#c8a040', 0.8, () => {
+    ctx.moveTo(-6, 3);
     ctx.lineTo(3, 3);
-    ctx.closePath();
-  }, 1);
-  shape(ctx, '#ffe8a0', () => poly(ctx, [1, -6, -2, -2, 2, -1]), 0.5);
-  shape(ctx, '#1a1a24', () => circle(ctx, 5, -5, 0.8), 0);
-  ctx.restore();
-  // asa da frente
-  ctx.save();
-  ctx.translate(0, 1);
-  featherWings(ctx, t * 1.2 + 0.5, '#e8eeff', 1, -3);
-  ctx.restore();
+  }, false);
 }
 
 export function drawValkyrie(ctx: Ctx, p: Pose): void {
@@ -243,13 +249,15 @@ export function drawValkyrie(ctx: Ctx, p: Pose): void {
   const shadeB = (c: string) => (vv && celestial ? darken(c, 0.15) : c);
   const armor = vv ? shadeB(vv.armor[0]) : slayer ? '#f0c35a' : '#c8d2e6';
   const armorDark = vv ? vv.armor[1] : slayer ? '#8a6418' : '#6a7896';
-  if (p.variant === 'legendary') {
-    // montada no corcel alado: o cavalo embaixo, ela sentada mais alto
+  const mounted = p.variant === 'legendary';
+  if (mounted) {
+    // montada no corcel alado: o corpo do cavalo atrás, ela sentada na sela; a cabeça dele vem por cima no fim
     ctx.save();
-    ctx.translate(-1, 4);
-    wingedSteed(ctx, p.time, p.attack);
+    ctx.translate(2, 1);
+    ctx.scale(1.2, 1.2);
+    wingedSteed(ctx, p.time, p.attack, 'body');
     ctx.restore();
-    ctx.translate(-2, -9);
+    ctx.translate(-3, -6);
   }
   if (slayer && !p.supreme) {
     // Matadora de Reis: capa vermelha longa
@@ -267,10 +275,21 @@ export function drawValkyrie(ctx: Ctx, p: Pose): void {
     shape(ctx, vertical(ctx, -12, 6, '#8a6a4a', '#3a2a1a'), () => poly(ctx, [-8, -11, 7, -11, 9, 5, -10, 5]), 1);
   }
   if (p.variant !== 'legendary') featherWings(ctx, p.time, celestial && !p.supreme ? '#9fdcff' : vv ? vv.wing : '#c8d8ff', celestial && !p.supreme ? 1.2 : 0.95, -9);
-  shape(ctx, '#4a5068', () => ctx.roundRect(-4.5, 6, 4, 8, 1.5));
-  shape(ctx, '#4a5068', () => ctx.roundRect(0.5, 6, 4, 8, 1.5));
+  if (!mounted) {
+    shape(ctx, '#4a5068', () => ctx.roundRect(-4.5, 6, 4, 8, 1.5));
+    shape(ctx, '#4a5068', () => ctx.roundRect(0.5, 6, 4, 8, 1.5));
+  }
   shape(ctx, vertical(ctx, -10, 8, armor, armorDark), () => ctx.roundRect(-6, -10, 12, 17, [4, 4, 2, 2]));
   shape(ctx, vv ? vv.skirt : '#5a6ab0', () => poly(ctx, [-5, 4, 5, 4, 6, 10, -6, 10]), 0.8);
+  if (mounted) {
+    // perna dobrada sobre o flanco do cavalo, com bota e estribo
+    line(ctx, '#4a5068', 3.6, () => {
+      ctx.moveTo(1, 7);
+      ctx.lineTo(6, 9);
+      ctx.lineTo(5, 15);
+    });
+    shape(ctx, '#c8a040', () => ctx.roundRect(3, 14.5, 5, 2, 0.8), 0.6);
+  }
   if (p.variant === 'epic') {
     // escudo redondo pintado com um nó nórdico
     shape(ctx, radial(ctx, -8, 0, 7, '#e0c08a', '#8a5a2a'), () => circle(ctx, -8, 0, 6), 1);
@@ -347,6 +366,18 @@ export function drawValkyrie(ctx: Ctx, p: Pose): void {
     shape(ctx, vertical(ctx, -48, -36, '#ffffff', '#ffd25a'), () => poly(ctx, [-3, -37, 0, -48, 3, -37]), 0.6);
     glow(ctx, 0, -42, 7, '#fff6c0', 0.6);
     ctx.restore();
+  }
+  if (mounted) {
+    // cabeça do cavalo à frente e as rédeas até a mão dela
+    ctx.save();
+    ctx.translate(5, 7);
+    ctx.scale(1.2, 1.2);
+    wingedSteed(ctx, p.time, p.attack, 'head');
+    ctx.restore();
+    line(ctx, '#6a4a2a', 0.6, () => {
+      ctx.moveTo(4, 0);
+      ctx.quadraticCurveTo(11, 3, 20, -1);
+    }, false);
   }
 }
 

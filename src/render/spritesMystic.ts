@@ -126,8 +126,8 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
   ctx.save();
   ctx.rotate(0.15);
   shape(ctx, radial(ctx, 0, 0, 11, fur, furDark), () => ellipse(ctx, 0, -1 + crouch, 8, 10));
-  shape(ctx, hv ? hv.belly : '#c8a880', () => ellipse(ctx, 3, 1 + crouch, 4, 6), 0.8);
-  shape(ctx, hv ? hv.pants : '#3a3050', () => poly(ctx, [-7, 4, 7, 4, 6, 9, 3, 7, 0, 9, -3, 7, -6, 9]), 1);
+  if (!ronin) shape(ctx, hv ? hv.belly : '#c8a880', () => ellipse(ctx, 3, 1 + crouch, 4, 6), 0.8);
+  if (!ronin) shape(ctx, hv ? hv.pants : '#3a3050', () => poly(ctx, [-7, 4, 7, 4, 6, 9, 3, 7, 0, 9, -3, 7, -6, 9]), 1);
   if (p.variant === 'epic') {
     // runas azuis acesas no corpo
     ctx.save();
@@ -152,11 +152,11 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
       ctx.lineTo(-7.5, 4);
       ctx.closePath();
     }, 1);
+    // gola branca em V
     line(ctx, '#fff8f0', 1.4, () => {
-      ctx.moveTo(-2, -10 + crouch);
-      ctx.lineTo(4, 2);
-      ctx.moveTo(5, -8 + crouch);
-      ctx.lineTo(1, -2 + crouch);
+      ctx.moveTo(-1.5, -10 + crouch);
+      ctx.lineTo(2, -3 + crouch);
+      ctx.lineTo(5.5, -8 + crouch);
     }, false);
     shape(ctx, '#2a2e4a', () => ctx.rect(-7.5, 1.5, 14.5, 2.6), 0.6);
   }
@@ -167,10 +167,16 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
   ctx.save();
   ctx.translate(5, -5 + crouch);
   ctx.rotate(-0.8 + swipe * 1.6);
-  line(ctx, fur, feral ? 4.4 : 3.6, () => {
-    ctx.moveTo(0, 0);
-    ctx.lineTo(10, 2);
-  });
+  if (ronin) {
+    // manga larga do quimono e a mão segurando o cabo
+    shape(ctx, vertical(ctx, -3, 6, feral ? '#7a141c' : '#b8242e', '#5a0a10'), () => poly(ctx, [-1, -2.4, 7, -1.2, 7.5, 3.6, 2, 6, -1, 3]), 0.9);
+    shape(ctx, fur, () => circle(ctx, 8.6, 1.4, 2), 0.8);
+  } else {
+    line(ctx, fur, feral ? 4.4 : 3.6, () => {
+      ctx.moveTo(0, 0);
+      ctx.lineTo(10, 2);
+    });
+  }
   if (p.variant === 'epic') shape(ctx, '#5a3a1e', () => ctx.roundRect(4, -0.6, 4, 4, 1), 0.6);
   if (lunar) halo(ctx, 12, 1, 5, '#bfe8ff', 0.6);
   if (ronin) {
@@ -1284,9 +1290,9 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
   const magic = sv ? sv.magic : chaos ? '#c86aff' : '#7ad85a';
   const broom = p.variant === 'legendary';
   if (broom) {
-    // voa de lado, subindo e descendo, levemente inclinada para a frente
-    ctx.translate(0, -7 + Math.sin(p.time * 2.2) * 1.6);
-    ctx.rotate(0.06);
+    // voa alto, subindo e descendo, inclinada para a frente como quem acelera
+    ctx.translate(0, -12 + Math.sin(p.time * 2.2) * 2.2);
+    ctx.rotate(-0.12 + Math.sin(p.time * 2.2 + 1) * 0.04);
   }
   if (arch) {
     // capa nas costas
@@ -1305,16 +1311,39 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
       shape(ctx, i % 2 ? '#8aff6a' : '#3ad85a', () => poly(ctx, [-9 + i * 2, -14, -10 + i * 2 - 2, -14 - h, -7 + i * 2, -14]), 0);
     }
   }
-  // vestido roxo
-  shape(ctx, vertical(ctx, -9, 14, sv ? shadeB(sv.dress[0]) : chaos ? '#1e5a3a' : '#6a3aa0', sv ? sv.dress[1] : chaos ? '#0a2416' : '#2e1450'), () =>
-    poly(ctx, [-5, -9, 5, -9, 10, 14, 4, 12, 0, 14, -4, 12, -10, 14]),
-  );
-  shape(ctx, '#2a1a10', () => ctx.rect(-5.5, -1, 11, 2), 0.6);
+  // vestido roxo (sentada na vassoura: a saia termina nela e esvoaça para trás)
   if (broom) {
     broomstick(ctx, p.time);
-    // botas pontudas penduradas do lado da vassoura
-    for (const x of [2, 5]) shape(ctx, '#1a1428', () => poly(ctx, [x - 1.4, 9, x + 1.4, 9, x + 1.4, 12, x + 4, 12.6, x - 1.4, 13]), 0.6);
+    const flutter = Math.sin(p.time * 9) * 1.2;
+    shape(ctx, vertical(ctx, -9, 10, sv ? shadeB(sv.dress[0]) : '#6a3aa0', sv ? sv.dress[1] : '#2e1450'), () =>
+      poly(ctx, [-5, -9, 5, -9, 7, 6, 2, 8.5, -6, 9, -12, 10 + flutter, -9, 6, -14, 6 + flutter]),
+    );
+    // pernas de meia listrada penduradas de lado, com botas pontudas
+    for (const [x, sw] of [[1, 0], [4, 1]] as const) {
+      const swing = Math.sin(p.time * 3 + sw) * 1;
+      line(ctx, '#e8e0f0', 1.8, () => {
+        ctx.moveTo(x, 7);
+        ctx.lineTo(x + 1 + swing, 13);
+      });
+      line(ctx, sv ? sv.band : '#8a5ad8', 0.7, () => {
+        ctx.moveTo(x - 0.6 + swing * 0.4, 9);
+        ctx.lineTo(x + 1 + swing * 0.4, 9.4);
+        ctx.moveTo(x - 0.4 + swing * 0.7, 11);
+        ctx.lineTo(x + 1.4 + swing * 0.7, 11.4);
+      }, false);
+      shape(ctx, '#1a1428', () => poly(ctx, [x + swing - 0.4, 12.5, x + swing + 2.4, 12.5, x + swing + 5, 13.6, x + swing - 0.4, 15]), 0.6);
+    }
+    // a vassoura passa por cima da saia
+    line(ctx, '#7a4a22', 2.2, () => {
+      ctx.moveTo(-12, 8.4);
+      ctx.lineTo(17, 4.4);
+    });
+  } else {
+    shape(ctx, vertical(ctx, -9, 14, sv ? shadeB(sv.dress[0]) : chaos ? '#1e5a3a' : '#6a3aa0', sv ? sv.dress[1] : chaos ? '#0a2416' : '#2e1450'), () =>
+      poly(ctx, [-5, -9, 5, -9, 10, 14, 4, 12, 0, 14, -4, 12, -10, 14]),
+    );
   }
+  shape(ctx, '#2a1a10', () => ctx.rect(-5.5, -1, 11, 2), 0.6);
   // varinha com orbe verde (tridente com pérola na Bruxa do Mar)
   ctx.save();
   ctx.translate(6, -2);

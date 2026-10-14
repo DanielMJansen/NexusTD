@@ -61,6 +61,13 @@ A 1.0 é o jogo completo para jogar sozinho: 5 fases, coleção, meta-progressã
    - Todas as 13 raças com variantes únicas.
    - `[x]` **Revisão das Lendárias antigas** (14/10/2026, aprovada pelo Daniel): as que eram recolorido + brilho/estrelas viraram transformações — Arqueiro Centauro, Nosferatu, Senhora das Rosas, Rei Morcego, Leviatã, Lóng, Lobo Ronin, Orthros (duas cabeças), Casa Assombrada, Organista Fantasma, Boneca Possuída, Bruxa na Vassoura, Caldeirão Mímico (pernas de galinha), Fada no Beija-flor, Moai, Golem Geodo, Golem Fornalha, Caronte o Barqueiro, Sanguessuga Gigante, Medusa Água-viva. (Trocas em relação à proposta, para não repetir épicas ou formas: Lobo Ronin no lugar de Lobo Xamã, Organista no lugar de Noiva Fantasma, Moai no lugar de Golem-Castelo, Fornalha no lugar de Vulcão, Caronte no lugar de Ceifador da Peste.)
    - `[x]` **Skins dos heróis com peça própria** (14/10/2026): além da cor, cada skin liberável ganha um acessório (chave `look` da paleta em `src/data/skins.ts`): Templário (tabardo com cruz), Cavaleiro Negro (elmo com chifres, capa rasgada), Conde Carmesim (monóculo e rosa), Lua de Sangue (asas de morcego e lua vermelha), Obsidiana (cristais nas costas), Escama Dourada (coroa e colar de moedas), Lobo Ártico (gelo nos ombros), Lobo Sombrio (olhos acesos, corrente partida), Bruxa da Floresta (cogumelos e musgo no chapéu), Bruxa da Lua (gato preto no ombro), Serafim Prateado (elmo alado), Anjo Caído (penas caindo, auréola rachada), Demônio de Gelo (chifres de gelo), Príncipe das Sombras (coroa de chifres, fumaça), Rainha das Areias (nemes de faraó), Górgona Abissal (tentáculos), Lich Real (coroa e grimório), Ceifador Carmesim (foice dupla), Gigante de Gelo (pingentes e neve), Titã de Lava (lava escorrendo, fumaça), Rainha do Inverno (coroa de gelo), Rainha da Noite (asas de mariposa, lua). Espectro mantido só com cores. Alicórnio ganhou duas skins: Celestial (conquista Galope Celeste: vencer com ele) e Pesadelo (Pesadelo Sem Fim: onda 30 do Sem Fim).
+9. `[ ]` **Revisar os textos de cada herói e criatura** (pedido de 14/10/2026). Hoje alguns repetem o mesmo termo sem explicar (ex.: o Vampiro Duelista fala de "frenesi" várias vezes sem dizer o que é). Para cada um:
+   - deixar clara a raça e a classe (papel);
+   - escrever uma descrição curta;
+   - explicar com clareza o que ele faz e o que cada forma muda, definindo uma vez os termos próprios (frenesi, marca, etc.);
+   - listar as variantes que ele tem;
+   - tooltip mostrando as formas despertas (nível 3 A/B e Supremas), com e sem a skin/variante.
+   Propor o formato com 1–2 exemplos antes de reescrever todos.
 
 ## 3. Próximas etapas
 

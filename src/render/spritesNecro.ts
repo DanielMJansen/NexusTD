@@ -426,19 +426,48 @@ const DRAINER_VARIANTS = {
 } as const;
 
 /** Sanguessuga Gigante: corpo em anéis erguido do chão e a boca-ventosa voltada para a frente. */
-function giantLeech(ctx: Ctx, t: number, body: string, dark: string, energy: string, attack: number): void {
+function giantLeech(ctx: Ctx, t: number, body: string, dark: string, energy: string, attack: number, form: 'bloated' | 'corrupt' | null): void {
   const n = 9;
   const pts: [number, number, number][] = [];
+  const beat = Math.max(0, Math.sin(t * 6)) * 0.6;
   for (let i = 0; i <= n; i++) {
     const k = i / n;
     const sway = Math.sin(t * 2.5 - k * 3) * 2 * k;
-    pts.push([-11 + k * 16 + sway, 10 - k * 22 + Math.sin(k * Math.PI) * -3, 6.4 - k * 2.2]);
+    // Sanguessuga (A): barriga inchada de sangue no meio do corpo, pulsando
+    const bulge = form === 'bloated' ? Math.exp(-((k - 0.35) ** 2) / 0.03) * (3 + beat) : 0;
+    pts.push([-11 + k * 16 + sway, 10 - k * 22 + Math.sin(k * Math.PI) * -3, 6.4 - k * 2.2 + bulge]);
+  }
+  if (form === 'corrupt') {
+    // Corruptor (B): espinhos tortos de corrupção ao longo das costas
+    pts.forEach(([x, y, r], i) => {
+      if (i % 2 || i === n) return;
+      shape(ctx, vertical(ctx, y - r - 6, y, '#9aff3a', '#1e3a14'), () => poly(ctx, [x - r * 0.7, y - r * 0.5, x - r * 0.9 - 1.5, y - r - 5, x + r * 0.1, y - r * 0.8]), 0.6);
+    });
   }
   pts.forEach(([x, y, r]) => shape(ctx, OUTLINE, () => circle(ctx, x, y, r + 0.9), 0));
   pts.forEach(([x, y, r], i) => {
     shape(ctx, radial(ctx, x - r * 0.4, y - r * 0.4, r * 1.6, darken(body, -0.35), body), () => circle(ctx, x, y, r), 0);
     if (i % 2) line(ctx, dark, 0.9, () => ctx.arc(x, y, r * 0.92, -2.4, -0.6), false);
   });
+  if (form === 'bloated') {
+    // sangue visível por dentro da pele esticada, com veias
+    const [bx, by, br] = pts[3];
+    shape(ctx, '#ff2a4a88', () => ellipse(ctx, bx + 0.5, by + 0.5, br * 0.75, br * 0.6), 0);
+    line(ctx, '#ff6a7a', 0.6, () => {
+      ctx.moveTo(bx - br * 0.6, by - 1);
+      ctx.quadraticCurveTo(bx, by - br * 0.5, bx + br * 0.6, by - 2);
+      ctx.moveTo(bx - br * 0.3, by + br * 0.4);
+      ctx.lineTo(bx + br * 0.4, by + br * 0.2);
+    }, false);
+  }
+  if (form === 'corrupt') {
+    // pústulas verdes brilhando nos anéis
+    for (const i of [1, 4, 6]) {
+      const [x, y, r] = pts[i];
+      halo(ctx, x + r * 0.3, y + r * 0.1, 2.5, '#9aff3a', 0.6);
+      shape(ctx, '#c8ff6a', () => circle(ctx, x + r * 0.3, y + r * 0.1, 1.2), 0.4);
+    }
+  }
   // brilho de muco nas costas
   ctx.save();
   ctx.globalAlpha *= 0.5;
@@ -461,6 +490,11 @@ function giantLeech(ctx: Ctx, t: number, body: string, dark: string, energy: str
   halo(ctx, hx + 2.4, hy, 4 + attack * 3, energy, 0.4 + attack * 0.4);
   // olhinhos em cima da cabeça
   for (const dx of [-1.6, 0.6]) glowingEye(ctx, hx + dx, hy - 3.6, 0.6, energy);
+  if (form === 'corrupt') {
+    // baba ácida pingando da boca
+    const k = (t * 1.2) % 1;
+    shape(ctx, '#9aff3a', () => ellipse(ctx, hx + 2.4, hy + 3 + k * 8, 0.8, 1.2 + k * 0.4), 0);
+  }
 }
 
 export function drawDrainer(ctx: Ctx, p: Pose): void {
@@ -480,11 +514,9 @@ export function drawDrainer(ctx: Ctx, p: Pose): void {
   const giant = p.variant === 'legendary';
   if (giant) {
     // Sanguessuga Gigante: o corpo todo é o verme; as marcas das formas vêm por cima
-    giantLeech(ctx, p.time, robe, dv!.mask, energy, p.attack);
-    if (leech && !p.supreme) {
-      const beat = 1 + Math.max(0, Math.sin(p.time * 6)) * 0.2;
-      halo(ctx, -4, 2, 5 * beat, '#ff3a5a', 0.7);
-    }
+    // A: corpo vermelho-sangue e inchado; B: verde-pântano com espinhos e pústulas
+    const tint = leech ? '#b8384e' : corrupt ? '#5a6a3a' : robe;
+    giantLeech(ctx, p.time, tint, dv!.mask, energy, p.attack, leech ? 'bloated' : corrupt ? 'corrupt' : null);
   }
   ctx.rotate(0.08);
   if (leech && !p.supreme && !giant) {
