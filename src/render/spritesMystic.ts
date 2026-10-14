@@ -6,6 +6,8 @@ import {
   circle,
   darken,
   ellipse,
+  flame,
+  SPIRIT_FLAME,
   starDots,
   eye,
   glowingEye,
@@ -617,20 +619,58 @@ function ghostBody(ctx: Ctx, t: number, top: number, color: string, edge: string
   });
 }
 
+/** Cores da Assombração em cada variante: lençol, barra, braço, olhos ocos e brilho dos olhos. */
+const HAUNT_VARIANTS = {
+  // Fantasma do Lampião: âmbar e quente, como luz de vela
+  rare: { body: '#fffae4', edge: '#ffc04a50', arm: '#fff0c8', hole: '#5a3008', glint: '#ffd040' },
+  // Cavaleiro Fantasma: aço espectral, elmo quebrado e espada
+  epic: { body: '#d0d8ea', edge: '#5a6a9a60', arm: '#bcc6de', hole: '#141a2e', glint: '#8ab8ff' },
+  // Assombração Abissal: fumaça negra, olhos de estrela, coroa de chamas azuis
+  legendary: { body: '#3a2a52', edge: '#0a051400', arm: '#4a3a66', hole: '#05020a', glint: '#ffffff' },
+} as const;
+
+/** Elos de corrente ao longo de uma linha (correntes do Espírito Vingativo). */
+function chainLinks(ctx: Ctx, x0: number, y0: number, x1: number, y1: number, count: number, color: string): void {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.1;
+  const angle = Math.atan2(y1 - y0, x1 - x0);
+  for (let i = 0; i < count; i++) {
+    const t = (i + 0.5) / count;
+    ctx.beginPath();
+    ellipse(ctx, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, 1.7, 1.1, angle + (i % 2 ? Math.PI / 2 : 0));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 export function drawHaunt(ctx: Ctx, p: Pose): void {
   const float = Math.sin(p.time * 2.5) * 2 - 4;
   ctx.translate(0, float);
   ctx.globalAlpha *= 0.92;
   // Aparição Gélida: lençol azul-gelo, estilhaços de gelo girando
   const frost = formB(p);
+  // Espírito Vingativo (A): correntes cruzando o corpo, algema no braço, olhar furioso
+  const vengeful = formA(p);
   // Formas Supremas: Ira Eterna (A, chamas azuis e correntes quebradas) e Inverno Fantasma (B, névoa congelante)
   const wrath = p.supreme && !frost;
   const winter = p.supreme && frost;
+  const hv = p.variant ? HAUNT_VARIANTS[p.variant] : null;
   if (winter) for (let i = 0; i < 4; i++) {
     const a = p.time * 0.7 + (i * TAU) / 4;
     halo(ctx, Math.cos(a) * 15, 4 + Math.sin(a) * 5, 7, '#e8fbff', 0.45);
   }
-  ghostBody(ctx, p.time, -24, wrath ? '#c8d8ff' : frost ? '#e0f0ff' : '#e8fffa', wrath ? '#3a5aff60' : frost ? '#5a9aff60' : '#8ce8d840');
+  if (p.variant === 'legendary') halo(ctx, 0, -6, 18, '#3a2a8a', 0.6);
+  // Lampião: brilho quente de vela em volta
+  if (p.variant === 'rare') halo(ctx, 0, -8, 16, '#ffc040', 0.4 + Math.sin(p.time * 6) * 0.05);
+  const bodyTop = hv ? (frost ? darken(hv.body, 0.15) : hv.body) : wrath ? '#c8d8ff' : frost ? '#e0f0ff' : '#e8fffa';
+  ghostBody(ctx, p.time, -24, bodyTop, hv ? hv.edge : wrath ? '#3a5aff60' : frost ? '#5a9aff60' : '#8ce8d840');
+  if (p.variant === 'legendary') starDots(ctx, p.time, [[-5, -4], [3, 2], [-2, 6], [6, -6]]);
+  if (vengeful) {
+    // correntes cruzando o corpo
+    chainLinks(ctx, -9, -16, 8, 2, 6, '#7a8098');
+    chainLinks(ctx, 8, -14, -8, 6, 6, '#7a8098');
+  }
   if (frost) {
     ctx.save();
     ctx.shadowColor = '#9fdcff';
@@ -644,38 +684,82 @@ export function drawHaunt(ctx: Ctx, p: Pose): void {
     ctx.restore();
   }
   // braços fantasmagóricos
-  shape(ctx, frost ? '#c8e0ff' : '#d0f8f0', () => {
+  shape(ctx, hv ? hv.arm : frost ? '#c8e0ff' : '#d0f8f0', () => {
     ctx.moveTo(6, -6);
     ctx.quadraticCurveTo(14 + p.attack * 4, -8, 16 + p.attack * 5, -2);
     ctx.quadraticCurveTo(12, -2, 7, -1);
     ctx.closePath();
   }, 1);
+  if (vengeful) {
+    // algema no pulso com o resto da corrente quebrada pendurado
+    shape(ctx, '#8a90a8', () => ctx.roundRect(11.5 + p.attack * 3, -6.5, 3.4, 4.4, 1), 0.7);
+    chainLinks(ctx, 13 + p.attack * 3, -2, 12 + p.attack * 3, 7, 3, '#8a90a8');
+  }
+  if (p.variant === 'epic') {
+    // espada espectral na mão
+    ctx.save();
+    ctx.translate(15 + p.attack * 5, -3);
+    ctx.rotate(-0.9 + p.attack * 1.2);
+    halo(ctx, 0, -9, 6, '#8ab8ff', 0.5);
+    shape(ctx, vertical(ctx, -16, 0, '#ffffff', '#8ab8ff'), () => poly(ctx, [-1.3, -1, 0, -17, 1.3, -1]), 0.6);
+    shape(ctx, '#5a6a9a', () => ctx.rect(-3, -1.4, 6, 1.4), 0.5);
+    ctx.restore();
+  }
   // olhos ocos e boca
-  shape(ctx, '#0e2a26', () => ellipse(ctx, 0, -14, 2.2, 3), 0);
-  shape(ctx, '#0e2a26', () => ellipse(ctx, 5.5, -14, 2.2, 3), 0);
-  shape(ctx, '#0e2a26', () => ellipse(ctx, 3, -7, 2, 2.6 + p.attack * 1.5), 0);
-  ctx.fillStyle = frost ? '#bfe8ff' : '#8ce8d8';
+  const hole = hv ? hv.hole : '#0e2a26';
+  shape(ctx, hole, () => ellipse(ctx, 0, -14, 2.2, 3), 0);
+  shape(ctx, hole, () => ellipse(ctx, 5.5, -14, 2.2, 3), 0);
+  shape(ctx, hole, () => ellipse(ctx, 3, -7, 2, 2.6 + p.attack * 1.5), 0);
+  ctx.fillStyle = hv ? hv.glint : frost ? '#bfe8ff' : '#8ce8d8';
   ctx.beginPath();
   circle(ctx, 0.6, -14.6, 0.8);
   circle(ctx, 6.1, -14.6, 0.8);
   ctx.fill();
+  if (p.variant === 'legendary') {
+    // olhos de estrela
+    halo(ctx, 0, -14, 3, '#ffffff', 0.8);
+    halo(ctx, 5.5, -14, 3, '#ffffff', 0.8);
+  }
+  if (vengeful) {
+    // sobrancelhas furiosas sobre os olhos ocos
+    line(ctx, hole, 1.2, () => {
+      ctx.moveTo(-2.4, -18.2);
+      ctx.lineTo(2, -16.6);
+      ctx.moveTo(8, -18.2);
+      ctx.lineTo(3.6, -16.6);
+    }, false);
+  }
+  if (p.variant === 'epic') {
+    // elmo de cavaleiro quebrado, com pluma rasgada
+    shape(ctx, vertical(ctx, -27, -17, '#e4eaf6', '#8a96b4'), () => {
+      ctx.moveTo(-7.5, -17.5);
+      ctx.quadraticCurveTo(-8, -26, 1, -26.5);
+      ctx.quadraticCurveTo(9.5, -26, 9, -17.5);
+      ctx.lineTo(5, -19);
+      ctx.lineTo(4, -17.5);
+      ctx.lineTo(2.5, -20);
+      ctx.lineTo(0, -17.5);
+      ctx.closePath();
+    }, 1);
+    line(ctx, '#5a6a8a', 0.7, () => {
+      ctx.moveTo(4, -26);
+      ctx.lineTo(3, -22.5);
+      ctx.lineTo(5, -21);
+    }, false);
+    shape(ctx, '#7a9ad8', () => poly(ctx, [-1, -26, -7, -31, -5, -28.5, -9, -29, -3, -25]), 0.6);
+  }
   if (frost) {
     // coroa de gelo
     for (const [x, h] of [[-3, 5], [1, 7], [5, 5]] as const) {
       shape(ctx, vertical(ctx, -22 - h, -21, '#ffffff', '#8ad0ff'), () => poly(ctx, [x - 1.5, -21, x, -21 - h, x + 1.5, -21]), 0.7);
     }
   }
-  if (formA(p)) {
-    // chamas espectrais na cabeça (azuis e altas na Ira Eterna)
-    ctx.save();
-    ctx.shadowColor = wrath ? '#5a8aff' : '#5ae8c8';
-    ctx.shadowBlur = 10;
-    for (let i = 0; i < (wrath ? 5 : 3); i++) {
-      const h = (wrath ? 9 : 5) + Math.sin(p.time * 9 + i * 2) * 2;
-      const x0 = wrath ? -7 + i * 3.5 : -4 + i * 4;
-      shape(ctx, wrath ? '#7aa8ff' : '#5ae8c8', () => poly(ctx, [x0, -22, x0 + 2, -22 - h, x0 + 4, -22]), 0);
-    }
-    ctx.restore();
+  if ((formA(p) && p.variant !== 'epic') || p.variant === 'legendary') {
+    // chamas espectrais em gota na cabeça (azuis e altas na Ira Eterna e na Abissal)
+    const blue = wrath || p.variant === 'legendary';
+    const colors = blue ? SPIRIT_FLAME : { outer: ['#9affe0', '#2ac8a0'] as const, inner: ['#ffffff', '#c8fff0'] as const, glow: '#5ae8c8' };
+    const count = blue ? 3 : 2;
+    for (let i = 0; i < count; i++) flame(ctx, (count === 3 ? -4 : -2) + i * 4.5, -21, 2, blue ? 8 : 6, (i - (count - 1) / 2) * 0.25, p.time + i, colors);
   }
   if (wrath) {
     // correntes quebradas penduradas
@@ -697,15 +781,29 @@ export function drawHaunt(ctx: Ctx, p: Pose): void {
   }
 }
 
+/** Cores da Banshee em cada variante: cabelo, vestido, rosto, olhos e braços (a forma B escurece). */
+const BANSHEE_VARIANTS = {
+  // Banshee Carmesim: vestido vinho e cabelo ruivo
+  rare: { hair: ['#d0402e', '#6a141080'], dress: ['#9a1a3e', '#3a0a1a00'], face: ['#fff4f0', '#e8c0c0'], eyes: '#ff6a8a', arm: '#f0c8c8' },
+  // Noiva Cadáver: vestido de noiva rendado, véu, cabelo escuro e buquê murcho
+  epic: { hair: ['#3e2e44', '#1a0e2080'], dress: ['#faf6ee', '#c8bca800'], face: ['#e8eef0', '#a8b8c0'], eyes: '#8affd8', arm: '#dfe6ea' },
+  // Rainha do Lamento: cabelo de névoa estrelada, coroa de cristal negro, lágrimas de luz
+  legendary: { hair: ['#34346e', '#0a0a2a80'], dress: ['#46468a', '#1a1a4a00'], face: ['#f0f0ff', '#b8b8e0'], eyes: '#bfe0ff', arm: '#c8c8f0' },
+} as const;
+
 export function drawBanshee(ctx: Ctx, p: Pose): void {
   const float = Math.sin(p.time * 2) * 2 - 4;
   const scream = p.attack;
   ctx.translate(0, float);
   const dread = formB(p);
+  // Banshee Ancestral (A): cabelo bem mais volumoso e diadema grande
+  const ancestral = formA(p);
   // Formas Supremas: Lamento Final (A, cabelo erguido) e Pesadelo (B, máscara de caveira e sombras)
   const lament = p.supreme && !dread;
   const nightmare = p.supreme && dread;
-  const eyes = dread ? '#ff2a4a' : '#6a9aff';
+  const bv = p.variant ? BANSHEE_VARIANTS[p.variant] : null;
+  const shadeB = (c: string) => (bv && dread ? darken(c.slice(0, 7), 0.3) + c.slice(7) : c);
+  const eyes = bv ? bv.eyes : dread ? '#ff2a4a' : '#6a9aff';
   if (lament) {
     // cabelo erguido como chamas pálidas
     for (let i = 0; i < 6; i++) {
@@ -729,18 +827,39 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
       }, false);
     }
   }
-  // cabelo longo esvoaçando para trás
-  shape(ctx, vertical(ctx, -24, 10, dread ? '#3a2050' : '#f0f4ff', dread ? '#1a0a2a80' : '#9ab0e080'), () => {
+  // cabelo longo esvoaçando para trás (bem mais volumoso na Ancestral)
+  const big = ancestral ? 1.4 : 1;
+  const hairTop = bv ? shadeB(bv.hair[0]) : dread ? '#3a2050' : '#f0f4ff';
+  ctx.save();
+  ctx.translate(-2, -24);
+  ctx.scale(big, big);
+  ctx.translate(2, 24);
+  shape(ctx, vertical(ctx, -24, 10, hairTop, bv ? bv.hair[1] : dread ? '#1a0a2a80' : '#9ab0e080'), () => {
     ctx.moveTo(-2, -24);
     ctx.quadraticCurveTo(-14, -22, -18, -6 + Math.sin(p.time * 4) * 2);
     ctx.quadraticCurveTo(-12, -8, -16, 6 + Math.sin(p.time * 4 + 1) * 2);
     ctx.quadraticCurveTo(-6, -2, -4, -6);
     ctx.closePath();
   });
+  if (p.variant === 'legendary') starDots(ctx, p.time, [[-12, -14], [-15, -4], [-10, 2], [-7, -10]]);
+  ctx.restore();
+  if (p.variant === 'epic') {
+    // véu de noiva translúcido caindo atrás
+    ctx.save();
+    ctx.globalAlpha *= 0.55;
+    shape(ctx, vertical(ctx, -26, 12, '#ffffff', '#ffffff00'), () => {
+      ctx.moveTo(-4, -24);
+      ctx.quadraticCurveTo(-16, -20, -20, 10 + Math.sin(p.time * 3) * 2);
+      ctx.lineTo(-6, 6);
+      ctx.quadraticCurveTo(-6, -10, 2, -25);
+      ctx.closePath();
+    }, 0);
+    ctx.restore();
+  }
   // vestido de névoa
   const g = ctx.createLinearGradient(0, -10, 0, 14);
-  g.addColorStop(0, dread ? '#5a2a8a' : '#c8d8ff');
-  g.addColorStop(1, dread ? '#2a0a4a00' : '#8aa0e000');
+  g.addColorStop(0, bv ? shadeB(bv.dress[0]) : dread ? '#5a2a8a' : '#c8d8ff');
+  g.addColorStop(1, bv ? bv.dress[1] : dread ? '#2a0a4a00' : '#8aa0e000');
   shape(ctx, g, () => {
     ctx.moveTo(-6, -9);
     ctx.lineTo(6, -9);
@@ -750,14 +869,28 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
     ctx.quadraticCurveTo(-9, 2, -6, -9);
     ctx.closePath();
   });
+  if (p.variant === 'epic') {
+    // renda na barra do vestido
+    for (let i = 0; i < 6; i++) shape(ctx, '#ffffff', () => circle(ctx, -6.5 + i * 2.6, 9 + (i % 2) * 1.2, 1.2), 0.4);
+  }
   // braços abertos
-  line(ctx, dread ? '#8a6ab0' : '#d8e4ff', 2.2, () => {
+  line(ctx, bv ? bv.arm : dread ? '#8a6ab0' : '#d8e4ff', 2.2, () => {
     ctx.moveTo(4, -6);
     ctx.lineTo(13 + scream * 3, -11 - scream * 2);
   });
+  if (p.variant === 'epic') {
+    // buquê murcho na mão
+    const bx = 13 + scream * 3;
+    const by = -11 - scream * 2;
+    for (const [dx, dy, c] of [[0, -1.5, '#8a5a7a'], [1.8, 0, '#6a4a5a'], [-1.4, 0.4, '#a87a8a']] as const) shape(ctx, c, () => circle(ctx, bx + dx, by + dy, 1.5), 0.5);
+    line(ctx, '#5a6a3a', 0.8, () => {
+      ctx.moveTo(bx, by + 1);
+      ctx.lineTo(bx - 1, by + 5);
+    }, false);
+  }
   // rosto e boca do grito
-  shape(ctx, radial(ctx, 1, -15, 7, dread ? '#e8dcf0' : '#ffffff', dread ? '#9a88b8' : '#b8c8f0'), () => ellipse(ctx, 1, -15, 6.5, 7.5));
-  shape(ctx, dread ? '#3a2050' : '#f0f4ff', () => {
+  shape(ctx, radial(ctx, 1, -15, 7, bv ? bv.face[0] : dread ? '#e8dcf0' : '#ffffff', bv ? bv.face[1] : dread ? '#9a88b8' : '#b8c8f0'), () => ellipse(ctx, 1, -15, 6.5, 7.5));
+  shape(ctx, hairTop, () => {
     ctx.moveTo(-6, -15);
     ctx.quadraticCurveTo(-6, -24, 2, -23);
     ctx.quadraticCurveTo(8, -23, 7, -17);
@@ -790,9 +923,23 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
     shape(ctx, '#0a0410', () => poly(ctx, [1.6, -13, 0.6, -11, 2.6, -11]), 0);
     for (let k = 0; k < 4; k++) shape(ctx, '#0a0410', () => ctx.rect(-1.4 + k * 1.6, -9.6, 0.6, 1.4), 0);
   }
-  if (formA(p)) {
-    shape(ctx, '#e0e8f8', () => poly(ctx, [-4, -21.5, -3, -26, -0.5, -23, 1.5, -27.5, 3.5, -23, 6, -26, 6.5, -21.5]), 0.8);
-    shape(ctx, '#6a9aff', () => circle(ctx, 1.5, -23.8, 1), 0.5);
+  if (p.variant === 'legendary') {
+    // lágrimas de luz escorrendo e caindo
+    for (const x of [0, 4]) {
+      const t = (p.time * 0.9 + x * 0.1) % 1;
+      halo(ctx, x, -13 + t * 10, 2, '#bfe0ff', 1 - t);
+      shape(ctx, '#ffffff', () => ellipse(ctx, x, -13 + t * 10, 0.6, 0.9), 0);
+    }
+    // coroa de cristal negro
+    halo(ctx, 1.5, -25, 6, '#7a6aff', 0.5);
+    for (const [x, h] of [[-3.5, 4], [-0.5, 6], [1.5, 8], [3.5, 6], [6.5, 4]] as const) {
+      shape(ctx, vertical(ctx, -22 - h, -21, '#6a5aa8', '#14102a'), () => poly(ctx, [x - 1.6, -21, x, -22 - h, x + 1.6, -21]), 0.6);
+    }
+  } else if (ancestral) {
+    // diadema grande, com joia
+    shape(ctx, vertical(ctx, -30, -21, '#ffffff', '#b8c4e0'), () => poly(ctx, [-5.5, -21.5, -4.5, -27, -1.5, -24, 1.5, -30, 4.5, -24, 7.5, -27, 8.5, -21.5]), 0.8);
+    halo(ctx, 1.5, -25, 4, bv ? bv.eyes : '#6a9aff', 0.7);
+    shape(ctx, bv ? bv.eyes : '#6a9aff', () => circle(ctx, 1.5, -25, 1.6), 0.5);
   }
 }
 

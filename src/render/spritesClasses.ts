@@ -14,6 +14,8 @@ import {
   poly,
   radial,
   shape,
+  star,
+  starDots,
   TAU,
   vertical,
   type Ctx,
@@ -509,14 +511,28 @@ export function drawBatSwarm(ctx: Ctx, p: Pose): void {
 }
 
 /** Possessor: sombra roxa com mãos longas. A: Marionetista (fios nas mãos); B: Devorador (boca enorme, vermelho). */
+/** Cores do Possessor em cada variante: corpo, borda que some, dedos e olhos. */
+const POSSESSOR_VARIANTS = {
+  // Sombra Esmeralda
+  rare: { color: '#1e6e4e', edge: '#4affa000', fingers: '#a8ffd0', eyes: '#8affc0' },
+  // Possessor Mascarado: máscara de teatro (comédia no rosto, tragédia pendurada)
+  epic: { color: '#3e2a52', edge: '#8a6aff00', fingers: '#e8d8ff', eyes: '#ffd25a' },
+  // Vazio Faminto: corpo de galáxia, mãos de tentáculo estelar
+  legendary: { color: '#120a2a', edge: '#5a3aff00', fingers: '#bfd0ff', eyes: '#ffffff' },
+} as const;
+
 export function drawPossessor(ctx: Ctx, p: Pose): void {
   const devour = formB(p);
+  // Marionetista (A): cruzeta de madeira acima das mãos, fios grossos e cartola
+  const puppeteer = formA(p) && !p.supreme;
   // Formas Supremas: Mestre das Almas (A, fios de alma com almas presas) e Abismo (B, portal no peito)
   const souls = p.supreme && !devour;
   const abyss = p.supreme && devour;
-  const color = devour ? '#5a1430' : '#4a2a80';
-  const edge = devour ? '#ff3a5a00' : '#9a6aff00';
+  const pv = p.variant ? POSSESSOR_VARIANTS[p.variant] : null;
+  const color = pv ? (devour ? darken(pv.color, 0.3) : pv.color) : devour ? '#5a1430' : '#4a2a80';
+  const edge = pv ? pv.edge : devour ? '#ff3a5a00' : '#9a6aff00';
   ctx.translate(0, Math.sin(p.time * 2.2) * 2 - 6);
+  if (p.variant === 'legendary') halo(ctx, 0, -6, 20, '#4a2aff', 0.45);
   const g = ctx.createLinearGradient(0, -22, 0, 16);
   g.addColorStop(0, color);
   g.addColorStop(1, edge);
@@ -530,22 +546,65 @@ export function drawPossessor(ctx: Ctx, p: Pose): void {
     ctx.quadraticCurveTo(-10, 4, -8, -10);
     ctx.closePath();
   });
-  // mãos longas estendidas
-  const reach = p.attack * 4;
-  for (const side of [-1, 1]) {
-    line(ctx, color, 2, () => {
-      ctx.moveTo(side * 6, -8);
-      ctx.quadraticCurveTo(side * 12, -10, side * (15 + reach), -4);
-    });
-    for (let f = 0; f < 3; f++) {
-      line(ctx, devour ? '#ff8aa0' : '#d8b8ff', 0.8, () => {
-        ctx.moveTo(side * (15 + reach), -4);
-        ctx.lineTo(side * (18 + reach), -6 + f * 2);
+  if (p.variant === 'legendary') {
+    // galáxia girando dentro do corpo
+    ctx.save();
+    ctx.translate(0, -4);
+    ctx.rotate(p.time * 0.8);
+    ctx.globalAlpha *= 0.7;
+    for (const [color2, r0] of [['#c86aff', 0], ['#6a8aff', Math.PI]] as const) {
+      line(ctx, color2, 1.2, () => {
+        for (let k = 0; k <= 12; k++) {
+          const a = r0 + k * 0.35;
+          const r = 1 + k * 0.6;
+          if (k === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+          else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        }
       }, false);
     }
+    ctx.restore();
+    starDots(ctx, p.time, [[-4, -16], [5, -12], [-3, 4], [4, 8], [0, -2]]);
   }
-  if (formA(p)) {
-    // fios de marionete descendo dos dedos
+  // mãos longas estendidas (ondulando como tentáculos no Vazio Faminto)
+  const reach = p.attack * 4;
+  const tentacle = p.variant === 'legendary';
+  for (const side of [-1, 1]) {
+    const wave = tentacle ? Math.sin(p.time * 4 + side) * 3 : 0;
+    line(ctx, color, tentacle ? 2.6 : 2, () => {
+      ctx.moveTo(side * 6, -8);
+      ctx.quadraticCurveTo(side * 12, -10 + wave, side * (15 + reach), -4 - wave * 0.5);
+    });
+    if (tentacle) {
+      halo(ctx, side * (16 + reach), -4 - wave * 0.5, 4, '#bfd0ff', 0.8);
+      shape(ctx, '#ffffff', () => star(ctx, side * (16 + reach), -4 - wave * 0.5, 2), 0);
+    } else {
+      for (let f = 0; f < 3; f++) {
+        line(ctx, pv ? pv.fingers : devour ? '#ff8aa0' : '#d8b8ff', 0.8, () => {
+          ctx.moveTo(side * (15 + reach), -4);
+          ctx.lineTo(side * (18 + reach), -6 + f * 2);
+        }, false);
+      }
+    }
+  }
+  if (puppeteer) {
+    // cruzeta de madeira acima, com fios grossos até as mãos
+    const sway = Math.sin(p.time * 2) * 0.12;
+    ctx.save();
+    ctx.translate(0, -33);
+    ctx.rotate(sway);
+    shape(ctx, vertical(ctx, -2, 2, '#c89a5a', '#7a5428'), () => ctx.roundRect(-13, -1.2, 26, 2.4, 1), 0.8);
+    shape(ctx, vertical(ctx, -6, 6, '#c89a5a', '#7a5428'), () => ctx.roundRect(-1.2, -5, 2.4, 10, 1), 0.8);
+    ctx.restore();
+    line(ctx, '#f4e8ffcc', 0.8, () => {
+      for (const side of [-1, 1]) {
+        ctx.moveTo(side * 12 * Math.cos(sway), -33 + side * 12 * Math.sin(sway));
+        ctx.lineTo(side * (16 + reach), -5);
+      }
+      ctx.moveTo(0, -28);
+      ctx.lineTo(0, -24);
+    }, false);
+  } else if (souls) {
+    // fios de marionete descendo dos dedos (Mestre das Almas)
     ctx.strokeStyle = '#e8d8ffaa';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
@@ -564,11 +623,38 @@ export function drawPossessor(ctx: Ctx, p: Pose): void {
     for (let i = 0; i < 5; i++) {
       shape(ctx, '#f4ecd8', () => poly(ctx, [-3.5 + i * 2, -12, -2.5 + i * 2, -12, -3 + i * 2, -10]), 0.3);
     }
-    glowingEye(ctx, -2, -17, 1.5, '#ff2a4a');
-    glowingEye(ctx, 4, -17, 1.5, '#ff2a4a');
-  } else {
-    glowingEye(ctx, -1.5, -15, 1.6, '#d8a8ff');
-    glowingEye(ctx, 3.5, -15, 1.6, '#d8a8ff');
+    glowingEye(ctx, -2, -17, 1.5, pv ? pv.eyes : '#ff2a4a');
+    glowingEye(ctx, 4, -17, 1.5, pv ? pv.eyes : '#ff2a4a');
+  } else if (p.variant !== 'epic') {
+    glowingEye(ctx, -1.5, -15, 1.6, pv ? pv.eyes : '#d8a8ff');
+    glowingEye(ctx, 3.5, -15, 1.6, pv ? pv.eyes : '#d8a8ff');
+  }
+  if (p.variant === 'epic') {
+    // máscara de comédia no rosto e a de tragédia pendurada ao lado
+    const my = devour ? -17 : -15;
+    shape(ctx, vertical(ctx, my - 5, my + 5, '#ffffff', '#e0d8ec'), () => ellipse(ctx, 1, my, 5.4, 5.8), 0.9);
+    for (const x of [-1.2, 3.2]) {
+      shape(ctx, '#1a1024', () => {
+        ctx.ellipse(x, my - 1, 1.3, 0.9, 0, Math.PI, TAU);
+        ctx.closePath();
+      }, 0);
+      glowingEye(ctx, x, my - 1.3, 0.6, pv!.eyes);
+    }
+    line(ctx, '#1a1024', 1, () => ctx.arc(1, my + 0.8, 2.6, 0.3, Math.PI - 0.3), false);
+    ctx.save();
+    ctx.translate(-7, -6);
+    ctx.rotate(-0.3);
+    shape(ctx, '#2a1a3a', () => ellipse(ctx, 0, 0, 3, 3.3), 0.8);
+    line(ctx, '#e8d8ff', 0.7, () => ctx.arc(0, 2.4, 1.6, Math.PI + 0.4, TAU - 0.4), false);
+    for (const x of [-1, 1]) shape(ctx, '#e8d8ff', () => ellipse(ctx, x, -0.8, 0.6, 0.4), 0);
+    ctx.restore();
+  }
+  if (puppeteer) {
+    // cartola
+    const ty = devour ? -22 : -21;
+    shape(ctx, vertical(ctx, ty - 9, ty, '#2a1a3a', '#0e0814'), () => ctx.roundRect(-3.5, ty - 9, 9, 9, 1), 0.9);
+    shape(ctx, '#0e0814', () => ctx.roundRect(-6.5, ty - 1, 15, 2, 1), 0.8);
+    shape(ctx, pv ? pv.fingers : '#c86aff', () => ctx.rect(-3.5, ty - 3.2, 9, 1.4), 0);
   }
   if (souls) {
     // fios de alma das mãos até almas pequenas flutuando

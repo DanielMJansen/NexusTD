@@ -99,6 +99,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Lobo Xamã', colors: ['#d8ffe0', '#7affa0', '#2e241a'], strength: 0, accent: '#7affa0', art: true },
     legendary: { name: 'Lobo Espiritual', colors: ['#e0fff8', '#8affe8', '#2a9a8a'], strength: 0, accent: '#7affe0', particles: 'wisp', art: true },
   },
+  haunt: {
+    rare: { name: 'Fantasma do Lampião', colors: ['#fff4c8', '#ffc040', '#c06a10'], strength: 0, accent: '#ffc040', art: true },
+    epic: { name: 'Cavaleiro Fantasma', colors: ['#ffffff', '#8ab8ff', '#3a4a7a'], strength: 0, accent: '#8ab8ff', art: true },
+    legendary: { name: 'Assombração Abissal', colors: ['#cfe4ff', '#5a8aff', '#1a1040'], strength: 0, accent: '#5a8aff', particles: 'star', art: true },
+  },
+  banshee: {
+    rare: { name: 'Banshee Carmesim', colors: ['#ffc0c8', '#ff6a8a', '#8a1a3e'], strength: 0, accent: '#ff6a8a', art: true },
+    epic: { name: 'Noiva Cadáver', colors: ['#ffffff', '#c8fff0', '#6a8a8a'], strength: 0, accent: '#8affd8', art: true },
+    legendary: { name: 'Rainha do Lamento', colors: ['#e8f0ff', '#bfe0ff', '#34346e'], strength: 0, accent: '#bfe0ff', particles: 'star', art: true },
+  },
+  possessor: {
+    rare: { name: 'Sombra Esmeralda', colors: ['#c8ffe0', '#8affc0', '#1e6e4e'], strength: 0, accent: '#8affc0', art: true },
+    epic: { name: 'Possessor Mascarado', colors: ['#fff4c0', '#ffd25a', '#3e2a52'], strength: 0, accent: '#ffd25a', art: true },
+    legendary: { name: 'Vazio Faminto', colors: ['#e8e0ff', '#a88aff', '#120a2a'], strength: 0, accent: '#a88aff', particles: 'star', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },

@@ -22,6 +22,7 @@ import {
   shape,
   skin,
   darken,
+  flame,
   star,
   starDots,
   TAU,
@@ -1679,26 +1680,6 @@ const LIGHTNING_LORD: DragonPalette = { ...THUNDER_DRAGON, iris: '#fff6a0', stor
 
 /** Furacão (suprema do Olho da Tormenta): olho no peito e vento girando. */
 const HURRICANE_DRAGON: DragonPalette = { ...TEMPEST_DRAGON, eye: true };
-
-/** Chama em forma de gota, tremulando (cauda e crista dos dragões de fogo). `angle` 0 = para cima. */
-function flame(ctx: Ctx, x: number, y: number, w: number, h: number, angle: number, time: number): void {
-  const flicker = 1 + Math.sin(time * 11) * 0.08;
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-  halo(ctx, 0, -h * 0.4, h * 0.7, '#ffb040', 0.6);
-  for (const [scale, top, bottom] of [[1, '#ffd040', '#ff4a1a'], [0.55, '#ffffff', '#ffe07a']] as const) {
-    const fw = w * scale;
-    const fh = h * scale * flicker;
-    shape(ctx, vertical(ctx, -fh, 0, top, bottom), () => {
-      ctx.moveTo(0, 0);
-      ctx.quadraticCurveTo(-fw * 1.3, -fh * 0.35, 0, -fh);
-      ctx.quadraticCurveTo(fw * 1.3, -fh * 0.35, 0, 0);
-      ctx.closePath();
-    }, scale === 1 ? 0.5 : 0);
-  }
-  ctx.restore();
-}
 
 function dragonWing(ctx: Ctx, c: DragonPalette, flap: number, front: boolean): void {
   const tipY = -22 + flap * 6;
