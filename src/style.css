@@ -250,6 +250,22 @@ body {
   flex: none;
 }
 
+/* brasão da raça no canto do retrato da carta */
+.card canvas.card-badge {
+  position: absolute;
+  left: 38px;
+  bottom: 2px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+body[data-mode='run'] #card-list .card canvas.card-badge {
+  left: 34px;
+  width: 15px;
+  height: 15px;
+}
+
 .card-info {
   flex: 1;
   min-width: 0;
@@ -1227,6 +1243,14 @@ button:disabled {
   color: var(--muted);
   font-style: italic;
   font-size: 14px;
+}
+
+/* brasão da raça ao lado do nome da raça */
+.inline-badge {
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  vertical-align: -3px;
 }
 
 .cc-desc {

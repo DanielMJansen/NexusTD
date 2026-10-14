@@ -9,6 +9,7 @@ import type { RunState } from '../game/state';
 import type { Interaction } from '../input/interaction';
 import { drawPortrait } from '../render/portrait';
 import { gold } from './currency';
+import { paintRaceBadge } from '../render/raceIcons';
 import { abilityText, ascendedFormsHtml, creatureStats, pulseText, raceBonusText, racePassiveHtml } from './describe';
 import type { HeroDef, HeroId } from '../data/heroes';
 
@@ -66,6 +67,7 @@ export class SidePanel {
         .join('');
       root.innerHTML = `
         <canvas></canvas>
+        <canvas class="card-badge" title="${def.race}"></canvas>
         <div class="card-info">
           <span class="card-name">${def.name}</span>
           <span class="card-race">${def.race}</span>
@@ -88,6 +90,7 @@ export class SidePanel {
         this.handlers.onCardPress(id);
       });
       this.list.appendChild(root);
+      paintRaceBadge(root.querySelector<HTMLCanvasElement>('.card-badge')!, def.race);
       this.cards.set(id, { root, portrait: root.querySelector('canvas')!, cost: root.querySelector('.card-cost')! });
     });
   }

@@ -55,13 +55,13 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
         .map(
           (form, i) => `<figure style="--branch-color:${form.color}">
             <canvas data-sprite="${def.id}" data-level="3" data-branch="${i}"${owned ? (profile.selectedVariants[def.id] ? ` data-variant="${profile.selectedVariants[def.id]}"` : '') : ' data-silhouette'}></canvas>
-            <figcaption>${form.icon} ${form.name}</figcaption>
+            <figcaption>${i === 0 ? 'A' : 'B'} · ${form.name}</figcaption>
           </figure>`,
         )
         .join('')}</div>
     </div>
     <div class="cc-body">
-      <div class="cc-head"><b>${def.name}</b><span>${def.race} · ${def.role}</span></div>
+      <div class="cc-head"><b>${def.name}</b><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${def.race} · ${def.role}</span></div>
       <p class="cc-desc">${def.description}</p>
       <p class="cc-lore">“${def.lore}”</p>
       <dl class="cc-stats">${stats}</dl>

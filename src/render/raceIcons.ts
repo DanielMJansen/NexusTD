@@ -204,25 +204,39 @@ function glyph(ctx: Ctx, race: string): void {
   }
 }
 
+/**
+ * Selo da raça centrado em (x, y) com raio `r`: disco na cor da raça e o símbolo em branco.
+ * `ring` troca a borda escura por um anel colorido (cor da vertente A/B na arena).
+ */
+export function drawRaceBadge(ctx: Ctx, race: string, x: number, y: number, r: number, ring?: string): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(r / 12, r / 12);
+  ctx.fillStyle = ring ?? '#170c24';
+  ctx.beginPath();
+  circle(ctx, 0, 0, 12);
+  ctx.fill();
+  if (ring) {
+    ctx.fillStyle = '#170c24';
+    ctx.beginPath();
+    circle(ctx, 0, 0, 10.4);
+    ctx.fill();
+  }
+  ctx.fillStyle = RACE_COLORS[race] ?? '#6a5a8a';
+  ctx.beginPath();
+  circle(ctx, 0, 0, ring ? 9.4 : 10.6);
+  ctx.fill();
+  ctx.scale(0.78, 0.78);
+  glyph(ctx, race);
+  ctx.restore();
+}
+
 /** Pinta o selo da raça no canvas (tamanho do próprio elemento, nítido em HiDPI). */
-export function paintRaceBadge(canvas: HTMLCanvasElement, race: string): void {
+export function paintRaceBadge(canvas: HTMLCanvasElement, race: string, ring?: string): void {
   const size = canvas.clientWidth || 16;
   const ratio = window.devicePixelRatio || 1;
   canvas.width = Math.round(size * ratio);
   canvas.height = Math.round(size * ratio);
   const ctx = canvas.getContext('2d')!;
-  const s = (canvas.width / 2) / 12;
-  ctx.setTransform(s, 0, 0, s, canvas.width / 2, canvas.height / 2);
-  ctx.fillStyle = '#170c24';
-  ctx.beginPath();
-  circle(ctx, 0, 0, 12);
-  ctx.fill();
-  ctx.fillStyle = RACE_COLORS[race] ?? '#6a5a8a';
-  ctx.beginPath();
-  circle(ctx, 0, 0, 10.6);
-  ctx.fill();
-  ctx.save();
-  ctx.scale(0.78, 0.78);
-  glyph(ctx, race);
-  ctx.restore();
+  drawRaceBadge(ctx, race, canvas.width / 2, canvas.height / 2, canvas.width / 2, ring);
 }
