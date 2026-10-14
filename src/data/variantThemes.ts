@@ -67,7 +67,7 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   batSwarm: {
     rare: { name: 'Morcegos Albinos', colors: ['#ffffff', '#e8d8e0', '#c0182c'], strength: 0, accent: '#ff3a50', art: true },
     epic: { name: 'Enxame Espectral', colors: ['#c8fff0', '#4ae0c0', '#1a6a6a'], strength: 0, accent: '#6affe0', particles: 'wisp', art: true },
-    legendary: { name: 'Enxame Infernal', colors: ['#ffe07a', '#ff7a1a', '#a01a0a'], strength: 0, accent: '#ff7a1a', particles: 'ember', art: true },
+    legendary: { name: 'Rei Morcego', colors: ['#fff2b0', '#ffd25a', '#4a2a40'], strength: 0, accent: '#ffd25a', art: true },
   },
   fireDragon: {
     rare: { name: 'Dragão Dourado', colors: ['#fff0a0', '#f0c040', '#a0701a'], strength: 0, accent: '#ffd25a', art: true },
@@ -87,7 +87,7 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   hunter: {
     rare: { name: 'Lobo do Ártico', colors: ['#ffffff', '#c8d8ec', '#4ab8ff'], strength: 0, accent: '#8ad0ff', art: true },
     epic: { name: 'Caçador de Runas', colors: ['#bff4ff', '#5ad8ff', '#2a2a36'], strength: 0, accent: '#5ad8ff', art: true },
-    legendary: { name: 'Lobo Celestial', colors: ['#ffffff', '#8a9aff', '#2e3e94'], strength: 0, accent: '#bfd0ff', particles: 'star', art: true },
+    legendary: { name: 'Lobo Ronin', colors: ['#ffffff', '#b8242e', '#2a2e4a'], strength: 0, accent: '#ff4a3a', art: true },
   },
   alpha: {
     rare: { name: 'Alfa de Prata', colors: ['#ffffff', '#dce0ec', '#2c2c34'], strength: 0, accent: '#dce0ec', art: true },
@@ -97,32 +97,32 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   howler: {
     rare: { name: 'Lobo do Deserto', colors: ['#ffe8b8', '#dcb47c', '#8a6030'], strength: 0, accent: '#ffd23a', art: true },
     epic: { name: 'Lobo Xamã', colors: ['#d8ffe0', '#7affa0', '#2e241a'], strength: 0, accent: '#7affa0', art: true },
-    legendary: { name: 'Lobo Espiritual', colors: ['#e0fff8', '#8affe8', '#2a9a8a'], strength: 0, accent: '#7affe0', particles: 'wisp', art: true },
+    legendary: { name: 'Orthros', colors: ['#ffe080', '#a8603a', '#4a2010'], strength: 0, accent: '#ffd040', art: true },
   },
   haunt: {
     rare: { name: 'Fantasma do Lampião', colors: ['#fff4c8', '#ffc040', '#c06a10'], strength: 0, accent: '#ffc040', art: true },
     epic: { name: 'Cavaleiro Fantasma', colors: ['#ffffff', '#8ab8ff', '#3a4a7a'], strength: 0, accent: '#8ab8ff', art: true },
-    legendary: { name: 'Assombração Abissal', colors: ['#cfe4ff', '#5a8aff', '#1a1040'], strength: 0, accent: '#5a8aff', particles: 'star', art: true },
+    legendary: { name: 'Casa Assombrada', colors: ['#ffe8a0', '#ffd25a', '#3a2e4e'], strength: 0, accent: '#ffd25a', art: true },
   },
   banshee: {
     rare: { name: 'Banshee Carmesim', colors: ['#ffc0c8', '#ff6a8a', '#8a1a3e'], strength: 0, accent: '#ff6a8a', art: true },
     epic: { name: 'Noiva Cadáver', colors: ['#ffffff', '#c8fff0', '#6a8a8a'], strength: 0, accent: '#8affd8', art: true },
-    legendary: { name: 'Rainha do Lamento', colors: ['#e8f0ff', '#bfe0ff', '#34346e'], strength: 0, accent: '#bfe0ff', particles: 'star', art: true },
+    legendary: { name: 'Organista Fantasma', colors: ['#ffe8b0', '#f0dca0', '#4a2a5a'], strength: 0, accent: '#ffd8a0', art: true },
   },
   possessor: {
     rare: { name: 'Sombra Esmeralda', colors: ['#c8ffe0', '#8affc0', '#1e6e4e'], strength: 0, accent: '#8affc0', art: true },
     epic: { name: 'Possessor Mascarado', colors: ['#fff4c0', '#ffd25a', '#3e2a52'], strength: 0, accent: '#ffd25a', art: true },
-    legendary: { name: 'Vazio Faminto', colors: ['#e8e0ff', '#a88aff', '#120a2a'], strength: 0, accent: '#a88aff', particles: 'star', art: true },
+    legendary: { name: 'Boneca Possuída', colors: ['#fff8f4', '#8af0ff', '#6a1a3a'], strength: 0, accent: '#8af0ff', art: true },
   },
   sorceress: {
     rare: { name: 'Bruxa da Abóbora', colors: ['#ffd090', '#ff8a2a', '#7a2a08'], strength: 0, accent: '#ff9a2a', art: true },
     epic: { name: 'Bruxa do Mar', colors: ['#e0fffa', '#6af0e0', '#1e8a96'], strength: 0, accent: '#6af0e0', art: true },
-    legendary: { name: 'Bruxa Lunar', colors: ['#ffffff', '#bfd0ff', '#2e2e72'], strength: 0, accent: '#bfd0ff', particles: 'star', art: true },
+    legendary: { name: 'Bruxa na Vassoura', colors: ['#f0c860', '#c8a0ff', '#3a2a5a'], strength: 0, accent: '#c8a0ff', art: true },
   },
   cauldron: {
     rare: { name: 'Caldeirão de Cobre', colors: ['#ffe4f2', '#ff8ac0', '#a85a2a'], strength: 0, accent: '#ff8ac0', art: true },
     epic: { name: 'Caldeirão de Abóbora', colors: ['#fff0a0', '#ffb040', '#a0400a'], strength: 0, accent: '#ffb040', art: true },
-    legendary: { name: 'Caldeirão Cósmico', colors: ['#ffffff', '#c8a8ff', '#3a1a8a'], strength: 0, accent: '#c8a8ff', particles: 'star', art: true },
+    legendary: { name: 'Caldeirão Mímico', colors: ['#ffe060', '#ff8aa8', '#3a2e3a'], strength: 0, accent: '#ff8aa8', art: true },
   },
   herbalist: {
     rare: { name: 'Druida do Outono', colors: ['#ffd090', '#ff9a2a', '#d83a1a'], strength: 0, accent: '#ff9a2a', art: true },

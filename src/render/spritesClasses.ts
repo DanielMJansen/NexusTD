@@ -14,8 +14,6 @@ import {
   poly,
   radial,
   shape,
-  star,
-  starDots,
   TAU,
   vertical,
   type Ctx,
@@ -401,9 +399,38 @@ const SWARM_VARIANTS = {
   rare: { body: '#f4eef2', wing: '#d8c8d4', eyes: '#ff2a40', leader: '#ffffff' },
   // Enxame Espectral: morcegos fantasmas verde-água, translúcidos, com rastro de névoa
   epic: { body: '#6affe0', wing: '#3ac8b0', eyes: '#ffffff', leader: '#9afff0' },
-  // Enxame Infernal: corpos em brasa com asas de fogo
-  legendary: { body: '#3a0e06', wing: '#ff7a1a', eyes: '#ffe07a', leader: '#5a1a08' },
+  // Rei Morcego: o enxame vira um único morcego gigante de coroa, com dois de escolta
+  legendary: { body: '#4a2a40', wing: '#6a2a50', eyes: '#ffd25a', leader: '#4a2a40' },
 } as const;
+
+/** Rei Morcego: um morcego grande de orelhas altas, presas e coroa. */
+function kingBat(ctx: Ctx, k: number, t: number, body: string, wing: string, eyes: string, mouth: number): void {
+  const flap = Math.sin(t * 5) * 1.6;
+  ctx.save();
+  ctx.scale(k, k);
+  for (const side of [-1, 1]) {
+    shape(ctx, vertical(ctx, -10, 6, wing, darken(wing, 0.45)), () =>
+      poly(ctx, [side * 3, -3, side * 7, -8 - flap, side * 12, -9 - flap * 1.4, side * 17, -5 - flap, side * 14, -1, side * 15, 4, side * 11, 2, side * 8, 5, side * 5, 2]),
+    1);
+    line(ctx, darken(wing, 0.55), 0.7, () => {
+      ctx.moveTo(side * 4, -3);
+      ctx.lineTo(side * 14, -1);
+      ctx.moveTo(side * 6, -6 - flap * 0.6);
+      ctx.lineTo(side * 11, 2);
+    }, false);
+  }
+  for (const side of [-1, 1]) shape(ctx, body, () => poly(ctx, [side * 1.5, -5, side * 4.6, -11, side * 4.4, -4]), 0.9);
+  shape(ctx, radial(ctx, -1, -2, 7, darken(body, -0.4), body), () => ellipse(ctx, 0, 0, 5, 6));
+  shape(ctx, darken(body, -0.6), () => ellipse(ctx, 0, 2, 3, 3.4), 0);
+  glowingEye(ctx, -1.8, -2, 1.1, eyes);
+  glowingEye(ctx, 1.8, -2, 1.1, eyes);
+  if (mouth > 0) shape(ctx, '#1a0410', () => ellipse(ctx, 0, 1.4, 1.8, mouth), 0);
+  for (const x of [-0.9, 0.9]) shape(ctx, '#ffffff', () => poly(ctx, [x - 0.5, 0.6, x + 0.5, 0.6, x, 2.2]), 0.3);
+  // coroa
+  shape(ctx, vertical(ctx, -10, -5, '#fff2b0', '#c8901a'), () => poly(ctx, [-3, -5, -3.4, -9, -1.5, -7, 0, -10, 1.5, -7, 3.4, -9, 3, -5]), 0.7);
+  shape(ctx, '#e0243a', () => circle(ctx, 0, -6.4, 0.8), 0);
+  ctx.restore();
+}
 
 /** Enxame: vários morcegos girando. A: Nuvem Sangrenta (névoa vermelha, gotas de sangue); B: Revoada Faminta (mais morcegos, roxos). */
 export function drawBatSwarm(ctx: Ctx, p: Pose): void {
@@ -483,16 +510,13 @@ export function drawBatSwarm(ctx: Ctx, p: Pose): void {
     }
   }
   if (p.variant === 'legendary') {
-    // faíscas subindo da nuvem em brasa
-    for (let i = 0; i < 5; i++) {
-      const t = (p.time * 0.7 + i * 0.2) % 1;
-      ctx.fillStyle = i % 2 ? '#ffe07a' : '#ff7a1a';
-      ctx.globalAlpha = 1 - t;
-      ctx.beginPath();
-      circle(ctx, Math.sin(i * 2.3 + p.time) * 12, 6 - t * 26, 0.9);
-      ctx.fill();
+    // Rei Morcego: dois de escolta girando e o rei no centro
+    for (let i = 0; i < 2; i++) {
+      const a = p.time * speed + i * Math.PI;
+      tinyBat(ctx, Math.cos(a) * (spread + 6), Math.sin(a) * (spread + 6) * 0.5 - 4, eternal ? 1.4 : 1, p.time + i, body, eyes, wing);
     }
-    ctx.globalAlpha = 1;
+    kingBat(ctx, eternal ? 1.15 : 1, p.time, sw!.body, sw!.wing, eyes, hunger ? 1.2 + p.attack : 0);
+    return;
   }
   ctx.save();
   if (p.variant === 'epic') ctx.globalAlpha *= 0.75;
@@ -507,7 +531,6 @@ export function drawBatSwarm(ctx: Ctx, p: Pose): void {
     for (const x of [-1.1, 1.1]) shape(ctx, '#ffffff', () => poly(ctx, [x - 0.5, 0.6, x + 0.5, 0.6, x, 2.2]), 0);
   }
   ctx.restore();
-  if (p.variant === 'legendary') halo(ctx, 0, -1, 14, '#ff7a1a', 0.35);
 }
 
 /** Possessor: sombra roxa com mãos longas. A: Marionetista (fios nas mãos); B: Devorador (boca enorme, vermelho). */
@@ -517,9 +540,57 @@ const POSSESSOR_VARIANTS = {
   rare: { color: '#1e6e4e', edge: '#4affa000', fingers: '#a8ffd0', eyes: '#8affc0' },
   // Possessor Mascarado: máscara de teatro (comédia no rosto, tragédia pendurada)
   epic: { color: '#3e2a52', edge: '#8a6aff00', fingers: '#e8d8ff', eyes: '#ffd25a' },
-  // Vazio Faminto: corpo de galáxia, mãos de tentáculo estelar
-  legendary: { color: '#120a2a', edge: '#5a3aff00', fingers: '#bfd0ff', eyes: '#ffffff' },
+  // Boneca Possuída: boneca de porcelana rachada, vestido de babados, cachos e laço
+  legendary: { color: '#6a1a3a', edge: '#6a1a3a00', fingers: '#f4e8e0', eyes: '#8af0ff' },
 } as const;
+
+/** Corpo da Boneca Possuída (vestido, cabeça de porcelana, cachos e laço); os olhos vêm depois. */
+function possessedDoll(ctx: Ctx, t: number, dress: string, devour: boolean): void {
+  const hy = devour ? -16 : -15;
+  // cachos atrás da cabeça
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 3; i++) shape(ctx, i % 2 ? '#5a3418' : '#7a4a24', () => circle(ctx, 1 + side * 7, hy + 1 + i * 3.4 + Math.sin(t * 2 + i) * 0.4, 2.2), 0.6);
+  }
+  // vestido de sino com babado de renda
+  shape(ctx, vertical(ctx, -9, 12, darken(dress, -0.3), darken(dress, 0.35)), () => {
+    ctx.moveTo(-4, -9);
+    ctx.lineTo(6, -9);
+    ctx.quadraticCurveTo(9, 2, 11, 11);
+    ctx.lineTo(-9, 11);
+    ctx.quadraticCurveTo(-7, 2, -4, -9);
+    ctx.closePath();
+  });
+  for (let x = -9; x <= 11; x += 2.5) shape(ctx, '#fff4f0', () => ctx.arc(x + 1.25, 11, 1.4, 0, Math.PI), 0.4);
+  // pernas de porcelana balançando
+  for (const x of [-3, 4]) {
+    line(ctx, '#f4e8e0', 1.6, () => {
+      ctx.moveTo(x, 11);
+      ctx.lineTo(x + Math.sin(t * 2 + x) * 0.8, 15);
+    });
+    shape(ctx, '#2a1a24', () => ellipse(ctx, x + Math.sin(t * 2 + x) * 0.8, 15.4, 1.6, 0.9), 0.4);
+  }
+  shape(ctx, '#fff4f0', () => poly(ctx, [-3, -9, 5, -9, 1, -5]), 0.6);
+  // cabeça de porcelana com rachadura
+  shape(ctx, radial(ctx, 0, hy - 2, 8, '#fffaf6', '#e0d0c8'), () => circle(ctx, 1, hy, 7));
+  line(ctx, '#5a4a50', 0.6, () => {
+    ctx.moveTo(4, hy - 6.8);
+    ctx.lineTo(3, hy - 4);
+    ctx.lineTo(4.4, hy - 2.6);
+    ctx.lineTo(3.4, hy - 0.4);
+  }, false);
+  for (const x of [-2.4, 5.2]) shape(ctx, '#ffb0c0aa', () => ellipse(ctx, x, hy + 3, 1.4, 0.8), 0);
+  // franja e laço
+  shape(ctx, '#7a4a24', () => {
+    ctx.moveTo(-6, hy - 1);
+    ctx.quadraticCurveTo(-5, hy - 8, 1, hy - 7.6);
+    ctx.quadraticCurveTo(7, hy - 8, 8, hy - 1);
+    ctx.quadraticCurveTo(5, hy - 5, 1, hy - 4.4);
+    ctx.quadraticCurveTo(-3, hy - 5, -6, hy - 1);
+    ctx.closePath();
+  }, 0.7);
+  for (const side of [-1, 1]) shape(ctx, '#e0304a', () => poly(ctx, [1, hy - 7.5, 1 + side * 5, hy - 10.5, 1 + side * 4.4, hy - 5.6]), 0.6);
+  shape(ctx, '#ff5a6a', () => circle(ctx, 1, hy - 7.6, 1.2), 0.5);
+}
 
 export function drawPossessor(ctx: Ctx, p: Pose): void {
   const devour = formB(p);
@@ -532,52 +603,44 @@ export function drawPossessor(ctx: Ctx, p: Pose): void {
   const color = pv ? (devour ? darken(pv.color, 0.3) : pv.color) : devour ? '#5a1430' : '#4a2a80';
   const edge = pv ? pv.edge : devour ? '#ff3a5a00' : '#9a6aff00';
   ctx.translate(0, Math.sin(p.time * 2.2) * 2 - 6);
-  if (p.variant === 'legendary') halo(ctx, 0, -6, 20, '#4a2aff', 0.45);
-  const g = ctx.createLinearGradient(0, -22, 0, 16);
-  g.addColorStop(0, color);
-  g.addColorStop(1, edge);
-  shape(ctx, g, () => {
-    ctx.moveTo(-8, -10);
-    ctx.quadraticCurveTo(-10, -24, 0, -24);
-    ctx.quadraticCurveTo(10, -24, 8, -10);
-    ctx.quadraticCurveTo(10, 4, 6, 15 + Math.sin(p.time * 5) * 2);
-    ctx.lineTo(0, 10);
-    ctx.lineTo(-6, 15 + Math.sin(p.time * 5 + 2) * 2);
-    ctx.quadraticCurveTo(-10, 4, -8, -10);
-    ctx.closePath();
-  });
-  if (p.variant === 'legendary') {
-    // galáxia girando dentro do corpo
-    ctx.save();
-    ctx.translate(0, -4);
-    ctx.rotate(p.time * 0.8);
-    ctx.globalAlpha *= 0.7;
-    for (const [color2, r0] of [['#c86aff', 0], ['#6a8aff', Math.PI]] as const) {
-      line(ctx, color2, 1.2, () => {
-        for (let k = 0; k <= 12; k++) {
-          const a = r0 + k * 0.35;
-          const r = 1 + k * 0.6;
-          if (k === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
-          else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-        }
-      }, false);
-    }
-    ctx.restore();
-    starDots(ctx, p.time, [[-4, -16], [5, -12], [-3, 4], [4, 8], [0, -2]]);
-  }
-  // mãos longas estendidas (ondulando como tentáculos no Vazio Faminto)
-  const reach = p.attack * 4;
-  const tentacle = p.variant === 'legendary';
-  for (const side of [-1, 1]) {
-    const wave = tentacle ? Math.sin(p.time * 4 + side) * 3 : 0;
-    line(ctx, color, tentacle ? 2.6 : 2, () => {
-      ctx.moveTo(side * 6, -8);
-      ctx.quadraticCurveTo(side * 12, -10 + wave, side * (15 + reach), -4 - wave * 0.5);
+  const doll = p.variant === 'legendary';
+  if (doll) {
+    // flutua torta, como se puxada por fios invisíveis
+    ctx.rotate(Math.sin(p.time * 1.3) * 0.08);
+    possessedDoll(ctx, p.time, color, devour);
+  } else {
+    const g = ctx.createLinearGradient(0, -22, 0, 16);
+    g.addColorStop(0, color);
+    g.addColorStop(1, edge);
+    shape(ctx, g, () => {
+      ctx.moveTo(-8, -10);
+      ctx.quadraticCurveTo(-10, -24, 0, -24);
+      ctx.quadraticCurveTo(10, -24, 8, -10);
+      ctx.quadraticCurveTo(10, 4, 6, 15 + Math.sin(p.time * 5) * 2);
+      ctx.lineTo(0, 10);
+      ctx.lineTo(-6, 15 + Math.sin(p.time * 5 + 2) * 2);
+      ctx.quadraticCurveTo(-10, 4, -8, -10);
+      ctx.closePath();
     });
-    if (tentacle) {
-      halo(ctx, side * (16 + reach), -4 - wave * 0.5, 4, '#bfd0ff', 0.8);
-      shape(ctx, '#ffffff', () => star(ctx, side * (16 + reach), -4 - wave * 0.5, 2), 0);
-    } else {
+  }
+  // mãos longas estendidas (braços de porcelana com juntas na Boneca)
+  const reach = p.attack * 4;
+  for (const side of [-1, 1]) {
+    if (doll) {
+      line(ctx, '#f4e8e0', 1.8, () => {
+        ctx.moveTo(side * 5, -7);
+        ctx.lineTo(side * 10, -6);
+        ctx.lineTo(side * (14 + reach), -4);
+      });
+      shape(ctx, '#e8d8d0', () => circle(ctx, side * 10, -6, 1.2), 0.5);
+      shape(ctx, '#fff8f4', () => circle(ctx, side * (15 + reach), -4, 1.6), 0.6);
+      continue;
+    }
+    line(ctx, color, 2, () => {
+      ctx.moveTo(side * 6, -8);
+      ctx.quadraticCurveTo(side * 12, -10, side * (15 + reach), -4);
+    });
+    {
       for (let f = 0; f < 3; f++) {
         line(ctx, pv ? pv.fingers : devour ? '#ff8aa0' : '#d8b8ff', 0.8, () => {
           ctx.moveTo(side * (15 + reach), -4);
