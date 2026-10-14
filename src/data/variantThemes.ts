@@ -129,6 +129,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Bruxa dos Cogumelos', colors: ['#e0fff4', '#7affd0', '#a8180e'], strength: 0, accent: '#7affd0', art: true },
     legendary: { name: 'Espírito da Floresta', colors: ['#ffe0f0', '#ffb0d8', '#4ec06e'], strength: 0, accent: '#ffb0d8', art: true },
   },
+  enchantress: {
+    rare: { name: 'Fada da Lavanda', colors: ['#f4e8ff', '#d8b8ff', '#6a3aa8'], strength: 0, accent: '#d8b8ff', art: true },
+    epic: { name: 'Fada Borboleta', colors: ['#ffe0a0', '#ff9a2a', '#a04a0a'], strength: 0, accent: '#ff9a2a', art: true },
+    legendary: { name: 'Fada de Cristal', colors: ['#ffffff', '#bfe8ff', '#ffc8f0'], strength: 0, accent: '#bfe8ff', particles: 'star', art: true },
+  },
+  trickster: {
+    rare: { name: 'Fada do Bosque Noturno', colors: ['#e0e4ff', '#a8b8ff', '#5a6ad8'], strength: 0, accent: '#a8b8ff', art: true },
+    epic: { name: 'Fada Arlequim', colors: ['#fff0a0', '#ffd25a', '#e0303e'], strength: 0, accent: '#ffd25a', art: true },
+    legendary: { name: 'Fada Sombra', colors: ['#f0e0ff', '#d8a8ff', '#3a2e4a'], strength: 0, accent: '#d8a8ff', art: true },
+  },
+  lumina: {
+    rare: { name: 'Fada do Luar', colors: ['#ffffff', '#cfe0ff', '#7a8ab8'], strength: 0, accent: '#cfe0ff', art: true },
+    epic: { name: 'Fada Vaga-lume', colors: ['#f4ffb0', '#d8ff6a', '#3e6e2e'], strength: 0, accent: '#d8ff6a', art: true },
+    legendary: { name: 'Fada Solar', colors: ['#fff4c0', '#ffd040', '#e07a10'], strength: 0, accent: '#ffd040', particles: 'ember', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },
