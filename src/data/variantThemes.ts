@@ -47,7 +47,7 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   archer: {
     rare: { name: 'Patrulheiro do Outono', colors: ['#ffb04a', '#c0601a'], strength: 0, accent: '#ff9a3a', art: true },
     epic: { name: 'Caçador de Bestas', colors: ['#ffc860', '#c07a20', '#6a3a10'], strength: 0, accent: '#ffb030', art: true },
-    legendary: { name: 'Arqueiro Estelar', colors: ['#e8f4ff', '#8ab8ff', '#3a4ac8'], strength: 0, accent: '#bfe0ff', particles: 'star', art: true },
+    legendary: { name: 'Arqueiro Centauro', colors: ['#ffe8a0', '#b8743a', '#2f7a6a'], strength: 0, accent: '#ffe8a0', art: true },
   },
   guard: {
     rare: { name: 'Guarda Real', colors: ['#7aa8ff', '#2a4ab0'], strength: 0, accent: '#ffd25a', art: true },
@@ -57,12 +57,12 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   duelist: {
     rare: { name: 'Duelista do Luar', colors: ['#e8f4ff', '#8ab8ff', '#2a3a8a'], strength: 0, accent: '#9ad0ff', art: true },
     epic: { name: 'Mascarado do Baile', colors: ['#ffe48a', '#e0a020', '#8a1040'], strength: 0, accent: '#f0c040', particles: 'star', art: true },
-    legendary: { name: 'Senhor do Eclipse', colors: ['#ff6a7a', '#ff2a40', '#3a0010'], strength: 0, accent: '#ff2a40', art: true },
+    legendary: { name: 'Nosferatu', colors: ['#fff0a0', '#ffe060', '#34322a'], strength: 0, accent: '#ffe060', particles: 'shadow', art: true },
   },
   sanguine: {
     rare: { name: 'Cultista de Ônix', colors: ['#ffd25a', '#8a1020', '#1a0a10'], strength: 0, accent: '#e0b030', art: true },
     epic: { name: 'Sacerdote da Lua de Sangue', colors: ['#ff8a8a', '#e0182c', '#5a0010'], strength: 0, accent: '#ff3a4a', particles: 'ember', art: true },
-    legendary: { name: 'Avatar Escarlate', colors: ['#ffb0b8', '#ff2a40', '#6a0010'], strength: 0, accent: '#ff4a5a', art: true },
+    legendary: { name: 'Senhora das Rosas', colors: ['#ff8a9a', '#d8183a', '#3a7a3a'], strength: 0, accent: '#ff4a62', art: true },
   },
   batSwarm: {
     rare: { name: 'Morcegos Albinos', colors: ['#ffffff', '#e8d8e0', '#c0182c'], strength: 0, accent: '#ff3a50', art: true },
@@ -77,12 +77,12 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   iceDragon: {
     rare: { name: 'Dragão de Quartzo Rosa', colors: ['#ffe0f0', '#f0a0c8', '#b0507a'], strength: 0, accent: '#ff9ad0', art: true },
     epic: { name: 'Dragão das Neves Eternas', colors: ['#ffffff', '#cfe4f8', '#8aa0c0'], strength: 0, accent: '#e8f4ff', particles: 'frost', art: true },
-    legendary: { name: 'Dragão Boreal', colors: ['#2affc8', '#4a7aff', '#ff4ad8'], strength: 0, accent: '#9af0ff', particles: 'star', art: true },
+    legendary: { name: 'Leviatã', colors: ['#c8fff4', '#2a9aa8', '#ff8a7a'], strength: 0, accent: '#7ae8d8', art: true },
   },
   storm: {
     rare: { name: 'Dragão do Crepúsculo', colors: ['#ffd0a0', '#e88a4a', '#7a3a8a'], strength: 0, accent: '#ffb070', art: true },
     epic: { name: 'Dragão de Bronze', colors: ['#bff8ff', '#7af0ff', '#6a4a1a'], strength: 0, accent: '#7af0ff', art: true },
-    legendary: { name: 'Serpente Celeste', colors: ['#fff8e0', '#ffe8a0', '#c89020'], strength: 0, accent: '#ffe07a', particles: 'star', art: true },
+    legendary: { name: 'Lóng', colors: ['#fff4c8', '#e8b830', '#c83a2a'], strength: 0, accent: '#ffe07a', art: true },
   },
   hunter: {
     rare: { name: 'Lobo do Ártico', colors: ['#ffffff', '#c8d8ec', '#4ab8ff'], strength: 0, accent: '#8ad0ff', art: true },
