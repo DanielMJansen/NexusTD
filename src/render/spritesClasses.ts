@@ -688,11 +688,39 @@ export function drawPossessor(ctx: Ctx, p: Pose): void {
   }
 }
 
+/** Florzinha de cinco pétalas com miolo dourado. */
+function flower(ctx: Ctx, x: number, y: number, s: number, color: string): void {
+  for (let k = 0; k < 5; k++) {
+    const a = (k / 5) * TAU;
+    shape(ctx, color, () => circle(ctx, x + Math.cos(a) * 1.5 * s, y + Math.sin(a) * 1.5 * s, 1.1 * s), 0.3);
+  }
+  shape(ctx, GOLD, () => circle(ctx, x, y, 0.8 * s), 0);
+}
+
 /** Herbalista: bruxa de vestido de folhas e cajado de galho. A: Jardim Venenoso (flores roxas); B: Guardiã do Bosque (galhos-chifres e casca). */
+/** Cores da Herbalista em cada variante: vestido, folhas, cabelo, olhos e broto do cajado. */
+const HERBALIST_VARIANTS = {
+  // Druida do Outono: folhas laranja e vermelhas
+  rare: { dress: ['#c8601e', '#5a1a08'], leaves: ['#ff9a2a', '#d83a1a'], hair: '#a8441a', eyes: '#c06a10', bud: '#ff9a2a' },
+  // Bruxa dos Cogumelos: chapéu de cogumelo vermelho de bolinhas e esporos brilhando
+  epic: { dress: ['#8a5a8a', '#3a1a3a'], leaves: ['#e8d0a8', '#c8a878'], hair: '#5a3a2a', eyes: '#7affd0', bud: '#7affd0' },
+  // Espírito da Floresta: vestido de musgo com flores, galhada florida, vagalumes
+  legendary: { dress: ['#4ec06e', '#1a4a2a'], leaves: ['#ffb0d8', '#ffffff'], hair: '#7ae890', eyes: '#ffffff', bud: '#ffb0d8' },
+} as const;
+
 export function drawHerbalist(ctx: Ctx, p: Pose): void {
   const sway = Math.sin(p.time * 2.3) * 1.1;
   const poison = formA(p);
   const grove = formB(p);
+  const hv = p.variant ? HERBALIST_VARIANTS[p.variant] : null;
+  const shadeB = (c: string) => (hv && grove ? darken(c, 0.3) : c);
+  if (p.variant === 'legendary') {
+    // vagalumes em volta
+    for (let i = 0; i < 4; i++) {
+      const a = p.time * 1.1 + (i * TAU) / 4;
+      halo(ctx, Math.cos(a) * 15, -6 + Math.sin(a * 1.3) * 9, 3, '#e8ff7a', 0.6 + Math.sin(p.time * 5 + i) * 0.3);
+    }
+  }
   // Formas Supremas: Floresta Viva (A, coroa de flores carnívoras) e Coração da Mata (B, ent de galhos atrás)
   const living = p.supreme && poison;
   const heart = p.supreme && grove;
@@ -714,16 +742,28 @@ export function drawHerbalist(ctx: Ctx, p: Pose): void {
     glowingEye(ctx, -2, -12, 0.9, '#c8ff6a');
     glowingEye(ctx, 2, -12, 0.9, '#c8ff6a');
   }
-  const dress = grove ? '#6a4a2a' : '#3a8a4a';
-  const dressDark = grove ? '#2a1a0c' : '#1a4a24';
+  const dress = hv ? shadeB(hv.dress[0]) : grove ? '#6a4a2a' : '#3a8a4a';
+  const dressDark = hv ? hv.dress[1] : grove ? '#2a1a0c' : '#1a4a24';
   shape(ctx, vertical(ctx, -9, 14, dress, dressDark), () =>
     poly(ctx, [-5, -9, 5, -9, 10, 14, 5, 11, 1, 14, -3, 11, -10, 14]),
   );
-  // folhas na barra do vestido
+  // folhas na barra do vestido (flores no Espírito da Floresta)
   for (let i = 0; i < 4; i++) {
-    shape(ctx, grove ? '#8a6a3a' : '#5ad85a', () => ellipse(ctx, -7 + i * 4.5, 12, 2, 1.1, 0.5), 0.5);
+    shape(ctx, hv ? hv.leaves[i % 2] : grove ? '#8a6a3a' : '#5ad85a', () => ellipse(ctx, -7 + i * 4.5, 12, 2, 1.1, 0.5), 0.5);
   }
-  // cajado de galho com broto
+  if (p.variant === 'legendary') for (const [x, y] of [[-3, 2], [3, 6], [-5, 8]] as const) flower(ctx, x, y, 1, '#ffb0d8');
+  if (poison && !p.supreme) {
+    // cogumelos venenosos aos pés
+    for (const [x, s] of [[-12, 1], [-8.5, 0.75], [12, 0.85]] as const) {
+      shape(ctx, '#e8dcc8', () => ctx.roundRect(x - 0.9 * s, 14 - 4 * s, 1.8 * s, 4 * s, 0.6), 0.5);
+      shape(ctx, vertical(ctx, 14 - 7 * s, 14 - 3.5 * s, '#d08aff', '#7a2ab0'), () => {
+        ctx.ellipse(x, 14 - 4 * s, 3.2 * s, 2.6 * s, 0, Math.PI, TAU);
+        ctx.closePath();
+      }, 0.6);
+      shape(ctx, '#f4e0ff', () => circle(ctx, x - s, 14 - 5.5 * s, 0.6 * s), 0);
+    }
+  }
+  // cajado de galho com broto (flor carnívora no Jardim Venenoso)
   ctx.save();
   ctx.translate(7, 0);
   ctx.rotate(0.25 + p.attack * 0.6);
@@ -731,27 +771,80 @@ export function drawHerbalist(ctx: Ctx, p: Pose): void {
     ctx.moveTo(0, 12);
     ctx.quadraticCurveTo(2, -4, -1, -15);
   });
-  shape(ctx, poison ? '#b86aff' : '#7ad85a', () => ellipse(ctx, -1, -17, 2.4, 3.4, 0.3), 0.6);
-  shape(ctx, poison ? '#e8b8ff' : '#c8ff9a', () => ellipse(ctx, 1.5, -15, 1.8, 2.6, -0.6), 0.6);
+  if (poison && !p.supreme) {
+    // flor carnívora no topo, abrindo e fechando
+    const open = 0.4 + Math.sin(p.time * 4) * 0.25 + p.attack * 0.4;
+    shape(ctx, '#5ad85a', () => ellipse(ctx, 1.5, -15, 2.6, 1.2, -0.5), 0.5);
+    ctx.save();
+    ctx.translate(-1, -19);
+    ctx.scale(1.5, 1.5);
+    for (const dir of [-1, 1]) {
+      ctx.save();
+      ctx.rotate(dir * open);
+      shape(ctx, vertical(ctx, -5, 0, '#d84a7a', '#7a1a3a'), () => {
+        ctx.moveTo(-4.5, 0);
+        ctx.quadraticCurveTo(-4, dir * -4, 0, dir * -4.5);
+        ctx.quadraticCurveTo(4, dir * -4, 4.5, 0);
+        ctx.closePath();
+      }, 0.7);
+      for (const tx of [-2.6, 0, 2.6]) shape(ctx, '#ffffff', () => poly(ctx, [tx - 0.6, 0, tx + 0.6, 0, tx, dir * 1.4]), 0);
+      ctx.restore();
+    }
+    ctx.restore();
+  } else {
+    shape(ctx, hv ? hv.bud : poison ? '#b86aff' : '#7ad85a', () => ellipse(ctx, -1, -17, 2.4, 3.4, 0.3), 0.6);
+    shape(ctx, hv ? hv.leaves[1] : poison ? '#e8b8ff' : '#c8ff9a', () => ellipse(ctx, 1.5, -15, 1.8, 2.6, -0.6), 0.6);
+  }
   ctx.restore();
   // rosto, cabelo verde
   const hy = -15;
-  shape(ctx, grove ? '#3a5a2a' : '#4a9a4a', () => {
+  shape(ctx, hv ? hv.hair : grove ? '#3a5a2a' : '#4a9a4a', () => {
     ctx.moveTo(-7, hy - 2);
     ctx.quadraticCurveTo(-12, hy + 8 + sway, -8, hy + 12);
     ctx.lineTo(-4, hy + 3);
     ctx.closePath();
   });
   shape(ctx, radial(ctx, 1, hy, 7, '#ffe6cf', '#e0b090'), () => circle(ctx, 1, hy, 6.8));
-  shape(ctx, grove ? '#3a5a2a' : '#4a9a4a', () => {
+  shape(ctx, hv ? hv.hair : grove ? '#3a5a2a' : '#4a9a4a', () => {
     ctx.moveTo(-7, hy);
     ctx.quadraticCurveTo(-3, hy - 9, 7, hy - 3);
     ctx.lineTo(7, hy - 5.5);
     ctx.quadraticCurveTo(0, hy - 10, -7.5, hy - 3);
     ctx.closePath();
   }, 0.8);
-  eye(ctx, 1.2, hy + 0.5, 1.7, grove ? '#8a6a2a' : '#3aa83a');
-  eye(ctx, 4.8, hy + 0.5, 1.7, grove ? '#8a6a2a' : '#3aa83a');
+  eye(ctx, 1.2, hy + 0.5, 1.7, hv ? hv.eyes : grove ? '#8a6a2a' : '#3aa83a');
+  eye(ctx, 4.8, hy + 0.5, 1.7, hv ? hv.eyes : grove ? '#8a6a2a' : '#3aa83a');
+  if (p.variant === 'epic') {
+    // chapéu de cogumelo vermelho de bolinhas e esporos subindo
+    shape(ctx, vertical(ctx, hy - 14, hy - 4, '#ff5a4a', '#a8180e'), () => {
+      ctx.moveTo(-10, hy - 3);
+      ctx.quadraticCurveTo(-10, hy - 15, 1, hy - 15);
+      ctx.quadraticCurveTo(12, hy - 15, 12, hy - 3);
+      ctx.quadraticCurveTo(1, hy - 6, -10, hy - 3);
+      ctx.closePath();
+    }, 1);
+    for (const [x, y, r] of [[-5, -9, 1.6], [1, -12, 1.8], [7, -8, 1.4], [3, -6.5, 1]] as const) shape(ctx, '#ffffff', () => circle(ctx, x, hy + y, r), 0);
+    for (let i = 0; i < 3; i++) {
+      const ph = (p.time * 0.6 + i / 3) % 1;
+      halo(ctx, -6 + i * 6, hy - 6 - ph * 16, 2.2, '#7affd0', 0.9 * (1 - ph));
+    }
+  }
+  if (p.variant === 'legendary' && !grove) {
+    // galhada florida (na Guardiã do Bosque, as flores vão nos galhos dela)
+    for (const side of [-1, 1]) {
+      shape(ctx, vertical(ctx, hy - 16, hy - 5, '#8a6a3a', '#4a3018'), () => {
+        ctx.moveTo(1 + side * 2, hy - 6);
+        ctx.quadraticCurveTo(1 + side * 5, hy - 11, 1 + side * 4, hy - 16);
+        ctx.lineTo(1 + side * 5.6, hy - 15.6);
+        ctx.quadraticCurveTo(1 + side * 6.4, hy - 12, 1 + side * 8.6, hy - 12.6);
+        ctx.lineTo(1 + side * 8.6, hy - 11);
+        ctx.quadraticCurveTo(1 + side * 6, hy - 9.6, 1 + side * 3.6, hy - 5.6);
+        ctx.closePath();
+      }, 0.8);
+      flower(ctx, 1 + side * 4, hy - 16, 1.1, '#ffb0d8');
+      flower(ctx, 1 + side * 8.6, hy - 12, 0.9, '#ffffff');
+    }
+  }
   if (poison) {
     // flores roxas no cabelo e névoa tóxica
     for (const [x, y] of [[-4, hy - 6], [2, hy - 8]] as const) {

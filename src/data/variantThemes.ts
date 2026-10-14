@@ -114,6 +114,21 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
     epic: { name: 'Possessor Mascarado', colors: ['#fff4c0', '#ffd25a', '#3e2a52'], strength: 0, accent: '#ffd25a', art: true },
     legendary: { name: 'Vazio Faminto', colors: ['#e8e0ff', '#a88aff', '#120a2a'], strength: 0, accent: '#a88aff', particles: 'star', art: true },
   },
+  sorceress: {
+    rare: { name: 'Bruxa da Abóbora', colors: ['#ffd090', '#ff8a2a', '#7a2a08'], strength: 0, accent: '#ff9a2a', art: true },
+    epic: { name: 'Bruxa do Mar', colors: ['#e0fffa', '#6af0e0', '#1e8a96'], strength: 0, accent: '#6af0e0', art: true },
+    legendary: { name: 'Bruxa Lunar', colors: ['#ffffff', '#bfd0ff', '#2e2e72'], strength: 0, accent: '#bfd0ff', particles: 'star', art: true },
+  },
+  cauldron: {
+    rare: { name: 'Caldeirão de Cobre', colors: ['#ffe4f2', '#ff8ac0', '#a85a2a'], strength: 0, accent: '#ff8ac0', art: true },
+    epic: { name: 'Caldeirão de Abóbora', colors: ['#fff0a0', '#ffb040', '#a0400a'], strength: 0, accent: '#ffb040', art: true },
+    legendary: { name: 'Caldeirão Cósmico', colors: ['#ffffff', '#c8a8ff', '#3a1a8a'], strength: 0, accent: '#c8a8ff', particles: 'star', art: true },
+  },
+  herbalist: {
+    rare: { name: 'Druida do Outono', colors: ['#ffd090', '#ff9a2a', '#d83a1a'], strength: 0, accent: '#ff9a2a', art: true },
+    epic: { name: 'Bruxa dos Cogumelos', colors: ['#e0fff4', '#7affd0', '#a8180e'], strength: 0, accent: '#7affd0', art: true },
+    legendary: { name: 'Espírito da Floresta', colors: ['#ffe0f0', '#ffb0d8', '#4ec06e'], strength: 0, accent: '#ffb0d8', art: true },
+  },
   cleric: {
     rare: { name: 'Irmã do Lírio', colors: ['#f0d8ff', '#a87ae0'], strength: 0, accent: '#c8a0ff', art: true },
     epic: { name: 'Oráculo', colors: ['#fff0a0', '#e0b030', '#8a6010'], strength: 0, accent: '#ffd25a', particles: 'star', art: true },

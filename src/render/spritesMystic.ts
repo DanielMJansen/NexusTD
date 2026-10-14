@@ -8,6 +8,7 @@ import {
   ellipse,
   flame,
   SPIRIT_FLAME,
+  star,
   starDots,
   eye,
   glowingEye,
@@ -1010,15 +1011,60 @@ function witchHat(ctx: Ctx, hy: number, color: string, band: string, droop: numb
   shape(ctx, band, () => ctx.rect(-5.6, hy - 8.5, 11.2, 2.6), 0.6);
 }
 
+/** Cores da Feiticeira em cada variante: vestido, chapéu, faixa, cabelo, olhos e orbe. */
+const SORCERESS_VARIANTS = {
+  // Bruxa da Abóbora: laranja e preto
+  rare: { dress: ['#e8741a', '#7a2a08'], hat: '#1a1014', band: '#ff8a2a', hair: '#1a1014', eyes: '#ff9a2a', orb: '#ffc060', magic: '#ff9a2a' },
+  // Bruxa do Mar: verde-mar, chapéu com concha, cabelo de algas, tridente com pérola
+  epic: { dress: ['#1e8a96', '#0a2e3a'], hat: '#1a6a7a', band: '#f4e4c8', hair: '#2a8a5a', eyes: '#4ae0d0', orb: '#f4f8ff', magic: '#6af0e0' },
+  // Bruxa Lunar: vestido de galáxia, lua prateada no chapéu, gatinho preto no ombro
+  legendary: { dress: ['#2e2e72', '#0a0a26'], hat: '#14143a', band: '#c8d8ff', hair: '#e8e8ff', eyes: '#bfd0ff', orb: '#ffffff', magic: '#bfd0ff' },
+} as const;
+
+/** Gatinho preto espectral sentado (Bruxa Lunar). */
+function spectralCat(ctx: Ctx, x: number, y: number, time: number): void {
+  halo(ctx, x, y - 2, 6, '#8a9aff', 0.5);
+  const tail = Math.sin(time * 2.5) * 1.5;
+  line(ctx, '#14101e', 1.2, () => {
+    ctx.moveTo(x - 2, y + 1);
+    ctx.quadraticCurveTo(x - 6, y - 1 + tail, x - 5, y - 5 + tail);
+  });
+  shape(ctx, '#14101e', () => ellipse(ctx, x, y, 3, 2.6), 0.6);
+  shape(ctx, '#14101e', () => {
+    ctx.arc(x + 1.2, y - 3.6, 2.4, 0, TAU);
+    ctx.moveTo(x - 0.8, y - 5);
+    ctx.lineTo(x - 0.6, y - 7.6);
+    ctx.lineTo(x + 1, y - 5.6);
+    ctx.moveTo(x + 2.2, y - 5.6);
+    ctx.lineTo(x + 3.6, y - 7.4);
+    ctx.lineTo(x + 3.6, y - 4.6);
+  }, 0.6);
+  for (const ex of [0.4, 2.2]) glowingEye(ctx, x + ex, y - 3.8, 0.55, '#ffe060');
+}
+
 export function drawSorceress(ctx: Ctx, p: Pose): void {
   const sway = Math.sin(p.time * 2.4) * 1.2;
   const cast = p.attack;
   // Feiticeira do Caos: vestido verde-escuro, orbe e runas roxas
   const chaos = formB(p);
+  // Arquibruxa (A): grimório grande aberto, capa e chapéu estrelado
+  const arch = formA(p);
   // Formas Supremas: Bruxa Suprema (A, chapéu com olhos e caldeirão flutuando) e Caos Absoluto (B, cabelo em chamas verdes)
   const supremeWitch = p.supreme && !chaos;
   const absoluteChaos = p.supreme && chaos;
-  const magic = chaos ? '#c86aff' : '#7ad85a';
+  const sv = p.variant ? SORCERESS_VARIANTS[p.variant] : null;
+  const shadeB = (c: string) => (sv && chaos ? darken(c, 0.3) : c);
+  const magic = sv ? sv.magic : chaos ? '#c86aff' : '#7ad85a';
+  if (arch) {
+    // capa nas costas
+    shape(ctx, vertical(ctx, -10, 14, sv ? darken(sv.dress[0], 0.35) : '#3a1a60', sv ? sv.dress[1] : '#14082a'), () => {
+      ctx.moveTo(-4, -9);
+      ctx.quadraticCurveTo(-17, -2, -18 + sway, 14);
+      ctx.lineTo(-10, 12);
+      ctx.lineTo(-2, -6);
+      ctx.closePath();
+    }, 1);
+  }
   if (absoluteChaos) {
     // cabelo em chamas verdes atrás
     for (let i = 0; i < 5; i++) {
@@ -1027,39 +1073,77 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
     }
   }
   // vestido roxo
-  shape(ctx, vertical(ctx, -9, 14, chaos ? '#1e5a3a' : '#6a3aa0', chaos ? '#0a2416' : '#2e1450'), () =>
+  shape(ctx, vertical(ctx, -9, 14, sv ? shadeB(sv.dress[0]) : chaos ? '#1e5a3a' : '#6a3aa0', sv ? sv.dress[1] : chaos ? '#0a2416' : '#2e1450'), () =>
     poly(ctx, [-5, -9, 5, -9, 10, 14, 4, 12, 0, 14, -4, 12, -10, 14]),
   );
+  if (p.variant === 'legendary') starDots(ctx, p.time, [[-4, 4], [3, 8], [-6, 11], [5, 2], [0, -4]]);
   shape(ctx, '#2a1a10', () => ctx.rect(-5.5, -1, 11, 2), 0.6);
-  // varinha com orbe verde
+  // varinha com orbe verde (tridente com pérola na Bruxa do Mar)
   ctx.save();
   ctx.translate(6, -2);
   ctx.rotate(0.45 + cast * 0.6);
-  line(ctx, '#6a4a2a', 1.6, () => {
+  line(ctx, p.variant === 'epic' ? '#c8b080' : '#6a4a2a', 1.6, () => {
     ctx.moveTo(0, 0);
     ctx.lineTo(0, -12);
   });
+  if (p.variant === 'epic') {
+    line(ctx, '#e8d8a8', 1.2, () => {
+      ctx.moveTo(-3, -16);
+      ctx.lineTo(-3, -12.5);
+      ctx.lineTo(3, -12.5);
+      ctx.lineTo(3, -16);
+      ctx.moveTo(0, -12.5);
+      ctx.lineTo(0, -17);
+    });
+  }
   ctx.shadowColor = magic;
   ctx.shadowBlur = 8 + cast * 10;
-  shape(ctx, chaos ? '#e0b0ff' : '#a8f080', () => circle(ctx, 0, -13, 2 + cast * 1.2), 0.6);
+  shape(ctx, sv ? sv.orb : chaos ? '#e0b0ff' : '#a8f080', () => circle(ctx, 0, p.variant === 'epic' ? -14.5 : -13, (p.variant === 'epic' ? 1.6 : 2) + cast * 1.2), 0.6);
   ctx.restore();
-  // rosto e cabelo
+  // rosto e cabelo (de algas na Bruxa do Mar)
   const hy = -15;
-  shape(ctx, '#2a1a3a', () => {
+  shape(ctx, sv ? sv.hair : '#2a1a3a', () => {
     ctx.moveTo(-7.5, hy - 2);
     ctx.quadraticCurveTo(-12, hy + 8 + sway, -8, hy + 12);
     ctx.lineTo(-4, hy + 4);
     ctx.closePath();
   });
+  if (p.variant === 'epic') {
+    for (const dx of [0, 2.5]) {
+      line(ctx, '#3aa86a', 1.2, () => {
+        ctx.moveTo(-6 - dx, hy + 2);
+        ctx.quadraticCurveTo(-9 - dx + sway, hy + 9, -6 - dx, hy + 14);
+      });
+    }
+  }
   shape(ctx, radial(ctx, 1, hy, 7, '#e8f0d0', '#b8c8a0'), () => circle(ctx, 1, hy, 7));
-  eye(ctx, 1, hy + 0.5, 1.8, '#3aa83a');
-  eye(ctx, 5, hy + 0.5, 1.8, '#3aa83a');
+  eye(ctx, 1, hy + 0.5, 1.8, sv ? sv.eyes : '#3aa83a');
+  eye(ctx, 5, hy + 0.5, 1.8, sv ? sv.eyes : '#3aa83a');
   ctx.strokeStyle = OUTLINE;
   ctx.lineWidth = 0.9;
   ctx.beginPath();
   ctx.arc(3, hy + 3.4, 1.8, 0.2, Math.PI - 0.2);
   ctx.stroke();
-  witchHat(ctx, hy, chaos ? '#0e2a1a' : '#3a1a60', magic, sway * 0.5);
+  witchHat(ctx, hy, sv ? shadeB(sv.hat) : chaos ? '#0e2a1a' : '#3a1a60', sv ? sv.band : magic, sway * 0.5);
+  if (p.variant === 'epic') {
+    // concha na faixa do chapéu
+    shape(ctx, vertical(ctx, hy - 11, hy - 5, '#ffe8d8', '#e0a890'), () => {
+      ctx.moveTo(-1, hy - 6);
+      ctx.lineTo(-4, hy - 10);
+      ctx.quadraticCurveTo(-1, hy - 13, 2, hy - 10);
+      ctx.closePath();
+    }, 0.6);
+  }
+  if (p.variant === 'legendary') {
+    // lua crescente prateada no chapéu e o gatinho preto no ombro
+    halo(ctx, 1, hy - 14, 5, '#c8d8ff', 0.6);
+    shape(ctx, '#f4f8ff', () => {
+      ctx.arc(1, hy - 14, 3, 0.7, TAU - 0.7);
+      ctx.arc(2.4, hy - 14.6, 2.4, TAU - 1, 1, true);
+      ctx.closePath();
+    }, 0.5);
+    spectralCat(ctx, -6, -8, p.time);
+  }
   if (chaos) {
     // runas do caos girando ao redor
     ctx.save();
@@ -1085,17 +1169,29 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
     }
     ctx.restore();
   }
-  if (formA(p)) {
-    // estrelas no chapéu e livro flutuante
-    ctx.fillStyle = GOLD;
-    for (const [x, y] of [[-2, hy - 13], [2, hy - 17]] as const) {
-      ctx.beginPath();
-      circle(ctx, x, y, 1);
-      ctx.fill();
+  if (arch) {
+    // estrelas douradas no chapéu
+    for (const [x, y, r] of [[-2, hy - 12, 1.6], [1.5, hy - 16, 1.3], [3, hy - 20, 1]] as const) shape(ctx, GOLD, () => star(ctx, x, y, r * 1.5), 0.3);
+    if (!supremeWitch) {
+      // grimório grande aberto flutuando ao lado, brilhando
+      const by = -6 + Math.sin(p.time * 3) * 1.5;
+      ctx.save();
+      ctx.translate(-14, by);
+      ctx.rotate(-0.15);
+      halo(ctx, 0, 0, 9, magic, 0.5 + cast * 0.4);
+      shape(ctx, sv ? darken(sv.dress[0], 0.3) : '#7a2a2a', () => ctx.roundRect(-7, -4.5, 14, 9, 1.2), 0.9);
+      shape(ctx, '#f8f0dc', () => poly(ctx, [-6.2, -3.6, -0.4, -2.8, -0.4, 3.6, -6.2, 2.8]), 0.5);
+      shape(ctx, '#f8f0dc', () => poly(ctx, [0.4, -2.8, 6.2, -3.6, 6.2, 2.8, 0.4, 3.6]), 0.5);
+      line(ctx, magic, 0.6, () => {
+        for (const y of [-1.4, 0.4, 2]) {
+          ctx.moveTo(-5, y);
+          ctx.lineTo(-1.4, y + 0.3);
+          ctx.moveTo(1.4, y + 0.3);
+          ctx.lineTo(5, y);
+        }
+      }, false);
+      ctx.restore();
     }
-    const by = -8 + Math.sin(p.time * 3) * 2;
-    shape(ctx, '#7a2a2a', () => ctx.roundRect(-16, by, 7, 9, 1), 0.8);
-    shape(ctx, '#f4ecd8', () => ctx.rect(-15, by + 1, 5, 7), 0.4);
   }
   if (supremeWitch) {
     // olhos no chapéu e caldeirão pequeno flutuando ao lado
@@ -1119,34 +1215,85 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
   }
 }
 
+/** Cores do Caldeirão em cada variante: panela, borda, poção, bolhas e olhos. */
+const CAULDRON_VARIANTS = {
+  // Caldeirão de Cobre: poção rosa
+  rare: { pot: ['#e8925a', '#6a2a10'], rim: '#a85a2a', potion: ['#ffd8ec', '#e05a9a'], bubble: '#ffe4f2', eyes: '#ffffff' },
+  // Caldeirão de Abóbora: abóbora esculpida com rosto brilhando
+  epic: { pot: ['#ffa030', '#a0400a'], rim: '#c0581a', potion: ['#fff0a0', '#ff9a1a'], bubble: '#fff4c0', eyes: '#ffffff' },
+  // Caldeirão Cósmico: cristal com uma galáxia girando dentro
+  legendary: { pot: ['#c8d8ffd0', '#3a2a90c0'], rim: '#8a9aff', potion: ['#f0e0ff', '#3a1a8a'], bubble: '#ffffff', eyes: '#ffffff' },
+} as const;
+
+const INFERNAL_FLAME = { outer: ['#e0b0ff', '#8a3aff'] as const, inner: ['#ffffff', '#e8d0ff'] as const, glow: '#b36bff' };
+
 export function drawCauldron(ctx: Ctx, p: Pose): void {
   const stir = Math.sin(p.time * 2.5);
   // Caldeirão Alquímico: bronze dourado, ouro líquido e moedas subindo
   const alchemy = formB(p);
+  // Caldeirão Infernal (A): chamas roxas lambendo as laterais e alças de caveira
+  const infernal = formA(p);
   // Formas Supremas: Caldeirão do Fim (A, caldeirão de ossos roxo) e Pedra Filosofal (B, pedra vermelha flutuando)
   const doom = p.supreme && !alchemy;
   const stone = p.supreme && alchemy;
-  if (formA(p)) {
-    // chamas roxas por baixo
-    ctx.save();
-    ctx.shadowColor = '#b36bff';
-    ctx.shadowBlur = 10;
-    for (let i = 0; i < 4; i++) {
-      const h = 5 + Math.sin(p.time * 10 + i * 1.7) * 2.5;
-      shape(ctx, '#c08cff', () => poly(ctx, [-7 + i * 4.5, 13, -5 + i * 4.5, 13 - h, -3 + i * 4.5, 13]), 0);
-    }
-    ctx.restore();
+  const cv = p.variant ? CAULDRON_VARIANTS[p.variant] : null;
+  const shadeB = (c: string) => (cv && alchemy ? darken(c.slice(0, 7), 0.2) + c.slice(7) : c);
+  if (infernal) {
+    // chamas roxas em gota por baixo da panela
+    for (const [x, h] of [[-6, 8], [0, 9], [6, 8]] as const) flame(ctx, x, 12, 2.6, h, 0, p.time + x, INFERNAL_FLAME);
   }
   // pernas
   for (const x of [-8, 0, 8]) shape(ctx, '#1a1622', () => poly(ctx, [x - 1.5, 8, x + 1.5, 8, x + 1, 14, x - 1, 14]), 0.8);
-  // caldeirão de ferro
-  shape(ctx, radial(ctx, -2, 0, 14, alchemy ? '#e0b050' : doom ? '#e8e0d0' : '#4a4458', alchemy ? '#6a4810' : doom ? '#6a5a50' : '#141018'), () => {
+  // caldeirão de ferro (de cobre, abóbora ou cristal nas variantes)
+  shape(ctx, radial(ctx, -2, 0, 14, cv ? shadeB(cv.pot[0]) : alchemy ? '#e0b050' : doom ? '#e8e0d0' : '#4a4458', cv ? cv.pot[1] : alchemy ? '#6a4810' : doom ? '#6a5a50' : '#141018'), () => {
     ctx.moveTo(-12, -6);
     ctx.quadraticCurveTo(-14, 10, 0, 10);
     ctx.quadraticCurveTo(14, 10, 12, -6);
     ctx.closePath();
   });
-  shape(ctx, alchemy ? '#8a6418' : '#2a2632', () => ellipse(ctx, 0, -6, 13, 3.5), 1.2);
+  if (p.variant === 'epic') {
+    // gomos da abóbora e rosto esculpido brilhando
+    line(ctx, '#a0400a', 0.8, () => {
+      for (const x of [-6, 0, 6]) {
+        ctx.moveTo(x, -5);
+        ctx.quadraticCurveTo(x * 1.25, 2, x * 0.8, 9);
+      }
+    }, false);
+    halo(ctx, 0, 3, 7, '#ffd040', 0.6);
+    for (const x of [-4, 4]) shape(ctx, '#ffe060', () => poly(ctx, [x - 2, 2, x + 2, 2, x, -1.2]), 0.5);
+    shape(ctx, '#ffe060', () => poly(ctx, [-5, 5, -3, 4, -1.5, 6, 0, 4.4, 1.5, 6, 3, 4, 5, 5, 3, 7.6, -3, 7.6]), 0.5);
+  }
+  if (p.variant === 'legendary') {
+    // galáxia girando dentro do cristal
+    ctx.save();
+    ctx.translate(0, 3);
+    ctx.rotate(p.time * 0.9);
+    ctx.globalAlpha *= 0.8;
+    for (const [color, r0] of [['#e08aff', 0], ['#8ab8ff', Math.PI]] as const) {
+      line(ctx, color, 1, () => {
+        for (let k = 0; k <= 10; k++) {
+          const a = r0 + k * 0.4;
+          const r = 0.8 + k * 0.6;
+          if (k === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r * 0.7);
+          else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r * 0.7);
+        }
+      }, false);
+    }
+    ctx.restore();
+    starDots(ctx, p.time, [[-7, 1], [6, 4], [-3, 7]]);
+  }
+  shape(ctx, cv ? cv.rim : alchemy ? '#8a6418' : '#2a2632', () => ellipse(ctx, 0, -6, 13, 3.5), 1.2);
+  if (infernal) {
+    // chamas maiores lambendo as laterais, por cima da panela
+    for (const [x, a] of [[-12, -0.45], [12, 0.45]] as const) flame(ctx, x, 7, 3, 12, a, p.time + x, INFERNAL_FLAME);
+    // alças de caveira nas laterais
+    for (const x of [-13.5, 13.5]) {
+      shape(ctx, '#f4ecd8', () => circle(ctx, x, -3, 2.6), 0.7);
+      shape(ctx, '#1a0a1a', () => circle(ctx, x - 0.9, -3.3, 0.6), 0);
+      shape(ctx, '#1a0a1a', () => circle(ctx, x + 0.9, -3.3, 0.6), 0);
+      shape(ctx, '#1a0a1a', () => ctx.rect(x - 0.9, -1.4, 1.8, 0.6), 0);
+    }
+  }
   if (alchemy) {
     // runa alquímica gravada na frente
     ctx.strokeStyle = '#fff0b0';
@@ -1160,8 +1307,8 @@ export function drawCauldron(ctx: Ctx, p: Pose): void {
     ctx.stroke();
   }
   // poção borbulhando
-  shape(ctx, radial(ctx, 0, -6, 11, alchemy ? '#fff4c0' : doom ? '#e0a8ff' : '#c8ffd8', alchemy ? '#e0a020' : doom ? '#6a1aa0' : '#3ab878'), () => ellipse(ctx, 0, -6, 11, 2.6), 0);
-  ctx.fillStyle = alchemy ? '#ffe070' : '#d8ffe8';
+  shape(ctx, radial(ctx, 0, -6, 11, cv ? cv.potion[0] : alchemy ? '#fff4c0' : doom ? '#e0a8ff' : '#c8ffd8', cv ? cv.potion[1] : alchemy ? '#e0a020' : doom ? '#6a1aa0' : '#3ab878'), () => ellipse(ctx, 0, -6, 11, 2.6), 0);
+  ctx.fillStyle = cv ? cv.bubble : alchemy ? '#ffe070' : '#d8ffe8';
   for (let i = 0; i < 4; i++) {
     const phase = (p.time * 1.6 + i * 0.25) % 1;
     ctx.globalAlpha = 1 - phase;
@@ -1179,9 +1326,19 @@ export function drawCauldron(ctx: Ctx, p: Pose): void {
       shape(ctx, GOLD, () => ellipse(ctx, cx, cy, 2 * Math.abs(Math.cos(p.time * 6 + i)) + 0.4, 2), 0.6);
     }
   }
+  if (p.variant === 'legendary') {
+    // estrelas subindo da poção
+    for (let i = 0; i < 3; i++) {
+      const ph = (p.time * 0.6 + i / 3) % 1;
+      ctx.save();
+      ctx.globalAlpha *= 1 - ph;
+      shape(ctx, '#ffffff', () => star(ctx, -5 + i * 5, -8 - ph * 14, 1.6), 0);
+      ctx.restore();
+    }
+  }
   // olhos dentro da poção (personalidade)
-  glowingEye(ctx, -3, -6.2, 1.1, alchemy ? '#ffffff' : '#f0ff60');
-  glowingEye(ctx, 2.5, -6.2, 1.1, alchemy ? '#ffffff' : '#f0ff60');
+  glowingEye(ctx, -3, -6.2, 1.1, cv ? cv.eyes : alchemy ? '#ffffff' : '#f0ff60');
+  glowingEye(ctx, 2.5, -6.2, 1.1, cv ? cv.eyes : alchemy ? '#ffffff' : '#f0ff60');
   // concha mexendo
   ctx.save();
   ctx.translate(5 + stir * 2, -7);
