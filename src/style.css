@@ -1192,40 +1192,149 @@ button:disabled {
   pointer-events: none;
 }
 
-.cc-branches:hover + .forms-pop {
+.cc-branches:hover ~ .forms-pop,
+.forms-btn:hover ~ .forms-pop {
   display: block;
 }
 
-.fp-grid {
-  display: grid;
-  grid-template-columns: auto repeat(var(--cols), 76px);
-  gap: 4px 6px;
-  align-items: center;
+/* botão que deixa claro que dá para ver as formas */
+.forms-btn {
+  margin-top: 4px;
+  padding: 3px 8px;
+  border: 1px solid color-mix(in srgb, var(--card-color) 55%, var(--line));
+  border-radius: 999px;
+  background: #1c1430;
+  font: 700 10.5px var(--font-label);
+  color: var(--text, #f0e8ff);
+  cursor: help;
+  white-space: nowrap;
 }
 
-.fp-grid b {
-  font: 700 10px var(--font-label);
+.forms-btn:hover {
+  background: color-mix(in srgb, var(--card-color) 22%, #1c1430);
+}
+
+.fp-title {
+  margin: 0 0 8px;
+  font: 700 13px var(--font-label);
+  color: var(--gold);
+}
+
+.fp-title small {
+  font: italic 400 12px var(--font-body, inherit);
+  color: var(--muted);
+}
+
+.fp-row-cells {
+  display: flex;
+  gap: 8px;
+}
+
+.fp-row-cells figure {
+  margin: 0;
+  width: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.fp-row-cells small {
+  font: 700 9.5px var(--font-label);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--branch-color);
+}
+
+.fp-row-cells b {
+  font: 700 11px var(--font-label);
   line-height: 1.15;
   text-align: center;
-}
-
-.fp-row {
-  font: 700 10px var(--font-label);
-  color: var(--muted);
-  text-align: right;
+  color: var(--branch-color);
 }
 
 .forms-pop canvas {
-  width: 76px;
-  height: 76px;
-  border-radius: 8px;
-  background: radial-gradient(color-mix(in srgb, var(--card-color) 16%, transparent), transparent 70%);
+  width: 88px;
+  height: 88px;
+  border: 1px solid color-mix(in srgb, var(--branch-color) 50%, transparent);
+  border-radius: 10px;
+  background: radial-gradient(color-mix(in srgb, var(--branch-color) 18%, transparent), transparent 70%);
 }
 
 .fp-hint {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   font-size: 12px;
   color: var(--muted);
+}
+
+/* seletor de visual (Normal + variantes do Altar) */
+.vp-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.vp-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 4px 3px 5px;
+  border: 1px solid color-mix(in srgb, var(--chip-color) 40%, var(--line));
+  border-radius: 10px;
+  background: #1a1230;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+}
+
+button.vp-option {
+  cursor: pointer;
+}
+
+button.vp-option:hover {
+  background: color-mix(in srgb, var(--chip-color) 16%, #1a1230);
+}
+
+.vp-option.selected {
+  border: 2px solid var(--chip-color);
+  background: color-mix(in srgb, var(--chip-color) 20%, #1a1230);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--chip-color) 45%, transparent);
+}
+
+.vp-option.locked {
+  opacity: 0.55;
+}
+
+.vp-option canvas {
+  width: 52px;
+  height: 52px;
+}
+
+.vp-option b {
+  font: 700 10.5px var(--font-label);
+  line-height: 1.1;
+  color: var(--chip-color);
+}
+
+.vp-option small {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.vp-check {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--chip-color);
+  font: 700 9.5px var(--font-label);
+  color: #120a1e;
+  white-space: nowrap;
 }
 
 /* ficha nova da criatura */

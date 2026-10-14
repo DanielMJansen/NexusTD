@@ -41,29 +41,51 @@ function footerHtml(profile: Profile, def: CreatureDef): string {
       Desbloquear ${essence(def.unlock.cost)}</button>`;
 }
 
-/** Linha das variantes do Altar (as que o jogador tem ficam marcadas). */
-function variantsLineHtml(profile: Profile, def: CreatureDef): string {
+/**
+ * Seletor de visual: Normal + as três variantes do Altar, cada uma com o retrato.
+ * As que o jogador tem são clicáveis (a escolhida fica destacada); as outras aparecem em silhueta, com onde conseguir.
+ */
+function visualPickerHtml(profile: Profile, def: CreatureDef): string {
   const owned = profile.variants[def.id] ?? [];
-  const items = VARIANT_TIERS.map((tier) => {
-    const has = owned.includes(tier);
-    return `<span class="sheet-variant${has ? ' owned' : ''}" style="--chip-color:${VARIANTS[tier].color}" title="${VARIANTS[tier].name}${has ? ' · você tem' : ''}">${has ? '✓ ' : ''}${variantTheme(def.id, tier).name} <small>(${VARIANTS[tier].name.toLowerCase()})</small></span>`;
-  }).join(' · ');
-  return `<p class="sheet-variants"><b>Variantes:</b> ${items}</p>`;
+  const selected = profile.selectedVariants[def.id] ?? '';
+  const option = (tier: VariantTier | '', name: string, label: string, color: string) => {
+    const has = tier === '' || owned.includes(tier);
+    const isOn = selected === tier;
+    const portrait = `<canvas data-sprite="${def.id}" data-variant="${tier || 'none'}"${has ? '' : ' data-silhouette'}></canvas>`;
+    const body = `${portrait}<b>${has ? name : '???'}</b><small>${has ? label : `${label} · Altar`}</small>`;
+    return has
+      ? `<button class="vp-option${isOn ? ' selected' : ''}" style="--chip-color:${color}" data-action="variant" data-value="${def.id}:${tier}" title="${isOn ? 'Visual em uso' : 'Usar este visual'}">${body}${isOn ? '<span class="vp-check">✓ em uso</span>' : ''}</button>`
+      : `<div class="vp-option locked" style="--chip-color:${color}" title="Consiga no Altar">${body}</div>`;
+  };
+  const options = [
+    option('', 'Normal', 'Original', '#9a8ab8'),
+    ...VARIANT_TIERS.map((tier) => option(tier, variantTheme(def.id, tier).name, VARIANTS[tier].name, VARIANTS[tier].color)),
+  ].join('');
+  return `<p class="sheet-section">Visual <small>${owned.length}/3 variantes · clique para usar</small></p><div class="vp-row">${options}</div>`;
 }
 
-/** Janela das formas despertas (ao passar o mouse no nível 3): A, B e as Supremas, normal e com cada variante que o jogador tem. */
+/** Janela das formas despertas: A, B e as Supremas, no visual em uso. Abre ao passar o mouse no botão ou nos retratos do nível 3. */
 function formsPopHtml(profile: Profile, def: CreatureDef): string {
-  const rows: [string, string][] = [['none', 'Normal'], ...(profile.variants[def.id] ?? []).map((t): [string, string] => [t, variantTheme(def.id, t).name])];
+  const tier = profile.selectedVariants[def.id];
+  const look = tier ? `${variantTheme(def.id, tier).name} (${VARIANTS[tier].name.toLowerCase()})` : 'visual normal';
   const cols = def.ascended.flatMap((form, i) => [
-    { label: `${i === 0 ? 'A' : 'B'} · ${form.name}`, branch: i, supreme: false, color: form.color },
-    ...(form.supreme ? [{ label: `✦ ${form.supreme.name}`, branch: i, supreme: true, color: form.color }] : []),
+    { tag: `Nível 3 · ${i === 0 ? 'A' : 'B'}`, name: form.name, branch: i, supreme: false, color: form.color },
+    ...(form.supreme ? [{ tag: `✦ Suprema ${i === 0 ? 'A' : 'B'}`, name: form.supreme.name, branch: i, supreme: true, color: form.color }] : []),
   ]);
-  const head = `<span></span>${cols.map((c) => `<b style="color:${c.color}">${c.label}</b>`).join('')}`;
-  const body = rows
-    .map(([tier, label]) => `<span class="fp-row">${label}</span>${cols.map((c) => `<canvas data-sprite="${def.id}" data-level="3" data-branch="${c.branch}"${c.supreme ? ' data-supreme' : ''} data-variant="${tier}"></canvas>`).join('')}`)
+  const cells = cols
+    .map(
+      (c) => `<figure style="--branch-color:${c.color}">
+        <small>${c.tag}</small>
+        <canvas data-sprite="${def.id}" data-level="3" data-branch="${c.branch}"${c.supreme ? ' data-supreme' : ''} data-variant="${tier ?? 'none'}"></canvas>
+        <b>${c.name}</b>
+      </figure>`,
+    )
     .join('');
-  const hint = rows.length === 1 ? '<p class="fp-hint">Variantes do Altar aparecem aqui quando você tiver alguma.</p>' : '';
-  return `<div class="forms-pop" style="--cols:${cols.length}"><div class="fp-grid">${head}${body}</div>${hint}</div>`;
+  return `<div class="forms-pop">
+    <p class="fp-title">Formas despertas de ${def.name} <small>· ${look}</small></p>
+    <div class="fp-row-cells">${cells}</div>
+    <p class="fp-hint">A Suprema (★5) exige despertar a criatura no Santuário.</p>
+  </div>`;
 }
 
 /** Ficha nova (em revisão): classe padronizada, como luta, termo próprio, formas e variantes. */
@@ -79,10 +101,9 @@ function newSheetBody(profile: Profile, def: CreatureDef): string {
       <p class="sheet-line">${fightText(def)}</p>
       ${mechanic ? `<p class="sheet-line">${mechanic}</p>` : ''}
       ${racePassiveHtml(def.race)}
-      <p class="sheet-section" title="Passe o mouse nos retratos do nível 3 para ver todas as formas">Formas despertas <small>nível 3 · ver todas nos retratos ↖</small></p>
+      <p class="sheet-section">Formas despertas <small>nível 3</small></p>
       ${formsChangeHtml(def)}
-      ${variantsLineHtml(profile, def)}
-      ${variantRow(profile, def.id)}`;
+      ${visualPickerHtml(profile, def)}`;
 }
 
 function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): string {
@@ -103,7 +124,7 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
           </figure>`,
         )
         .join('')}</div>
-      ${def.classe && owned ? formsPopHtml(profile, def) : ''}
+      ${def.classe && owned ? `<button class="forms-btn" type="button">👁 Ver formas despertas</button>${formsPopHtml(profile, def)}` : ''}
     </div>
     <div class="cc-body">
       ${def.classe ? newSheetBody(profile, def) : `<div class="cc-head"><b>${def.name}</b><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${def.race} · ${def.role}</span></div>
