@@ -166,6 +166,17 @@ export interface SupremeForm {
   stats?: { damage?: number; range?: number; cooldown?: number };
 }
 
+/** Classes padronizadas (papel na defesa), iguais em todas as raças, para comparar criaturas. */
+export const CREATURE_CLASSES = {
+  melee: 'Atacante corpo a corpo',
+  ranged: 'Atirador à distância',
+  area: 'Área',
+  control: 'Controle',
+  blocker: 'Bloqueador',
+  support: 'Suporte',
+} as const;
+export type CreatureClass = keyof typeof CREATURE_CLASSES;
+
 /** gift: exclusiva, liberada só por código de presente (não aparece para quem não tem). */
 export type CreatureUnlock = { kind: 'start' } | { kind: 'essence'; cost: number } | { kind: 'gift'; gift: GiftId };
 
@@ -177,6 +188,10 @@ export interface CreatureDef {
   race: string;
   /** Papel na defesa (GDD seção 4). */
   role: string;
+  /** Classe padronizada (ficha nova; em revisão: só algumas criaturas já têm). */
+  classe?: CreatureClass;
+  /** Detalhe da classe na ficha nova (ex.: "alvo único"). */
+  classDetail?: string;
   /** O que faz, em linguagem simples (Coleção e tooltips). */
   description: string;
   /** Uma ou duas frases de ambientação. */
@@ -208,7 +223,9 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Arqueiro',
     race: 'Humano',
     role: 'DPS à distância',
-    description: 'Atira flechas de longe, um inimigo por vez. Barato e confiável para começar qualquer defesa.',
+    classe: 'ranged',
+    classDetail: 'alvo único',
+    description: 'Atira flechas de longe, num inimigo por vez. Barato e confiável: a base de qualquer defesa.',
     lore: 'Caçador das fronteiras que jurou proteger o Nexus. Nunca erra duas vezes.',
     icon: '🏹',
     baseCost: 15,
@@ -219,8 +236,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'none' },
     unlock: { kind: 'start' },
     ascended: [
-      { name: 'Patrulheiro', description: 'Dispara em dois alvos de uma vez.', ability: { kind: 'multishot', targets: 2 }, color: '#ffd25a', icon: '➶', supreme: { name: 'Mestre Arqueiro', description: 'Dispara em 3 alvos de uma vez.', ability: { kind: 'multishot', targets: 3 } } },
-      { name: 'Atirador de Elite', description: 'Mais alcance e golpes críticos devastadores, atirando mais devagar.', ability: { kind: 'crit', chance: 0.35, multiplier: 3.5 }, stats: { range: 1.3, cooldown: 1.15 }, color: '#ff7a5a', icon: '◎', supreme: { name: 'Olho do Falcão', description: 'Críticos frequentes e fortes (×3,5), de muito longe.', ability: { kind: 'crit', chance: 0.4, multiplier: 3.5 }, stats: { range: 1.5, cooldown: 1.15 } } },
+      { name: 'Patrulheiro', description: 'Flechas em mais de um alvo: bom contra grupos.', ability: { kind: 'multishot', targets: 2 }, color: '#ffd25a', icon: '➶', supreme: { name: 'Mestre Arqueiro', description: 'Ainda mais alvos por disparo.', ability: { kind: 'multishot', targets: 3 } } },
+      { name: 'Atirador de Elite', description: 'Tiros de mais longe e críticos devastadores, mas mais lentos.', ability: { kind: 'crit', chance: 0.35, multiplier: 3.5 }, stats: { range: 1.3, cooldown: 1.15 }, color: '#ff7a5a', icon: '◎', supreme: { name: 'Olho do Falcão', description: 'Críticos mais frequentes, de muito longe.', ability: { kind: 'crit', chance: 0.4, multiplier: 3.5 }, stats: { range: 1.5, cooldown: 1.15 } } },
     ],
   },
   guard: {
@@ -269,8 +286,9 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Duelista',
     race: 'Vampiro',
     role: 'DPS alvo único',
-    description:
-      'Golpes rápidos num só alvo. A cada 6 golpes entra em frenesi: mais dano e ataques ainda mais rápidos por 3 s.',
+    classe: 'melee',
+    classDetail: 'alvo único',
+    description: 'Espadachim veloz que acerta um inimigo de cada vez. Forte contra inimigos resistentes e chefes; fraco contra hordas.',
     lore: 'Nobre vampiro que transforma cada duelo numa dança — e cada golpe numa sede maior.',
     icon: '🧛',
     baseCost: 20,
@@ -281,8 +299,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'frenzy', hitsToTrigger: 6, duration: 3, damageMultiplier: 1.5, attackSpeedMultiplier: 2 },
     unlock: { kind: 'essence', cost: 40 },
     ascended: [
-      { name: 'Conde Vampiro', description: 'Frenesi mais frequente, longo e forte.', ability: { kind: 'frenzy', hitsToTrigger: 4, duration: 4, damageMultiplier: 1.8, attackSpeedMultiplier: 2 }, color: '#ffd25a', icon: '♛', supreme: { name: 'Príncipe da Noite', description: 'Frenesi frequente e longo: dispara a cada 3 golpes.', ability: { kind: 'frenzy', hitsToTrigger: 3, duration: 5, damageMultiplier: 1.9, attackSpeedMultiplier: 2 } } },
-      { name: 'Lâmina Carmesim', description: 'Golpes críticos frequentes e mais rápidos, sem frenesi.', ability: { kind: 'crit', chance: 0.4, multiplier: 2.5 }, stats: { cooldown: 0.85 }, color: '#ff3a50', icon: '⚔', supreme: { name: 'Dança das Lâminas', description: 'Metade dos golpes é crítica, e os golpes ficam ainda mais rápidos.', ability: { kind: 'crit', chance: 0.5, multiplier: 2.8 }, stats: { cooldown: 0.78 } } },
+      { name: 'Conde Vampiro', description: 'Frenesi mais fácil e mais forte.', ability: { kind: 'frenzy', hitsToTrigger: 4, duration: 4, damageMultiplier: 1.8, attackSpeedMultiplier: 2 }, color: '#ffd25a', icon: '♛', supreme: { name: 'Príncipe da Noite', description: 'Frenesi quase constante.', ability: { kind: 'frenzy', hitsToTrigger: 3, duration: 5, damageMultiplier: 1.9, attackSpeedMultiplier: 2 } } },
+      { name: 'Lâmina Carmesim', description: 'Abre mão do Frenesi por golpes críticos e ataques mais rápidos.', ability: { kind: 'crit', chance: 0.4, multiplier: 2.5 }, stats: { cooldown: 0.85 }, color: '#ff3a50', icon: '⚔', supreme: { name: 'Dança das Lâminas', description: 'Metade dos golpes é crítica.', ability: { kind: 'crit', chance: 0.5, multiplier: 2.8 }, stats: { cooldown: 0.78 } } },
     ],
   },
   sanguine: {

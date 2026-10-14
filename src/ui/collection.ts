@@ -1,10 +1,10 @@
 import { variantTheme } from '../data/variantThemes';
 import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
-import { VARIANTS, type VariantTier } from '../data/altar';
+import { VARIANTS, VARIANT_TIERS, type VariantTier } from '../data/altar';
 import { ALL_CREATURE_IDS, CREATURES, isGiftCreature, type CreatureDef, type CreatureId } from '../data/creatures';
 import { ownsCreature, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
-import { abilityText, ascendedFormsHtml, creatureStats, racePassiveHtml } from './describe';
+import { abilityText, ascendedFormsHtml, creatureClassLine, creatureStats, fightText, formsChangeHtml, mechanicHtml, racePassiveHtml } from './describe';
 import { showOverlay } from './overlay';
 
 export interface CollectionHandlers {
@@ -41,6 +41,50 @@ function footerHtml(profile: Profile, def: CreatureDef): string {
       Desbloquear ${essence(def.unlock.cost)}</button>`;
 }
 
+/** Linha das variantes do Altar (as que o jogador tem ficam marcadas). */
+function variantsLineHtml(profile: Profile, def: CreatureDef): string {
+  const owned = profile.variants[def.id] ?? [];
+  const items = VARIANT_TIERS.map((tier) => {
+    const has = owned.includes(tier);
+    return `<span class="sheet-variant${has ? ' owned' : ''}" style="--chip-color:${VARIANTS[tier].color}" title="${VARIANTS[tier].name}${has ? ' · você tem' : ''}">${has ? '✓ ' : ''}${variantTheme(def.id, tier).name} <small>(${VARIANTS[tier].name.toLowerCase()})</small></span>`;
+  }).join(' · ');
+  return `<p class="sheet-variants"><b>Variantes:</b> ${items}</p>`;
+}
+
+/** Janela das formas despertas (ao passar o mouse no nível 3): A, B e as Supremas, normal e com cada variante que o jogador tem. */
+function formsPopHtml(profile: Profile, def: CreatureDef): string {
+  const rows: [string, string][] = [['none', 'Normal'], ...(profile.variants[def.id] ?? []).map((t): [string, string] => [t, variantTheme(def.id, t).name])];
+  const cols = def.ascended.flatMap((form, i) => [
+    { label: `${i === 0 ? 'A' : 'B'} · ${form.name}`, branch: i, supreme: false, color: form.color },
+    ...(form.supreme ? [{ label: `✦ ${form.supreme.name}`, branch: i, supreme: true, color: form.color }] : []),
+  ]);
+  const head = `<span></span>${cols.map((c) => `<b style="color:${c.color}">${c.label}</b>`).join('')}`;
+  const body = rows
+    .map(([tier, label]) => `<span class="fp-row">${label}</span>${cols.map((c) => `<canvas data-sprite="${def.id}" data-level="3" data-branch="${c.branch}"${c.supreme ? ' data-supreme' : ''} data-variant="${tier}"></canvas>`).join('')}`)
+    .join('');
+  const hint = rows.length === 1 ? '<p class="fp-hint">Variantes do Altar aparecem aqui quando você tiver alguma.</p>' : '';
+  return `<div class="forms-pop" style="--cols:${cols.length}"><div class="fp-grid">${head}${body}</div>${hint}</div>`;
+}
+
+/** Ficha nova (em revisão): classe padronizada, como luta, termo próprio, formas e variantes. */
+function newSheetBody(profile: Profile, def: CreatureDef): string {
+  const stats = creatureStats(def)
+    .map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`)
+    .join('');
+  const mechanic = mechanicHtml(def);
+  return `<div class="cc-head"><b>${def.name}</b><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${creatureClassLine(def)}</span></div>
+      <p class="cc-desc">${def.description}</p>
+      <p class="cc-lore">“${def.lore}”</p>
+      <dl class="cc-stats">${stats}</dl>
+      <p class="sheet-line">${fightText(def)}</p>
+      ${mechanic ? `<p class="sheet-line">${mechanic}</p>` : ''}
+      ${racePassiveHtml(def.race)}
+      <p class="sheet-section" title="Passe o mouse nos retratos do nível 3 para ver todas as formas">Formas despertas <small>nível 3 · ver todas nos retratos ↖</small></p>
+      ${formsChangeHtml(def)}
+      ${variantsLineHtml(profile, def)}
+      ${variantRow(profile, def.id)}`;
+}
+
 function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): string {
   const owned = ownsCreature(profile, def.id);
   const stats = creatureStats(def)
@@ -59,16 +103,17 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
           </figure>`,
         )
         .join('')}</div>
+      ${def.classe && owned ? formsPopHtml(profile, def) : ''}
     </div>
     <div class="cc-body">
-      <div class="cc-head"><b>${def.name}</b><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${def.race} · ${def.role}</span></div>
+      ${def.classe ? newSheetBody(profile, def) : `<div class="cc-head"><b>${def.name}</b><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${def.race} · ${def.role}</span></div>
       <p class="cc-desc">${def.description}</p>
       <p class="cc-lore">“${def.lore}”</p>
       <dl class="cc-stats">${stats}</dl>
       <p class="cc-ability">${abilityText(def.ability, def.effects)}</p>
       ${racePassiveHtml(def.race)}
       ${ascendedFormsHtml(def)}
-      ${variantRow(profile, def.id)}
+      ${variantRow(profile, def.id)}`}
       <div class="cc-footer">${footer}</div>
     </div>
   </div>`;

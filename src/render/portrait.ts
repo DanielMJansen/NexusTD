@@ -17,6 +17,8 @@ export interface PortraitOptions {
   variant?: VariantTier;
   /** Filtro de cor avulso (ilustrações). */
   filter?: string;
+  /** Forma Suprema (desenho maior; o retrato encolhe um pouco para caber). */
+  supreme?: boolean;
 }
 
 /** Prévia animada do Nexus (tela do Nexus, Altar). */
@@ -43,7 +45,7 @@ export function drawPortrait(canvas: HTMLCanvasElement, id: SpriteId, time: numb
   const ctx = canvas.getContext('2d')!;
   fitSmallCanvas(canvas, ctx);
   ctx.clearRect(0, 0, size, canvas.clientHeight);
-  const scale = size / 48;
+  const scale = (size / 48) * (options.supreme ? 0.82 : 1);
   ctx.save();
   if (options.silhouette) {
     ctx.filter = 'brightness(0)';
@@ -61,6 +63,7 @@ export function drawPortrait(canvas: HTMLCanvasElement, id: SpriteId, time: numb
       time,
       level: options.level ?? 1,
       branch: options.branch ?? 0,
+      supreme: options.supreme ?? false,
       palette: options.palette ?? {},
       variant: creature ? variant : null,
     }),

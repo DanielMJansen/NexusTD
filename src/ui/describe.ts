@@ -3,7 +3,7 @@ import { heroMaxHp, heroRange } from '../game/hero';
 import { pulsePower } from '../game/pulses';
 import type { RunState } from '../game/state';
 import { ECONOMY } from '../data/config';
-import type { AscendedForm, CreatureAbility, CreatureDef, HitEffect } from '../data/creatures';
+import { CREATURE_CLASSES, type AscendedForm, type CreatureAbility, type CreatureDef, type HitEffect } from '../data/creatures';
 import { ENEMIES, type EnemyTrait } from '../data/enemies';
 import type { HeroDef, RaceBonus } from '../data/heroes';
 import type { HeroStat } from '../data/heroUpgrades';
@@ -70,7 +70,7 @@ export function abilityText(a: CreatureAbility, effects: readonly HitEffect[] = 
 function baseAbilityText(a: CreatureAbility): string {
   switch (a.kind) {
     case 'frenzy':
-      return `Frenesi: a cada ${a.hitsToTrigger} golpes, ${formatNumber(a.duration)} s com ×${formatNumber(a.damageMultiplier)} de dano e ataques ${formatNumber(a.attackSpeedMultiplier)}× mais rápidos.`;
+      return `Frenesi: a cada ${a.hitsToTrigger} golpes, fica ${formatNumber(a.duration)} s atacando ${formatNumber(a.attackSpeedMultiplier)}× mais rápido e com +${Math.round((a.damageMultiplier - 1) * 100)}% de dano.`;
     case 'splash':
       return `Área: atinge inimigos num raio de ${a.radius} ao redor do alvo com ${Math.round(a.damageRatio * 100)}% do dano.`;
     case 'slow':
@@ -214,6 +214,66 @@ export function enemyTraitText(t: EnemyTrait): string {
     case 'blink':
       return `Teleporte: a cada ${formatNumber(t.cooldown)} s, salta ${t.distance} em direção ao Nexus mais ferido.`;
   }
+}
+
+// ---------- ficha nova da criatura (em revisão: vale para quem já tem `classe`) ----------
+
+/** "Vampiro · Atacante corpo a corpo, alvo único". */
+export function creatureClassLine(def: CreatureDef): string {
+  const classe = def.classe ? CREATURE_CLASSES[def.classe] : def.role;
+  return `${def.race} · ${classe}${def.classDetail ? `, ${def.classDetail}` : ''}`;
+}
+
+/** Texto de habilidade com o termo próprio em negrito ("<b>Frenesi:</b> ..."). */
+function termHtml(text: string): string {
+  return text.replace(/^([^:.]{2,28}):/, '<b>$1:</b>');
+}
+
+/** "Como luta": ritmo e distância, a partir dos atributos. */
+export function fightText(def: CreatureDef): string {
+  const perSecond = formatNumber(Math.round((1 / def.cooldown) * 10) / 10);
+  const where = def.classe === 'melee' || def.range < 70 ? 'de perto' : def.range < 110 ? 'a média distância' : 'de longe';
+  const rhythm = def.cooldown < 1 ? `${perSecond} ataques por segundo` : `1 ataque a cada ${formatNumber(def.cooldown)} s`;
+  return `<b>Como luta:</b> ${rhythm}, ${where} (alcance ${def.range}).`;
+}
+
+/** A mecânica própria da criatura (o termo definido uma vez), ou vazio se ela não tem. */
+export function mechanicHtml(def: CreatureDef): string {
+  if (def.ability.kind === 'none' && !def.effects?.length) return '';
+  return termHtml(abilityText(def.ability, def.effects));
+}
+
+/** O que uma forma (ou Suprema) muda, curto: só os números quando a mecânica é a mesma da base. */
+function changeText(def: CreatureDef, ability: CreatureAbility, stats: AscendedForm['stats'], effects?: readonly HitEffect[]): string {
+  const base = def.ability;
+  let mech: string;
+  if (ability.kind === 'frenzy' && base.kind === 'frenzy') {
+    mech = `Frenesi a cada ${ability.hitsToTrigger} golpes, ${formatNumber(ability.duration)} s, +${Math.round((ability.damageMultiplier - 1) * 100)}% de dano`;
+  } else if (ability.kind === 'multishot') {
+    mech = `${ability.targets} alvos por disparo`;
+  } else if (ability.kind === 'crit') {
+    mech = `<b>Crítico:</b> ${pctOf(ability.chance)} de chance de ×${formatNumber(ability.multiplier)} de dano`;
+  } else {
+    mech = termHtml(abilityText(ability, effects ?? def.effects)).replace(/\.$/, '');
+  }
+  const extra = formStatsText({ stats } as AscendedForm).replace(/^ \((.*)\)$/, '$1');
+  return extra ? `${mech}; ${extra}.` : `${mech}.`;
+}
+
+/** As formas despertas na ficha nova: A e B, cada uma com a Suprema logo abaixo. */
+export function formsChangeHtml(def: CreatureDef): string {
+  return def.ascended
+    .map((form, i) => {
+      const sup = form.supreme;
+      const supLine = sup
+        ? `<p class="sheet-supreme">✦ Suprema · <b>${sup.name}</b>: ${sup.description} <span class="sheet-num">${changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects)}</span></p>`
+        : '';
+      return `<div class="sheet-form" style="--branch-color:${form.color}">
+        <p><span class="branch-tag">${i === 0 ? 'A' : 'B'}</span> <b>${form.name}</b>: ${form.description} <span class="sheet-num">${changeText(def, form.ability, form.stats, form.effects)}</span></p>
+        ${supLine}
+      </div>`;
+    })
+    .join('');
 }
 
 export function creatureStats(def: CreatureDef): [string, string][] {

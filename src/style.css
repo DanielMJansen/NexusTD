@@ -1170,10 +1170,138 @@ button:disabled {
 }
 
 .cc-portraits {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+}
+
+/* janela das formas despertas: aparece ao passar o mouse nos retratos do nível 3 */
+.forms-pop {
+  display: none;
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  top: calc(100% - 4px);
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--card-color) 60%, var(--line));
+  border-radius: 12px;
+  background: linear-gradient(#271b42, #160f27);
+  box-shadow: 0 10px 30px #000a;
+  pointer-events: none;
+}
+
+.cc-branches:hover + .forms-pop {
+  display: block;
+}
+
+.fp-grid {
+  display: grid;
+  grid-template-columns: auto repeat(var(--cols), 76px);
+  gap: 4px 6px;
+  align-items: center;
+}
+
+.fp-grid b {
+  font: 700 10px var(--font-label);
+  line-height: 1.15;
+  text-align: center;
+}
+
+.fp-row {
+  font: 700 10px var(--font-label);
+  color: var(--muted);
+  text-align: right;
+}
+
+.forms-pop canvas {
+  width: 76px;
+  height: 76px;
+  border-radius: 8px;
+  background: radial-gradient(color-mix(in srgb, var(--card-color) 16%, transparent), transparent 70%);
+}
+
+.fp-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ficha nova da criatura */
+.sheet-line {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
+.sheet-line b {
+  color: var(--card-color);
+}
+
+.sheet-section {
+  margin: 8px 0 4px;
+  font: 700 12px var(--font-label);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.sheet-section small {
+  margin-left: 6px;
+  font: italic 400 11px var(--font-body, inherit);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.sheet-form {
+  margin: 0 0 6px;
+  padding-left: 8px;
+  border-left: 2px solid var(--branch-color);
+}
+
+.sheet-form p {
+  margin: 0 0 2px;
+  font-size: 13px;
+}
+
+.sheet-form > p:first-child > b {
+  color: var(--branch-color);
+}
+
+.sheet-form .branch-tag {
+  --branch-color: inherit;
+}
+
+.sheet-num {
+  color: var(--muted);
+}
+
+.sheet-num b {
+  color: inherit;
+}
+
+.sheet-supreme {
+  padding-left: 10px;
+  color: #7ae8ff;
+}
+
+.sheet-supreme .sheet-num {
+  color: #9ab8d0;
+}
+
+.sheet-variants {
+  margin: 6px 0 2px;
+  font-size: 12.5px;
+}
+
+.sheet-variant {
+  color: color-mix(in srgb, var(--chip-color) 70%, var(--muted));
+}
+
+.sheet-variant.owned {
+  color: var(--chip-color);
+  font-weight: 700;
 }
 
 .cc-portraits canvas {

@@ -84,6 +84,7 @@ export function animateOverlay(time: number): void {
       silhouette: canvas.dataset.silhouette !== undefined,
       level: Number(canvas.dataset.level ?? 1),
       branch: Number(canvas.dataset.branch ?? 0),
+      supreme: canvas.dataset.supreme !== undefined,
       palette: findSkin(canvas.dataset.skin ?? '')?.palette,
       // variante: a do próprio retrato (`data-variant`; "none" = original) ou a escolhida para a criatura
       variant: portraitVariant(canvas),
