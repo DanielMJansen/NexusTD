@@ -28,7 +28,9 @@ export type AchievementId =
   | 'archdemonVictory'
   | 'archdemonEndless'
   | 'archangelVictory'
-  | 'archangelEndless';
+  | 'archangelEndless'
+  | 'alicornVictory'
+  | 'alicornEndless';
 
 export type AchievementGoal =
   /** Vencer uma run (com um herói específico, se informado). */
@@ -192,6 +194,18 @@ export const ACHIEVEMENTS: Record<AchievementId, AchievementDef> = {
     name: 'Luz Eterna',
     description: 'Alcance a onda 30 do Sem Fim com o Arcanjo.',
     goal: { kind: 'endlessWave', wave: 30, hero: 'archangel' },
+  },
+  alicornVictory: {
+    id: 'alicornVictory',
+    name: 'Galope Celeste',
+    description: 'Vença uma run com o Alicórnio.',
+    goal: { kind: 'win', hero: 'alicorn' },
+  },
+  alicornEndless: {
+    id: 'alicornEndless',
+    name: 'Pesadelo Sem Fim',
+    description: 'Alcance a onda 30 do Sem Fim com o Alicórnio.',
+    goal: { kind: 'endlessWave', wave: 30, hero: 'alicorn' },
   },
 };
 

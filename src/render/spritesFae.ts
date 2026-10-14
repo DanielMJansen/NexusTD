@@ -557,11 +557,19 @@ export function drawFaeQueen(ctx: Ctx, p: Pose): void {
   const wing = skin(p, 'wing', '#ffb8f0');
   const hair = skin(p, 'hair', '#fff0a0');
   ctx.translate(0, -3 + Math.sin(p.time * 2.2) * 1.5);
-  // asas de borboleta
+  const look = skin(p, 'look', '');
+  // asas de borboleta (de mariposa na Rainha da Noite)
   const flap = Math.sin(p.time * 6) * 0.25;
   ctx.save();
   ctx.globalAlpha *= 0.85;
-  for (const side of [-1, 1]) {
+  if (look === 'night') {
+    ctx.save();
+    ctx.translate(-1, -2);
+    ctx.scale(1.25, 1.25);
+    styledWings(ctx, p.time, 'moth', wing, -6);
+    ctx.restore();
+  }
+  for (const side of look === 'night' ? [] : [-1, 1]) {
     ctx.save();
     ctx.translate(-2, -8);
     ctx.scale(side, 1);
@@ -616,8 +624,26 @@ export function drawFaeQueen(ctx: Ctx, p: Pose): void {
   eye(ctx, 1, hy + 0.6, 1.7, '#a03ac0', 0.4);
   eye(ctx, 4.6, hy + 0.6, 1.7, '#a03ac0', 0.4);
   shape(ctx, '#f8d4bc', () => poly(ctx, [-4.5, hy - 1, -9.5, hy - 5, -5, hy + 1.5]), 0.6);
-  shape(ctx, vertical(ctx, hy - 14, hy - 6, '#fff6c0', '#d8a830'), () =>
-    poly(ctx, [-4, hy - 6, -4.5, hy - 11, -1.5, hy - 8.5, 1, hy - 13, 3.5, hy - 8.5, 6.5, hy - 11, 6, hy - 6]),
-  );
-  glowingEye(ctx, 1, hy - 9, 0.9, '#ff8ad0');
+  if (look === 'winter') {
+    // coroa de pingentes de gelo, alta e pontuda
+    halo(ctx, 1, hy - 12, 7, '#bfe8ff', 0.5);
+    for (const [x, h] of [[-4.5, 6], [-2, 9], [1, 13], [4, 9], [6.5, 6]] as const) {
+      shape(ctx, vertical(ctx, hy - 6 - h, hy - 6, '#ffffff', '#7ac8f0'), () => poly(ctx, [x - 1.5, hy - 6, x, hy - 6 - h, x + 1.5, hy - 6]), 0.6);
+    }
+    shape(ctx, '#e8f6ff', () => ctx.roundRect(-5, hy - 7, 12, 2, 1), 0.5);
+  } else {
+    shape(ctx, vertical(ctx, hy - 14, hy - 6, '#fff6c0', '#d8a830'), () =>
+      poly(ctx, [-4, hy - 6, -4.5, hy - 11, -1.5, hy - 8.5, 1, hy - 13, 3.5, hy - 8.5, 6.5, hy - 11, 6, hy - 6]),
+    );
+    glowingEye(ctx, 1, hy - 9, 0.9, look === 'night' ? '#c8a0ff' : '#ff8ad0');
+  }
+  if (look === 'night') {
+    // lua crescente flutuando ao lado
+    halo(ctx, -11, -24, 6, '#e8e0ff', 0.5);
+    shape(ctx, '#f4f0ff', () => {
+      ctx.arc(-11, -24, 3.4, 0.7, TAU - 0.7);
+      ctx.arc(-9.6, -24.6, 2.8, TAU - 1, 1, true);
+      ctx.closePath();
+    }, 0.5);
+  }
 }

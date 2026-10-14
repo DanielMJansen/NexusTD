@@ -624,16 +624,51 @@ export function drawDeathLord(ctx: Ctx, p: Pose): void {
     ctx.quadraticCurveTo(9, -17, 0, -15);
     ctx.closePath();
   });
+  const look = skin(p, 'look', '');
+  if (look === 'crimson') {
+    // foice dupla: segunda lâmina na ponta de baixo, virada ao contrário
+    shape(ctx, vertical(ctx, 10, 22, '#ffe8e8', '#a83040'), () => {
+      ctx.moveTo(0, 13);
+      ctx.quadraticCurveTo(-13, 18, -16, 6);
+      ctx.quadraticCurveTo(-8, 13, 0, 10);
+      ctx.closePath();
+    });
+  }
   ctx.restore();
-  // rosto cadavérico, capuz e coroa de ossos
+  if (look === 'lich') {
+    // grimório aberto flutuando ao lado, com runas brilhando
+    const by = -4 + Math.sin(p.time * 2.5) * 1.5;
+    ctx.save();
+    ctx.translate(-13, by);
+    ctx.rotate(-0.15);
+    halo(ctx, 0, 0, 8, fire, 0.45 + p.attack * 0.4);
+    shape(ctx, '#2a1a3a', () => ctx.roundRect(-6.5, -4, 13, 8, 1), 0.9);
+    shape(ctx, '#f0e8d8', () => poly(ctx, [-5.8, -3.2, -0.3, -2.4, -0.3, 3.2, -5.8, 2.4]), 0.5);
+    shape(ctx, '#f0e8d8', () => poly(ctx, [0.3, -2.4, 5.8, -3.2, 5.8, 2.4, 0.3, 3.2]), 0.5);
+    line(ctx, fire, 0.6, () => {
+      for (const y of [-1.2, 0.6]) {
+        ctx.moveTo(-4.6, y);
+        ctx.lineTo(-1.4, y + 0.3);
+        ctx.moveTo(1.4, y + 0.3);
+        ctx.lineTo(4.6, y);
+      }
+    }, false);
+    ctx.restore();
+  }
+  // rosto cadavérico, capuz e coroa de ossos (coroa de lich, de ouro com joias, no Lich Real)
   const hy = -17;
   shape(ctx, vertical(ctx, hy - 9, hy + 9, robe, robeDark), () => poly(ctx, [-8, hy + 8, -7, hy - 4, 1, hy - 9, 8, hy - 4, 8, hy + 8]));
   shape(ctx, radial(ctx, 1, hy + 1, 5, '#d8e8d8', '#8aa898'), () => ellipse(ctx, 1.5, hy + 1.5, 4.4, 5), 0.8);
   glowingEye(ctx, 0, hy + 0.5, 1.2, fire);
   glowingEye(ctx, 3.4, hy + 0.5, 1.2, fire);
-  for (let i = 0; i < 5; i++) {
-    const x = -3 + i * 2;
-    shape(ctx, BONE, () => poly(ctx, [x - 0.8, hy - 6, x, hy - 10 - (i % 2) * 2, x + 0.8, hy - 6]), 0.5);
+  if (look === 'lich') {
+    shape(ctx, vertical(ctx, hy - 16, hy - 6, '#fff2b0', '#a8701a'), () => poly(ctx, [-5, hy - 6, -5.5, hy - 12, -2.5, hy - 9, 1, hy - 16, 4.5, hy - 9, 7.5, hy - 12, 7, hy - 6]), 0.8);
+    for (const [x, y] of [[-5.5, hy - 12], [1, hy - 16], [7.5, hy - 12]] as const) shape(ctx, fire, () => circle(ctx, x, y, 1), 0.4);
+  } else {
+    for (let i = 0; i < 5; i++) {
+      const x = -3 + i * 2;
+      shape(ctx, BONE, () => poly(ctx, [x - 0.8, hy - 6, x, hy - 10 - (i % 2) * 2, x + 0.8, hy - 6]), 0.5);
+    }
   }
   ctx.save();
   ctx.shadowColor = fire;

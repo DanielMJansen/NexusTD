@@ -514,7 +514,36 @@ export function drawGorgonQueen(ctx: Ctx, p: Pose): void {
   shape(ctx, scales, () => poly(ctx, [-2, -16, 0, -22, 2, -16]), 0.6);
   ctx.restore();
   const hy = -16;
-  snakeHair(ctx, hy, p.time, scales, 7);
+  const look = skin(p, 'look', '');
+  if (look === 'abyss') {
+    // tentáculos de polvo no lugar das cobras, com ventosas
+    for (let i = 0; i < 6; i++) {
+      const a = -2.7 + (i / 5) * 2.4;
+      const x0 = 1 + Math.cos(a) * 5;
+      const y0 = hy + Math.sin(a) * 5;
+      const curl = Math.sin(p.time * 2.5 + i) * 0.6;
+      const tx = x0 + Math.cos(a + curl) * 10;
+      const ty = y0 + Math.sin(a + curl) * 10;
+      line(ctx, scales, 2.4, () => {
+        ctx.moveTo(x0, y0);
+        ctx.quadraticCurveTo(x0 + Math.cos(a) * 7, y0 + Math.sin(a) * 7, tx, ty);
+      });
+      shape(ctx, scales, () => circle(ctx, tx, ty, 1.4), 0.5);
+      shape(ctx, '#c8a0ff', () => circle(ctx, (x0 + tx) / 2 + Math.cos(a) * 1.5, (y0 + ty) / 2 + Math.sin(a) * 1.5, 0.6), 0);
+    }
+  } else if (look !== 'sand') snakeHair(ctx, hy, p.time, scales, 7);
+  if (look === 'sand') {
+    // toucado de faraó (nemes) listrado caindo pelos ombros
+    shape(ctx, vertical(ctx, hy - 8, hy + 10, '#ffe9a8', '#c8901a'), () => poly(ctx, [-7, hy - 3, 8, hy - 3, 10, hy + 10, 5, hy + 10, 5, hy + 2, -3, hy + 2, -3, hy + 10, -9, hy + 10]), 0.8);
+    line(ctx, '#2a4ab0', 0.9, () => {
+      for (const y of [hy + 4, hy + 7]) {
+        ctx.moveTo(-8.6, y);
+        ctx.lineTo(-3, y);
+        ctx.moveTo(5, y);
+        ctx.lineTo(9.6, y);
+      }
+    }, false);
+  }
   shape(ctx, radial(ctx, 1, hy, 6.5, '#e0f0d8', '#98b890'), () => circle(ctx, 1, hy, 6.5));
   ctx.save();
   ctx.shadowColor = armor;
@@ -522,6 +551,21 @@ export function drawGorgonQueen(ctx: Ctx, p: Pose): void {
   glowingEye(ctx, 0, hy, 1.4, armor);
   glowingEye(ctx, 4, hy, 1.4, armor);
   ctx.restore();
+  if (look === 'sand') {
+    // topo do nemes e a naja dourada na testa
+    shape(ctx, vertical(ctx, hy - 9, hy - 3, '#ffe9a8', '#c8901a'), () => {
+      ctx.moveTo(-7, hy - 2);
+      ctx.quadraticCurveTo(-7, hy - 9, 1, hy - 9);
+      ctx.quadraticCurveTo(9, hy - 9, 8, hy - 2);
+      ctx.closePath();
+    }, 0.8);
+    line(ctx, '#2a4ab0', 0.8, () => {
+      ctx.moveTo(-6, hy - 4.5);
+      ctx.lineTo(7.4, hy - 4.5);
+    }, false);
+    shape(ctx, GOLD, () => poly(ctx, [0.2, hy - 8.5, 1.8, hy - 12, 3, hy - 8.5]), 0.6);
+    return;
+  }
   shape(ctx, vertical(ctx, hy - 13, hy - 6, '#fff0a0', '#c8901a'), () =>
     poly(ctx, [-4.5, hy - 6, -5, hy - 11, -2, hy - 8, 1, hy - 13, 4, hy - 8, 7, hy - 11, 6.5, hy - 6]),
   );

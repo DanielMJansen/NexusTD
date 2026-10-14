@@ -384,10 +384,13 @@ function drawHero(ctx: Ctx, p: Required<SpritePose>): void {
   const step = walk(p);
   const bob = p.moving ? Math.abs(step) * -1.2 : Math.sin(p.time * 2.5) * 0.5;
   const sway = Math.sin(p.time * 3) * 1.5 + step * 2;
+  const look = skin(p, 'look', '');
 
-  // capa
+  // capa (rasgada em tiras no Cavaleiro Negro)
   shape(ctx, vertical(ctx, -8, 12, skin(p, 'cape', '#3a4fa8'), skin(p, 'capeDark', '#1d2763')), () =>
-    poly(ctx, [-6, -7 + bob, 5, -7 + bob, 2, 11, -6 - sway, 13, -12 - sway, 10]),
+    look === 'black'
+      ? poly(ctx, [-6, -7 + bob, 5, -7 + bob, 2, 11, -2 - sway, 14, -4 - sway, 9, -7 - sway, 15, -9 - sway, 9, -13 - sway, 13, -12 - sway, 6])
+      : poly(ctx, [-6, -7 + bob, 5, -7 + bob, 2, 11, -6 - sway, 13, -12 - sway, 10]),
   );
   // pernas
   shape(ctx, '#3a2a22', () => ctx.roundRect(-5 + step * 2, 6, 4, 8, 1.5));
@@ -396,6 +399,12 @@ function drawHero(ctx: Ctx, p: Required<SpritePose>): void {
   shape(ctx, vertical(ctx, -8, 9, skin(p, 'tunic', '#7d9be8'), skin(p, 'tunicDark', '#3c55b0')), () =>
     ctx.roundRect(-7, -8 + bob, 14, 16 - bob, [5, 5, 3, 3]),
   );
+  if (look === 'templar') {
+    // tabardo branco com a cruz vermelha
+    shape(ctx, vertical(ctx, -8, 10, '#ffffff', '#d8d0c0'), () => poly(ctx, [-5, -8 + bob, 5, -8 + bob, 4.5, 10, -4.5, 10]), 0.9);
+    shape(ctx, '#d4302a', () => ctx.rect(-1, -6 + bob, 2, 13), 0);
+    shape(ctx, '#d4302a', () => ctx.rect(-4, -2 + bob, 8, 2), 0);
+  }
   shape(ctx, '#5a3a24', () => ctx.rect(-7, 2 + bob * 0.5, 14, 2.6), 1);
   shape(ctx, '#f0c35a', () => ctx.rect(-1.5, 1.8 + bob * 0.5, 3, 3), 0.8);
   // cachecol
@@ -426,14 +435,33 @@ function drawHero(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.quadraticCurveTo(-2, hy - 6, -5, hy - 2);
     ctx.quadraticCurveTo(-6, hy, -8.6, hy + 1);
   });
-  eye(ctx, 1.2, hy + 0.5, 2.1, '#3a6ad8');
-  eye(ctx, 5.6, hy + 0.5, 2.1, '#3a6ad8');
+  eye(ctx, 1.2, hy + 0.5, 2.1, look === 'black' ? '#9a5cff' : '#3a6ad8');
+  eye(ctx, 5.6, hy + 0.5, 2.1, look === 'black' ? '#9a5cff' : '#3a6ad8');
   blush(ctx, -1.5, hy + 3.6);
   ctx.strokeStyle = OUTLINE;
   ctx.lineWidth = 0.9;
   ctx.beginPath();
   ctx.arc(4, hy + 3.6, 1.4, 0.2, Math.PI - 0.2);
   ctx.stroke();
+  if (look === 'black') {
+    // elmo de ferro negro com chifres curvos
+    for (const side of [-1, 1]) {
+      shape(ctx, vertical(ctx, hy - 20, hy - 6, '#e8e0f0', '#6a5a7a'), () => {
+        ctx.moveTo(side * 5, hy - 6);
+        ctx.quadraticCurveTo(side * 13, hy - 9, side * 11, hy - 19);
+        ctx.quadraticCurveTo(side * 9, hy - 12, side * 2.5, hy - 8.5);
+        ctx.closePath();
+      }, 0.9);
+    }
+    shape(ctx, vertical(ctx, hy - 11, hy - 3, '#4a4458', '#16121e'), () => {
+      ctx.moveTo(-9, hy - 2);
+      ctx.quadraticCurveTo(-9.5, hy - 11, 0.5, hy - 11);
+      ctx.quadraticCurveTo(10, hy - 11, 9.4, hy - 2);
+      ctx.lineTo(-9, hy - 2);
+      ctx.closePath();
+    });
+    shape(ctx, '#9a5cff', () => ctx.rect(-6, hy - 4, 13, 0.9), 0);
+  }
 }
 
 // ---------- nobre vampiro (herói) ----------
@@ -442,6 +470,18 @@ function drawVampireLord(ctx: Ctx, p: Required<SpritePose>): void {
   const step = walk(p);
   const bob = p.moving ? Math.abs(step) * -1.2 : Math.sin(p.time * 2.2) * 0.5;
   const sway = Math.sin(p.time * 3) * 1.5 + step * 2.5;
+  const look = skin(p, 'look', '');
+  if (look === 'moon') {
+    // lua de sangue atrás e asas de morcego abertas nas costas
+    halo(ctx, -7, -24 + bob, 12, '#ff3a3a', 0.5);
+    shape(ctx, radial(ctx, -8, -25 + bob, 7, '#ff8a6a', '#a01a1a'), () => circle(ctx, -7, -24 + bob, 6.5), 0.6);
+    const beat = Math.sin(p.time * 3) * 1.5;
+    for (const side of [-1, 1]) {
+      shape(ctx, vertical(ctx, -20, 2, '#6a2a3a', '#1a0810'), () =>
+        poly(ctx, [side * 3, -7 + bob, side * 14, -17 - beat + bob, side * 13, -11 - beat + bob, side * 17, -8 - beat + bob, side * 12, -4 + bob, side * 13, 0 + bob, side * 4, -2 + bob]),
+      0.9);
+    }
+  }
 
   // capa longa com forro vermelho
   shape(ctx, vertical(ctx, -9, 14, skin(p, 'cape', '#2a1440'), skin(p, 'capeDark', '#0e0618')), () =>
@@ -482,6 +522,23 @@ function drawVampireLord(ctx: Ctx, p: Required<SpritePose>): void {
   glowingEye(ctx, 5.2, hy + 0.8, 1.4, '#ff3048');
   shape(ctx, '#ffffff', () => poly(ctx, [2.5, hy + 4.4, 3.4, hy + 4.4, 3, hy + 6]), 0.4);
   shape(ctx, '#ffffff', () => poly(ctx, [4.4, hy + 4.4, 5.3, hy + 4.4, 4.9, hy + 6]), 0.4);
+  if (look === 'crimson') {
+    // monóculo dourado com corrente e rosa na lapela
+    ctx.save();
+    ctx.strokeStyle = GOLD;
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    circle(ctx, 5.2, hy + 0.8, 2.4);
+    ctx.stroke();
+    ctx.restore();
+    shape(ctx, '#bfe8ff44', () => circle(ctx, 5.2, hy + 0.8, 2.3), 0);
+    line(ctx, GOLD, 0.5, () => {
+      ctx.moveTo(6.8, hy + 2.6);
+      ctx.quadraticCurveTo(8, hy + 8, 3.5, -5 + bob);
+    }, false);
+    shape(ctx, '#e0203a', () => circle(ctx, -3.5, -5 + bob, 1.6), 0.5);
+    shape(ctx, '#3a8a3a', () => ellipse(ctx, -5, -4 + bob, 1.2, 0.6, 0.6), 0);
+  }
 }
 
 // ---------- draconato (herói) ----------
@@ -491,6 +548,18 @@ function drawDraconian(ctx: Ctx, p: Required<SpritePose>): void {
   const bob = p.moving ? Math.abs(step) * -1 : Math.sin(p.time * 2) * 0.5;
   const tail = Math.sin(p.time * 3) * 2;
   const flap = Math.sin(p.time * 5) * 0.15;
+  const look = skin(p, 'look', '');
+  if (look === 'obsidian') {
+    // cristais vulcânicos brotando das costas
+    for (const [x, y, h, a] of [[-6, -6, 9, -0.7], [-7, 0, 7, -1], [-4, -10, 7, -0.4]] as const) {
+      ctx.save();
+      ctx.translate(x, y + bob);
+      ctx.rotate(a);
+      shape(ctx, vertical(ctx, -h, 0, '#d8b8ff', '#4a1a8a'), () => poly(ctx, [-2, 0, -1.4, -h * 0.7, 0, -h, 1.4, -h * 0.7, 2, 0]), 0.8);
+      ctx.restore();
+    }
+    halo(ctx, -7, -6 + bob, 8, '#9a5cff', 0.4);
+  }
 
   // cauda e asinhas nas costas
   shape(ctx, skin(p, 'bodyDark', '#8a2418'), () => {
@@ -544,6 +613,15 @@ function drawDraconian(ctx: Ctx, p: Required<SpritePose>): void {
     ctx.restore();
   }
   eye(ctx, 3, hy - 1.5, 2.6, '#e0a020', 0.3);
+  if (look === 'gold') {
+    // coroa entre os chifres e colar de moedas
+    shape(ctx, vertical(ctx, hy - 14, hy - 7, '#fff2b0', '#c8901a'), () => poly(ctx, [-3, hy - 7, -3.6, hy - 12, -1.2, hy - 9.5, 1, hy - 13.5, 3.2, hy - 9.5, 5.6, hy - 12, 5, hy - 7]), 0.7);
+    shape(ctx, '#e0243a', () => circle(ctx, 1, hy - 9, 0.9), 0);
+    for (let i = 0; i < 5; i++) {
+      const a = Math.PI * 0.15 + (i / 4) * Math.PI * 0.7;
+      shape(ctx, GOLD, () => circle(ctx, 0.5 + Math.cos(a) * 5.5, -9 + bob + Math.sin(a) * 3.5, 1.2), 0.5);
+    }
+  }
 }
 
 // ---------- arqueiro (humano) ----------

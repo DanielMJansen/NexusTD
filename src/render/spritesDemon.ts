@@ -615,6 +615,11 @@ export function drawInfernal(ctx: Ctx, p: Pose): void {
   }
 }
 
+/** Rolo de fumaça (ou bafo gelado) que some ao subir. */
+function glowSmoke(ctx: Ctx, x: number, y: number, r: number, alpha: number, color = '#2a1a34'): void {
+  halo(ctx, x, y, r, color, alpha);
+}
+
 /** Herói Arquidemônio: demônio alto com chifres, capa de fogo e espada flamejante. */
 export function drawArchdemon(ctx: Ctx, p: Pose): void {
   const skinColor = skin(p, 'skin', '#c83a2a');
@@ -622,6 +627,14 @@ export function drawArchdemon(ctx: Ctx, p: Pose): void {
   const cape = skin(p, 'cape', '#1a0808');
   const fire = skin(p, 'fire', '#ff8a2a');
   const step = p.moving ? Math.sin(p.time * 8) : 0;
+  const look = skin(p, 'look', '');
+  if (look === 'shadow') {
+    // capa de fumaça: rolos escuros subindo atrás do corpo
+    for (let i = 0; i < 5; i++) {
+      const t = (p.time * 0.45 + i / 5) % 1;
+      glowSmoke(ctx, -6 + Math.sin(t * 5 + i) * 4 - t * 4, 6 - t * 26, 3 + t * 5, 1 - t);
+    }
+  }
   demonWings(ctx, p.time * 0.8, cape, 1.25, -8);
   shape(ctx, skinDark, () => ctx.roundRect(-5 + step * 1.5, 6, 4.5, 8, 1.5));
   shape(ctx, skinDark, () => ctx.roundRect(0.5 - step * 1.5, 6, 4.5, 8, 1.5));
@@ -641,7 +654,28 @@ export function drawArchdemon(ctx: Ctx, p: Pose): void {
   ctx.restore();
   const hy = -17;
   shape(ctx, radial(ctx, 1, hy, 7, skinColor, skinDark), () => circle(ctx, 1, hy, 6.5));
-  horns(ctx, 1, hy - 4, 1.2, '#1a0a0a');
+  if (look === 'frost') {
+    // chifres de gelo maiores, com pingentes pendurados
+    horns(ctx, 1, hy - 4, 1.5, '#cfeeff');
+    for (const side of [-1, 1]) {
+      for (const k of [0.45, 0.75]) {
+        const x = 1 + side * (2 + 4 * k) * 1.5;
+        const y = hy - 4 - 6 * k * 1.5;
+        shape(ctx, '#ffffff', () => poly(ctx, [x - 0.7, y, x + 0.7, y, x, y + 2.6]), 0.3);
+      }
+    }
+    const k = (p.time * 0.8) % 1;
+    glowSmoke(ctx, 8 + k * 4, hy + 2 - k * 3, 1.5 + k * 3, 0.8 * (1 - k), '#e8fbff');
+  } else if (look === 'shadow') {
+    // coroa de chifres: cinco pontas negras em leque
+    for (let i = 0; i < 5; i++) {
+      const a = -Math.PI / 2 + (i - 2) * 0.42;
+      const len = i === 2 ? 11 : i % 2 ? 8 : 9.5;
+      shape(ctx, vertical(ctx, hy - 18, hy - 5, '#3a2a4a', '#0a0410'), () => poly(ctx, [1 + Math.cos(a - 0.18) * 5.5, hy + Math.sin(a - 0.18) * 5.5, 1 + Math.cos(a) * (5.5 + len), hy + Math.sin(a) * (5.5 + len), 1 + Math.cos(a + 0.18) * 5.5, hy + Math.sin(a + 0.18) * 5.5]), 0.7);
+    }
+  } else {
+    horns(ctx, 1, hy - 4, 1.2, '#1a0a0a');
+  }
   glowingEye(ctx, -0.5, hy, 1.4, fire);
   glowingEye(ctx, 3.5, hy, 1.4, fire);
   ctx.strokeStyle = '#2a0808';

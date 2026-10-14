@@ -594,4 +594,30 @@ export function drawColossus(ctx: Ctx, p: Pose): void {
   shape(ctx, moss, () => ellipse(ctx, 0, -20, 5, 1.6), 0.5);
   glowingEye(ctx, -1.5, -15.5, 1.2, rune);
   glowingEye(ctx, 2.5, -15.5, 1.2, rune);
+  const look = skin(p, 'look', '');
+  if (look === 'frost') {
+    // pingentes de gelo pendurados nos braços e no queixo, neve nos ombros
+    for (const [x, y, h] of [[-17, 6, 4], [-14.5, 6, 3], [-3, -11, 3], [0, -11, 4.5], [3, -11, 3]] as const) {
+      shape(ctx, vertical(ctx, y, y + h, '#ffffff', '#7ac8f0'), () => poly(ctx, [x - 1, y, x + 1, y, x, y + h]), 0.4);
+    }
+    for (const side of [-1, 1]) shape(ctx, '#ffffff', () => ellipse(ctx, side * 11, -12.5, 4, 1.6, side * 0.3), 0.5);
+  }
+  if (look === 'lava') {
+    // lava escorrendo das rachaduras e fumaça subindo dos ombros
+    for (let i = 0; i < 3; i++) {
+      const t = (p.time * 0.7 + i / 3) % 1;
+      shape(ctx, '#ffb040', () => ellipse(ctx, -8 + i * 8, -4 + t * 14, 1.1, 1.8), 0);
+    }
+    line(ctx, '#ff8a2a', 1, () => {
+      ctx.moveTo(-9, -8);
+      ctx.lineTo(-6, -3);
+      ctx.lineTo(-8, 2);
+      ctx.moveTo(7, -6);
+      ctx.lineTo(9, 0);
+    }, false);
+    for (const side of [-1, 1]) {
+      const t = (p.time * 0.6 + (side > 0 ? 0.5 : 0)) % 1;
+      halo(ctx, side * 9 + Math.sin(t * 6) * 2, -14 - t * 14, 3 + t * 3, '#6a5a5a', 0.7 * (1 - t));
+    }
+  }
 }

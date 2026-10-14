@@ -664,8 +664,33 @@ export function drawLycan(ctx: Ctx, p: Pose): void {
   });
   shape(ctx, skin(p, 'leather', '#6a4a2a'), () => ctx.rect(3, -2, 3, 4), 0.6);
   for (const dy of [-1.5, 0.5, 2.5]) shape(ctx, '#f4ecd8', () => poly(ctx, [9, dy, 13, dy + 0.6, 9, dy + 1.2]), 0.5);
+  const look = skin(p, 'look', '');
+  if (look === 'shadow') {
+    // algema com a corrente partida pendurada no pulso
+    shape(ctx, '#8a8698', () => ctx.roundRect(5, -2.4, 3, 4.8, 1), 0.6);
+    for (let k = 0; k < 3; k++) {
+      ctx.strokeStyle = '#8a8698';
+      ctx.lineWidth = 0.9;
+      ctx.beginPath();
+      ellipse(ctx, 6.5 + Math.sin(p.time * 4 + k) * 0.5, 4 + k * 2.6, 0.9, 1.4);
+      ctx.stroke();
+    }
+  }
   ctx.restore();
-  wolfHead(ctx, -16 + bob, fur, furDark, '#ffd23a', 0, p.attack);
+  wolfHead(ctx, -16 + bob, fur, furDark, look === 'shadow' ? '#c86aff' : look === 'arctic' ? '#7ad8ff' : '#ffd23a', 0, p.attack);
+  if (look === 'shadow') halo(ctx, 6.5, -17.5 + bob, 5, '#c86aff', 0.7);
+  if (look === 'arctic') {
+    // gelo cristalizado nos ombros e bafo gelado
+    for (const [x, h, a] of [[-6, 6, -0.6], [-3.5, 8, -0.2], [4, 7, 0.3], [6.5, 5, 0.6]] as const) {
+      ctx.save();
+      ctx.translate(x, -8 + bob);
+      ctx.rotate(a);
+      shape(ctx, vertical(ctx, -h, 0, '#ffffff', '#7ac8f0'), () => poly(ctx, [-1.4, 0, 0, -h, 1.4, 0]), 0.6);
+      ctx.restore();
+    }
+    const k = (p.time * 0.8) % 1;
+    halo(ctx, 17 + k * 4, -14 + bob - k * 2, 2 + k * 3, '#e8fbff', 0.7 * (1 - k));
+  }
 }
 
 // ---------- fantasmas ----------
@@ -1622,6 +1647,20 @@ export function drawWitch(ctx: Ctx, p: Pose): void {
   eye(ctx, 1.2, hy + 0.5, 1.8, accent);
   eye(ctx, 5, hy + 0.5, 1.8, accent);
   witchHat(ctx, hy, skin(p, 'hat', '#141018'), skin(p, 'hatBand', '#e07a2a'), Math.sin(p.time * 2) * 0.6);
+  const look = skin(p, 'look', '');
+  if (look === 'forest') {
+    // musgo na aba e cogumelos brotando do chapéu
+    shape(ctx, '#5aa83a', () => ellipse(ctx, -4, hy - 5.5, 5, 1.6), 0.5);
+    for (const [x, y, s, c] of [[-6, hy - 7, 1.2, '#e04a3a'], [3, hy - 11, 1, '#e8c860'], [-1, hy - 15, 0.9, '#e04a3a']] as const) {
+      shape(ctx, '#f4e8d0', () => ctx.rect(x - 0.5 * s, y, 1 * s, 2.2 * s), 0.4);
+      shape(ctx, c, () => {
+        ctx.ellipse(x, y, 2.2 * s, 1.8 * s, 0, Math.PI, TAU);
+        ctx.closePath();
+      }, 0.5);
+      shape(ctx, '#ffffff', () => circle(ctx, x - 0.6 * s, y - 0.8 * s, 0.4 * s), 0);
+    }
+  }
+  if (look === 'moon') spectralCat(ctx, -6, -8 + bob, p.time);
   // cajado com orbe
   ctx.save();
   ctx.translate(10, 2 + bob);

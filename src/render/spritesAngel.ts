@@ -553,7 +553,20 @@ export function drawArchangel(ctx: Ctx, p: Pose): void {
   const armorDark = skin(p, 'armorDark', '#8a6418');
   const glow = skin(p, 'glow', '#fff6c0');
   const step = p.moving ? Math.sin(p.time * 8) : 0;
+  const look = skin(p, 'look', '');
   featherWings(ctx, p.time * 0.7, wing, 1.35, -10);
+  if (look === 'fallen') {
+    // penas negras soltas caindo das asas esfarrapadas
+    for (let i = 0; i < 3; i++) {
+      const t = (p.time * 0.35 + i / 3) % 1;
+      ctx.save();
+      ctx.globalAlpha *= 1 - t;
+      ctx.translate(-12 + i * 5 + Math.sin(t * 6 + i) * 3, -14 + t * 26);
+      ctx.rotate(Math.sin(t * 5 + i) * 0.8);
+      shape(ctx, '#3a3048', () => ellipse(ctx, 0, 0, 1, 2.6), 0.4);
+      ctx.restore();
+    }
+  }
   shape(ctx, '#5a5068', () => ctx.roundRect(-5 + step * 1.5, 6, 4.5, 8, 1.5));
   shape(ctx, '#5a5068', () => ctx.roundRect(0.5 - step * 1.5, 6, 4.5, 8, 1.5));
   shape(ctx, vertical(ctx, -11, 8, armor, armorDark), () => ctx.roundRect(-7, -11, 14, 18, [5, 5, 3, 3]));
@@ -580,7 +593,38 @@ export function drawArchangel(ctx: Ctx, p: Pose): void {
     ctx.quadraticCurveTo(0, hy - 10.5, -7, hy - 3);
     ctx.closePath();
   }, 0.7);
-  eye(ctx, 1, hy + 0.8, 1.6, '#3a8ad8', 0.4);
-  eye(ctx, 4.6, hy + 0.8, 1.6, '#3a8ad8', 0.4);
-  halo(ctx, 1, hy - 10, 6);
+  eye(ctx, 1, hy + 0.8, 1.6, look === 'fallen' ? '#ff5a6a' : '#3a8ad8', 0.4);
+  eye(ctx, 4.6, hy + 0.8, 1.6, look === 'fallen' ? '#ff5a6a' : '#3a8ad8', 0.4);
+  if (look === 'silver') {
+    // elmo prateado com asinhas dos lados (cobre o cabelo)
+    for (const side of [-1, 1]) {
+      shape(ctx, vertical(ctx, hy - 14, hy - 2, '#ffffff', '#a8b0c8'), () => poly(ctx, [1 + side * 5, hy - 5, 1 + side * 12, hy - 13, 1 + side * 10.5, hy - 9, 1 + side * 12.5, hy - 8, 1 + side * 9, hy - 5, 1 + side * 11, hy - 3.5, 1 + side * 6, hy - 2.5]), 0.7);
+    }
+    shape(ctx, vertical(ctx, hy - 9, hy - 1, '#f4f6ff', '#8a92b0'), () => {
+      ctx.moveTo(-6.5, hy - 1);
+      ctx.quadraticCurveTo(-7, hy - 9.5, 1, hy - 9.5);
+      ctx.quadraticCurveTo(9, hy - 9.5, 8.5, hy - 1);
+      ctx.lineTo(-6.5, hy - 1);
+      ctx.closePath();
+    }, 0.9);
+    shape(ctx, '#bfe8ff', () => circle(ctx, 1.5, hy - 6, 1), 0.4);
+    halo(ctx, 1, hy - 13, 6, '#bfe8ff');
+  } else if (look === 'fallen') {
+    // auréola rachada, torta e vermelha
+    ctx.save();
+    ctx.translate(1, hy - 10);
+    ctx.rotate(-0.35);
+    ctx.strokeStyle = '#ff5a6a';
+    ctx.shadowColor = '#ff5a6a';
+    ctx.shadowBlur = 8;
+    ctx.lineWidth = 1.3;
+    for (const [a0, a1] of [[0.2, 2.4], [2.8, 4.3], [4.7, 5.9]] as const) {
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 6, 2, 0, a0, a1);
+      ctx.stroke();
+    }
+    ctx.restore();
+  } else {
+    halo(ctx, 1, hy - 10, 6);
+  }
 }

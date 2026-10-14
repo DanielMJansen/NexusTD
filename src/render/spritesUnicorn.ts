@@ -783,12 +783,32 @@ export function drawAlicorn(ctx: Ctx, p: Pose): void {
   const coat = skin(p, 'coat', '#fbf6ff');
   const coatDark = skin(p, 'coatDark', '#c8b8e8');
   const wingColor = skin(p, 'wing', '#ffffff');
+  const look = skin(p, 'look', '');
+  const nightmare = look === 'nightmare';
   const { hx, hy } = horse(
     ctx,
     p,
-    { coat, coatDark, hoof: skin(p, 'hoof', '#b89ad8'), mane: RAINBOW, horn: skin(p, 'horn', GOLD), size: 1.1 },
-    { wings: { color: wingColor, dark: skin(p, 'wingDark', '#d0c4ec') } },
+    {
+      coat,
+      coatDark,
+      hoof: skin(p, 'hoof', '#b89ad8'),
+      // Pesadelo: crina e cauda de fogo e olhos acesos; Celestial: crina de aurora
+      mane: look === 'celestial' ? ['#7affc8', '#7ac8ff', '#c08aff', '#ffffff'] : RAINBOW,
+      maneStyle: nightmare ? 'flame' : 'strands',
+      flame: FIRE_FLAME,
+      eye: nightmare ? '#ff6a1a' : undefined,
+      horn: skin(p, 'horn', GOLD),
+      size: 1.1,
+    },
+    { wings: { color: wingColor, dark: skin(p, 'wingDark', '#d0c4ec'), shape: nightmare ? 'bat' : 'feather' } },
   );
+  if (look === 'celestial') {
+    // estrelas cintilando na pelagem
+    for (const [x, y] of [[-7, -3], [-2, 0], [4, -4], [-10, 1]] as const) {
+      halo(ctx, x * 1.1, y * 1.1, 2.5, '#bfe8ff', 0.5 + Math.sin(p.time * 4 + x) * 0.4);
+      shape(ctx, '#ffffff', () => star(ctx, x * 1.1, y * 1.1, 1.1), 0);
+    }
+  }
   // coroa
   shape(ctx, vertical(ctx, hy - 8, hy - 3, '#fff2b0', GOLD), () => {
     ctx.moveTo(hx - 3, hy - 3.5);
@@ -800,5 +820,5 @@ export function drawAlicorn(ctx: Ctx, p: Pose): void {
     ctx.lineTo(hx + 2.5, hy - 3);
     ctx.closePath();
   }, 0.6);
-  hornGlow(ctx, p, hx, hy, '#ffd0f4');
+  hornGlow(ctx, p, hx, hy, nightmare ? '#ff8a3a' : look === 'celestial' ? '#bfe8ff' : '#ffd0f4');
 }
