@@ -167,7 +167,7 @@ const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantT
   reaper: {
     rare: { name: 'Ceifador Pálido', colors: ['#ffffff', '#c8d8f0', '#5ac8ff'], strength: 0, accent: '#8ad0ff', art: true },
     epic: { name: 'Ceifador do Dia dos Mortos', colors: ['#ffd040', '#ff9a1a', '#ff5a8a'], strength: 0, accent: '#ff9a1a', art: true },
-    legendary: { name: 'Ceifador Cósmico', colors: ['#ffffff', '#bfd0ff', '#2a2a7a'], strength: 0, accent: '#bfd0ff', particles: 'star', art: true },
+    legendary: { name: 'Ceifador Cósmico', colors: ['#ffffff', '#ff6ad8', '#8a4ae0'], strength: 0, accent: '#c8a0ff', art: true },
   },
   drainer: {
     rare: { name: 'Sanguessuga Pálida', colors: ['#e0f0ff', '#8ad0ff', '#5a6a80'], strength: 0, accent: '#8ad0ff', art: true },

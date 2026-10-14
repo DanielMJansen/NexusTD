@@ -5,6 +5,7 @@ import {
   circle,
   darken,
   ellipse,
+  star,
   starDots,
   formA,
   formB,
@@ -186,7 +187,7 @@ const REAPER_VARIANTS = {
   // Ceifador do Dia dos Mortos: calavera pintada, flores de cempasúchil
   epic: { robe: ['#3a1a4a', '#120818'], hood: '#4a2260', face: '#f4ecdc', eyes: '#ff5a8a' },
   // Ceifador Cósmico: manto de galáxia, foice de lua, ampulheta de estrelas
-  legendary: { robe: ['#2a2a7a', '#06061a'], hood: '#34348a', face: '#05030a', eyes: '#ffffff' },
+  legendary: { robe: ['#8a4ae0', '#120a3a'], hood: '#6a3ac8', face: '#05030a', eyes: '#ffffff' },
 } as const;
 
 export function drawReaper(ctx: Ctx, p: Pose): void {
@@ -239,7 +240,24 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
       ctx.closePath();
     });
   }
-  if (p.variant === 'legendary') starDots(ctx, p.time, [[-4, -4], [3, 2], [-2, 8], [5, -6], [-6, 4]]);
+  if (p.variant === 'legendary') {
+    // faixas de nebulosa (rosa e azul) no manto e estrelas
+    for (const [color, y0] of [['#ff6ad8', -4], ['#5ac8ff', 4]] as const) {
+      ctx.save();
+      ctx.globalAlpha *= 0.55 + Math.sin(p.time * 2 + y0) * 0.15;
+      line(ctx, color, 2.2, () => {
+        ctx.moveTo(-7, y0);
+        ctx.quadraticCurveTo(0, y0 - 4 + Math.sin(p.time * 1.5) * 1.5, 7, y0 + 1);
+      }, false);
+      ctx.restore();
+    }
+    starDots(ctx, p.time, [[-4, -4], [3, 2], [-2, 8], [5, -6], [-6, 4], [1, 11]]);
+    // ampulheta de estrelas no peito
+    shape(ctx, '#ffe08a', () => ctx.rect(-2, -9, 4, 0.8), 0.3);
+    shape(ctx, '#ffe08a', () => ctx.rect(-2, -3.4, 4, 0.8), 0.3);
+    shape(ctx, '#c8e0ffaa', () => poly(ctx, [-1.6, -8.2, 1.6, -8.2, 0, -6.2, 1.6, -3.4, -1.6, -3.4, 0, -6.2]), 0.4);
+    halo(ctx, 0, -6, 3, '#ffffff', 0.7);
+  }
   if (p.variant === 'epic') {
     // flores de cempasúchil na barra do manto
     for (const [x, y] of [[-5, 10], [0, 8], [5, 10]] as const) {
@@ -264,12 +282,22 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
     ctx.shadowColor = moon ? '#bfd0ff' : '#b86aff';
     ctx.shadowBlur = 8;
   }
-  shape(ctx, vertical(ctx, -18, -8, moon ? '#ffffff' : '#e8ecf4', moon ? '#bfd0ff' : '#8a92a8'), () => {
-    ctx.moveTo(0, -16);
-    ctx.quadraticCurveTo(12 * big, -20 * big, 16 * big, -9 * big);
-    ctx.quadraticCurveTo(9 * big, -14 * big, 0, -12);
-    ctx.closePath();
-  });
+  if (moon) {
+    // lâmina de lua crescente grande e brilhante
+    halo(ctx, 8, -16, 12, '#bfd0ff', 0.7);
+    shape(ctx, vertical(ctx, -28, -6, '#ffffff', '#a8c0ff'), () => {
+      ctx.arc(6, -15, 11, -2.6, 0.6);
+      ctx.arc(11, -19, 8, 0.75, -2.2, true);
+      ctx.closePath();
+    }, 0.6);
+  } else {
+    shape(ctx, vertical(ctx, -18, -8, '#e8ecf4', '#8a92a8'), () => {
+      ctx.moveTo(0, -16);
+      ctx.quadraticCurveTo(12 * big, -20 * big, 16 * big, -9 * big);
+      ctx.quadraticCurveTo(9 * big, -14 * big, 0, -12);
+      ctx.closePath();
+    });
+  }
   ctx.restore();
   // capuz com rosto na sombra (calavera pintada no Dia dos Mortos)
   shape(ctx, vertical(ctx, -27, -8, rv ? rv.hood : dark ? '#3a2050' : '#3a3a44', '#0a080e'), () => poly(ctx, [-8, -8, -6, -22, 0, -27, 7, -21, 8, -8]));
@@ -292,6 +320,16 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
   }
   glowingEye(ctx, 0, -15.5, 1, rv ? rv.eyes : dark ? '#c86aff' : '#ff3a4a');
   glowingEye(ctx, 3.4, -15.5, 1, rv ? rv.eyes : dark ? '#c86aff' : '#ff3a4a');
+  if (p.variant === 'legendary') {
+    // coroa de estrelas orbitando o capuz
+    for (let i = 0; i < 5; i++) {
+      const a = p.time * 1.2 + (i * TAU) / 5;
+      const sx = 0.5 + Math.cos(a) * 9;
+      const sy = -26 + Math.sin(a) * 2.6;
+      halo(ctx, sx, sy, 2.4, '#ffffff', 0.7);
+      shape(ctx, '#ffffff', () => star(ctx, sx, sy, 1.6), 0);
+    }
+  }
   if (souls) {
     // lanterna com almas verdes
     line(ctx, '#5a4a3a', 0.8, () => {
