@@ -5,6 +5,7 @@ import {
   darken,
   ellipse,
   eye,
+  flame,
   formA,
   formB,
   glowingEye,
@@ -117,6 +118,14 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
 
   // rosto e véu (capuz pontudo na Inquisidora)
   const hy = -15 + breathe;
+  if (grand) {
+    // Grã-Inquisidora: auréola de chamas grande atrás da cabeça
+    halo(ctx, 1, hy - 3, 18, '#ff8a3a', 0.4 + p.attack * 0.3);
+    for (let i = 0; i < 9; i++) {
+      const a = -Math.PI / 2 + (i - 4) * 0.36;
+      flame(ctx, 1 + Math.cos(a) * 11, hy - 3 + Math.sin(a) * 11, 2.6, 8 + (i % 2) * 2, a + Math.PI / 2, p.time + i);
+    }
+  }
   shape(ctx, radial(ctx, 1, hy, 7, '#ffe6cf', '#e9b994'), () => circle(ctx, 1, hy, 6.5));
   if (inq) {
     shape(ctx, vertical(ctx, hy - 14, hy + 8, cv ? cv.inq[0] : '#8a1a20', cv ? cv.inq[1] : '#2a0608'), () =>
@@ -192,6 +201,29 @@ export function drawCleric(ctx: Ctx, p: Pose): void {
 function drawSaint(ctx: Ctx, p: Pose): void {
   const t = p.time;
   const cv = p.variant ? CLERIC_VARIANTS[p.variant] : null;
+  // rosácea de vitral enorme atrás, girando devagar
+  ctx.save();
+  ctx.translate(0, -12);
+  ctx.rotate(t * 0.2);
+  halo(ctx, 0, 0, 22, cv ? cv.glow : '#ffe9a8', 0.45);
+  const colors = ['#ff6a8a', '#ffd040', '#6ab8ff', '#7ae8a0', '#c08aff', '#ff9a4a', '#6ab8ff', '#ffd040'];
+  colors.forEach((color, i) => {
+    const a0 = (i / colors.length) * TAU;
+    const a1 = ((i + 1) / colors.length) * TAU;
+    shape(ctx, color, () => {
+      ctx.moveTo(Math.cos(a0) * 7, Math.sin(a0) * 7);
+      ctx.arc(0, 0, 17, a0, a1);
+      ctx.arc(0, 0, 7, a1, a0, true);
+      ctx.closePath();
+    }, 0.9);
+  });
+  shape(ctx, '#fff6d0', () => circle(ctx, 0, 0, 7), 0.9);
+  ctx.strokeStyle = '#2a1a10';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  circle(ctx, 0, 0, 17);
+  ctx.stroke();
+  ctx.restore();
   // véu longo atrás, ondulando
   shape(ctx, vertical(ctx, -22, 16, cv ? cv.veil[0] : '#ffffff', cv ? cv.veil[1] : '#d8d0f0'), () => {
     ctx.moveTo(-3, -22);
@@ -404,7 +436,7 @@ const SWARM_VARIANTS = {
 } as const;
 
 /** Rei Morcego: um morcego grande de orelhas altas, presas e coroa. */
-function kingBat(ctx: Ctx, k: number, t: number, body: string, wing: string, eyes: string, mouth: number): void {
+function kingBat(ctx: Ctx, k: number, t: number, body: string, wing: string, eyes: string, mouth: number, crown = true): void {
   const flap = Math.sin(t * 5) * 1.6;
   ctx.save();
   ctx.scale(k, k);
@@ -426,9 +458,10 @@ function kingBat(ctx: Ctx, k: number, t: number, body: string, wing: string, eye
   glowingEye(ctx, 1.8, -2, 1.1, eyes);
   if (mouth > 0) shape(ctx, '#1a0410', () => ellipse(ctx, 0, 1.4, 1.8, mouth), 0);
   for (const x of [-0.9, 0.9]) shape(ctx, '#ffffff', () => poly(ctx, [x - 0.5, 0.6, x + 0.5, 0.6, x, 2.2]), 0.3);
-  // coroa
-  shape(ctx, vertical(ctx, -10, -5, '#fff2b0', '#c8901a'), () => poly(ctx, [-3, -5, -3.4, -9, -1.5, -7, 0, -10, 1.5, -7, 3.4, -9, 3, -5]), 0.7);
-  shape(ctx, '#e0243a', () => circle(ctx, 0, -6.4, 0.8), 0);
+  if (crown) {
+    shape(ctx, vertical(ctx, -10, -5, '#fff2b0', '#c8901a'), () => poly(ctx, [-3, -5, -3.4, -9, -1.5, -7, 0, -10, 1.5, -7, 3.4, -9, 3, -5]), 0.7);
+    shape(ctx, '#e0243a', () => circle(ctx, 0, -6.4, 0.8), 0);
+  }
   ctx.restore();
 }
 
@@ -524,7 +557,12 @@ export function drawBatSwarm(ctx: Ctx, p: Pose): void {
     const a = p.time * speed + (i * TAU) / count;
     tinyBat(ctx, Math.cos(a) * spread, Math.sin(a) * spread * 0.6, eternal ? 1.6 : 1.15, p.time + i, body, eyes, wing);
   }
-  // morcego-líder no centro (maior e de boca aberta na Revoada Faminta)
+  // morcego-líder no centro (maior e de boca aberta na Revoada Faminta; gigante na Fome Eterna)
+  if (eternal) {
+    kingBat(ctx, 1.05, p.time, sw ? sw.leader : '#6a2aa0', sw ? sw.wing : '#4a1a7a', eyes, 1.6 + p.attack * 1.5, false);
+    ctx.restore();
+    return;
+  }
   tinyBat(ctx, 0, -1, hunger ? 2.6 : 2.1, p.time * 0.8, sw ? sw.leader : hunger ? '#7a3ab0' : blood ? '#8a1a34' : '#6a2a5a', eyes, wing);
   if (hunger) {
     shape(ctx, '#1a0410', () => ellipse(ctx, 0, 1.6, 2.2, 1.3 + p.attack), 0);

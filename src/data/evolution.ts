@@ -21,8 +21,8 @@ export const EVOLUTION_LEVELS: EvolutionLevel[] = [
   { costMultiplier: 0, damage: 1, range: 1, scale: 1 },
   { costMultiplier: 1.5, damage: 1.5, range: 1.1, scale: 1.08 },
   { costMultiplier: 3, damage: 2.2, range: 1.2, scale: 1.18 },
-  { costMultiplier: 10, damage: 2.53, range: 1.2, scale: 1.22, attackSpeed: 1.05 },
-  { costMultiplier: 24, damage: 2.91, range: 1.2, scale: 1.26, attackSpeed: 1.1 },
+  { costMultiplier: 10, damage: 2.53, range: 1.2, scale: 1.28, attackSpeed: 1.05 },
+  { costMultiplier: 24, damage: 2.91, range: 1.2, scale: 1.38, attackSpeed: 1.1 },
 ];
 
 /** Nível da forma evoluída (escolha da vertente); os seguintes são estrelas. */
