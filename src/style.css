@@ -1192,7 +1192,8 @@ button:disabled {
   pointer-events: none;
 }
 
-.forms-btn:hover ~ .forms-pop {
+.forms-btn:hover ~ .forms-pop,
+.sheet-section:has(.forms-btn:hover) ~ .forms-pop {
   display: block;
 }
 
@@ -3891,14 +3892,138 @@ body:not([data-mode='run']) .panel.screen {
   font-size: 11px;
 }
 
-/* Coleção sem rolar: retratos numa linha, texto mais compacto e fichas da mesma altura */
+/* Coleção sem rolar: retratos numa linha, texto mais compacto e fichas da mesma altura.
+   Cada ficha usa as mesmas 7 faixas da grade (retratos, cabeçalho, descrição, informações, formas, visual, rodapé),
+   então as seções ficam alinhadas entre as fichas. */
 .creature-grid.three {
   align-items: stretch;
+  row-gap: 0;
 }
 
-.creature-grid.three .creature-card {
-  gap: 6px;
+.creature-grid.three .creature-card.sheet-card {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 6;
+  row-gap: 5px;
   padding: 8px 10px;
+  /* brilho da cor da criatura atrás do retrato principal (canto de cima à esquerda) */
+  background:
+    radial-gradient(circle at 38px 36px, color-mix(in srgb, var(--card-color) 24%, transparent), transparent 56px),
+    linear-gradient(#21173a, #150e26);
+}
+
+/* a ficha sob o mouse fica na frente das vizinhas (balões e janela das formas não ficam por baixo) */
+.creature-grid.three .creature-card.sheet-card:hover {
+  z-index: 20;
+}
+
+.sheet-card .sh-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sheet-card .sh-portrait {
+  width: 60px;
+  height: 60px;
+  flex: none;
+}
+
+.sheet-card .sh-title {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.sheet-card .sh-title b {
+  font: 700 17px var(--font-label);
+  color: var(--card-color);
+}
+
+.sheet-card .sh-class {
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.sheet-card .cc-status {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 0 7px;
+  border: 1px solid #3ad08a66;
+  border-radius: 999px;
+  background: #3ad08a1a;
+  font: 700 10.5px var(--font-label);
+  color: #7affb8;
+}
+
+.sheet-card .sh-forms {
+  position: relative;
+}
+
+.sheet-card .sh-forms .sheet-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sheet-card .sh-forms .forms-btn {
+  margin: 0 0 0 auto;
+  padding: 1px 8px;
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.sheet-card .forms-pop {
+  top: 22px;
+  left: -4px;
+}
+
+.sheet-card .sh-form-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.sheet-card .sh-form-portrait {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border: 1px solid var(--branch-color);
+  border-radius: 8px;
+  background: radial-gradient(color-mix(in srgb, var(--branch-color) 20%, transparent), transparent 70%);
+}
+
+.sheet-card .sh-form-row .sheet-form {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.creature-grid.three .cc-body {
+  display: contents !important;
+}
+
+.creature-grid.three .sh-block {
+  min-width: 0;
+}
+
+.creature-grid.three .sh-visual {
+  align-self: start;
+}
+
+.creature-grid.three .sheet-card {
+  font-size: 13.5px;
+  line-height: 1.25;
+}
+
+.creature-grid.three .cc-footer:empty {
+  display: block;
+  min-height: 0;
+  padding: 0;
 }
 
 .creature-grid.three .cc-portraits {

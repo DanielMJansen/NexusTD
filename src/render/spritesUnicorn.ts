@@ -63,7 +63,7 @@ interface HorseLook {
 interface WingLook {
   color: string;
   dark: string;
-  shape?: 'feather' | 'jagged' | 'bat';
+  shape?: 'feather' | 'jagged' | 'bat' | 'royal';
   size?: number;
   /** Ergue a asa (mais vertical). */
   raise?: number;
@@ -102,8 +102,39 @@ function wingPath(ctx: Ctx, kind: NonNullable<WingLook['shape']>): void {
   ctx.closePath();
 }
 
+/** Asa real: penas longas em leque, abertas para trás, com pontas douradas (Pégaso Real). */
+function royalWing(ctx: Ctx, x: number, y: number, w: WingLook, size: number, flap: number, back: boolean): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-0.4 - flap * 0.45 + (back ? 0.25 : 0));
+  ctx.scale(size * (w.size ?? 1), size * (w.size ?? 1));
+  const base = back ? w.dark : w.color;
+  // camada de penas longas (forma da asa normal, maior) com borda dourada
+  shape(ctx, vertical(ctx, -20, 2, base, back ? darken(w.dark, 0.2) : w.dark), () => wingPath(ctx, 'feather'), 0.8);
+  if (w.rim && !back) {
+    ctx.strokeStyle = w.rim;
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    wingPath(ctx, 'feather');
+    ctx.stroke();
+  }
+  // segunda camada de penas, menor e mais clara, por cima
+  if (!back) {
+    ctx.save();
+    ctx.translate(0.5, -0.5);
+    ctx.scale(0.62, 0.62);
+    shape(ctx, vertical(ctx, -20, 2, '#ffffff', w.color), () => wingPath(ctx, 'feather'), 0.6);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
 /** Asa (de trás para a frente: a de trás mais escura). */
 function wing(ctx: Ctx, x: number, y: number, w: WingLook, size: number, flap: number, back: boolean, t: number): void {
+  if (w.shape === 'royal') {
+    royalWing(ctx, x, y, w, size, flap, back);
+    return;
+  }
   const kind = w.shape ?? 'feather';
   ctx.save();
   ctx.translate(x, y);
@@ -751,10 +782,9 @@ export function drawWarPegasus(ctx: Ctx, p: Pose): void {
       wings: {
         color: pv ? shadeB(pv.wing[0]) : storm ? '#e0e8ff' : royal ? '#fff6dc' : '#ffffff',
         dark: pv ? pv.wing[1] : storm ? '#8a98c8' : royal ? '#d8b870' : '#c8c0e0',
-        shape: bat ? 'bat' : storm ? 'jagged' : 'feather',
+        shape: bat ? 'bat' : storm ? 'jagged' : royal ? 'royal' : 'feather',
         sparks: storm,
-        size: royal ? 1.35 : 1,
-        raise: royal ? 0.45 : 0,
+        size: royal ? (p.supreme ? 1.25 : 1.1) : 1,
         rim: royal ? GOLD : undefined,
       },
       decorate: (stage, x, y) => {

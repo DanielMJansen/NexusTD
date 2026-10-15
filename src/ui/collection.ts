@@ -77,45 +77,57 @@ function formsPopHtml(profile: Profile, def: CreatureDef): string {
   </div>`;
 }
 
-/** Ficha nova (em revisão): classe padronizada, como luta, termo próprio, formas e variantes. */
+/**
+ * Ficha da criatura em blocos fixos (cabeçalho, descrição, informações, formas, visual): cada bloco é
+ * uma faixa da grade compartilhada entre as fichas da aba, então as seções ficam alinhadas entre elas.
+ */
 function newSheetBody(profile: Profile, def: CreatureDef): string {
+  const owned = ownsCreature(profile, def.id);
+  const tier = profile.selectedVariants[def.id];
+  const look = owned ? (tier ? ` data-variant="${tier}"` : '') : ' data-silhouette';
   const stats = creatureStats(def)
     .map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`)
     .join('');
   const mechanic = mechanicHtml(def);
-  return `<div class="cc-head"><b>${def.name}</b><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${creatureClassLine(def)}</span></div>
-      <p class="cc-desc">${def.description}</p>
-      <p class="cc-lore">“${def.lore}”</p>
-      <dl class="cc-stats">${stats}</dl>
-      <p class="sheet-line">${fightText(def)}</p>
-      ${mechanic ? `<p class="sheet-line">${mechanic}</p>` : ''}
-      ${racePassiveHtml(def.race)}
-      <p class="sheet-section">Formas despertas <small>nível 3</small></p>
-      ${formsChangeHtml(def, true)}
-      ${ownsCreature(profile, def.id) ? visualPickerHtml(profile, def) : ''}`;
+  const status = owned ? `<span class="cc-status">${profile.team.includes(def.id) ? '✓ Na equipe' : '✓ Na coleção'}</span>` : '';
+  // cada forma desperta com o próprio retrato ao lado do nome e da descrição
+  const forms = formsChangeHtml(def, true)
+    .split('<div class="sheet-form"')
+    .slice(1)
+    .map((html, i) => `<div class="sh-form-row"><canvas class="sh-form-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}"${look} style="--branch-color:${def.ascended[i]!.color}"></canvas><div class="sheet-form"${html}</div>`)
+    .join('');
+  return `<div class="sh-block sh-header">
+        <canvas class="sh-portrait" data-sprite="${def.id}"${look}></canvas>
+        <div class="sh-title">
+          <b>${def.name}</b>
+          <span class="sh-class"><canvas class="inline-badge" data-race="${def.race}"></canvas>${creatureClassLine(def)}</span>
+          ${status}
+        </div>
+      </div>
+      <div class="sh-block">
+        <p class="cc-desc">${def.description}</p>
+        <p class="cc-lore">“${def.lore}”</p>
+      </div>
+      <div class="sh-block">
+        <dl class="cc-stats">${stats}</dl>
+        <p class="sheet-line">${fightText(def)}</p>
+        ${mechanic ? `<p class="sheet-line">${mechanic}</p>` : ''}
+        ${racePassiveHtml(def.race)}
+      </div>
+      <div class="sh-block sh-forms">
+        <p class="sheet-section">Formas despertas <small>nível 3</small>${owned ? '<button class="forms-btn" type="button">👁 Ver todas</button>' : ''}</p>
+        ${owned ? formsPopHtml(profile, def) : ''}
+        ${forms}
+      </div>
+      <div class="sh-block sh-visual">${owned ? visualPickerHtml(profile, def) : ''}</div>`;
 }
 
 function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): string {
   const owned = ownsCreature(profile, def.id);
   const footer = footerHtml(profile, def);
-  return `<div class="creature-card${owned ? '' : ' locked'}${justUnlocked ? ' just-unlocked' : ''}" data-card="${def.id}" style="--card-color:${def.color}">
-    <div class="cc-portraits">
-      <canvas data-sprite="${def.id}"${owned ? (profile.selectedVariants[def.id] ? ` data-variant="${profile.selectedVariants[def.id]}"` : '') : ' data-silhouette'}></canvas>
-      <span class="cc-evolve-label">Nível 3</span>
-      <div class="cc-branches">${def.ascended
-        .map(
-          (form, i) => `<figure style="--branch-color:${form.color}">
-            <canvas data-sprite="${def.id}" data-level="3" data-branch="${i}"${owned ? (profile.selectedVariants[def.id] ? ` data-variant="${profile.selectedVariants[def.id]}"` : '') : ' data-silhouette'}></canvas>
-            <figcaption>${i === 0 ? 'A' : 'B'} · ${form.name}</figcaption>
-          </figure>`,
-        )
-        .join('')}</div>
-      ${owned ? `<button class="forms-btn" type="button">👁 Ver formas despertas</button>${formsPopHtml(profile, def)}` : ''}
-    </div>
-    <div class="cc-body">
-      ${newSheetBody(profile, def)}
-      ${owned ? `<span class="cc-owned">${footer}</span>` : `<div class="cc-footer">${footer}</div>`}
-    </div>
+  return `<div class="creature-card sheet-card${owned ? '' : ' locked'}${justUnlocked ? ' just-unlocked' : ''}" data-card="${def.id}" style="--card-color:${def.color}">
+    ${newSheetBody(profile, def)}
+    <div class="cc-footer">${owned ? '' : footer}</div>
   </div>`;
 }
 
