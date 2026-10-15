@@ -103,11 +103,6 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
     shape(ctx, radial(ctx, -6, -24, 17, '#ff9a8a', '#a01a1a'), () => circle(ctx, -3, -20, 16), 0.8);
     for (const [x, y, r] of [[-9, -26, 3], [2, -14, 2.4], [-1, -29, 1.8], [-10, -15, 1.6]] as const) shape(ctx, '#c83a3a', () => circle(ctx, x, y, r), 0);
   }
-  if (primal) {
-    // Fera Primal: juba de brasas ardendo nas costas
-    halo(ctx, -4, -14, 16, '#ff6a1a', 0.45);
-    for (let i = 0; i < 6; i++) flame(ctx, -11 + i * 3, -9 - Math.abs(i - 2.5) * -1.2, 3.4, 15 - Math.abs(i - 2.5) * 2, -0.55 + i * 0.12, p.time + i);
-  }
   if (feral) {
     // cresce a partir dos pés
     const s = primal ? 1.18 : 1.1;
@@ -186,6 +181,11 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
     shape(ctx, '#2a2e4a', () => ctx.rect(-7.5, 1.5, 14.5, 2.6), 0.6);
   }
   ctx.restore();
+  if (primal) {
+    // Fera Primal: juba de brasas ardendo nas costas e nos ombros (por cima do tronco)
+    halo(ctx, -5, -12, 16, '#ff6a1a', 0.5);
+    for (let i = 0; i < 6; i++) flame(ctx, -10 + i * 2.6, -7 - Math.sin((i / 5) * Math.PI) * 4 + crouch, 3.2, 13 - Math.abs(i - 2.5) * 1.6, -0.7 + i * 0.16, p.time + i);
+  }
   // braço com garras: golpe de cima para baixo (prateadas e longas no Lunar, enormes no Feral)
   const clawLen = feral ? 7 : lunar ? 6 : 4;
   const clawColor = lunar ? '#e8f4ff' : '#f4ecd8';
@@ -875,6 +875,26 @@ export function drawHaunt(ctx: Ctx, p: Pose): void {
     const a = p.time * 0.7 + (i * TAU) / 4;
     halo(ctx, Math.cos(a) * 15, 4 + Math.sin(a) * 5, 7, '#e8fbff', 0.45);
   }
+  if (wrath) {
+    // Ira Eterna: corpo envolto num incêndio de chamas espectrais azuis
+    halo(ctx, 0, -8, 26, '#5a8aff', 0.5);
+    for (let i = 0; i < 9; i++) {
+      const a = -Math.PI / 2 + (i - 4) * 0.36;
+      flame(ctx, Math.cos(a) * 11, -8 + Math.sin(a) * 13, 3.8, 14, a + Math.PI / 2, p.time + i, SPIRIT_FLAME);
+    }
+  }
+  if (winter) {
+    // Inverno Fantasma: leque de estacas de gelo enormes atrás
+    for (let i = 0; i < 7; i++) {
+      const a = -Math.PI / 2 + (i - 3) * 0.38;
+      const len = 36 - Math.abs(i - 3) * 3.5;
+      ctx.save();
+      ctx.translate(0, -10);
+      ctx.rotate(a + Math.PI / 2);
+      shape(ctx, vertical(ctx, -len, 0, '#ffffff', '#6ab8f0'), () => poly(ctx, [-3.4, -10, 0, -len, 3.4, -10]), 0.8);
+      ctx.restore();
+    }
+  }
   const house = p.variant === 'legendary';
   // Lampião: brilho quente de vela em volta
   if (p.variant === 'rare') halo(ctx, 0, -8, 16, '#ffc040', 0.4 + Math.sin(p.time * 6) * 0.05);
@@ -1070,10 +1090,22 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
     ctx.restore();
   }
   if (lament) {
+    // Lamento Final: ondas do grito enormes saindo dela, sempre ecoando
+    ctx.save();
+    for (let i = 0; i < 3; i++) {
+      const k = (p.time * 0.8 + i / 3) % 1;
+      ctx.globalAlpha = (1 - k) * 0.7;
+      ctx.strokeStyle = '#cfe0ff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(3, -11, 8 + k * 22, -0.9, 0.9);
+      ctx.stroke();
+    }
+    ctx.restore();
     // cabelo erguido como chamas pálidas
     for (let i = 0; i < 6; i++) {
       const x = -7 + i * 2.8;
-      const h = 12 + Math.sin(p.time * 6 + i) * 3 + scream * 4;
+      const h = 20 + Math.sin(p.time * 6 + i) * 3 + scream * 4;
       shape(ctx, '#f0f4ffcc', () => {
         ctx.moveTo(x - 1.6, -21);
         ctx.quadraticCurveTo(x - 3, -21 - h * 0.6, x + Math.sin(p.time * 4 + i) * 2, -21 - h);
@@ -1083,13 +1115,19 @@ export function drawBanshee(ctx: Ctx, p: Pose): void {
     }
   }
   if (nightmare) {
-    // tentáculos de sombra no chão
-    for (let i = 0; i < 4; i++) {
-      const x = -12 + i * 8;
-      line(ctx, '#1a0a2a', 1.6, () => {
-        ctx.moveTo(x, 14);
-        ctx.quadraticCurveTo(x + Math.sin(p.time * 3 + i) * 4, 6, x + 2, -2 + Math.sin(p.time * 2 + i) * 2);
-      }, false);
+    // Pesadelo: tentáculos de sombra enormes erguendo-se atrás
+    halo(ctx, 0, -6, 24, '#6a2aa0', 0.5);
+    for (let i = 0; i < 6; i++) {
+      const x = -15 + i * 6;
+      const top = -30 + Math.abs(i - 2.5) * 5;
+      const sway = Math.sin(p.time * 2 + i) * 4;
+      shape(ctx, vertical(ctx, top, 14, '#7a3ab0', '#1a0a2a'), () => {
+        ctx.moveTo(x - 3, 14);
+        ctx.quadraticCurveTo(x - 4 + sway, (top + 14) / 2, x + sway * 1.4, top);
+        ctx.quadraticCurveTo(x + 3 + sway, (top + 14) / 2, x + 3, 14);
+        ctx.closePath();
+      }, 0.8);
+      shape(ctx, '#c86aff', () => circle(ctx, x + sway * 1.2, top + 4, 0.8), 0);
     }
   }
   // cabelo longo esvoaçando para trás (bem mais volumoso na Ancestral)

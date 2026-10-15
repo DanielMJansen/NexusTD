@@ -582,6 +582,23 @@ const POSSESSOR_VARIANTS = {
   legendary: { color: '#6a1a3a', edge: '#6a1a3a00', fingers: '#f4e8e0', eyes: '#8af0ff' },
 } as const;
 
+/** Alminha presa (Mestre das Almas): lençol pequeno com olhos tristes e barra ondulando. */
+function ghostSoul(ctx: Ctx, x: number, y: number, s: number, t: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  shape(ctx, vertical(ctx, -5, 5, '#f8f0ff', '#c8a8ff'), () => {
+    ctx.moveTo(-3.5, 4);
+    ctx.quadraticCurveTo(-4, -5, 0, -5);
+    ctx.quadraticCurveTo(4, -5, 3.5, 4);
+    for (let i = 0; i <= 3; i++) ctx.lineTo(3.5 - i * 2.33, 4 + (i % 2 ? 1.6 : 0) + Math.sin(t * 6 + i) * 0.5);
+    ctx.closePath();
+  }, 0.6);
+  for (const ex of [-1.3, 1.3]) shape(ctx, '#3a2a5a', () => ellipse(ctx, ex, -1.5, 0.7, 1), 0);
+  shape(ctx, '#3a2a5a', () => ellipse(ctx, 0, 1.2, 0.8, 0.6), 0);
+  ctx.restore();
+}
+
 /** Corpo da Boneca Possuída (vestido, cabeça de porcelana, cachos e laço); os olhos vêm depois. */
 function possessedDoll(ctx: Ctx, t: number, dress: string, devour: boolean): void {
   const hy = devour ? -16 : -15;
@@ -641,6 +658,36 @@ export function drawPossessor(ctx: Ctx, p: Pose): void {
   const color = pv ? (devour ? darken(pv.color, 0.3) : pv.color) : devour ? '#5a1430' : '#4a2a80';
   const edge = pv ? pv.edge : devour ? '#ff3a5a00' : '#9a6aff00';
   ctx.translate(0, Math.sin(p.time * 2.2) * 2 - 6);
+  if (abyss) {
+    // Abismo: portal enorme girando atrás, com braços de sombra saindo dele
+    ctx.save();
+    ctx.translate(0, -6);
+    halo(ctx, 0, 0, 26, '#ff3a5a', 0.5);
+    shape(ctx, radial(ctx, 0, 0, 20, '#05020a', '#3a0a1a'), () => circle(ctx, 0, 0, 19), 1);
+    ctx.rotate(p.time * 1.5);
+    ctx.strokeStyle = '#ff6a8a';
+    ctx.lineWidth = 1.3;
+    for (let k = 0; k < 4; k++) {
+      ctx.beginPath();
+      ctx.arc(0, 0, 6 + k * 3.5, (k * TAU) / 4, (k * TAU) / 4 + 2.4);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  if (souls) {
+    // Mestre das Almas: três almas grandes presas a fios, girando em volta
+    for (let i = 0; i < 3; i++) {
+      const a = p.time * 1.1 + (i * TAU) / 3;
+      const sx = Math.cos(a) * 21;
+      const sy = -6 + Math.sin(a) * 9;
+      line(ctx, '#e8d8ffaa', 0.6, () => {
+        ctx.moveTo(0, -30);
+        ctx.lineTo(sx, sy - 5);
+      }, false);
+      halo(ctx, sx, sy, 7, '#d8a8ff', 0.7);
+      ghostSoul(ctx, sx, sy, 1.3, p.time + i);
+    }
+  }
   const doll = p.variant === 'legendary';
   if (doll) {
     // flutua torta, como se puxada por fios invisíveis
@@ -756,20 +803,6 @@ export function drawPossessor(ctx: Ctx, p: Pose): void {
     shape(ctx, vertical(ctx, ty - 9, ty, '#2a1a3a', '#0e0814'), () => ctx.roundRect(-3.5, ty - 9, 9, 9, 1), 0.9);
     shape(ctx, '#0e0814', () => ctx.roundRect(-6.5, ty - 1, 15, 2, 1), 0.8);
     shape(ctx, pv ? pv.fingers : '#c86aff', () => ctx.rect(-3.5, ty - 3.2, 9, 1.4), 0);
-  }
-  if (souls) {
-    // fios de alma das mãos até almas pequenas flutuando
-    for (let i = 0; i < 3; i++) {
-      const a = p.time * 1.4 + (i * TAU) / 3;
-      const sx = Math.cos(a) * 16;
-      const sy = -4 + Math.sin(a) * 8;
-      line(ctx, '#d8a8ff88', 0.6, () => {
-        ctx.moveTo(8, -6);
-        ctx.lineTo(sx, sy);
-      }, false);
-      halo(ctx, sx, sy, 4, '#d8a8ff', 0.8);
-      shape(ctx, '#f4e8ff', () => ellipse(ctx, sx, sy, 1.4, 1.8), 0.4);
-    }
   }
   if (abyss) {
     // portal girando no peito
