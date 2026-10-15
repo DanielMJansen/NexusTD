@@ -242,8 +242,32 @@ export function drawEnchantress(ctx: Ctx, p: Pose): void {
     }
   }
   // asas: borboleta e cristal nas variantes; pétalas na Rainha das Flores; libélula no resto
+  if (spring) {
+    // Primavera Eterna: ela flutua sobre uma flor gigante desabrochando
+    const open = 1 + Math.sin(p.time * 1.5) * 0.06;
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * TAU + p.time * 0.2;
+      ctx.save();
+      ctx.translate(0, 14);
+      ctx.scale(1, 0.45);
+      ctx.rotate(a);
+      shape(ctx, vertical(ctx, -16 * open, 0, '#ffd0f0', '#ff6ab8'), () => ellipse(ctx, 0, -9 * open, 5, 9 * open), 0.8);
+      ctx.restore();
+    }
+    shape(ctx, radial(ctx, 0, 13, 5, '#fff4b0', '#e0a020'), () => ellipse(ctx, 0, 14, 5, 2.4), 0.6);
+  }
+  if (valkyrie) {
+    // Valquíria Feérica: asas de cristal enormes
+    ctx.save();
+    ctx.translate(0, -2);
+    ctx.scale(1.7, 1.7);
+    styledWings(ctx, p.time, 'crystal', '#bfe8ff');
+    ctx.restore();
+  }
   if (p.variant === 'epic') styledWings(ctx, p.time, 'butterfly', ev!.wing);
-  else if (bloom) styledWings(ctx, p.time, 'petal', ev ? ev.wing : '#ff7ac8');
+  else if (valkyrie) {
+    // as asas de cristal já foram desenhadas
+  } else if (bloom) styledWings(ctx, p.time, 'petal', ev ? ev.wing : '#ff7ac8');
   else faeWings(ctx, p.time, valkyrie ? '#bfe8ff' : warrior ? '#ffd8a0' : ev ? ev.wing : '#ffc8f0', valkyrie ? 1.6 : 1.35);
   const hy = faeBody(ctx, p, warrior ? '#c8cede' : ev ? ev.dress[0] : '#ff8ad0', warrior ? '#6a7290' : ev ? ev.dress[1] : '#b03a8a', ev ? ev.hair : '#ffe08a', ev ? ev.eyes : '#c03a9a');
   if (p.variant === 'epic') antennae(ctx, hy, '#1a0a04');
@@ -338,8 +362,45 @@ export function drawTrickster(ctx: Ctx, p: Pose): void {
       ctx.restore();
     }
   }
+  if (illusionist) {
+    // Grande Ilusionista: palco com cortinas vermelhas e sanefa dourada atrás
+    const sway = Math.sin(p.time * 1.5) * 0.8;
+    for (const side of [-1, 1]) {
+      shape(ctx, vertical(ctx, -32, 14, '#e0304a', '#6a0a1a'), () => {
+        ctx.moveTo(side * 22, -30);
+        ctx.lineTo(side * 10, -30);
+        ctx.quadraticCurveTo(side * (14 + sway), -8, side * 17, 14);
+        ctx.lineTo(side * 22, 14);
+        ctx.closePath();
+      }, 1);
+      line(ctx, '#8a0a1a', 0.6, () => {
+        ctx.moveTo(side * 16, -28);
+        ctx.quadraticCurveTo(side * (17 + sway), -8, side * 19.5, 13);
+      }, false);
+    }
+    shape(ctx, vertical(ctx, -34, -26, '#ffe08a', '#b8801a'), () => {
+      ctx.moveTo(-23, -34);
+      ctx.lineTo(23, -34);
+      ctx.lineTo(23, -29);
+      for (let x = 23; x > -23; x -= 5.75) ctx.quadraticCurveTo(x - 2.9, -24, x - 5.75, -29);
+      ctx.closePath();
+    }, 0.8);
+  }
   if (queen) {
+    // Rainha dos Ladrões: monte de tesouro aos pés, com baú aberto, e capa de moedas
     shape(ctx, vertical(ctx, -10, 12, '#6a1a2a', '#2a0610'), () => poly(ctx, [-3, -8, -12, 12, 8, 12, 3, -8]), 0.8);
+    shape(ctx, vertical(ctx, 4, 14, '#7a4a1e', '#3a200a'), () => ctx.roundRect(8, 4, 12, 9, 1.5), 0.8);
+    shape(ctx, vertical(ctx, -2, 5, '#8a5a2a', '#4a2a10'), () => poly(ctx, [8, 4, 20, 4, 21, -1, 9, -2]), 0.8);
+    halo(ctx, 14, 3, 7, '#ffd25a', 0.6);
+    shape(ctx, vertical(ctx, 6, 15, '#ffe08a', '#c8901a'), () => {
+      ctx.moveTo(-20, 15);
+      ctx.quadraticCurveTo(-14, 5, -6, 9);
+      ctx.quadraticCurveTo(2, 4, 10, 10);
+      ctx.quadraticCurveTo(16, 7, 22, 15);
+      ctx.closePath();
+    }, 0.8);
+    for (const [x, y] of [[-14, 10], [-8, 8], [-2, 9], [4, 8], [12, 11], [17, 12], [-17, 13]] as const) shape(ctx, '#fff2b0', () => ellipse(ctx, x, y, 1.6, 1), 0.4);
+    shape(ctx, '#e0304a', () => poly(ctx, [0, 6, 1.6, 7.6, 0, 9.2, -1.6, 7.6]), 0.4);
     for (let i = 0; i < 6; i++) shape(ctx, GOLD, () => circle(ctx, -8 + i * 3, 9 - (i % 2) * 3, 1.1), 0.3);
   }
   ctx.translate(0, -1 + Math.sin(p.time * 4) * 2);

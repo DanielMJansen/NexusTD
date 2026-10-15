@@ -75,6 +75,27 @@ export function drawWall(ctx: Ctx, p: Pose): void {
     }
   }
   const moai = p.variant === 'legendary';
+  if (p.supreme && fort) {
+    // Montanha Viva: uma montanha de pedra crescendo das costas, com pinheiros e neve no pico
+    shape(ctx, vertical(ctx, -44, 8, '#9a9488', '#4a463e'), () => poly(ctx, [-22, 8, -12, -22, -6, -16, 2, -40, 10, -24, 14, -28, 22, 8]), 1.1);
+    shape(ctx, '#ffffff', () => poly(ctx, [-2.5, -32, 2, -40, 6, -32, 3, -33.5, 1, -31, -0.6, -33.5]), 0.6);
+    for (const [x, y, h] of [[-15, -12, 8], [-9, -10, 10], [12, -12, 9], [17, -6, 7]] as const) {
+      shape(ctx, '#2a6a3a', () => poly(ctx, [x - 3, y, x, y - h, x + 3, y]), 0.6);
+    }
+  }
+  if (p.supreme && snow) {
+    // Terremoto: rocha enorme erguida acima da cabeça, rachando
+    const lift = Math.sin(p.time * 2) * 1.5 - p.attack * 3;
+    shape(ctx, radial(ctx, -3, -36 + lift, 14, '#b8b0a4', '#4a443c'), () => ellipse(ctx, 0, -33 + lift, 13, 9), 1.2);
+    line(ctx, '#2a2620', 0.9, () => {
+      ctx.moveTo(-6, -40 + lift);
+      ctx.lineTo(-2, -34 + lift);
+      ctx.lineTo(-5, -28 + lift);
+      ctx.moveTo(5, -39 + lift);
+      ctx.lineTo(3, -33 + lift);
+    }, false);
+    for (const x of [-12, 12]) rock(ctx, x - 2.5, -27 + lift, 5, 12, light, dark, 2);
+  }
   // pernas grossas
   rock(ctx, -9, 7, 7, 7, light, dark, 2);
   rock(ctx, 2, 7, 7, 7, light, dark, 2);
@@ -208,14 +229,19 @@ function crystal(ctx: Ctx, x: number, y: number, w: number, h: number, color: st
 
 /** Cristal: golem de cristais violeta. A: Prisma (cabeça-prisma com arco-íris); B: Amplificador (anéis de cristal girando). */
 export function drawCrystalGolem(ctx: Ctx, p: Pose): void {
-  // Formas Supremas: Caleidoscópio (A, cristais coloridos girando) e Ressonância (B, diapasão de cristal vibrando)
+  // Formas Supremas: Caleidoscópio (A, anel de cristais coloridos girando) e Ressonância (B, diapasão de cristal vibrando)
   if (p.supreme && formA(p)) {
-    const colors = ['#ff7a9a', '#ffe66a', '#7ae8a0', '#7ac8ff', '#b08aff'];
+    const colors = ['#ff7a9a', '#ffb45a', '#ffe66a', '#7ae8a0', '#7ac8ff', '#b08aff', '#ff7ad8', '#7affe8'];
+    halo(ctx, 0, -6, 26, '#ffffff', 0.35);
     colors.forEach((color, i) => {
-      const a = p.time * 1.5 + (i * TAU) / colors.length;
-      const x = Math.cos(a) * 17;
-      const y = -8 + Math.sin(a) * 7;
-      shape(ctx, color, () => poly(ctx, [x, y - 3.5, x + 2, y, x, y + 3.5, x - 2, y]), 0.5);
+      const a = p.time * 0.8 + (i * TAU) / colors.length;
+      const x = Math.cos(a) * 20;
+      const y = -6 + Math.sin(a) * 20;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(a + Math.PI / 2);
+      shape(ctx, vertical(ctx, -6, 6, '#ffffff', color), () => poly(ctx, [0, -6.5, 3.2, 0, 0, 6.5, -3.2, 0]), 0.6);
+      ctx.restore();
     });
   }
   const prism = formA(p);
@@ -236,7 +262,7 @@ export function drawCrystalGolem(ctx: Ctx, p: Pose): void {
   // pernas e corpo (Prisma: corpo de prisma grande e facetado)
   crystal(ctx, -4, 10, 3, 5, color, glow);
   crystal(ctx, 4, 10, 3, 5, color, glow);
-  if (prism && !p.supreme) {
+  if (prism) {
     shape(ctx, vertical(ctx, -13, 9, glow, color), () => poly(ctx, [0, -13, 11, 8, -11, 8]), 1);
     line(ctx, '#ffffffaa', 0.7, () => {
       ctx.moveTo(0, -13);
@@ -421,8 +447,28 @@ export function drawMagmaGolem(ctx: Ctx, p: Pose): void {
   const bodyDark = mv ? mv.bodyDark : living ? '#2a0e08' : '#140c0c';
   const lava = mv ? mv.lava : '#ff8a2a';
   const furnace = p.variant === 'legendary';
-  if (volcano && !p.supreme) {
-    // Vulcão: costas em forma de montanha, com lava escorrendo pelos ombros
+  if (p.supreme && living) {
+    // Lava Viva suprema: dois gêiseres de lava jorrando dos lados
+    for (const side of [-1, 1]) {
+      const h = 26 + Math.sin(p.time * 4 + side) * 3;
+      shape(ctx, vertical(ctx, 14 - h, 14, '#fff0a0', mv ? lava : '#ff5a1a'), () => {
+        ctx.moveTo(side * 16 - 3, 14);
+        ctx.quadraticCurveTo(side * 15 - 2, 14 - h * 0.6, side * 16 - 1, 14 - h);
+        ctx.quadraticCurveTo(side * 16 + 2, 14 - h - 3, side * 17 + 2, 14 - h + 1);
+        ctx.quadraticCurveTo(side * 17 + 2, 14 - h * 0.5, side * 16 + 3, 14);
+        ctx.closePath();
+      }, 0.8);
+      halo(ctx, side * 16, 14 - h, 6, '#ffb040', 0.7);
+    }
+  }
+  if (volcano) {
+    // Vulcão: costas em forma de montanha, com lava escorrendo pelos ombros (na Suprema, maior e em erupção)
+    ctx.save();
+    if (p.supreme) {
+      ctx.translate(0, 6);
+      ctx.scale(1.35, 1.35);
+      ctx.translate(0, -6);
+    }
     shape(ctx, vertical(ctx, -30, 6, mv ? mv.body : '#7a5a4e', mv ? darken(mv.body, 0.3) : '#3a2622'), () => poly(ctx, [-17, 6, -5, -28, 5, -28, 17, 6]), 1.1);
     shape(ctx, lava, () => ellipse(ctx, 0, -28, 5, 1.6), 0);
     halo(ctx, 0, -29, 7, lava, 0.7);
@@ -435,6 +481,17 @@ export function drawMagmaGolem(ctx: Ctx, p: Pose): void {
         ctx.closePath();
       }, 0);
     }
+    if (p.supreme) {
+      // erupção: jato de lava e pedras em brasa saindo da cratera
+      const h = 10 + Math.sin(p.time * 5) * 2;
+      shape(ctx, vertical(ctx, -28 - h, -28, '#fff0a0', lava), () => poly(ctx, [-3.5, -28, -1.5, -28 - h, 0, -30 - h, 1.5, -28 - h, 3.5, -28]), 0.6);
+      halo(ctx, 0, -30 - h, 8, '#ffb040', 0.7);
+      for (let i = 0; i < 3; i++) {
+        const t = (p.time * 1.1 + i / 3) % 1;
+        shape(ctx, '#ffb040', () => circle(ctx, (i - 1) * t * 12, -30 - h - Math.sin(t * Math.PI) * 10 + t * 8, 1.4), 0.4);
+      }
+    }
+    ctx.restore();
   }
   rock(ctx, -8, 7, 6, 7, furnace ? '#4a4650' : body, furnace ? '#1a1820' : bodyDark, 2);
   rock(ctx, 2, 7, 6, 7, furnace ? '#4a4650' : body, furnace ? '#1a1820' : bodyDark, 2);
