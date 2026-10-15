@@ -859,6 +859,10 @@ export function drawHerbalist(ctx: Ctx, p: Pose): void {
   const living = p.supreme && poison;
   const heart = p.supreme && grove;
   if (heart) {
+    // copa de folhas enorme por trás da árvore viva
+    for (const [x, y, r] of [[-14, -32, 8], [0, -40, 10], [14, -32, 8], [-8, -40, 7], [8, -40, 7]] as const) {
+      shape(ctx, radial(ctx, x - 2, y - 2, r + 2, '#7ae86a', '#2a7a2a'), () => circle(ctx, x, y + Math.sin(p.time * 1.5 + x) * 0.6, r), 0.8);
+    }
     // árvore viva atrás: tronco, galhos e dois olhos de luz
     shape(ctx, vertical(ctx, -34, 14, '#6a4a2a', '#2a1a0c'), () => {
       ctx.moveTo(-6, 14);
@@ -1009,6 +1013,28 @@ export function drawHerbalist(ctx: Ctx, p: Pose): void {
     }
   }
   if (living) {
+    // Floresta Viva: planta carnívora gigante ao lado, num cipó, abrindo e fechando a boca
+    const open = 0.5 + Math.sin(p.time * 3) * 0.3 + p.attack * 0.5;
+    line(ctx, '#3a8a3a', 2.6, () => {
+      ctx.moveTo(10, 14);
+      ctx.quadraticCurveTo(20, 4, 15, -10);
+    });
+    for (const [x, y, a] of [[15, 6, 0.6], [17, -2, -0.5]] as const) shape(ctx, '#5ad85a', () => ellipse(ctx, x, y, 3, 1.4, a), 0.5);
+    ctx.save();
+    ctx.translate(15, -14);
+    for (const dir of [-1, 1]) {
+      ctx.save();
+      ctx.rotate(dir * open * 0.8);
+      shape(ctx, vertical(ctx, -8, 0, '#ff5a7a', '#8a1a3a'), () => {
+        ctx.moveTo(-7, 0);
+        ctx.quadraticCurveTo(-6, dir * -7, 0, dir * -7.5);
+        ctx.quadraticCurveTo(6, dir * -7, 7, 0);
+        ctx.closePath();
+      }, 0.9);
+      for (const tx of [-4.5, -1.5, 1.5, 4.5]) shape(ctx, '#ffffff', () => poly(ctx, [tx - 0.8, 0, tx + 0.8, 0, tx, dir * 2.2]), 0);
+      ctx.restore();
+    }
+    ctx.restore();
     // coroa de flores carnívoras com dentes
     for (const [x, y, s] of [[-5, -25, 1], [1, -28, 1.2], [6, -24, 0.9]] as const) {
       const open = 0.5 + Math.sin(p.time * 4 + x) * 0.3;

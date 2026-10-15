@@ -1399,10 +1399,12 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
     }, 1);
   }
   if (absoluteChaos) {
-    // cabelo em chamas verdes atrás
-    for (let i = 0; i < 5; i++) {
-      const h = 9 + Math.sin(p.time * 9 + i * 1.4) * 3;
-      shape(ctx, i % 2 ? '#8aff6a' : '#3ad85a', () => poly(ctx, [-9 + i * 2, -14, -10 + i * 2 - 2, -14 - h, -7 + i * 2, -14]), 0);
+    // Caos Absoluto: cabeleira de chamas verdes enorme atrás
+    const chaosFire = { outer: ['#b8ff8a', '#1e9a3a'] as const, inner: ['#ffffff', '#d8ffc8'] as const, glow: '#5aff6a' };
+    halo(ctx, 0, -14, 24, '#5aff6a', 0.45);
+    for (let i = 0; i < 9; i++) {
+      const a = -Math.PI / 2 + (i - 4) * 0.34;
+      flame(ctx, Math.cos(a) * 8, -14 + Math.sin(a) * 6, 3.6, 18 - Math.abs(i - 4) * 2, a + Math.PI / 2, p.time + i, chaosFire);
     }
   }
   // vestido roxo (sentada na vassoura: a saia termina nela e esvoaça para trás)
@@ -1550,15 +1552,34 @@ export function drawSorceress(ctx: Ctx, p: Pose): void {
       shape(ctx, '#fff6c0', () => ellipse(ctx, x, y, 1.6, 1.1), 0.4);
       shape(ctx, '#1a0a1a', () => circle(ctx, x + 0.3, y, 0.6), 0);
     }
-    const cy = -2 + Math.sin(p.time * 2.5) * 2;
+    // caldeirão grande flutuando ao lado, borbulhando sobre chamas verdes
+    ctx.save();
+    ctx.translate(-16, -2 + Math.sin(p.time * 2.5) * 2);
+    ctx.scale(1.8, 1.8);
+    flame(ctx, 0, 6, 2.4, 5, 0, p.time, { outer: ['#b8ff8a', '#1e9a3a'], inner: ['#ffffff', '#d8ffc8'], glow: '#5aff6a' });
     shape(ctx, '#2a2632', () => {
-      ctx.moveTo(-18, cy);
-      ctx.quadraticCurveTo(-19, cy + 6, -14, cy + 6);
-      ctx.quadraticCurveTo(-9, cy + 6, -10, cy);
+      ctx.moveTo(-4, 0);
+      ctx.quadraticCurveTo(-5, 6, 0, 6);
+      ctx.quadraticCurveTo(5, 6, 4, 0);
       ctx.closePath();
     }, 0.7);
-    shape(ctx, '#8aff6a', () => ellipse(ctx, -14, cy, 4, 1.2), 0);
-    halo(ctx, -14, cy - 2, 6, '#7ad85a', 0.5);
+    shape(ctx, '#8aff6a', () => ellipse(ctx, 0, 0, 4, 1.2), 0);
+    for (let i = 0; i < 3; i++) {
+      const ph = (p.time * 1.2 + i / 3) % 1;
+      halo(ctx, -2 + i * 2, -1 - ph * 7, 1.4 + ph, '#b8ff8a', 1 - ph);
+    }
+    ctx.restore();
+    // chapéu alto e torto subindo do chapéu normal, com o terceiro olho
+    shape(ctx, vertical(ctx, -48, -30, '#4a2a7a', '#1a0a2a'), () => {
+      ctx.moveTo(-3, -31);
+      ctx.quadraticCurveTo(-4, -42, 4, -48);
+      ctx.quadraticCurveTo(10, -46, 11, -41);
+      ctx.quadraticCurveTo(5, -42, 4, -34);
+      ctx.lineTo(4, -31);
+      ctx.closePath();
+    }, 0.8);
+    shape(ctx, '#fff6c0', () => ellipse(ctx, 1, -36, 1.8, 1.2), 0.4);
+    shape(ctx, '#1a0a1a', () => circle(ctx, 1.3, -36, 0.7), 0);
   }
   if (absoluteChaos) {
     // rachaduras de energia no cajado
@@ -1726,15 +1747,46 @@ export function drawCauldron(ctx: Ctx, p: Pose): void {
       shape(ctx, '#1a0a1a', () => circle(ctx, x + 0.7, -3.3, 0.5), 0);
     }
     halo(ctx, 0, -8, 14, '#b36bff', 0.4);
+    // caveira fantasma enorme subindo da poção, na fumaça roxa
+    const rise = Math.sin(p.time * 1.5) * 1.5;
+    ctx.save();
+    ctx.globalAlpha *= 0.75;
+    halo(ctx, 0, -24 + rise, 16, '#b36bff', 0.6);
+    shape(ctx, vertical(ctx, -36, -8, '#f0e0ff', '#8a5ac8'), () => {
+      ctx.moveTo(-7, -10);
+      ctx.quadraticCurveTo(-11, -22 + rise, -8, -30 + rise);
+      ctx.quadraticCurveTo(0, -38 + rise, 8, -30 + rise);
+      ctx.quadraticCurveTo(11, -22 + rise, 7, -10);
+      ctx.closePath();
+    }, 0.8);
+    ctx.restore();
+    for (const x of [-3.6, 3.6]) shape(ctx, '#1a0a2a', () => ellipse(ctx, x, -24 + rise, 2.6, 3), 0);
+    for (const x of [-3.6, 3.6]) glowingEye(ctx, x, -24 + rise, 0.9, '#e0a8ff');
+    shape(ctx, '#1a0a2a', () => poly(ctx, [0, -20 + rise, -1.2, -18 + rise, 1.2, -18 + rise]), 0);
+    for (let k = 0; k < 4; k++) shape(ctx, '#1a0a2a', () => ctx.rect(-3 + k * 1.8, -15 + rise, 0.8, 2), 0);
   }
   if (stone) {
-    // pedra filosofal flutuando acima
-    const sy = -20 + Math.sin(p.time * 2) * 2;
-    halo(ctx, 0, sy, 8, '#ff3a3a', 0.6);
+    // Pedra Filosofal: pedra grande flutuando dentro de anéis alquímicos dourados
+    const sy = -24 + Math.sin(p.time * 2) * 2;
+    halo(ctx, 0, sy, 16, '#ff3a3a', 0.6);
+    for (const [tilt, speed] of [[0.4, 1], [-0.5, -0.8]] as const) {
+      ctx.save();
+      ctx.translate(0, sy);
+      ctx.rotate(tilt);
+      ctx.strokeStyle = GOLD;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 14, 5, 0, 0, TAU);
+      ctx.stroke();
+      const a = p.time * 2 * speed;
+      shape(ctx, '#fff2b0', () => circle(ctx, Math.cos(a) * 14, Math.sin(a) * 5, 1.3), 0.4);
+      ctx.restore();
+    }
     ctx.save();
     ctx.translate(0, sy);
     ctx.rotate(p.time);
-    shape(ctx, vertical(ctx, -4, 4, '#ff8a8a', '#a01020'), () => poly(ctx, [0, -4, 3.4, 0, 0, 4, -3.4, 0]), 0.6);
+    shape(ctx, vertical(ctx, -8, 8, '#ff8a8a', '#a01020'), () => poly(ctx, [0, -8, 6.5, 0, 0, 8, -6.5, 0]), 0.8);
+    shape(ctx, '#ffd0d0aa', () => poly(ctx, [0, -8, 6.5, 0, 0, 0]), 0);
     ctx.restore();
   }
 }
