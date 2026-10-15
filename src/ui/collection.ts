@@ -91,8 +91,8 @@ function newSheetBody(profile: Profile, def: CreatureDef): string {
       ${mechanic ? `<p class="sheet-line">${mechanic}</p>` : ''}
       ${racePassiveHtml(def.race)}
       <p class="sheet-section">Formas despertas <small>nível 3</small></p>
-      ${formsChangeHtml(def)}
-      ${visualPickerHtml(profile, def)}`;
+      ${formsChangeHtml(def, true)}
+      ${ownsCreature(profile, def.id) ? visualPickerHtml(profile, def) : ''}`;
 }
 
 function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): string {
@@ -114,7 +114,7 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
     </div>
     <div class="cc-body">
       ${newSheetBody(profile, def)}
-      <div class="cc-footer">${footer}</div>
+      ${owned ? `<span class="cc-owned">${footer}</span>` : `<div class="cc-footer">${footer}</div>`}
     </div>
   </div>`;
 }

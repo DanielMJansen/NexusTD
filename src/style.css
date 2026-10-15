@@ -3871,7 +3871,170 @@ body:not([data-mode='run']) .panel.screen {
 }
 
 .creature-grid.three .cc-footer {
-  margin-top: 2px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+/* selo "na coleção / na equipe" no canto da ficha (sem ocupar uma linha) */
+.creature-card {
+  position: relative;
+}
+
+.cc-owned {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 11px;
+}
+
+.cc-owned .cc-tag {
+  font-size: 11px;
+}
+
+/* Coleção sem rolar: retratos numa linha, texto mais compacto e fichas da mesma altura */
+.creature-grid.three {
+  align-items: stretch;
+}
+
+.creature-grid.three .creature-card {
+  gap: 6px;
+  padding: 8px 10px;
+}
+
+.creature-grid.three .cc-portraits {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.creature-grid.three .cc-evolve-label {
+  display: none;
+}
+
+.creature-grid.three .cc-portraits > canvas:first-child {
+  width: 64px;
+  height: 64px;
+}
+
+.creature-grid.three .cc-portraits .cc-branches canvas {
+  width: 48px;
+  height: 48px;
+}
+
+.creature-grid.three .forms-btn {
+  flex-basis: 100%;
+  max-width: max-content;
+  margin: 0 auto;
+}
+
+.creature-grid.three .cc-body {
+  display: flex;
+  flex-direction: column;
+  font-size: 13.5px;
+  line-height: 1.25;
+}
+
+.creature-grid.three .cc-head b {
+  font-size: 16px;
+}
+
+.creature-grid.three .cc-head span {
+  font-size: 12.5px;
+}
+
+.creature-grid.three .cc-desc {
+  margin: 2px 0 !important;
+}
+
+.creature-grid.three .cc-lore {
+  margin: 0 0 3px !important;
+  font-size: 12.5px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.creature-grid.three .cc-stats {
+  margin: 0 0 3px;
+  font-size: 12.5px;
+}
+
+.creature-grid.three .sheet-line,
+.creature-grid.three .sheet-form p,
+.creature-grid.three .race-passive {
+  font-size: 12.5px;
+  margin-bottom: 2px;
+}
+
+.creature-grid.three .sheet-section {
+  margin: 4px 0 2px;
+  font-size: 11px;
+}
+
+.creature-grid.three .sheet-form {
+  margin-bottom: 3px;
+}
+
+/* números das formas num balão ao passar o mouse */
+.has-tip {
+  position: relative;
+  cursor: help;
+}
+
+.tip-mark {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.has-tip .tip {
+  display: none;
+  position: absolute;
+  z-index: 40;
+  left: 0;
+  right: 0;
+  top: calc(100% + 2px);
+  padding: 6px 8px;
+  border: 1px solid color-mix(in srgb, var(--branch-color, var(--card-color)) 60%, var(--line));
+  border-radius: 8px;
+  background: #1a1230;
+  box-shadow: 0 8px 20px #000a;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.3;
+  color: var(--text, #f0e8ff);
+}
+
+.has-tip:hover .tip {
+  display: block;
+}
+
+.has-tip:hover {
+  color: #ffffff;
+}
+
+/* seletor de visual compacto */
+.creature-grid.three .vp-row {
+  gap: 4px;
+}
+
+.creature-grid.three .vp-option {
+  padding: 2px 2px 3px;
+}
+
+.creature-grid.three .vp-option canvas {
+  width: 38px;
+  height: 38px;
+}
+
+.creature-grid.three .vp-option b {
+  font-size: 9.5px;
+}
+
+.creature-grid.three .vp-option small {
+  font-size: 9px;
 }
 
 

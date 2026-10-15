@@ -260,16 +260,23 @@ function changeText(def: CreatureDef, ability: CreatureAbility, stats: AscendedF
   return extra ? `${mech}; ${extra}.` : `${mech}.`;
 }
 
-/** As formas despertas na ficha nova: A e B, cada uma com a Suprema logo abaixo. */
-export function formsChangeHtml(def: CreatureDef): string {
+/**
+ * As formas despertas na ficha nova: A e B, cada uma com a Suprema logo abaixo.
+ * `compact`: só a frase de cada forma; os números aparecem num balão ao passar o mouse (Coleção, sem rolar a tela).
+ */
+export function formsChangeHtml(def: CreatureDef, compact = false): string {
+  const line = (cls: string, head: string, desc: string, nums: string) =>
+    compact
+      ? `<p class="${cls} has-tip">${head}: ${desc} <span class="tip-mark">ⓘ</span><span class="tip">${nums}</span></p>`
+      : `<p class="${cls}">${head}: ${desc} <span class="sheet-num">${nums}</span></p>`;
   return def.ascended
     .map((form, i) => {
       const sup = form.supreme;
       const supLine = sup
-        ? `<p class="sheet-supreme">✦ Suprema · <b>${sup.name}</b>: ${sup.description} <span class="sheet-num">${changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects)}</span></p>`
+        ? line('sheet-supreme', `✦ <b>${sup.name}</b>`, sup.description, changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects))
         : '';
       return `<div class="sheet-form" style="--branch-color:${form.color}">
-        <p><span class="branch-tag">${i === 0 ? 'A' : 'B'}</span> <b>${form.name}</b>: ${form.description} <span class="sheet-num">${changeText(def, form.ability, form.stats, form.effects)}</span></p>
+        ${line('', `<span class="branch-tag">${i === 0 ? 'A' : 'B'}</span> <b>${form.name}</b>`, form.description, changeText(def, form.ability, form.stats, form.effects))}
         ${supLine}
       </div>`;
     })

@@ -745,7 +745,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     role: 'Área ao redor',
     classe: 'area',
     classDetail: 'queima em volta',
-    description: 'Queima tudo ao redor de si: cada golpe fere todos por perto.',
+    description: 'Queima tudo ao redor de si: cada golpe fere todos por perto e deixa queimando.',
     lore: 'Dorme dentro de vulcões. Acordado, o vulcão é ele.',
     icon: '🌋',
     baseCost: 30,
