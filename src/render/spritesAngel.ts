@@ -173,11 +173,26 @@ export function drawCherub(ctx: Ctx, p: Pose): void {
     }
   }
   if (p.supreme && formB(p)) {
+    // Trombeta do Juízo: trombeta dourada enorme soprando raios de luz em leque
     ctx.save();
-    ctx.translate(6, -8);
-    ctx.rotate(-0.3 - p.attack * 0.3);
-    shape(ctx, vertical(ctx, -2, 2, '#fff2b0', '#c8901a'), () => poly(ctx, [0, -0.8, 12, -3.5, 12, 3.5, 0, 0.8]), 0.6);
-    glow(ctx, 12, 0, 6, '#ffe9a8', 0.5 + p.attack * 0.5);
+    ctx.translate(4, -6);
+    ctx.rotate(-0.35 - p.attack * 0.3);
+    const blast = 0.5 + Math.sin(p.time * 4) * 0.2 + p.attack * 0.4;
+    ctx.save();
+    ctx.globalAlpha *= blast;
+    for (let i = -2; i <= 2; i++) {
+      line(ctx, '#fff6c0', 1.4, () => {
+        ctx.moveTo(22, 0);
+        ctx.lineTo(38, i * 6);
+      }, false);
+    }
+    ctx.restore();
+    glow(ctx, 26, 0, 14, '#ffe9a8', blast);
+    shape(ctx, vertical(ctx, -9, 9, '#fff2b0', '#c8901a'), () => poly(ctx, [0, -1.4, 16, -3, 23, -9, 23, 9, 16, 3, 0, 1.4]), 0.9);
+    shape(ctx, '#c8901a', () => ellipse(ctx, 23, 0, 2, 9), 0.6);
+    // estandarte pendurado
+    shape(ctx, vertical(ctx, 2, 14, '#3a6ad8', '#1a2a7a'), () => poly(ctx, [6, 1.4, 15, 2.6, 15, 12, 10.5, 9, 6, 12]), 0.7);
+    shape(ctx, GOLD, () => circle(ctx, 10.5, 6, 1.6), 0.4);
     ctx.restore();
   }
 }
@@ -274,7 +289,16 @@ export function drawValkyrie(ctx: Ctx, p: Pose): void {
     // capa de pele nos ombros
     shape(ctx, vertical(ctx, -12, 6, '#8a6a4a', '#3a2a1a'), () => poly(ctx, [-8, -11, 7, -11, 9, 5, -10, 5]), 1);
   }
-  if (p.variant !== 'legendary') featherWings(ctx, p.time, celestial && !p.supreme ? '#9fdcff' : vv ? vv.wing : '#c8d8ff', celestial && !p.supreme ? 1.2 : 0.95, -9);
+  if (p.supreme && slayer) {
+    // Executora Divina: espada de luz gigante cravada atrás dela
+    glow(ctx, 0, -18, 16, '#fff6c0', 0.5);
+    shape(ctx, vertical(ctx, -46, 12, '#ffffff', '#ffe9a8'), () => poly(ctx, [-3, 12, -3, -38, 0, -46, 3, -38, 3, 12]), 0.8);
+    shape(ctx, vertical(ctx, -12, -7, '#ffe07a', '#a8701a'), () => ctx.roundRect(-10, -12, 20, 4, 1.5), 0.8);
+  }
+  if (p.variant !== 'legendary') {
+    const wingSize = p.supreme ? 1.65 : celestial ? 1.2 : 0.95;
+    featherWings(ctx, p.time, p.supreme ? '#ffd25a' : celestial ? '#9fdcff' : vv ? vv.wing : '#c8d8ff', wingSize, -9, p.supreme ? 2 : 1);
+  }
   if (!mounted) {
     shape(ctx, '#4a5068', () => ctx.roundRect(-4.5, 6, 4, 8, 1.5));
     shape(ctx, '#4a5068', () => ctx.roundRect(0.5, 6, 4, 8, 1.5));
@@ -544,6 +568,32 @@ export function drawGuardianAngel(ctx: Ctx, p: Pose): void {
   }
   if (p.variant === 'legendary') ophanimRings(ctx, p.time, true);
   if (p.supreme && formA(p)) {
+    // Muralha Celeste: barreira de luz em arco, de placas hexagonais, envolvendo a frente
+    const pulse = 0.55 + Math.sin(p.time * 3) * 0.15 + p.attack * 0.3;
+    ctx.save();
+    ctx.globalAlpha *= pulse;
+    ctx.strokeStyle = '#fff6c0';
+    ctx.shadowColor = '#ffe08a';
+    ctx.shadowBlur = 8;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(2, -2, 24, 22, 0, -1.3, 1.3);
+    ctx.stroke();
+    ctx.lineWidth = 0.8;
+    for (let i = -3; i <= 3; i++) {
+      const a = i * 0.36;
+      const x = 2 + Math.cos(a) * 24;
+      const y = -2 + Math.sin(a) * 22;
+      ctx.beginPath();
+      for (let k = 0; k < 6; k++) {
+        const b = (k * TAU) / 6;
+        if (k === 0) ctx.moveTo(x + Math.cos(b) * 3.4, y + Math.sin(b) * 3.4);
+        else ctx.lineTo(x + Math.cos(b) * 3.4, y + Math.sin(b) * 3.4);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+    ctx.restore();
     // escudo de luz enorme à frente
     glow(ctx, 8, -4, 16, '#fff6c0', 0.5);
     shape(ctx, vertical(ctx, -18, 10, '#ffffffcc', '#ffd25a88'), () => {

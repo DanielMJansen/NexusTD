@@ -17,6 +17,7 @@ import {
   shape,
   skin,
   star,
+  TAU,
   vertical,
   type Ctx,
   type FlameColors,
@@ -486,6 +487,27 @@ export function drawStarFoal(ctx: Ctx, p: Pose): void {
       ctx.stroke();
       ctx.restore();
     });
+  }
+  if (p.supreme && guide) {
+    // Constelação: estrelas grandes ligadas por linhas no céu atrás, e uma lua crescente
+    const stars: [number, number][] = [[-20, -10], [-14, -24], [-4, -30], [6, -26], [14, -34], [20, -20], [12, -12]];
+    halo(ctx, 0, -20, 26, '#3a4aa8', 0.5);
+    ctx.save();
+    ctx.globalAlpha *= 0.7;
+    line(ctx, '#bfe8ff', 0.8, () => {
+      stars.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+    }, false);
+    ctx.restore();
+    stars.forEach(([x, y], i) => {
+      const tw = 0.6 + Math.sin(p.time * 3 + i) * 0.4;
+      halo(ctx, x, y, 4, '#bfe8ff', tw);
+      shape(ctx, '#ffffff', () => star(ctx, x, y, 2 + (i % 2) * 0.8), 0);
+    });
+    shape(ctx, '#fff6d0', () => {
+      ctx.arc(-18, -32, 5, 0.6, TAU - 0.6);
+      ctx.arc(-15.6, -33, 4, TAU - 0.9, 0.9, true);
+      ctx.closePath();
+    }, 0.5);
   }
   if (carousel) carouselPole(ctx);
   ctx.save();
