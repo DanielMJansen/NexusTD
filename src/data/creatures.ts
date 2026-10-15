@@ -188,8 +188,8 @@ export interface CreatureDef {
   race: string;
   /** Papel na defesa (GDD seção 4). */
   role: string;
-  /** Classe padronizada (ficha nova; em revisão: só algumas criaturas já têm). */
-  classe?: CreatureClass;
+  /** Classe padronizada (papel na defesa, comparável entre raças). */
+  classe: CreatureClass;
   /** Detalhe da classe na ficha nova (ex.: "alvo único"). */
   classDetail?: string;
   /** O que faz, em linguagem simples (Coleção e tooltips). */
@@ -245,8 +245,9 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Guarda',
     race: 'Humano',
     role: 'Bloqueio',
-    description:
-      'Fica na linha de frente e segura até 2 inimigos parados enquanto o resto do exército ataca. Chefes passam direto.',
+    classe: 'blocker',
+    classDetail: 'segura inimigos',
+    description: 'Fica na linha de frente e segura inimigos parados enquanto o resto do exército ataca. Chefes passam direto.',
     lore: 'Veterano da guarda do cristal. O escudo dele já viu mais hordas do que estrelas.',
     icon: '🛡',
     baseCost: 20,
@@ -257,8 +258,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'block', radius: 30, capacity: 2 },
     unlock: { kind: 'essence', cost: 30 },
     ascended: [
-      { name: 'Paladino', description: 'Segura até 4 inimigos ao redor.', ability: { kind: 'block', radius: 36, capacity: 4 }, color: '#ffd25a', icon: '⛨', supreme: { name: 'Bastião', description: 'O escudo-torre segura até 6 inimigos num raio maior.', ability: { kind: 'block', radius: 40, capacity: 6 }, stats: { damage: 1.25 } } },
-      { name: 'Martelo Sagrado', description: 'Troca o bloqueio por golpes pesados que atordoam.', ability: { kind: 'stun', chance: 0.35, duration: 1.2 }, stats: { damage: 1.4 }, color: '#9ad8ff', icon: '⚒', supreme: { name: 'Juiz de Ferro', description: 'Cada martelada racha o chão ao redor e pode atordoar.', ability: { kind: 'nova', radius: 38 }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 1.2 } } },
+      { name: 'Paladino', description: 'Segura mais inimigos ao mesmo tempo.', ability: { kind: 'block', radius: 36, capacity: 4 }, color: '#ffd25a', icon: '⛨', supreme: { name: 'Bastião', description: 'Um escudo-torre que segura uma multidão.', ability: { kind: 'block', radius: 40, capacity: 6 }, stats: { damage: 1.25 } } },
+      { name: 'Martelo Sagrado', description: 'Troca o bloqueio por marteladas pesadas que atordoam.', ability: { kind: 'stun', chance: 0.35, duration: 1.2 }, stats: { damage: 1.4 }, color: '#9ad8ff', icon: '⚒', supreme: { name: 'Juiz de Ferro', description: 'Cada martelada racha o chão ao redor.', ability: { kind: 'nova', radius: 38 }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 1.2 } } },
     ],
   },
   cleric: {
@@ -266,6 +267,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Clériga',
     race: 'Humano',
     role: 'Suporte (bênção)',
+    classe: 'support',
+    classDetail: 'bênção de dano',
     description: 'Abençoa as criaturas ao redor, que causam mais dano. Ataca com luz, mas o forte dela é fortalecer o grupo.',
     lore: 'Reza ao cristal todas as noites. Ele nunca respondeu, mas as flechas dela acertam mais.',
     icon: '✚',
@@ -277,8 +280,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'bless', radius: 100, damage: 0.25 },
     unlock: { kind: 'essence', cost: 70 },
     ascended: [
-      { name: 'Sacerdotisa', description: 'Bênção maior e mais forte, que também protege contra teia e atordoamento.', ability: { kind: 'bless', radius: 100, damage: 0.25, protect: true }, color: '#ffd25a', icon: '✚', supreme: { name: 'Santa', description: 'Bênção maior: mais dano e mais velocidade para todos ao redor.', ability: { kind: 'bless', radius: 120, damage: 0.3, attackSpeed: 0.1, protect: true } } },
-      { name: 'Inquisidora', description: 'Troca a bênção por raios de luz pesados que atordoam.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 2.6, range: 1.15 }, color: '#ff7a3a', icon: '☀', supreme: { name: 'Grã-Inquisidora', description: 'O livro em chamas dispara um raio que atravessa a fila e pode atordoar.', ability: { kind: 'pierce', width: 14, beams: 1 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], stats: { damage: 2.2, range: 1.15 } } },
+      { name: 'Sacerdotisa', description: 'A bênção também protege contra teia e atordoamento.', ability: { kind: 'bless', radius: 100, damage: 0.25, protect: true }, color: '#ffd25a', icon: '✚', supreme: { name: 'Santa', description: 'Bênção maior, que também acelera os ataques.', ability: { kind: 'bless', radius: 120, damage: 0.3, attackSpeed: 0.1, protect: true } } },
+      { name: 'Inquisidora', description: 'Troca a bênção por raios de luz pesados que atordoam.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 1.2 }], stats: { damage: 2.6, range: 1.15 }, color: '#ff7a3a', icon: '☀', supreme: { name: 'Grã-Inquisidora', description: 'O raio atravessa a fila inteira.', ability: { kind: 'pierce', width: 14, beams: 1 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], stats: { damage: 2.2, range: 1.15 } } },
     ],
   },
   duelist: {
@@ -308,6 +311,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Sanguinário',
     race: 'Vampiro',
     role: 'Sustento',
+    classe: 'ranged',
+    classDetail: 'cura o herói',
     description: 'Lança orbes de sangue à distância. Cada inimigo que ele derrota devolve vida ao herói.',
     lore: 'Mago de sangue que arranca a vida dos inimigos e a entrega ao seu senhor.',
     icon: '🩸',
@@ -319,8 +324,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'lifesteal', healPerKill: 2 },
     unlock: { kind: 'essence', cost: 50 },
     ascended: [
-      { name: 'Lorde de Sangue', description: 'Cada abate cura 4 de vida do herói.', ability: { kind: 'lifesteal', healPerKill: 4 }, color: '#ffd25a', icon: '♥', supreme: { name: 'Soberano Escarlate', description: 'Cada abate cura 6 de vida do herói e rende 1 de ouro.', ability: { kind: 'lifesteal', healPerKill: 6 }, effects: [{ kind: 'goldOnKill', gold: 1, when: 'any' }], stats: { damage: 1.15 } } },
-      { name: 'Mago de Sangue', description: 'Orbes de sangue que saltam entre inimigos.', ability: { kind: 'chain', jumps: 3, radius: 60, falloff: 0.8 }, stats: { damage: 1.5 }, color: '#c03ae0', icon: '❂', supreme: { name: 'Arcano Rubro', description: 'Orbes de sangue saltam entre até 5 inimigos.', ability: { kind: 'chain', jumps: 5, radius: 65, falloff: 0.85 }, stats: { damage: 1.65 } } },
+      { name: 'Lorde de Sangue', description: 'Cada abate cura bem mais o herói.', ability: { kind: 'lifesteal', healPerKill: 4 }, color: '#ffd25a', icon: '♥', supreme: { name: 'Soberano Escarlate', description: 'Cura ainda mais e cada abate rende ouro.', ability: { kind: 'lifesteal', healPerKill: 6 }, effects: [{ kind: 'goldOnKill', gold: 1, when: 'any' }], stats: { damage: 1.15 } } },
+      { name: 'Mago de Sangue', description: 'Troca a cura por orbes que saltam entre inimigos.', ability: { kind: 'chain', jumps: 3, radius: 60, falloff: 0.8 }, stats: { damage: 1.5 }, color: '#c03ae0', icon: '❂', supreme: { name: 'Arcano Rubro', description: 'Os orbes saltam por muito mais inimigos.', ability: { kind: 'chain', jumps: 5, radius: 65, falloff: 0.85 }, stats: { damage: 1.65 } } },
     ],
   },
   batSwarm: {
@@ -328,6 +333,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Enxame',
     race: 'Vampiro',
     role: 'Área móvel',
+    classe: 'area',
+    classDetail: 'morde em volta do alvo',
     description: 'Uma nuvem de morcegos que voa até o alvo e morde todos ao redor dele.',
     lore: 'Ninguém sabe quantos são. Eles também não.',
     icon: '🦇',
@@ -340,8 +347,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'splash', radius: 32, damageRatio: 1 },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Nuvem Sangrenta', description: 'Área maior; as mordidas fazem sangrar.', ability: { kind: 'splash', radius: 45, damageRatio: 1 }, effects: [{ kind: 'poison', dps: 6, duration: 3 }], color: '#ff3a50', icon: '♨', supreme: { name: 'Eclipse', description: 'Nuvem enorme que faz sangrar muito.', ability: { kind: 'splash', radius: 58, damageRatio: 1 }, effects: [{ kind: 'poison', dps: 9, duration: 3 }] } },
-      { name: 'Revoada Faminta', description: 'Cada abate deixa o enxame mais rápido até o fim da onda.', ability: { kind: 'splash', radius: 32, damageRatio: 1 }, effects: [{ kind: 'killHaste', perKill: 0.05, max: 0.75 }], color: '#c86aff', icon: '➹', supreme: { name: 'Fome Eterna', description: 'Cada abate acelera muito mais o enxame (até o fim da onda).', ability: { kind: 'splash', radius: 34, damageRatio: 1 }, effects: [{ kind: 'killHaste', perKill: 0.065, max: 1.1 }] } },
+      { name: 'Nuvem Sangrenta', description: 'Nuvem maior; as mordidas fazem sangrar.', ability: { kind: 'splash', radius: 45, damageRatio: 1 }, effects: [{ kind: 'poison', dps: 6, duration: 3 }], color: '#ff3a50', icon: '♨', supreme: { name: 'Eclipse', description: 'Nuvem enorme que faz sangrar muito.', ability: { kind: 'splash', radius: 58, damageRatio: 1 }, effects: [{ kind: 'poison', dps: 9, duration: 3 }] } },
+      { name: 'Revoada Faminta', description: 'Cada abate deixa o enxame mais rápido até o fim da onda.', ability: { kind: 'splash', radius: 32, damageRatio: 1 }, effects: [{ kind: 'killHaste', perKill: 0.05, max: 0.75 }], color: '#c86aff', icon: '➹', supreme: { name: 'Fome Eterna', description: 'Cada abate acelera muito mais o enxame.', ability: { kind: 'splash', radius: 34, damageRatio: 1 }, effects: [{ kind: 'killHaste', perKill: 0.065, max: 1.1 }] } },
     ],
   },
   fireDragon: {
@@ -350,6 +357,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Fogo',
     race: 'Dragão',
     role: 'Área',
+    classe: 'area',
+    classDetail: 'explosões de fogo',
     description: 'Bolas de fogo que explodem e ferem também quem estiver perto do alvo. Ótimo contra bandos.',
     lore: 'Filhote de dragão de pavio curto e fôlego longo.',
     icon: '🐉',
@@ -361,7 +370,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'splash', radius: 40, damageRatio: 0.6 },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Dragão Ancião', description: 'Explosão de fogo maior e mais forte.', ability: { kind: 'splash', radius: 60, damageRatio: 0.8 }, color: '#ffd25a', icon: '✹', supreme: { name: 'Dragão Primordial', description: 'Explosão enorme que acerta a área quase com dano total.', ability: { kind: 'splash', radius: 70, damageRatio: 0.9 } } },
+      { name: 'Dragão Ancião', description: 'Explosão maior e mais forte.', ability: { kind: 'splash', radius: 60, damageRatio: 0.8 }, color: '#ffd25a', icon: '✹', supreme: { name: 'Dragão Primordial', description: 'Explosão enorme, quase com dano total na área.', ability: { kind: 'splash', radius: 70, damageRatio: 0.9 } } },
       { name: 'Wyrm Infernal', description: 'Deixa o chão em chamas onde o golpe cai.', ability: { kind: 'pool', radius: 34, duration: 3, dps: 20 }, color: '#ff5a1a', icon: '♨', supreme: { name: 'Wyrm do Apocalipse', description: 'O chão vira um mar de fogo maior e mais duradouro.', ability: { kind: 'pool', radius: 40, duration: 4, dps: 24 } } },
     ],
   },
@@ -370,6 +379,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Gelo',
     race: 'Dragão',
     role: 'Controle',
+    classe: 'control',
+    classDetail: 'lentidão',
     description: 'Pouco dano, mas deixa os inimigos lentos — dá tempo para o resto do exército trabalhar.',
     lore: 'Nascido nas geleiras do norte, congela tudo o que encara.',
     icon: '🐲',
@@ -381,8 +392,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'slow', speedMultiplier: 0.5, duration: 1.5 },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Dragão Glacial', description: 'Lentidão mais forte e mais longa.', ability: { kind: 'slow', speedMultiplier: 0.35, duration: 2.5 }, color: '#ffd25a', icon: '❄', supreme: { name: 'Dragão Boreal', description: 'Lentidão extrema e longa.', ability: { kind: 'slow', speedMultiplier: 0.3, duration: 3 }, stats: { damage: 1.1 } } },
-      { name: 'Dragão Congelante', description: 'Chance de congelar o alvo no lugar.', ability: { kind: 'stun', chance: 0.3, duration: 1.4 }, stats: { damage: 1.3 }, color: '#bff0ff', icon: '✧', supreme: { name: 'Zero Absoluto', description: 'Congela com mais frequência e por mais tempo.', ability: { kind: 'stun', chance: 0.38, duration: 1.7 }, stats: { damage: 1.35 } } },
+      { name: 'Dragão Glacial', description: 'Lentidão mais forte e mais longa.', ability: { kind: 'slow', speedMultiplier: 0.35, duration: 2.5 }, color: '#ffd25a', icon: '❄', supreme: { name: 'Dragão Boreal', description: 'Lentidão extrema.', ability: { kind: 'slow', speedMultiplier: 0.3, duration: 3 }, stats: { damage: 1.1 } } },
+      { name: 'Dragão Congelante', description: 'Troca a lentidão por chance de congelar o alvo no lugar.', ability: { kind: 'stun', chance: 0.3, duration: 1.4 }, stats: { damage: 1.3 }, color: '#bff0ff', icon: '✧', supreme: { name: 'Zero Absoluto', description: 'Congela com mais frequência e por mais tempo.', ability: { kind: 'stun', chance: 0.38, duration: 1.7 }, stats: { damage: 1.35 } } },
     ],
   },
   storm: {
@@ -390,6 +401,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Tempestade',
     race: 'Dragão',
     role: 'Raio em cadeia',
+    classe: 'ranged',
+    classDetail: 'raio em cadeia',
     description: 'Dragão de nuvens que dispara raios que saltam de inimigo em inimigo.',
     lore: 'Nasce quando um trovão cai num ninho. Sempre chega antes do barulho.',
     icon: 'ϟ',
@@ -402,8 +415,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Dragão do Trovão', description: 'O raio salta para até 6 inimigos.', ability: { kind: 'chain', jumps: 6, radius: 75, falloff: 0.88 }, color: '#ffe060', icon: 'ϟ', supreme: { name: 'Senhor dos Raios', description: 'O raio salta para até 8 inimigos quase sem perder força.', ability: { kind: 'chain', jumps: 8, radius: 80, falloff: 0.95 } } },
-      { name: 'Olho da Tormenta', description: 'O raio atordoa quem atinge.', ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], color: '#5ad0ff', icon: '◉', supreme: { name: 'Furacão', description: 'O raio salta mais e atordoa com frequência.', ability: { kind: 'chain', jumps: 4, radius: 72, falloff: 0.88 }, effects: [{ kind: 'stun', chance: 0.38, duration: 1 }] } },
+      { name: 'Dragão do Trovão', description: 'O raio salta por muito mais inimigos.', ability: { kind: 'chain', jumps: 6, radius: 75, falloff: 0.88 }, color: '#ffe060', icon: 'ϟ', supreme: { name: 'Senhor dos Raios', description: 'O raio salta por quase uma fila inteira sem perder força.', ability: { kind: 'chain', jumps: 8, radius: 80, falloff: 0.95 } } },
+      { name: 'Olho da Tormenta', description: 'O raio também atordoa quem atinge.', ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], color: '#5ad0ff', icon: '◉', supreme: { name: 'Furacão', description: 'Salta mais e atordoa com frequência.', ability: { kind: 'chain', jumps: 4, radius: 72, falloff: 0.88 }, effects: [{ kind: 'stun', chance: 0.38, duration: 1 }] } },
     ],
   },
   hunter: {
@@ -411,6 +424,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Caçador',
     race: 'Lobisomem',
     role: 'Corpo a corpo em cadeia',
+    classe: 'melee',
+    classDetail: 'garras em cadeia',
     description: 'Garras que saltam do alvo para os inimigos ao redor. Quanto mais gente junta, melhor.',
     lore: 'Na lua cheia, ninguém foge dele duas vezes.',
     icon: '🐺',
@@ -422,8 +437,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'chain', jumps: 2, radius: 60, falloff: 0.8 },
     unlock: { kind: 'essence', cost: 60 },
     ascended: [
-      { name: 'Caçador Lunar', description: 'Garras saltam para até 4 inimigos.', ability: { kind: 'chain', jumps: 4, radius: 65, falloff: 0.8 }, color: '#ffd25a', icon: '☾', supreme: { name: 'Lua Sangrenta', description: 'Garras saltam para até 6 inimigos, mais fortes.', ability: { kind: 'chain', jumps: 6, radius: 70, falloff: 0.85 }, stats: { damage: 1.2 } } },
-      { name: 'Caçador Feral', description: 'Entra em frenesi a cada 5 golpes.', ability: { kind: 'frenzy', hitsToTrigger: 5, duration: 3, damageMultiplier: 1.6, attackSpeedMultiplier: 1.8 }, color: '#ff8a3a', icon: '✶', supreme: { name: 'Fera Primal', description: 'Frenesi a cada 3 golpes, mais longo e mais forte.', ability: { kind: 'frenzy', hitsToTrigger: 3, duration: 4.5, damageMultiplier: 1.8, attackSpeedMultiplier: 2 } } },
+      { name: 'Caçador Lunar', description: 'As garras saltam por mais inimigos.', ability: { kind: 'chain', jumps: 4, radius: 65, falloff: 0.8 }, color: '#ffd25a', icon: '☾', supreme: { name: 'Lua Sangrenta', description: 'Garras ainda mais fortes, saltando por um bando.', ability: { kind: 'chain', jumps: 6, radius: 70, falloff: 0.85 }, stats: { damage: 1.2 } } },
+      { name: 'Caçador Feral', description: 'Troca o salto por Frenesi, golpeando como uma fera.', ability: { kind: 'frenzy', hitsToTrigger: 5, duration: 3, damageMultiplier: 1.6, attackSpeedMultiplier: 1.8 }, color: '#ff8a3a', icon: '✶', supreme: { name: 'Fera Primal', description: 'Frenesi quase constante.', ability: { kind: 'frenzy', hitsToTrigger: 3, duration: 4.5, damageMultiplier: 1.8, attackSpeedMultiplier: 2 } } },
     ],
   },
   alpha: {
@@ -431,6 +446,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Alfa',
     race: 'Lobisomem',
     role: 'Suporte (aura)',
+    classe: 'support',
+    classDetail: 'aura de velocidade',
     description: 'Líder da matilha: criaturas perto dele atacam mais rápido. Também morde quem chega perto.',
     lore: 'Um uivo dele e a matilha inteira acorda.',
     icon: '🌕',
@@ -442,8 +459,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'aura', radius: 80, attackSpeed: 0.25 },
     unlock: { kind: 'essence', cost: 70 },
     ascended: [
-      { name: 'Líder da Matilha', description: 'Aura maior que acelera ainda mais os aliados.', ability: { kind: 'aura', radius: 100, attackSpeed: 0.4 }, color: '#ffd25a', icon: '✪', supreme: { name: 'Rei Lobo', description: 'Aura enorme que acelera muito os aliados.', ability: { kind: 'aura', radius: 140, attackSpeed: 0.55 } } },
-      { name: 'Fera Devastadora', description: 'Troca a aura por golpes que atingem todos ao redor do alvo.', ability: { kind: 'splash', radius: 38, damageRatio: 0.75 }, stats: { damage: 1.3 }, color: '#e8743a', icon: '✷', supreme: { name: 'Destruidor', description: 'Golpes em área maior que podem derrubar (atordoar).', ability: { kind: 'splash', radius: 50, damageRatio: 0.8 }, effects: [{ kind: 'stun', chance: 0.3, duration: 0.6 }], stats: { damage: 1.5 } } },
+      { name: 'Líder da Matilha', description: 'Aura maior, que acelera ainda mais os aliados.', ability: { kind: 'aura', radius: 100, attackSpeed: 0.4 }, color: '#ffd25a', icon: '✪', supreme: { name: 'Rei Lobo', description: 'Aura enorme, que acelera muito os aliados.', ability: { kind: 'aura', radius: 140, attackSpeed: 0.55 } } },
+      { name: 'Fera Devastadora', description: 'Troca a aura por golpes que atingem todos ao redor do alvo.', ability: { kind: 'splash', radius: 38, damageRatio: 0.75 }, stats: { damage: 1.3 }, color: '#e8743a', icon: '✷', supreme: { name: 'Destruidor', description: 'Golpes em área maior, que podem derrubar.', ability: { kind: 'splash', radius: 50, damageRatio: 0.8 }, effects: [{ kind: 'stun', chance: 0.3, duration: 0.6 }], stats: { damage: 1.5 } } },
     ],
   },
   howler: {
@@ -451,6 +468,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Uivador',
     race: 'Lobisomem',
     role: 'Controle (medo)',
+    classe: 'control',
+    classDetail: 'medo',
     description: 'De tempos em tempos solta um uivo que fere e assusta todos ao redor: eles fogem do Nexus.',
     lore: 'Uiva para a lua. A lua, por educação, não responde; os monstros correm.',
     icon: '🐺',
@@ -463,7 +482,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'fear', chance: 0.6, duration: 1.5 }],
     unlock: { kind: 'essence', cost: 70 },
     ascended: [
-      { name: 'Uivo Lunar', description: 'Uivo mais largo; o medo dura mais e pega quase todos.', ability: { kind: 'nova', radius: 90 }, effects: [{ kind: 'fear', chance: 0.85, duration: 2.2 }], stats: { range: 1.2 }, color: '#9fdcff', icon: '☾', supreme: { name: 'Uivo do Eclipse', description: 'Uivo enorme: quase todos ao redor fogem por mais tempo.', ability: { kind: 'nova', radius: 115 }, effects: [{ kind: 'fear', chance: 0.95, duration: 2.6 }], stats: { range: 1.3 } } },
+      { name: 'Uivo Lunar', description: 'Uivo mais largo; o medo pega quase todos.', ability: { kind: 'nova', radius: 90 }, effects: [{ kind: 'fear', chance: 0.85, duration: 2.2 }], stats: { range: 1.2 }, color: '#9fdcff', icon: '☾', supreme: { name: 'Uivo do Eclipse', description: 'Uivo enorme: quase todos fogem, por mais tempo.', ability: { kind: 'nova', radius: 115 }, effects: [{ kind: 'fear', chance: 0.95, duration: 2.6 }], stats: { range: 1.3 } } },
       { name: 'Grito de Guerra', description: 'Troca o medo por um grito que acelera os aliados próximos.', ability: { kind: 'bless', radius: 90, attackSpeed: 0.35 }, effects: [], stats: { cooldown: 0.4, damage: 2 }, color: '#ff6a3a', icon: '✊', supreme: { name: 'Trompa da Matilha', description: 'A trompa acelera e fortalece os aliados próximos.', ability: { kind: 'bless', radius: 110, attackSpeed: 0.4, damage: 0.15 }, effects: [], stats: { cooldown: 0.4, damage: 2.2 } } },
     ],
   },
@@ -472,6 +491,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Assombração',
     race: 'Fantasma',
     role: 'Anti-armadura',
+    classe: 'ranged',
+    classDetail: 'anti-armadura',
     description: 'Toques gélidos que atravessam qualquer armadura. A resposta para ogros e chefes.',
     lore: 'Não tem corpo para ferir, nem paciência para perdoar.',
     icon: '👻',
@@ -483,8 +504,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'pierceArmor', bonusVsArmored: 0.5 },
     unlock: { kind: 'essence', cost: 60 },
     ascended: [
-      { name: 'Espírito Vingativo', description: '+50% de dano contra inimigos com armadura.', ability: { kind: 'pierceArmor', bonusVsArmored: 0.5 }, color: '#ffd25a', icon: '☄', supreme: { name: 'Ira Eterna', description: 'Dano dobrado contra blindados e muito mais forte contra elites e chefes.', ability: { kind: 'pierceArmor', bonusVsArmored: 1 }, effects: [{ kind: 'vsStrong', bonus: 0.5 }] } },
-      { name: 'Aparição Gélida', description: 'Toque gelado e mais forte: o alvo fica 45% mais lento.', ability: { kind: 'slow', speedMultiplier: 0.55, duration: 2 }, stats: { damage: 1.6 }, color: '#8ce8ff', icon: '❅', supreme: { name: 'Inverno Fantasma', description: 'Toque congelante: o alvo fica 60% mais lento por mais tempo.', ability: { kind: 'slow', speedMultiplier: 0.4, duration: 3 }, stats: { damage: 1.9 } } },
+      { name: 'Espírito Vingativo', description: 'Ainda mais dano contra inimigos com armadura.', ability: { kind: 'pierceArmor', bonusVsArmored: 0.5 }, color: '#ffd25a', icon: '☄', supreme: { name: 'Ira Eterna', description: 'Dano enorme contra blindados, elites e chefes.', ability: { kind: 'pierceArmor', bonusVsArmored: 1 }, effects: [{ kind: 'vsStrong', bonus: 0.5 }] } },
+      { name: 'Aparição Gélida', description: 'Troca parte do foco em armadura por um toque gelado que deixa lento.', ability: { kind: 'slow', speedMultiplier: 0.55, duration: 2 }, stats: { damage: 1.6 }, color: '#8ce8ff', icon: '❅', supreme: { name: 'Inverno Fantasma', description: 'Toque congelante, que deixa muito lento.', ability: { kind: 'slow', speedMultiplier: 0.4, duration: 3 }, stats: { damage: 1.9 } } },
     ],
   },
   banshee: {
@@ -492,6 +513,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Banshee',
     race: 'Fantasma',
     role: 'Controle (empurrão)',
+    classe: 'control',
+    classDetail: 'empurrão',
     description: 'Grito em leque que fere todos à frente e os empurra para longe do Nexus.',
     lore: 'Quem ouve o lamento dela costuma voltar correndo.',
     icon: '😱',
@@ -503,7 +526,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'screech', halfAngle: 0.5, push: 16, immunity: 2 },
     unlock: { kind: 'essence', cost: 70 },
     ascended: [
-      { name: 'Banshee Ancestral', description: 'Grito mais largo que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.75, push: 34, immunity: 2.5 }, color: '#ffd25a', icon: '♫', supreme: { name: 'Lamento Final', description: 'Grito enorme que fere mais e empurra muito longe.', ability: { kind: 'screech', halfAngle: 0.9, push: 44, immunity: 2.5 }, stats: { damage: 1.5 } } },
+      { name: 'Banshee Ancestral', description: 'Grito mais largo, que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.75, push: 34, immunity: 2.5 }, color: '#ffd25a', icon: '♫', supreme: { name: 'Lamento Final', description: 'Grito enorme, que fere mais e empurra muito longe.', ability: { kind: 'screech', halfAngle: 0.9, push: 44, immunity: 2.5 }, stats: { damage: 1.5 } } },
       { name: 'Arauto do Pavor', description: 'Grito em leque que aterroriza: em vez de empurrar, faz todos fugirem do Nexus.', ability: { kind: 'screech', halfAngle: 0.6, push: 0, fear: 1.4, immunity: 3.5 }, stats: { damage: 1.3 }, color: '#a87aff', icon: '☠', supreme: { name: 'Pesadelo', description: 'O pavor dura mais, e os assustados ficam marcados: recebem mais dano.', ability: { kind: 'screech', halfAngle: 0.7, push: 0, fear: 2.2, immunity: 4 }, effects: [{ kind: 'mark', amount: 0.25, duration: 2.5 }], stats: { damage: 1.4 } } },
     ],
   },
@@ -512,6 +535,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Possessor',
     race: 'Fantasma',
     role: 'Controle (possessão)',
+    classe: 'control',
+    classDetail: 'possessão',
     description: 'Entra no corpo de um inimigo, que dá meia-volta e luta contra os outros por alguns segundos. Chefes resistem.',
     lore: 'Prefere corpos emprestados. Devolve sempre — em pior estado.',
     icon: '👁',
@@ -525,8 +550,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'possess', duration: 3 }],
     unlock: { kind: 'essence', cost: 90 },
     ascended: [
-      { name: 'Marionetista', description: 'Possui dois inimigos de uma vez, por mais tempo.', ability: { kind: 'multishot', targets: 2 }, effects: [{ kind: 'possess', duration: 4.5 }], color: '#d8a8ff', icon: '⚚', supreme: { name: 'Mestre das Almas', description: 'Possui três inimigos de uma vez, por mais tempo.', ability: { kind: 'multishot', targets: 3 }, effects: [{ kind: 'possess', duration: 5.5 }] } },
-      { name: 'Devorador', description: 'O possuído explode no fim, ferindo quem estiver perto.', ability: { kind: 'none' }, effects: [{ kind: 'possess', duration: 4, explode: { radius: 50, ratio: 0.6 } }], color: '#ff4a6a', icon: '☠', supreme: { name: 'Abismo', description: 'O possuído explode no fim numa área muito maior.', ability: { kind: 'none' }, effects: [{ kind: 'possess', duration: 5, explode: { radius: 70, ratio: 0.9 } }] } },
+      { name: 'Marionetista', description: 'Possui mais inimigos de uma vez, por mais tempo.', ability: { kind: 'multishot', targets: 2 }, effects: [{ kind: 'possess', duration: 4.5 }], color: '#d8a8ff', icon: '⚚', supreme: { name: 'Mestre das Almas', description: 'Possui ainda mais inimigos, por mais tempo.', ability: { kind: 'multishot', targets: 3 }, effects: [{ kind: 'possess', duration: 5.5 }] } },
+      { name: 'Devorador', description: 'O possuído explode no fim, ferindo quem estiver perto.', ability: { kind: 'none' }, effects: [{ kind: 'possess', duration: 4, explode: { radius: 50, ratio: 0.6 } }], color: '#ff4a6a', icon: '☠', supreme: { name: 'Abismo', description: 'A explosão no fim é muito maior.', ability: { kind: 'none' }, effects: [{ kind: 'possess', duration: 5, explode: { radius: 70, ratio: 0.9 } }] } },
     ],
   },
   sorceress: {
@@ -534,6 +559,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Feiticeira',
     race: 'Bruxa',
     role: 'Dano contínuo',
+    classe: 'ranged',
+    classDetail: 'veneno',
     description: 'Envenena o alvo: pouco dano no golpe, mas o veneno continua corroendo por alguns segundos.',
     lore: 'Sorri enquanto mexe o caldeirão — nunca é um bom sinal.',
     icon: '🧙',
@@ -545,8 +572,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'poison', dps: 6, duration: 3 },
     unlock: { kind: 'essence', cost: 60 },
     ascended: [
-      { name: 'Arquibruxa', description: 'Veneno mais forte e mais longo.', ability: { kind: 'poison', dps: 13, duration: 4 }, color: '#ffd25a', icon: '☣', supreme: { name: 'Bruxa Suprema', description: 'Veneno muito mais forte e mais longo.', ability: { kind: 'poison', dps: 19, duration: 5 } } },
-      { name: 'Feiticeira do Caos', description: 'Raios verdes que saltam entre 3 inimigos.', ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 }, stats: { damage: 2.4, cooldown: 0.85 }, color: '#5adc8a', icon: 'ϟ', supreme: { name: 'Caos Absoluto', description: 'Raios verdes que saltam entre 5 inimigos quase sem perder força.', ability: { kind: 'chain', jumps: 5, radius: 75, falloff: 0.9 }, stats: { damage: 2.6, cooldown: 0.85 } } },
+      { name: 'Arquibruxa', description: 'Veneno mais forte e mais longo.', ability: { kind: 'poison', dps: 13, duration: 4 }, color: '#ffd25a', icon: '☣', supreme: { name: 'Bruxa Suprema', description: 'Veneno fortíssimo.', ability: { kind: 'poison', dps: 19, duration: 5 } } },
+      { name: 'Feiticeira do Caos', description: 'Troca o veneno por raios verdes que saltam entre inimigos.', ability: { kind: 'chain', jumps: 3, radius: 70, falloff: 0.85 }, stats: { damage: 2.4, cooldown: 0.85 }, color: '#5adc8a', icon: 'ϟ', supreme: { name: 'Caos Absoluto', description: 'Os raios saltam por mais inimigos, quase sem perder força.', ability: { kind: 'chain', jumps: 5, radius: 75, falloff: 0.9 }, stats: { damage: 2.6, cooldown: 0.85 } } },
     ],
   },
   cauldron: {
@@ -554,6 +581,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Caldeirão',
     race: 'Bruxa',
     role: 'Área no chão',
+    classe: 'area',
+    classDetail: 'poças no chão',
     description: 'Arremessa poções que deixam uma poça borbulhante: quem pisar nela sofre dano por segundo.',
     lore: 'Dizem que a receita leva olho de zumbi. Os zumbis não acham graça.',
     icon: '🧪',
@@ -566,7 +595,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
       { name: 'Caldeirão Infernal', description: 'Poça maior e mais venenosa.', ability: { kind: 'pool', radius: 40, duration: 4, dps: 14 }, color: '#ffd25a', icon: '♨', supreme: { name: 'Caldeirão do Fim', description: 'Poça enorme e mais duradoura.', ability: { kind: 'pool', radius: 52, duration: 4.5, dps: 16 } } },
-      { name: 'Caldeirão Alquímico', description: 'Poça dourada: quem morre nela vira ouro (+3 por abate).', ability: { kind: 'pool', radius: 32, duration: 3, dps: 16, bounty: 3 }, color: '#f0c35a', icon: '◉', supreme: { name: 'Pedra Filosofal', description: 'Poça de ouro mais forte: quem morre nela vale +6 de ouro.', ability: { kind: 'pool', radius: 36, duration: 3, dps: 18, bounty: 6 } } },
+      { name: 'Caldeirão Alquímico', description: 'Poça dourada: quem morre nela vira ouro.', ability: { kind: 'pool', radius: 32, duration: 3, dps: 16, bounty: 3 }, color: '#f0c35a', icon: '◉', supreme: { name: 'Pedra Filosofal', description: 'Ouro em dobro por abate na poça, que fica mais forte.', ability: { kind: 'pool', radius: 36, duration: 3, dps: 18, bounty: 6 } } },
     ],
   },
   herbalist: {
@@ -574,6 +603,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Herbalista',
     race: 'Bruxa',
     role: 'Controle (raízes)',
+    classe: 'control',
+    classDetail: 'raízes',
     description: 'Faz brotar raízes do chão que prendem o alvo no lugar.',
     lore: 'Conhece o nome de cada planta da floresta. Algumas conhecem o dela.',
     icon: '🌿',
@@ -595,6 +626,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Encantadora',
     race: 'Fada',
     role: 'Suporte (bênção)',
+    classe: 'support',
+    classDetail: 'bênção de dano e alcance',
     description: 'Abençoa as criaturas ao redor: causam mais dano e alcançam mais longe.',
     lore: 'Canta para as flores e para as flechas. As duas obedecem.',
     icon: '✿',
@@ -607,8 +640,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'bless', radius: 85, damage: 0.1, range: 0.08 },
     unlock: { kind: 'essence', cost: 90 },
     ascended: [
-      { name: 'Rainha das Flores', description: 'Bênção maior e mais forte.', ability: { kind: 'bless', radius: 110, damage: 0.2, range: 0.15 }, color: '#ffd25a', icon: '❀', supreme: { name: 'Primavera Eterna', description: 'Bênção enorme: mais dano, alcance e velocidade.', ability: { kind: 'bless', radius: 140, damage: 0.3, range: 0.2, attackSpeed: 0.15 } } },
-      { name: 'Fada Guerreira', description: 'Troca a bênção por pó de estrelas em 3 alvos.', ability: { kind: 'multishot', targets: 3 }, stats: { damage: 2.4 }, color: '#ffb84a', icon: '⚔', supreme: { name: 'Valquíria Feérica', description: 'Pó de estrelas em 4 alvos, mais forte.', ability: { kind: 'multishot', targets: 4 }, stats: { damage: 2.8 } } },
+      { name: 'Rainha das Flores', description: 'Bênção maior e mais forte.', ability: { kind: 'bless', radius: 110, damage: 0.2, range: 0.15 }, color: '#ffd25a', icon: '❀', supreme: { name: 'Primavera Eterna', description: 'Bênção enorme, que também acelera os ataques.', ability: { kind: 'bless', radius: 140, damage: 0.3, range: 0.2, attackSpeed: 0.15 } } },
+      { name: 'Fada Guerreira', description: 'Troca a bênção por pó de estrelas em vários alvos.', ability: { kind: 'multishot', targets: 3 }, stats: { damage: 2.4 }, color: '#ffb84a', icon: '⚔', supreme: { name: 'Valquíria Feérica', description: 'Pó de estrelas em mais alvos, mais forte.', ability: { kind: 'multishot', targets: 4 }, stats: { damage: 2.8 } } },
     ],
   },
   trickster: {
@@ -616,6 +649,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Travessa',
     race: 'Fada',
     role: 'Controle (confusão)',
+    classe: 'control',
+    classDetail: 'confusão',
     description: 'Joga pó de confusão: o inimigo atingido pode se perder e andar para trás.',
     lore: 'Troca o caminho dos monstros por diversão. Às vezes troca o seu também.',
     icon: '✧',
@@ -629,8 +664,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'fear', chance: 0.25, duration: 1.5, look: 'confuse' }],
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Pregadora de Peças', description: 'O pó se espalha: confunde em área.', ability: { kind: 'splash', radius: 35, damageRatio: 0.5 }, effects: [{ kind: 'fear', chance: 0.35, duration: 1.8, look: 'confuse' }], color: '#ff8ad0', icon: '♣', supreme: { name: 'Grande Ilusionista', description: 'Confusão em área grande, que dura mais.', ability: { kind: 'splash', radius: 50, damageRatio: 0.5 }, effects: [{ kind: 'fear', chance: 0.45, duration: 2.4, look: 'confuse' }] } },
-      { name: 'Ladra de Ouro', description: 'Inimigos confusos que morrem rendem ouro extra.', ability: { kind: 'none' }, effects: [{ kind: 'fear', chance: 0.35, duration: 1.6, look: 'confuse' }, { kind: 'goldOnKill', gold: 3, when: 'feared' }], stats: { damage: 1.3 }, color: '#f0c35a', icon: '◉', supreme: { name: 'Rainha dos Ladrões', description: 'Confunde mais, e confusos que morrem rendem +5 de ouro.', ability: { kind: 'none' }, effects: [{ kind: 'fear', chance: 0.4, duration: 1.8, look: 'confuse' }, { kind: 'goldOnKill', gold: 5, when: 'feared' }], stats: { damage: 1.4 } } },
+      { name: 'Pregadora de Peças', description: 'O pó se espalha e confunde em área.', ability: { kind: 'splash', radius: 35, damageRatio: 0.5 }, effects: [{ kind: 'fear', chance: 0.35, duration: 1.8, look: 'confuse' }], color: '#ff8ad0', icon: '♣', supreme: { name: 'Grande Ilusionista', description: 'Confusão em área grande, que dura mais.', ability: { kind: 'splash', radius: 50, damageRatio: 0.5 }, effects: [{ kind: 'fear', chance: 0.45, duration: 2.4, look: 'confuse' }] } },
+      { name: 'Ladra de Ouro', description: 'Inimigos confusos que morrem rendem ouro extra.', ability: { kind: 'none' }, effects: [{ kind: 'fear', chance: 0.35, duration: 1.6, look: 'confuse' }, { kind: 'goldOnKill', gold: 3, when: 'feared' }], stats: { damage: 1.3 }, color: '#f0c35a', icon: '◉', supreme: { name: 'Rainha dos Ladrões', description: 'Confunde mais, e cada confuso que morre rende mais ouro.', ability: { kind: 'none' }, effects: [{ kind: 'fear', chance: 0.4, duration: 1.8, look: 'confuse' }, { kind: 'goldOnKill', gold: 5, when: 'feared' }], stats: { damage: 1.4 } } },
     ],
   },
   lumina: {
@@ -638,6 +673,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Lumina',
     race: 'Fada',
     role: 'Suporte (marca)',
+    classe: 'support',
+    classDetail: 'marca o alvo',
     description: 'Ilumina o alvo: inimigos marcados recebem mais dano de todas as criaturas.',
     lore: 'Onde ela aponta, ninguém consegue se esconder — nem dos golpes.',
     icon: '✦',
@@ -651,8 +688,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'mark', amount: 0.15, duration: 3 }],
     unlock: { kind: 'essence', cost: 90 },
     ascended: [
-      { name: 'Farol', description: 'Marca 3 inimigos de uma vez, com marca mais forte.', ability: { kind: 'multishot', targets: 3 }, effects: [{ kind: 'mark', amount: 0.25, duration: 3.5 }], color: '#ffd25a', icon: '☀', supreme: { name: 'Sol Interior', description: 'Marca 4 inimigos de uma vez, com marca mais forte.', ability: { kind: 'multishot', targets: 4 }, effects: [{ kind: 'mark', amount: 0.33, duration: 3.5 }] } },
-      { name: 'Estrela Cadente', description: 'Marcados explodem em luz ao morrer.', ability: { kind: 'none' }, effects: [{ kind: 'mark', amount: 0.2, duration: 3, explode: { radius: 40, ratio: 0.4 } }], stats: { damage: 1.4 }, color: '#bfe8ff', icon: '★', supreme: { name: 'Supernova', description: 'Marcados explodem em luz numa área maior.', ability: { kind: 'none' }, effects: [{ kind: 'mark', amount: 0.25, duration: 3, explode: { radius: 60, ratio: 0.55 } }], stats: { damage: 1.5 } } },
+      { name: 'Farol', description: 'Marca vários inimigos de uma vez, com marca mais forte.', ability: { kind: 'multishot', targets: 3 }, effects: [{ kind: 'mark', amount: 0.25, duration: 3.5 }], color: '#ffd25a', icon: '☀', supreme: { name: 'Sol Interior', description: 'Marca ainda mais inimigos, com marca mais forte.', ability: { kind: 'multishot', targets: 4 }, effects: [{ kind: 'mark', amount: 0.33, duration: 3.5 }] } },
+      { name: 'Estrela Cadente', description: 'Os marcados explodem em luz ao morrer.', ability: { kind: 'none' }, effects: [{ kind: 'mark', amount: 0.2, duration: 3, explode: { radius: 40, ratio: 0.4 } }], stats: { damage: 1.4 }, color: '#bfe8ff', icon: '★', supreme: { name: 'Supernova', description: 'A explosão de luz pega uma área maior.', ability: { kind: 'none' }, effects: [{ kind: 'mark', amount: 0.25, duration: 3, explode: { radius: 60, ratio: 0.55 } }], stats: { damage: 1.5 } } },
     ],
   },
   stoneWall: {
@@ -660,7 +697,9 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Muralha',
     race: 'Golem',
     role: 'Bloqueio (atordoar)',
-    description: 'Segura até 3 inimigos parados e os golpes dele podem atordoar. Chefes passam direto.',
+    classe: 'blocker',
+    classDetail: 'segura e atordoa',
+    description: 'Segura inimigos parados e os golpes dele podem atordoar. Chefes passam direto.',
     lore: 'Era parte de um castelo. Um dia cansou de esperar o inimigo chegar.',
     icon: '🧱',
     baseCost: 30,
@@ -672,8 +711,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'stun', chance: 0.25, duration: 1 }],
     unlock: { kind: 'essence', cost: 90 },
     ascended: [
-      { name: 'Fortaleza', description: 'Segura até 6 inimigos.', ability: { kind: 'block', radius: 40, capacity: 6 }, color: '#ffd25a', icon: '♜', supreme: { name: 'Montanha Viva', description: 'Segura até 9 inimigos num raio maior.', ability: { kind: 'block', radius: 48, capacity: 9 } } },
-      { name: 'Avalanche', description: 'Troca o bloqueio por pancadas em área que atordoam.', ability: { kind: 'nova', radius: 50 }, effects: [{ kind: 'stun', chance: 0.4, duration: 1.2 }], stats: { damage: 1.6 }, color: '#bfe8ff', icon: '❄', supreme: { name: 'Terremoto', description: 'Pancadas em área maior que atordoam com mais frequência.', ability: { kind: 'nova', radius: 65 }, effects: [{ kind: 'stun', chance: 0.5, duration: 1.4 }], stats: { damage: 1.9 } } },
+      { name: 'Fortaleza', description: 'Segura muito mais inimigos.', ability: { kind: 'block', radius: 40, capacity: 6 }, color: '#ffd25a', icon: '♜', supreme: { name: 'Montanha Viva', description: 'Segura uma multidão num raio maior.', ability: { kind: 'block', radius: 48, capacity: 9 } } },
+      { name: 'Avalanche', description: 'Troca o bloqueio por pancadas em área que atordoam.', ability: { kind: 'nova', radius: 50 }, effects: [{ kind: 'stun', chance: 0.4, duration: 1.2 }], stats: { damage: 1.6 }, color: '#bfe8ff', icon: '❄', supreme: { name: 'Terremoto', description: 'Pancadas em área maior, que atordoam com mais frequência.', ability: { kind: 'nova', radius: 65 }, effects: [{ kind: 'stun', chance: 0.5, duration: 1.4 }], stats: { damage: 1.9 } } },
     ],
   },
   crystalGolem: {
@@ -681,6 +720,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Cristal',
     race: 'Golem',
     role: 'Raio em linha',
+    classe: 'ranged',
+    classDetail: 'raio que atravessa',
     description: 'Dispara um raio de luz que atravessa todos os inimigos em linha.',
     lore: 'Um coração de cristal que aprendeu a andar. Ainda não aprendeu a errar o alvo.',
     icon: '💎',
@@ -692,8 +733,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'pierce', width: 10, beams: 1 },
     unlock: { kind: 'essence', cost: 100 },
     ascended: [
-      { name: 'Prisma', description: 'Divide o raio em 3, em leque.', ability: { kind: 'pierce', width: 10, beams: 3 }, color: '#ffd25a', icon: '◬', supreme: { name: 'Caleidoscópio', description: 'Divide o raio em 5, em leque.', ability: { kind: 'pierce', width: 10, beams: 5 } } },
-      { name: 'Amplificador', description: 'Troca o raio por uma aura que aumenta o dano crítico das criaturas próximas.', ability: { kind: 'bless', radius: 90, critDamage: 1 }, stats: { damage: 1.4 }, color: '#5ab0ff', icon: '◎', supreme: { name: 'Ressonância', description: 'Aura maior que aumenta muito o dano crítico das criaturas próximas.', ability: { kind: 'bless', radius: 120, critDamage: 1.5 }, stats: { damage: 1.6 } } },
+      { name: 'Prisma', description: 'Divide o raio em leque.', ability: { kind: 'pierce', width: 10, beams: 3 }, color: '#ffd25a', icon: '◬', supreme: { name: 'Caleidoscópio', description: 'Divide o raio num leque ainda maior.', ability: { kind: 'pierce', width: 10, beams: 5 } } },
+      { name: 'Amplificador', description: 'Troca o raio por uma aura que aumenta o dano crítico das criaturas próximas.', ability: { kind: 'bless', radius: 90, critDamage: 1 }, stats: { damage: 1.4 }, color: '#5ab0ff', icon: '◎', supreme: { name: 'Ressonância', description: 'Aura maior, que aumenta muito o dano crítico.', ability: { kind: 'bless', radius: 120, critDamage: 1.5 }, stats: { damage: 1.6 } } },
     ],
   },
   magmaGolem: {
@@ -702,7 +743,9 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Magma',
     race: 'Golem',
     role: 'Área ao redor',
-    description: 'Queima tudo ao redor de si: cada golpe fere todos por perto e deixa queimando.',
+    classe: 'area',
+    classDetail: 'queima em volta',
+    description: 'Queima tudo ao redor de si: cada golpe fere todos por perto.',
     lore: 'Dorme dentro de vulcões. Acordado, o vulcão é ele.',
     icon: '🌋',
     baseCost: 30,
@@ -714,8 +757,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'poison', dps: 4, duration: 2 }],
     unlock: { kind: 'essence', cost: 90 },
     ascended: [
-      { name: 'Vulcão', description: 'Área maior e queimadura mais forte.', ability: { kind: 'nova', radius: 65 }, effects: [{ kind: 'poison', dps: 7, duration: 2.5 }], stats: { range: 1.4 }, color: '#ffd25a', icon: '🌋', supreme: { name: 'Erupção', description: 'Área enorme e queimadura forte.', ability: { kind: 'nova', radius: 80 }, effects: [{ kind: 'poison', dps: 11, duration: 3 }], stats: { range: 1.5 } } },
-      { name: 'Lava Viva', description: 'Arremessa lava que vira poça no chão.', ability: { kind: 'pool', radius: 30, duration: 3, dps: 18 }, effects: [], stats: { range: 1.8 }, color: '#ff8a2a', icon: '♨', supreme: { name: 'Rio de Lava', description: 'A lava vira poças maiores e mais duradouras.', ability: { kind: 'pool', radius: 40, duration: 4.5, dps: 22 }, effects: [], stats: { range: 1.9 } } },
+      { name: 'Vulcão', description: 'Área maior, que deixa os inimigos queimando.', ability: { kind: 'nova', radius: 65 }, effects: [{ kind: 'poison', dps: 7, duration: 2.5 }], stats: { range: 1.4 }, color: '#ffd25a', icon: '🌋', supreme: { name: 'Erupção', description: 'Área enorme e queimadura forte.', ability: { kind: 'nova', radius: 80 }, effects: [{ kind: 'poison', dps: 11, duration: 3 }], stats: { range: 1.5 } } },
+      { name: 'Lava Viva', description: 'Troca a área por lava arremessada que vira poça no chão.', ability: { kind: 'pool', radius: 30, duration: 3, dps: 18 }, effects: [], stats: { range: 1.8 }, color: '#ff8a2a', icon: '♨', supreme: { name: 'Rio de Lava', description: 'As poças de lava ficam maiores e duram mais.', ability: { kind: 'pool', radius: 40, duration: 4.5, dps: 22 }, effects: [], stats: { range: 1.9 } } },
     ],
   },
   skeletonWarrior: {
@@ -723,6 +766,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Esqueleto',
     race: 'Necromante',
     role: 'Corpo a corpo barato',
+    classe: 'melee',
+    classDetail: 'barato',
     description: 'Guerreiro de ossos barato e incansável. Bom para encher a linha de frente.',
     lore: 'Já morreu uma vez. Não tem medo de repetir.',
     icon: '💀',
@@ -734,8 +779,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'none' },
     unlock: { kind: 'essence', cost: 70 },
     ascended: [
-      { name: 'Cavaleiro da Morte', description: 'Mais dano e ignora armadura.', ability: { kind: 'pierceArmor', bonusVsArmored: 0 }, stats: { damage: 1.5 }, color: '#5adca0', icon: '♞', supreme: { name: 'Lorde da Morte', description: 'Muito mais dano, ignora armadura e fere mais os blindados.', ability: { kind: 'pierceArmor', bonusVsArmored: 0.3 }, stats: { damage: 2.1 } } },
-      { name: 'Legião de Ossos', description: 'Abates podem erguer um esqueleto aliado temporário.', ability: { kind: 'none' }, effects: [{ kind: 'raiseOnKill', chance: 0.35, duration: 6 }], color: '#c86aff', icon: '☠', supreme: { name: 'Exército dos Mortos', description: 'Abates erguem esqueletos aliados com mais frequência, por mais tempo.', ability: { kind: 'none' }, effects: [{ kind: 'raiseOnKill', chance: 0.55, duration: 8 }], stats: { damage: 1.25 } } },
+      { name: 'Cavaleiro da Morte', description: 'Mais dano e ignora armadura.', ability: { kind: 'pierceArmor', bonusVsArmored: 0 }, stats: { damage: 1.5 }, color: '#5adca0', icon: '♞', supreme: { name: 'Lorde da Morte', description: 'Muito mais dano, e fere mais os blindados.', ability: { kind: 'pierceArmor', bonusVsArmored: 0.3 }, stats: { damage: 2.1 } } },
+      { name: 'Legião de Ossos', description: 'Abates podem erguer um esqueleto aliado temporário.', ability: { kind: 'none' }, effects: [{ kind: 'raiseOnKill', chance: 0.35, duration: 6 }], color: '#c86aff', icon: '☠', supreme: { name: 'Exército dos Mortos', description: 'Ergue esqueletos com mais frequência, por mais tempo.', ability: { kind: 'none' }, effects: [{ kind: 'raiseOnKill', chance: 0.55, duration: 8 }], stats: { damage: 1.25 } } },
     ],
   },
   reaper: {
@@ -743,6 +788,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Ceifador',
     race: 'Necromante',
     role: 'Executor',
+    classe: 'melee',
+    classDetail: 'executa',
     description: 'A foice termina o serviço: inimigos comuns com pouca vida morrem na hora.',
     lore: 'Não tem pressa. Todo mundo chega até ele um dia.',
     icon: '⚰',
@@ -755,8 +802,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'execute', below: 0.25 }],
     unlock: { kind: 'essence', cost: 90 },
     ascended: [
-      { name: 'Ceifador Sombrio', description: 'Executa abaixo de 25% de vida.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.25 }], color: '#c86aff', icon: '☾', supreme: { name: 'A Morte', description: 'Executa inimigos comuns abaixo de 35% de vida.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.35 }], stats: { damage: 1.2 } } },
-      { name: 'Colhedor de Almas', description: 'Cada execução rende ouro.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.15 }, { kind: 'goldOnKill', gold: 3, when: 'executed' }], stats: { damage: 1.3 }, color: '#7affb0', icon: '◉', supreme: { name: 'Colecionador de Almas', description: 'Executa mais cedo, e cada execução rende +4 de ouro.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.2 }, { kind: 'goldOnKill', gold: 4, when: 'executed' }], stats: { damage: 1.4 } } },
+      { name: 'Ceifador Sombrio', description: 'Executa inimigos com mais vida.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.25 }], color: '#c86aff', icon: '☾', supreme: { name: 'A Morte', description: 'Executa inimigos com ainda mais vida.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.35 }], stats: { damage: 1.2 } } },
+      { name: 'Colhedor de Almas', description: 'Cada execução rende ouro.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.15 }, { kind: 'goldOnKill', gold: 3, when: 'executed' }], stats: { damage: 1.3 }, color: '#7affb0', icon: '◉', supreme: { name: 'Colecionador de Almas', description: 'Executa mais cedo, e cada execução rende mais ouro.', ability: { kind: 'none' }, effects: [{ kind: 'execute', below: 0.2 }, { kind: 'goldOnKill', gold: 4, when: 'executed' }], stats: { damage: 1.4 } } },
     ],
   },
   drainer: {
@@ -764,6 +811,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Drenador',
     race: 'Necromante',
     role: 'Controle (enfraquecer)',
+    classe: 'control',
+    classDetail: 'enfraquece',
     description: 'Suga a força do alvo: ele anda mais devagar e causa menos dano ao Nexus.',
     lore: 'Bebe o vigor dos vivos. Eles reclamam, mas cada vez mais baixo.',
     icon: '🕸',
@@ -776,7 +825,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'weaken', slow: 0.3, damage: 0.5, duration: 3.5 }],
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Sanguessuga', description: 'Enfraquecimento mais forte e longo.', ability: { kind: 'none' }, effects: [{ kind: 'weaken', slow: 0.4, damage: 0.5, duration: 3.5 }], color: '#ff3a5a', icon: '♦', supreme: { name: 'Praga', description: 'Enfraquece em área, mais forte e por mais tempo.', ability: { kind: 'splash', radius: 35, damageRatio: 0.5 }, effects: [{ kind: 'weaken', slow: 0.5, damage: 0.6, duration: 4.5 }] } },
+      { name: 'Sanguessuga', description: 'Enfraquecimento mais forte e mais longo.', ability: { kind: 'none' }, effects: [{ kind: 'weaken', slow: 0.4, damage: 0.5, duration: 3.5 }], color: '#ff3a5a', icon: '♦', supreme: { name: 'Praga', description: 'Enfraquece em área, mais forte e por mais tempo.', ability: { kind: 'splash', radius: 35, damageRatio: 0.5 }, effects: [{ kind: 'weaken', slow: 0.5, damage: 0.6, duration: 4.5 }] } },
       { name: 'Corruptor', description: 'Também corrói a armadura.', ability: { kind: 'none' }, effects: [{ kind: 'weaken', slow: 0.25, damage: 0.3, duration: 3 }, { kind: 'corrode', armor: 3, duration: 3 }], stats: { damage: 1.3 }, color: '#9aff3a', icon: '☣', supreme: { name: 'Ruína', description: 'Enfraquece e corrói a armadura em área.', ability: { kind: 'splash', radius: 35, damageRatio: 0.5 }, effects: [{ kind: 'weaken', slow: 0.3, damage: 0.35, duration: 3.5 }, { kind: 'corrode', armor: 4, duration: 3.5 }], stats: { damage: 1.4 } } },
     ],
   },
@@ -786,6 +835,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Domadora',
     race: 'Górgona',
     role: 'Veneno à distância',
+    classe: 'ranged',
+    classDetail: 'veneno',
     description: 'Domadora de serpentes: atiça a cobra, que dá o bote de longe e deixa o alvo envenenado (o veneno ignora armadura).',
     lore: 'Toca a flauta e a serpente obedece. Ninguém sabe qual das duas está no comando.',
     icon: '🐍',
@@ -807,6 +858,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Medusa',
     race: 'Górgona',
     role: 'Controle (petrificar)',
+    classe: 'control',
+    classDetail: 'petrifica',
     description: 'O olhar dela pode transformar o alvo em pedra por alguns segundos. Chefes resistem.',
     lore: 'Nunca olhou ninguém nos olhos duas vezes.',
     icon: '👁',
@@ -819,8 +872,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'stun', chance: 0.2, duration: 1.8, look: 'stone' }],
     unlock: { kind: 'essence', cost: 100 },
     ascended: [
-      { name: 'Olhar Pétreo', description: 'Petrifica mais vezes e por mais tempo.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 2.4, look: 'stone' }], color: '#ffd25a', icon: '◉', supreme: { name: 'Olhar Eterno', description: 'O olhar petrifica em área pequena, mais vezes e por mais tempo.', ability: { kind: 'splash', radius: 28, damageRatio: 0.4 }, effects: [{ kind: 'stun', chance: 0.4, duration: 2.6, look: 'stone' }] } },
-      { name: 'Górgona Ancestral', description: 'O alvo também fica vulnerável: +50% de dano recebido por 2 s.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.25, duration: 2, look: 'stone' }, { kind: 'vulnerable', amount: 0.5, duration: 2 }], color: '#ff3a3a', icon: '♛', supreme: { name: 'Mãe das Górgonas', description: 'Petrifica, e o alvo fica muito vulnerável: +80% de dano recebido.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.3, duration: 2.2, look: 'stone' }, { kind: 'vulnerable', amount: 0.8, duration: 2.5 }] } },
+      { name: 'Olhar Pétreo', description: 'Petrifica mais vezes e por mais tempo.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.35, duration: 2.4, look: 'stone' }], color: '#ffd25a', icon: '◉', supreme: { name: 'Olhar Eterno', description: 'O olhar petrifica em área pequena.', ability: { kind: 'splash', radius: 28, damageRatio: 0.4 }, effects: [{ kind: 'stun', chance: 0.4, duration: 2.6, look: 'stone' }] } },
+      { name: 'Górgona Ancestral', description: 'O alvo petrificado também fica vulnerável e recebe mais dano.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.25, duration: 2, look: 'stone' }, { kind: 'vulnerable', amount: 0.5, duration: 2 }], color: '#ff3a3a', icon: '♛', supreme: { name: 'Mãe das Górgonas', description: 'Petrifica, e o alvo fica muito vulnerável.', ability: { kind: 'none' }, effects: [{ kind: 'stun', chance: 0.3, duration: 2.2, look: 'stone' }, { kind: 'vulnerable', amount: 0.8, duration: 2.5 }] } },
     ],
   },
   basilisk: {
@@ -828,6 +881,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Basilisco',
     race: 'Górgona',
     role: 'Anti-armadura (corrosão)',
+    classe: 'control',
+    classDetail: 'corrói armadura',
     description: 'Cospe ácido que corrói a armadura do alvo: todo o exército passa a feri-lo mais.',
     lore: 'O hálito dele derrete ferro. O beijo, felizmente, ninguém provou.',
     icon: '🦎',
@@ -840,8 +895,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'corrode', armor: 3, duration: 3 }],
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Basilisco Rei', description: 'Corrói em área e mais forte.', ability: { kind: 'splash', radius: 35, damageRatio: 0.6 }, effects: [{ kind: 'corrode', armor: 4, duration: 3.5 }], color: '#ffd25a', icon: '♛', supreme: { name: 'Imperador Basilisco', description: 'Corrói em área grande e mais forte.', ability: { kind: 'splash', radius: 55, damageRatio: 0.7 }, effects: [{ kind: 'corrode', armor: 5, duration: 4 }] } },
-      { name: 'Cuspidor', description: 'O ácido vira poça no chão.', ability: { kind: 'pool', radius: 28, duration: 3, dps: 12 }, effects: [{ kind: 'corrode', armor: 3, duration: 3 }], color: '#9aff3a', icon: '♨', supreme: { name: 'Pântano Ácido', description: 'Poças de ácido maiores, mais fortes e que corroem mais.', ability: { kind: 'pool', radius: 40, duration: 4, dps: 16 }, effects: [{ kind: 'corrode', armor: 4, duration: 3.5 }] } },
+      { name: 'Basilisco Rei', description: 'Corrói em área, mais forte.', ability: { kind: 'splash', radius: 35, damageRatio: 0.6 }, effects: [{ kind: 'corrode', armor: 4, duration: 3.5 }], color: '#ffd25a', icon: '♛', supreme: { name: 'Imperador Basilisco', description: 'Corrói em área grande, mais forte.', ability: { kind: 'splash', radius: 55, damageRatio: 0.7 }, effects: [{ kind: 'corrode', armor: 5, duration: 4 }] } },
+      { name: 'Cuspidor', description: 'O ácido vira poça no chão.', ability: { kind: 'pool', radius: 28, duration: 3, dps: 12 }, effects: [{ kind: 'corrode', armor: 3, duration: 3 }], color: '#9aff3a', icon: '♨', supreme: { name: 'Pântano Ácido', description: 'Poças de ácido maiores, que corroem mais.', ability: { kind: 'pool', radius: 40, duration: 4, dps: 16 }, effects: [{ kind: 'corrode', armor: 4, duration: 3.5 }] } },
     ],
   },
   imp: {
@@ -850,6 +905,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Diabrete',
     race: 'Demônio',
     role: 'DPS barato e rápido',
+    classe: 'ranged',
+    classDetail: 'rápido e barato',
     description: 'Pequeno, barato e rápido: dispara bolinhas de fogo sem parar.',
     lore: 'Fugiu do inferno pela chaminé. Ainda tem fuligem nas orelhas.',
     icon: '😈',
@@ -862,7 +919,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'none' },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Diabrete Flamejante', description: 'As bolinhas de fogo deixam o alvo queimando.', ability: { kind: 'none' }, effects: [{ kind: 'poison', dps: 5, duration: 2 }], color: '#ffb040', icon: '♨', supreme: { name: 'Pequeno Inferno', description: 'Bolinhas de fogo em 2 alvos, com queimadura forte.', ability: { kind: 'multishot', targets: 2 }, effects: [{ kind: 'poison', dps: 8, duration: 2.5 }] } },
+      { name: 'Diabrete Flamejante', description: 'As bolinhas de fogo deixam o alvo queimando.', ability: { kind: 'none' }, effects: [{ kind: 'poison', dps: 5, duration: 2 }], color: '#ffb040', icon: '♨', supreme: { name: 'Pequeno Inferno', description: 'Bolinhas de fogo em dois alvos, com queimadura forte.', ability: { kind: 'multishot', targets: 2 }, effects: [{ kind: 'poison', dps: 8, duration: 2.5 }] } },
       { name: 'Diabrete Ladino', description: 'Chance de roubar ouro a cada golpe.', ability: { kind: 'none' }, effects: [{ kind: 'steal', chance: 0.12, gold: 1 }], color: '#f0c35a', icon: '◉', supreme: { name: 'Rei dos Ladrões', description: 'Rouba mais ouro, com mais frequência.', ability: { kind: 'none' }, effects: [{ kind: 'steal', chance: 0.2, gold: 2 }], stats: { damage: 1.3 } } },
     ],
   },
@@ -871,6 +928,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Súcubo',
     race: 'Demônio',
     role: 'Controle (puxar)',
+    classe: 'control',
+    classDetail: 'puxa inimigos',
     description: 'O chicote puxa o inimigo para perto dela, para longe do caminho do Nexus.',
     lore: 'Ninguém resiste ao chamado dela. Os monstros só percebem tarde.',
     icon: '💋',
@@ -884,8 +943,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     effects: [{ kind: 'pull', distance: 18 }],
     unlock: { kind: 'essence', cost: 90 },
     ascended: [
-      { name: 'Sedutora', description: 'Puxa 3 inimigos de uma vez.', ability: { kind: 'multishot', targets: 3 }, effects: [{ kind: 'pull', distance: 18 }], color: '#ff8ad0', icon: '♥', supreme: { name: 'Rainha Súcubo', description: 'Puxa 5 inimigos de uma vez, mais forte.', ability: { kind: 'multishot', targets: 5 }, effects: [{ kind: 'pull', distance: 22 }] } },
-      { name: 'Tormento', description: 'Puxados ficam vulneráveis: +60% de dano recebido por 2,5 s.', ability: { kind: 'none' }, effects: [{ kind: 'pull', distance: 15 }, { kind: 'vulnerable', amount: 0.6, duration: 2.5 }], color: '#ff3a4a', icon: '⛓', supreme: { name: 'Agonia', description: 'Puxados ficam muito vulneráveis: +85% de dano recebido.', ability: { kind: 'none' }, effects: [{ kind: 'pull', distance: 18 }, { kind: 'vulnerable', amount: 0.85, duration: 3 }] } },
+      { name: 'Sedutora', description: 'Puxa vários inimigos de uma vez.', ability: { kind: 'multishot', targets: 3 }, effects: [{ kind: 'pull', distance: 18 }], color: '#ff8ad0', icon: '♥', supreme: { name: 'Rainha Súcubo', description: 'Puxa ainda mais inimigos, mais longe.', ability: { kind: 'multishot', targets: 5 }, effects: [{ kind: 'pull', distance: 22 }] } },
+      { name: 'Tormento', description: 'Os puxados ficam vulneráveis e recebem mais dano.', ability: { kind: 'none' }, effects: [{ kind: 'pull', distance: 15 }, { kind: 'vulnerable', amount: 0.6, duration: 2.5 }], color: '#ff3a4a', icon: '⛓', supreme: { name: 'Agonia', description: 'Os puxados ficam muito vulneráveis.', ability: { kind: 'none' }, effects: [{ kind: 'pull', distance: 18 }, { kind: 'vulnerable', amount: 0.85, duration: 3 }] } },
     ],
   },
   infernal: {
@@ -894,6 +953,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Infernal',
     race: 'Demônio',
     role: 'Área pesada',
+    classe: 'area',
+    classDetail: 'explosão pesada',
     description: 'Lento, mas cada bola de fogo explode com muito dano em área.',
     lore: 'Caiu do céu como um meteoro. Gostou da sensação e não parou mais.',
     icon: '☄',
@@ -905,8 +966,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'splash', radius: 40, damageRatio: 0.8 },
     unlock: { kind: 'essence', cost: 110 },
     ascended: [
-      { name: 'Senhor do Abismo', description: 'Explosão maior e mais forte.', ability: { kind: 'splash', radius: 60, damageRatio: 0.9 }, color: '#ffd25a', icon: '♛', supreme: { name: 'Lorde do Inferno', description: 'Explosão enorme e mais forte.', ability: { kind: 'splash', radius: 70, damageRatio: 0.9 } } },
-      { name: 'Berserker', description: 'Cada abate aumenta o dano até o fim da onda.', ability: { kind: 'splash', radius: 40, damageRatio: 0.8 }, effects: [{ kind: 'killDamage', perKill: 0.05, max: 1 }], color: '#ff3a1a', icon: '⚔', supreme: { name: 'Fúria Infernal', description: 'Cada abate aumenta muito mais o dano (até o fim da onda).', ability: { kind: 'splash', radius: 45, damageRatio: 0.8 }, effects: [{ kind: 'killDamage', perKill: 0.08, max: 1.5 }] } },
+      { name: 'Senhor do Abismo', description: 'Explosão maior e mais forte.', ability: { kind: 'splash', radius: 60, damageRatio: 0.9 }, color: '#ffd25a', icon: '♛', supreme: { name: 'Lorde do Inferno', description: 'Explosão enorme.', ability: { kind: 'splash', radius: 70, damageRatio: 0.9 } } },
+      { name: 'Berserker', description: 'Cada abate aumenta o dano até o fim da onda.', ability: { kind: 'splash', radius: 40, damageRatio: 0.8 }, effects: [{ kind: 'killDamage', perKill: 0.05, max: 1 }], color: '#ff3a1a', icon: '⚔', supreme: { name: 'Fúria Infernal', description: 'Cada abate aumenta muito mais o dano.', ability: { kind: 'splash', radius: 45, damageRatio: 0.8 }, effects: [{ kind: 'killDamage', perKill: 0.08, max: 1.5 }] } },
     ],
   },
   cherub: {
@@ -914,6 +975,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Querubim',
     race: 'Anjo',
     role: 'Ricochete',
+    classe: 'ranged',
+    classDetail: 'ricochete',
     description: 'Flechas de luz que ricocheteiam de um inimigo para o próximo.',
     lore: 'Pequeno, gorducho e certeiro. Não subestime quem tem asas desde bebê.',
     icon: '👼',
@@ -926,8 +989,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'chain', jumps: 2, radius: 70, falloff: 0.85 },
     unlock: { kind: 'essence', cost: 80 },
     ascended: [
-      { name: 'Serafim', description: 'As flechas ricocheteiam até 4 vezes.', ability: { kind: 'chain', jumps: 4, radius: 75, falloff: 0.9 }, color: '#ffd25a', icon: '✶', supreme: { name: 'Seis Asas', description: 'As flechas ricocheteiam até 7 vezes, quase sem perder força.', ability: { kind: 'chain', jumps: 7, radius: 80, falloff: 0.92 } } },
-      { name: 'Arauto', description: 'As flechas marcam: +20% de dano recebido por 3 s.', ability: { kind: 'chain', jumps: 2, radius: 70, falloff: 0.85 }, effects: [{ kind: 'mark', amount: 0.2, duration: 3 }], color: '#bfe8ff', icon: '♪', supreme: { name: 'Trombeta do Juízo', description: 'As flechas saltam mais e marcam forte: +33% de dano recebido.', ability: { kind: 'chain', jumps: 3, radius: 75, falloff: 0.88 }, effects: [{ kind: 'mark', amount: 0.33, duration: 3.5 }], stats: { damage: 1.2 } } },
+      { name: 'Serafim', description: 'As flechas ricocheteiam por mais inimigos.', ability: { kind: 'chain', jumps: 4, radius: 75, falloff: 0.9 }, color: '#ffd25a', icon: '✶', supreme: { name: 'Seis Asas', description: 'Ricocheteiam por quase uma fila inteira, sem perder força.', ability: { kind: 'chain', jumps: 7, radius: 80, falloff: 0.92 } } },
+      { name: 'Arauto', description: 'As flechas marcam o alvo, que passa a receber mais dano.', ability: { kind: 'chain', jumps: 2, radius: 70, falloff: 0.85 }, effects: [{ kind: 'mark', amount: 0.2, duration: 3 }], color: '#bfe8ff', icon: '♪', supreme: { name: 'Trombeta do Juízo', description: 'As flechas saltam mais e marcam mais forte.', ability: { kind: 'chain', jumps: 3, radius: 75, falloff: 0.88 }, effects: [{ kind: 'mark', amount: 0.33, duration: 3.5 }], stats: { damage: 1.2 } } },
     ],
   },
   valkyrie: {
@@ -935,6 +998,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Valquíria',
     race: 'Anjo',
     role: 'Caçadora de fortes',
+    classe: 'ranged',
+    classDetail: 'caça os mais fortes',
     description: 'Mira sempre no inimigo mais forte ao alcance: chefes e elites primeiro.',
     lore: 'Escolhe quem cai na batalha. Prefere os grandes.',
     icon: '🛡',
@@ -947,8 +1012,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'none' },
     unlock: { kind: 'essence', cost: 100 },
     ascended: [
-      { name: 'Matadora de Reis', description: '+60% de dano contra elites e chefes.', ability: { kind: 'none' }, effects: [{ kind: 'vsStrong', bonus: 0.6 }], color: '#ffd25a', icon: '♛', supreme: { name: 'Executora Divina', description: 'Mais dano em tudo e dano enorme contra elites e chefes (+110%).', ability: { kind: 'none' }, effects: [{ kind: 'vsStrong', bonus: 1.1 }], stats: { damage: 1.4 } } },
-      { name: 'Lança Celeste', description: 'A lança de luz atravessa todos em linha.', ability: { kind: 'pierce', width: 10, beams: 1 }, color: '#9fdcff', icon: '➵', supreme: { name: 'Lança do Paraíso', description: 'A lança de luz atravessa a fila, mais larga e forte, e pode atordoar.', ability: { kind: 'pierce', width: 16, beams: 1 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], stats: { damage: 1.6 } } },
+      { name: 'Matadora de Reis', description: 'Muito mais dano contra elites e chefes.', ability: { kind: 'none' }, effects: [{ kind: 'vsStrong', bonus: 0.6 }], color: '#ffd25a', icon: '♛', supreme: { name: 'Executora Divina', description: 'Dano enorme contra elites e chefes, e mais dano em tudo.', ability: { kind: 'none' }, effects: [{ kind: 'vsStrong', bonus: 1.1 }], stats: { damage: 1.4 } } },
+      { name: 'Lança Celeste', description: 'A lança de luz atravessa todos em linha.', ability: { kind: 'pierce', width: 10, beams: 1 }, color: '#9fdcff', icon: '➵', supreme: { name: 'Lança do Paraíso', description: 'A lança fica mais larga e forte, e pode atordoar.', ability: { kind: 'pierce', width: 16, beams: 1 }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], stats: { damage: 1.6 } } },
     ],
   },
   guardianAngel: {
@@ -956,6 +1021,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Guardião',
     race: 'Anjo',
     role: 'Suporte (proteção)',
+    classe: 'support',
+    classDetail: 'proteção',
     description: 'Protege as criaturas ao redor: ficam imunes a teia e atordoamento (Aranhas, Rei Ogro).',
     lore: 'Jurou proteger o Nexus. Leva a sério até as criaturas que não gostam dele.',
     icon: '😇',
@@ -968,8 +1035,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'bless', radius: 80, protect: true },
     unlock: { kind: 'essence', cost: 90 },
     ascended: [
-      { name: 'Égide Celeste', description: 'Proteção maior que também dá +12% de dano.', ability: { kind: 'bless', radius: 100, protect: true, damage: 0.12 }, color: '#ffd25a', icon: '☀', supreme: { name: 'Muralha Celeste', description: 'Proteção enorme que dá +25% de dano.', ability: { kind: 'bless', radius: 130, protect: true, damage: 0.25 } } },
-      { name: 'Juiz', description: 'Inimigos dentro da aura sofrem dano por segundo.', ability: { kind: 'bless', radius: 80, protect: true, dps: 10 }, color: '#bfe8ff', icon: '⚖', supreme: { name: 'Juízo Final', description: 'A aura protege e fere muito mais quem está dentro.', ability: { kind: 'bless', radius: 100, protect: true, dps: 15 } } },
+      { name: 'Égide Celeste', description: 'Proteção maior, que também dá dano.', ability: { kind: 'bless', radius: 100, protect: true, damage: 0.12 }, color: '#ffd25a', icon: '☀', supreme: { name: 'Muralha Celeste', description: 'Proteção enorme, que dá muito mais dano.', ability: { kind: 'bless', radius: 130, protect: true, damage: 0.25 } } },
+      { name: 'Juiz', description: 'Inimigos dentro da aura sofrem dano por segundo.', ability: { kind: 'bless', radius: 80, protect: true, dps: 10 }, color: '#bfe8ff', icon: '⚖', supreme: { name: 'Juízo Final', description: 'A aura fere muito mais quem está dentro.', ability: { kind: 'bless', radius: 100, protect: true, dps: 15 } } },
     ],
   },
   // ---------- Unicórnio (exclusiva, código de presente) ----------
@@ -978,6 +1045,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Potro Estelar',
     race: 'Unicórnio',
     role: 'Raio de luz',
+    classe: 'ranged',
+    classDetail: 'raio que atravessa',
     description: 'O chifre dispara um raio de luz que atravessa todos os inimigos em linha.',
     lore: 'Ainda pequeno, mas já carrega uma estrela inteira na ponta do chifre.',
     icon: '✶',
@@ -989,7 +1058,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'pierce', width: 14, beams: 1 },
     unlock: { kind: 'gift', gift: 'unicorn' },
     ascended: [
-      { name: 'Chifre Prismático', description: 'Três raios em leque, um de cada cor do arco-íris.', ability: { kind: 'pierce', width: 12, beams: 3 }, color: '#ff9ad8', icon: '❖', supreme: { name: 'Arco-Íris Vivo', description: 'Quatro raios em leque, de cores do arco-íris.', ability: { kind: 'pierce', width: 12, beams: 4 } } },
+      { name: 'Chifre Prismático', description: 'Raios em leque, com as cores do arco-íris.', ability: { kind: 'pierce', width: 12, beams: 3 }, color: '#ff9ad8', icon: '❖', supreme: { name: 'Arco-Íris Vivo', description: 'Ainda mais raios no leque.', ability: { kind: 'pierce', width: 12, beams: 4 } } },
       { name: 'Estrela Guia', description: 'Raio mais forte que marca quem atravessa: todos causam mais dano neles.', ability: { kind: 'pierce', width: 16, beams: 1 }, effects: [{ kind: 'mark', amount: 0.15, duration: 3 }], stats: { damage: 1.3 }, color: '#bfe8ff', icon: '✧', supreme: { name: 'Constelação', description: 'Raio largo que marca forte e deixa o alvo mais lento.', ability: { kind: 'pierce', width: 18, beams: 1 }, effects: [{ kind: 'mark', amount: 0.25, duration: 3.5 }, { kind: 'weaken', slow: 0.4, damage: 0, duration: 2.5 }], stats: { damage: 1.3 } } },
     ],
   },
@@ -998,6 +1067,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Unicórnio Guardião',
     race: 'Unicórnio',
     role: 'Suporte (proteção)',
+    classe: 'support',
+    classDetail: 'proteção',
     description: 'Aura de luz: as criaturas ao redor atacam mais rápido e ficam imunes a teia e atordoamento.',
     lore: 'Onde ele pisa, nenhuma sombra consegue prender ninguém.',
     icon: '⛉',
@@ -1009,8 +1080,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     ability: { kind: 'bless', radius: 95, attackSpeed: 0.12, protect: true },
     unlock: { kind: 'gift', gift: 'unicorn' },
     ascended: [
-      { name: 'Santuário de Luz', description: 'Aura maior que também fortalece o dano.', ability: { kind: 'bless', radius: 120, attackSpeed: 0.15, damage: 0.12, protect: true }, color: '#fff2b0', icon: '☼', supreme: { name: 'Templo Vivo', description: 'Aura enorme: mais dano e mais velocidade, com proteção.', ability: { kind: 'bless', radius: 150, attackSpeed: 0.2, damage: 0.2, protect: true } } },
-      { name: 'Lança Celeste', description: 'A aura passa a ferir os inimigos dentro dela.', ability: { kind: 'bless', radius: 95, attackSpeed: 0.12, protect: true, dps: 7 }, color: '#ffb07a', icon: '⟰', supreme: { name: 'Juízo de Luz', description: 'A aura fere com muito mais força quem está dentro.', ability: { kind: 'bless', radius: 110, attackSpeed: 0.12, protect: true, dps: 13 } } },
+      { name: 'Santuário de Luz', description: 'Aura maior, que também fortalece o dano.', ability: { kind: 'bless', radius: 120, attackSpeed: 0.15, damage: 0.12, protect: true }, color: '#fff2b0', icon: '☼', supreme: { name: 'Templo Vivo', description: 'Aura enorme: mais dano e mais velocidade.', ability: { kind: 'bless', radius: 150, attackSpeed: 0.2, damage: 0.2, protect: true } } },
+      { name: 'Lança Celeste', description: 'A aura passa a ferir os inimigos dentro dela.', ability: { kind: 'bless', radius: 95, attackSpeed: 0.12, protect: true, dps: 7 }, color: '#ffb07a', icon: '⟰', supreme: { name: 'Juízo de Luz', description: 'A aura fere com muito mais força.', ability: { kind: 'bless', radius: 110, attackSpeed: 0.12, protect: true, dps: 13 } } },
     ],
   },
   warPegasus: {
@@ -1018,6 +1089,8 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     name: 'Pégaso de Guerra',
     race: 'Unicórnio',
     role: 'Investida (empurrão)',
+    classe: 'control',
+    classDetail: 'investida que empurra',
     description: 'Avança num rasante estreito: fere todos à frente e os empurra para longe do Nexus.',
     lore: 'As asas abrem caminho antes mesmo dos cascos tocarem o chão.',
     icon: '➹',
@@ -1031,7 +1104,7 @@ export const CREATURES: Record<CreatureId, CreatureDef> = {
     unlock: { kind: 'gift', gift: 'unicorn' },
     ascended: [
       { name: 'Corcel da Tempestade', description: 'O rasante traz raios que atordoam.', ability: { kind: 'screech', halfAngle: 0.25, push: 22, immunity: 2, dive: true }, effects: [{ kind: 'stun', chance: 0.3, duration: 1 }], color: '#9ad8ff', icon: 'ϟ', supreme: { name: 'Tempestade Alada', description: 'O rasante traz raios que atordoam com frequência.', ability: { kind: 'screech', halfAngle: 0.25, push: 26, immunity: 2, dive: true }, effects: [{ kind: 'stun', chance: 0.45, duration: 1.2 }] } },
-      { name: 'Pégaso Real', description: 'Rasante mais largo e mais forte, que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.4, push: 30, immunity: 2, dive: true }, stats: { damage: 1.3 }, color: '#ffd25a', icon: '♛', supreme: { name: 'Pégaso Imperial', description: 'Rasante enorme e mais forte, que empurra muito longe.', ability: { kind: 'screech', halfAngle: 0.55, push: 38, immunity: 2, dive: true }, stats: { damage: 1.5 } } },
+      { name: 'Pégaso Real', description: 'Rasante mais largo e mais forte, que empurra mais longe.', ability: { kind: 'screech', halfAngle: 0.4, push: 30, immunity: 2, dive: true }, stats: { damage: 1.3 }, color: '#ffd25a', icon: '♛', supreme: { name: 'Pégaso Imperial', description: 'Rasante enorme, que empurra muito longe.', ability: { kind: 'screech', halfAngle: 0.55, push: 38, immunity: 2, dive: true }, stats: { damage: 1.5 } } },
     ],
   },
 };

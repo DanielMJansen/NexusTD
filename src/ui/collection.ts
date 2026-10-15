@@ -4,7 +4,7 @@ import { VARIANTS, VARIANT_TIERS, type VariantTier } from '../data/altar';
 import { ALL_CREATURE_IDS, CREATURES, isGiftCreature, type CreatureDef, type CreatureId } from '../data/creatures';
 import { ownsCreature, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
-import { abilityText, ascendedFormsHtml, creatureClassLine, creatureStats, fightText, formsChangeHtml, mechanicHtml, racePassiveHtml } from './describe';
+import { creatureClassLine, creatureStats, fightText, formsChangeHtml, mechanicHtml, racePassiveHtml } from './describe';
 import { showOverlay } from './overlay';
 
 export interface CollectionHandlers {
@@ -20,17 +20,6 @@ export const visibleCreatureIds = (profile: Profile): CreatureId[] =>
 /** Raças na ordem em que aparecem nos dados (com as exclusivas que o jogador tem). */
 export function racesInOrder(profile: Profile): string[] {
   return [...new Set(visibleCreatureIds(profile).map((id) => CREATURES[id].race))];
-}
-
-/** Variantes do Altar já obtidas: clicar escolhe a usada na arena. */
-function variantRow(profile: Profile, id: CreatureId): string {
-  const owned = profile.variants[id] ?? [];
-  if (!owned.length) return '';
-  const current = profile.selectedVariants[id] ?? '';
-  // só o nome da variante no botão (a raridade vem da cor e do título), para caber numa linha
-  const button = (tier: VariantTier | '', label: string, color: string, title: string) =>
-    `<button class="variant-chip${current === tier ? ' selected' : ''}" style="--chip-color:${color}" title="${title}" data-action="variant" data-value="${id}:${tier}">${label}</button>`;
-  return `<div class="variant-row"><span>Variante:</span>${button('', 'Normal', '#9a8ab8', 'Visual original')}${owned.map((t) => button(t, variantTheme(id, t).name, VARIANTS[t].color, `${VARIANTS[t].name} · ${variantTheme(id, t).name}`)).join('')}</div>`;
 }
 
 /** Rodapé do card: na equipe/coleção ou o botão de desbloquear. */
@@ -108,9 +97,6 @@ function newSheetBody(profile: Profile, def: CreatureDef): string {
 
 function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): string {
   const owned = ownsCreature(profile, def.id);
-  const stats = creatureStats(def)
-    .map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`)
-    .join('');
   const footer = footerHtml(profile, def);
   return `<div class="creature-card${owned ? '' : ' locked'}${justUnlocked ? ' just-unlocked' : ''}" data-card="${def.id}" style="--card-color:${def.color}">
     <div class="cc-portraits">
@@ -124,17 +110,10 @@ function cardHtml(profile: Profile, def: CreatureDef, justUnlocked: boolean): st
           </figure>`,
         )
         .join('')}</div>
-      ${def.classe && owned ? `<button class="forms-btn" type="button">👁 Ver formas despertas</button>${formsPopHtml(profile, def)}` : ''}
+      ${owned ? `<button class="forms-btn" type="button">👁 Ver formas despertas</button>${formsPopHtml(profile, def)}` : ''}
     </div>
     <div class="cc-body">
-      ${def.classe ? newSheetBody(profile, def) : `<div class="cc-head"><b>${def.name}</b><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${def.race} · ${def.role}</span></div>
-      <p class="cc-desc">${def.description}</p>
-      <p class="cc-lore">“${def.lore}”</p>
-      <dl class="cc-stats">${stats}</dl>
-      <p class="cc-ability">${abilityText(def.ability, def.effects)}</p>
-      ${racePassiveHtml(def.race)}
-      ${ascendedFormsHtml(def)}
-      ${variantRow(profile, def.id)}`}
+      ${newSheetBody(profile, def)}
       <div class="cc-footer">${footer}</div>
     </div>
   </div>`;

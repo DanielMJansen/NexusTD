@@ -19,43 +19,43 @@ export function hitEffectText(e: HitEffect): string {
     case 'poison':
       return `Dano contínuo: ${formatNumber(e.dps)}/s por ${formatNumber(e.duration)} s (ignora armadura).`;
     case 'stun': {
-      const what = e.look === 'root' ? 'prender em raízes' : e.look === 'stone' ? 'petrificar' : 'atordoar';
-      return `${pctOf(e.chance)} de chance de ${what} por ${formatNumber(e.duration)} s (chefes resistem).`;
+      const [term, what] = e.look === 'root' ? ['Raízes', 'prender o alvo no lugar'] : e.look === 'stone' ? ['Petrificar', 'transformar o alvo em pedra'] : ['Atordoar', 'parar o alvo'];
+      return `${term}: ${pctOf(e.chance)} de chance de ${what} por ${formatNumber(e.duration)} s (chefes resistem).`;
     }
     case 'fear':
       return e.look === 'confuse'
-        ? `${pctOf(e.chance)} de chance de confundir: o inimigo anda para trás por ${formatNumber(e.duration)} s (chefes resistem).`
-        : `${pctOf(e.chance)} de chance de assustar: o inimigo foge do Nexus por ${formatNumber(e.duration)} s (chefes resistem).`;
+        ? `Confusão: ${pctOf(e.chance)} de chance de o inimigo andar para trás por ${formatNumber(e.duration)} s (chefes resistem).`
+        : `Medo: ${pctOf(e.chance)} de chance de o inimigo fugir do Nexus por ${formatNumber(e.duration)} s (chefes resistem).`;
     case 'mark':
-      return `Marca o alvo: +${pctOf(e.amount)} de dano recebido por ${formatNumber(e.duration)} s${e.explode ? `; se morrer marcado, explode (raio ${e.explode.radius}, ${pctOf(e.explode.ratio)} da vida dele)` : ''}.`;
+      return `Marca: o alvo recebe +${pctOf(e.amount)} de dano por ${formatNumber(e.duration)} s${e.explode ? `; se morrer marcado, explode (raio ${e.explode.radius}, ${pctOf(e.explode.ratio)} da vida dele)` : ''}.`;
     case 'vulnerable':
-      return `O alvo recebe +${pctOf(e.amount)} de dano por ${formatNumber(e.duration)} s.`;
+      return `Vulnerável: o alvo recebe +${pctOf(e.amount)} de dano por ${formatNumber(e.duration)} s.`;
     case 'corrode':
-      return `Corrói ${e.armor} de armadura por ${formatNumber(e.duration)} s.`;
+      return `Corrosão: tira ${e.armor} de armadura do alvo por ${formatNumber(e.duration)} s.`;
     case 'weaken':
-      return `Enfraquece por ${formatNumber(e.duration)} s: ${pctOf(e.slow)} mais lento e −${pctOf(e.damage)} de dano ao Nexus.`;
+      return `Enfraquecer: por ${formatNumber(e.duration)} s, o alvo fica ${pctOf(e.slow)} mais lento e causa −${pctOf(e.damage)} de dano ao Nexus.`;
     case 'pull':
-      return `Puxa o alvo ${e.distance} na direção da criatura (chefes resistem).`;
+      return `Puxão: puxa o alvo ${e.distance} na direção da criatura (chefes resistem).`;
     case 'possess':
-      return `Possui o alvo por ${formatNumber(e.duration)} s: ele luta contra os outros inimigos${e.explode ? ` e explode no fim (raio ${e.explode.radius})` : ''} (chefes resistem).`;
+      return `Possessão: por ${formatNumber(e.duration)} s, o alvo luta contra os outros inimigos${e.explode ? ` e explode no fim (raio ${e.explode.radius})` : ''} (chefes resistem).`;
     case 'execute':
-      return `Executa inimigos comuns abaixo de ${pctOf(e.below)} de vida.`;
+      return `Execução: inimigos comuns abaixo de ${pctOf(e.below)} de vida morrem na hora.`;
     case 'vsStrong':
-      return `+${pctOf(e.bonus)} de dano contra elites e chefes.`;
+      return `Caçadora: +${pctOf(e.bonus)} de dano contra elites e chefes.`;
     case 'killHaste':
-      return `Cada abate: +${pctOf(e.perKill)} de velocidade de ataque até o fim da onda (máx. +${pctOf(e.max)}).`;
+      return `Embalo: cada abate dá +${pctOf(e.perKill)} de velocidade de ataque até o fim da onda (máx. +${pctOf(e.max)}).`;
     case 'killDamage':
-      return `Cada abate: +${pctOf(e.perKill)} de dano até o fim da onda (máx. +${pctOf(e.max)}).`;
+      return `Fúria: cada abate dá +${pctOf(e.perKill)} de dano até o fim da onda (máx. +${pctOf(e.max)}).`;
     case 'steal':
-      return `${pctOf(e.chance)} de chance de roubar ${e.gold} de ouro a cada golpe.`;
+      return `Roubo: ${pctOf(e.chance)} de chance de roubar ${e.gold} de ouro a cada golpe.`;
     case 'goldOnKill':
       return e.when === 'executed'
-        ? `Cada execução rende +${e.gold} de ouro.`
+        ? `Recompensa: cada execução rende +${e.gold} de ouro.`
         : e.when === 'feared'
-          ? `Inimigos confusos ou assustados que morrem rendem +${e.gold} de ouro.`
-          : `Cada abate rende +${e.gold} de ouro.`;
+          ? `Recompensa: inimigos confusos ou assustados que morrem rendem +${e.gold} de ouro.`
+          : `Recompensa: cada abate rende +${e.gold} de ouro.`;
     case 'raiseOnKill':
-      return `${pctOf(e.chance)} de chance de erguer um esqueleto aliado por ${formatNumber(e.duration)} s ao abater.`;
+      return `Erguer mortos: ${pctOf(e.chance)} de chance de erguer um esqueleto aliado por ${formatNumber(e.duration)} s ao abater.`;
   }
 }
 
@@ -82,7 +82,7 @@ function baseAbilityText(a: CreatureAbility): string {
     case 'lifesteal':
       return `Sustento: cada abate desta criatura cura ${a.healPerKill} de vida do herói.`;
     case 'chain':
-      return `Garras em cadeia: o golpe salta para até ${a.jumps} inimigos próximos (${Math.round(a.falloff * 100)}% do dano a cada salto).`;
+      return `Em cadeia: o golpe salta para até ${a.jumps} inimigos próximos (${Math.round(a.falloff * 100)}% do dano a cada salto).`;
     case 'aura':
       return `Aura: criaturas num raio de ${a.radius} atacam ${Math.round(a.attackSpeed * 100)}% mais rápido.`;
     case 'pierceArmor':
@@ -220,13 +220,13 @@ export function enemyTraitText(t: EnemyTrait): string {
 
 /** "Vampiro · Atacante corpo a corpo, alvo único". */
 export function creatureClassLine(def: CreatureDef): string {
-  const classe = def.classe ? CREATURE_CLASSES[def.classe] : def.role;
-  return `${def.race} · ${classe}${def.classDetail ? `, ${def.classDetail}` : ''}`;
+  return `${def.race} · ${CREATURE_CLASSES[def.classe]}${def.classDetail ? `, ${def.classDetail}` : ''}`;
 }
 
 /** Texto de habilidade com o termo próprio em negrito ("<b>Frenesi:</b> ..."). */
 function termHtml(text: string): string {
-  return text.replace(/^([^:.]{2,28}):/, '<b>$1:</b>');
+  // cada "Termo:" no começo de uma frase vira negrito
+  return text.replace(/(^|[.;] )([A-ZÁÉÍÓÚÂÊÔÃÕÇ][^:.;]{1,26}):/g, '$1<b>$2:</b>');
 }
 
 /** "Como luta": ritmo e distância, a partir dos atributos. */

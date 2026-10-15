@@ -10,7 +10,7 @@ import type { Interaction } from '../input/interaction';
 import { drawPortrait } from '../render/portrait';
 import { gold } from './currency';
 import { paintRaceBadge } from '../render/raceIcons';
-import { abilityText, ascendedFormsHtml, creatureClassLine, creatureStats, fightText, formsChangeHtml, mechanicHtml, pulseText, raceBonusText, racePassiveHtml } from './describe';
+import { creatureClassLine, creatureStats, fightText, formsChangeHtml, mechanicHtml, pulseText, raceBonusText, racePassiveHtml } from './describe';
 import type { HeroDef, HeroId } from '../data/heroes';
 
 interface Card {
@@ -75,8 +75,7 @@ export class SidePanel {
         </div>
         <kbd>${index + 1}</kbd>
         <div class="tooltip">
-          ${def.classe
-            ? `<h4>${def.name}</h4>
+          <h4>${def.name}</h4>
           <p class="role">${creatureClassLine(def)}</p>
           <p class="special">${def.description}</p>
           <dl>${stats}</dl>
@@ -84,14 +83,7 @@ export class SidePanel {
           ${mechanicHtml(def) ? `<p class="sheet-line">${mechanicHtml(def)}</p>` : ''}
           ${racePassiveHtml(def.race, 'special')}
           <p class="sheet-section">Formas despertas <small>nível 3</small></p>
-          ${formsChangeHtml(def)}`
-            : `<h4>${def.race} ${def.name}</h4>
-          <p class="role">${def.role}</p>
-          <p class="special">${def.description}</p>
-          <dl>${stats}</dl>
-          <p class="special">${abilityText(def.ability, def.effects)}</p>
-          ${racePassiveHtml(def.race, 'special')}
-          ${ascendedFormsHtml(def, 'special evolves')}`}
+          ${formsChangeHtml(def)}
           ${def.race === hero.race ? `<p class="special hero-bonus">Bônus do ${hero.name}: ${raceBonusText(hero.race, hero.raceBonus)}</p>` : ''}
         </div>`;
       root.addEventListener('pointerdown', (event) => {
