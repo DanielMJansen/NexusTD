@@ -35,7 +35,45 @@ function skullHead(ctx: Ctx, x: number, y: number, r: number, eyes: string, bone
 
 /** Guerreiro Esqueleto: ossos, escudo redondo e espada. A: Cavaleiro da Morte (armadura negra com chifres); B: Legião de Ossos (estandarte de ossos). */
 export function drawSkeletonWarrior(ctx: Ctx, p: Pose, ally = false): void {
-  // Formas Supremas: Lorde da Morte (A, armadura negra e chamas verdes) e Exército dos Mortos (B, estandarte de ossos)
+  // Formas Supremas: Lorde da Morte (A, asas de osso, armadura negra e chamas verdes) e Exército dos Mortos (B, soldados fantasmas e estandarte)
+  if (p.supreme && formA(p) && !ally) {
+    // asas de osso enormes abertas atrás
+    const beat = Math.sin(p.time * 2.5) * 0.12;
+    for (const side of [-1, 1]) {
+      ctx.save();
+      ctx.translate(side * 2, -10);
+      ctx.scale(side, 1);
+      ctx.rotate(-0.35 + beat);
+      halo(ctx, 12, -8, 12, '#5affb0', 0.3);
+      line(ctx, BONE, 2, () => {
+        ctx.moveTo(0, 0);
+        ctx.lineTo(10, -10);
+        ctx.lineTo(22, -12);
+      });
+      for (const [x, y, len] of [[10, -10, 14], [16, -11, 16], [22, -12, 14]] as const) {
+        line(ctx, BONE, 1.3, () => {
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + 2, y + len);
+        });
+      }
+      ctx.save();
+      ctx.globalAlpha *= 0.35;
+      shape(ctx, '#2a5a4a', () => poly(ctx, [0, 0, 10, -10, 22, -12, 24, 2, 18, 5, 12, 4, 4, 8]), 0);
+      ctx.restore();
+      ctx.restore();
+    }
+  }
+  if (p.supreme && formB(p) && !ally) {
+    // soldados esqueletos fantasmas da legião, um de cada lado
+    for (const [x, s] of [[-14, 0.62], [14, 0.62]] as const) {
+      ctx.save();
+      ctx.translate(x, 5);
+      ctx.scale(s, s);
+      ctx.globalAlpha *= 0.65;
+      drawSkeletonWarrior(ctx, { ...p, supreme: false, level: 1, variant: null, time: p.time + x }, true);
+      ctx.restore();
+    }
+  }
   if (p.supreme && formB(p) && !ally) {
     line(ctx, '#3a2a1a', 1.4, () => {
       ctx.moveTo(-9, 14);
@@ -403,6 +441,18 @@ export function drawReaper(ctx: Ctx, p: Pose): void {
     ctx.restore();
   }
   if (p.supreme && formB(p)) {
+    // redemoinho de almas verdes girando em volta dele
+    for (let i = 0; i < 6; i++) {
+      const a = p.time * 1.8 + (i * TAU) / 6;
+      const r = 17;
+      const x = Math.cos(a) * r;
+      const y = -4 + Math.sin(a) * 7 - i * 1.2;
+      for (let k = 1; k <= 3; k++) halo(ctx, Math.cos(a - k * 0.18) * r, -4 + Math.sin(a - k * 0.18) * 7 - i * 1.2, 3.5 - k * 0.8, '#7affb0', 0.35);
+      halo(ctx, x, y, 4, '#7affb0', 0.8);
+      shape(ctx, '#e8fff0', () => ellipse(ctx, x, y, 1.6, 2), 0.4);
+      shape(ctx, '#1a3a2a', () => circle(ctx, x - 0.5, y - 0.4, 0.35), 0);
+      shape(ctx, '#1a3a2a', () => circle(ctx, x + 0.5, y - 0.4, 0.35), 0);
+    }
     // lanterna de almas na mão
     line(ctx, '#3a2a1a', 0.8, () => {
       ctx.moveTo(-8, -2);
@@ -498,13 +548,33 @@ function giantLeech(ctx: Ctx, t: number, body: string, dark: string, energy: str
 }
 
 export function drawDrainer(ctx: Ctx, p: Pose): void {
-  // Formas Supremas: Praga (A, nuvem de moscas) e Ruína (B, chão apodrecendo)
+  // Formas Supremas: Praga (A, nuvem de moscas enorme) e Ruína (B, chão apodrecendo com mãos de mortos)
   if (p.supreme && formB(p)) {
-    shape(ctx, '#3a4a1a88', () => ellipse(ctx, 0, 13, 18, 4.5), 0);
+    shape(ctx, '#3a4a1a88', () => ellipse(ctx, 0, 13, 22, 5), 0);
     for (let i = 0; i < 5; i++) {
       const t = (p.time * 0.6 + i / 5) % 1;
       shape(ctx, '#9aff3a', () => circle(ctx, -12 + i * 6, 13 - t * 6, 1 * (1 - t) + 0.3), 0);
     }
+    // mãos de mortos saindo do chão, agarrando
+    for (const [x, h, flip] of [[-17, 10, -1], [-11, 7, 1], [12, 8, -1], [18, 11, 1]] as const) {
+      const grab = Math.sin(p.time * 2 + x) * 0.3;
+      ctx.save();
+      ctx.translate(x, 14);
+      ctx.rotate(flip * 0.15 + grab * 0.3);
+      shape(ctx, vertical(ctx, -h, 0, '#8aa070', '#3a4a2a'), () => ctx.roundRect(-1.6, -h, 3.2, h, 1), 0.7);
+      for (let f = 0; f < 4; f++) {
+        line(ctx, '#8aa070', 1, () => {
+          ctx.moveTo(-1.2 + f * 0.8, -h);
+          ctx.lineTo(-2 + f * 1.4, -h - 3 - grab * 2 + Math.abs(f - 1.5) * 0.6);
+        });
+      }
+      ctx.restore();
+    }
+  }
+  if (p.supreme && formA(p)) {
+    // nuvem escura e zumbidora atrás
+    halo(ctx, 0, -8, 26, '#1a1a0a', 0.8);
+    halo(ctx, 0, -8, 18, '#5a6a2a', 0.4);
   }
   const leech = formA(p);
   const corrupt = formB(p);
@@ -617,13 +687,14 @@ function drainerMarks(ctx: Ctx, p: Pose, leech: boolean, corrupt: boolean): void
     }
   }
   if (p.supreme && formA(p)) {
-    // nuvem de moscas zumbindo
-    ctx.fillStyle = '#140a14';
-    for (let i = 0; i < 9; i++) {
-      const a = p.time * (2 + (i % 3)) + i * 0.7;
-      ctx.beginPath();
-      circle(ctx, Math.cos(a) * (12 + (i % 4) * 2), -8 + Math.sin(a * 1.3) * 8, 0.8);
-      ctx.fill();
+    // nuvem de moscas zumbindo, grande, com asinhas
+    for (let i = 0; i < 22; i++) {
+      const a = p.time * (2 + (i % 4) * 0.5) + i * 0.9;
+      const r = 10 + (i % 5) * 3;
+      const x = Math.cos(a) * r;
+      const y = -8 + Math.sin(a * 1.3) * (8 + (i % 3) * 3);
+      shape(ctx, '#d8e8c8aa', () => ellipse(ctx, x, y - 0.8, 0.9, 0.5), 0);
+      shape(ctx, '#140a14', () => circle(ctx, x, y, 0.9), 0);
     }
   }
 }

@@ -75,18 +75,24 @@ const ARCHER_SNAKE_VARIANTS = {
 export function drawSerpentArcher(ctx: Ctx, p: Pose): void {
   // Formas Supremas: Rainha das Víboras (A, serpente enorme enrolada) e Hidra Menor (B, três serpentes na mão)
   if (p.supreme && formA(p)) {
+    // Rainha das Víboras: víbora gigante erguida atrás dela, de capuz aberto sobre sua cabeça
     const sway = Math.sin(p.time * 2) * 2;
     const sv = p.variant ? ARCHER_SNAKE_VARIANTS[p.variant].snake : (['#8a4ac8', '#3a1a5a'] as const);
-    line(ctx, sv[1], 6, () => {
-      ctx.moveTo(-14, 13);
-      ctx.bezierCurveTo(-22, 2, -6, -4, -14, -16 + sway);
+    shape(ctx, sv[1], () => ellipse(ctx, -6, 12, 16, 4), 0.9);
+    line(ctx, '#0a0612', 12, () => {
+      ctx.moveTo(-16, 12);
+      ctx.bezierCurveTo(-26, -4, -4, -10, -2, -26 + sway);
     });
-    line(ctx, sv[0], 4, () => {
-      ctx.moveTo(-14, 13);
-      ctx.bezierCurveTo(-22, 2, -6, -4, -14, -16 + sway);
+    line(ctx, sv[0], 10, () => {
+      ctx.moveTo(-16, 12);
+      ctx.bezierCurveTo(-26, -4, -4, -10, -2, -26 + sway);
     }, false);
-    shape(ctx, sv[0], () => ellipse(ctx, -12, -19 + sway, 4.5, 3, 0.4), 0.7);
-    glowingEye(ctx, -10.5, -20 + sway, 0.9, '#ffe060');
+    shape(ctx, vertical(ctx, -42, -20, sv[0], sv[1]), () => ellipse(ctx, -1, -30 + sway, 11, 12), 1);
+    shape(ctx, sv[1], () => ellipse(ctx, -1, -30 + sway, 5, 8), 0);
+    shape(ctx, '#ffe060', () => ellipse(ctx, -1, -33 + sway, 2.6, 1.6), 0);
+    shape(ctx, sv[0], () => ellipse(ctx, 3, -37 + sway, 6, 4), 0.9);
+    glowingEye(ctx, 5, -38 + sway, 1.1, '#ffe060');
+    glowingEye(ctx, 1.5, -38.5 + sway, 1.1, '#ffe060');
   }
   const viper = formA(p);
   const cobra = formB(p);
@@ -164,16 +170,24 @@ export function drawSerpentArcher(ctx: Ctx, p: Pose): void {
     ctx.stroke();
   }
   if (p.supreme && formB(p)) {
+    // Hidra Menor: a companheira vira uma hidra de três cabeças grandes, de capuz de naja
+    const hc = av ? av.snake : (['#e8c060', '#7a5a1a'] as const);
+    shape(ctx, hc[1], () => ellipse(ctx, 14, 11, 9, 3.4), 0.9);
     for (let i = 0; i < 3; i++) {
-      const a = -0.6 + i * 0.5 + Math.sin(p.time * 4 + i) * 0.1;
-      const x = 9 + Math.cos(a) * 9;
-      const y = -4 + Math.sin(a) * 9;
-      line(ctx, '#c8a83a', 2, () => {
-        ctx.moveTo(8, -2);
-        ctx.quadraticCurveTo(10 + i * 2, -6, x, y);
+      const wave = Math.sin(p.time * 3 + i * 1.7) * 2;
+      const tx = 10 + i * 6 + strike * 4;
+      const ty = -20 + Math.abs(i - 1) * 7 + wave;
+      line(ctx, '#0a0612', 6, () => {
+        ctx.moveTo(10 + i * 3, 10);
+        ctx.quadraticCurveTo(6 + i * 8, -2, tx, ty);
       });
-      shape(ctx, '#f0c35a', () => ellipse(ctx, x, y, 2.6, 1.8, a), 0.6);
-      glowingEye(ctx, x + 0.6, y - 0.4, 0.5, '#3a1a1a');
+      line(ctx, hc[0], 4.4, () => {
+        ctx.moveTo(10 + i * 3, 10);
+        ctx.quadraticCurveTo(6 + i * 8, -2, tx, ty);
+      }, false);
+      shape(ctx, vertical(ctx, ty - 6, ty + 5, hc[0], hc[1]), () => ellipse(ctx, tx - 1, ty, 4.4, 5.6), 0.8);
+      shape(ctx, hc[0], () => ellipse(ctx, tx + 2, ty - 1, 3.4, 2.3), 0.8);
+      glowingEye(ctx, tx + 2.6, ty - 1.8, 0.7, '#ff3a3a');
     }
   }
 }
@@ -227,6 +241,43 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
   const ancient = formB(p);
   const mv = p.variant ? MEDUSA_VARIANTS[p.variant] : null;
   const shadeB = (c: string) => (mv && ancient ? darken(c, 0.2) : c);
+  if (p.supreme && ancient) {
+    // Górgona Ancestral suprema: naja dourada colossal erguida atrás, de capuz aberto
+    const sway = Math.sin(p.time * 1.6) * 1.5;
+    halo(ctx, 0, -24, 22, '#ffd25a', 0.4);
+    shape(ctx, vertical(ctx, -46, 6, '#ffe48a', '#a8701a'), () => {
+      ctx.moveTo(-6, 8);
+      ctx.quadraticCurveTo(-20, -14, -16, -34 + sway);
+      ctx.quadraticCurveTo(-8, -48 + sway, 0, -46 + sway);
+      ctx.quadraticCurveTo(8, -48 + sway, 16, -34 + sway);
+      ctx.quadraticCurveTo(20, -14, 6, 8);
+      ctx.closePath();
+    }, 1.1);
+    shape(ctx, '#2a4ab0', () => ellipse(ctx, 0, -30 + sway, 8, 12), 0);
+    for (const y of [-38, -30, -22]) shape(ctx, '#ffd25a', () => ellipse(ctx, 0, y + sway, 4, 1.4), 0);
+    shape(ctx, vertical(ctx, -52, -40, '#ffe48a', '#a8701a'), () => ellipse(ctx, 0, -47 + sway, 5, 4), 0.9);
+    glowingEye(ctx, -2, -48 + sway, 0.9, '#ff3a3a');
+    glowingEye(ctx, 2, -48 + sway, 0.9, '#ff3a3a');
+  }
+  if (p.supreme && stone) {
+    // Olhar Pétreo supremo: jardim de estátuas de pedra das vítimas ao redor
+    for (const [x, s, flip] of [[-17, 1.25, 1], [-10, 0.95, -1], [16, 1.15, -1]] as const) {
+      ctx.save();
+      ctx.translate(x, 14);
+      ctx.scale(s * flip, s);
+      shape(ctx, vertical(ctx, -14, 0, '#d8d8d8', '#6a6a6a'), () => ctx.roundRect(-2.6, -10, 5.2, 10, 1.2), 0.8);
+      shape(ctx, '#c0c0c0', () => circle(ctx, 0, -12.5, 3), 0.8);
+      line(ctx, '#a8a8a8', 1.6, () => {
+        ctx.moveTo(2, -8);
+        ctx.lineTo(5.5, -12);
+      });
+      line(ctx, '#7a7a7a', 0.5, () => {
+        ctx.moveTo(-1, -6);
+        ctx.lineTo(1, -3);
+      }, false);
+      ctx.restore();
+    }
+  }
   if (stone && !p.supreme) {
     // Olhar Pétreo: estátuas de pedra pequenas aos pés (vítimas petrificadas)
     for (const [x, s] of [[-12, 1], [-7, 0.8]] as const) {
@@ -293,17 +344,22 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
     for (const x of [-6, 1, 8]) shape(ctx, '#ff3a3a', () => circle(ctx, x, hy - (x === 1 ? 14 : 11), 0.9), 0);
   }
   if (p.supreme && formA(p)) {
-    // cabelo de serpentes erguido e olhar brilhando
-    for (let i = 0; i < 6; i++) {
-      const x = -7 + i * 2.8;
-      const h = 9 + Math.sin(p.time * 5 + i) * 2;
-      line(ctx, jelly ? '#ff7ac8' : '#3a9a6a', 1.6, () => {
-        ctx.moveTo(x, -20);
-        ctx.quadraticCurveTo(x - 2 + Math.sin(p.time * 3 + i) * 2, -20 - h * 0.6, x + 1, -20 - h);
+    // cabelo de serpentes enormes erguidas em leque, cada uma com cabeça e olhos
+    for (let i = 0; i < 8; i++) {
+      const a = -Math.PI / 2 + (i - 3.5) * 0.3;
+      const len = 17 + Math.sin(p.time * 5 + i) * 2;
+      const x0 = 1 + Math.cos(a) * 5;
+      const y0 = -18 + Math.sin(a) * 4;
+      const tx = 1 + Math.cos(a) * len;
+      const ty = -16 + Math.sin(a) * len;
+      line(ctx, jelly ? '#ff7ac8' : '#3a9a6a', 2.4, () => {
+        ctx.moveTo(x0, y0);
+        ctx.quadraticCurveTo((x0 + tx) / 2 + Math.sin(p.time * 3 + i) * 2.5, (y0 + ty) / 2, tx, ty);
       });
-      shape(ctx, jelly ? '#ffc0e8' : '#5ad88a', () => circle(ctx, x + 1, -20 - h, 1.3), 0.4);
+      shape(ctx, jelly ? '#ffc0e8' : '#5ad88a', () => ellipse(ctx, tx, ty, 2.2, 1.6, a), 0.5);
+      shape(ctx, '#ff3a3a', () => circle(ctx, tx + Math.cos(a) * 0.6, ty + Math.sin(a) * 0.6 - 0.4, 0.5), 0);
     }
-    halo(ctx, 2, -15, 8, '#e8ff6a', 0.5 + p.attack * 0.4);
+    halo(ctx, 2, -15, 10, '#e8ff6a', 0.5 + p.attack * 0.4);
   }
   if (p.supreme && formB(p)) {
     // coroa de cobras douradas
@@ -345,6 +401,20 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
   if (spitter && !p.supreme) {
     // poça de ácido aos pés
     shape(ctx, '#9aff3a55', () => ellipse(ctx, 2, 13, 15, 3), 0);
+  }
+  if (p.supreme && king) {
+    // Imperador Basilisco: colunas de um templo em ruínas atrás, uma inteira e uma quebrada
+    for (const [x, h, broken] of [[-19, 40, false], [17, 28, true]] as const) {
+      shape(ctx, vertical(ctx, 13 - h, 13, '#e8e0cc', '#8a8070'), () => ctx.rect(x - 3.5, 13 - h, 7, h), 0.9);
+      line(ctx, '#a89c88', 0.6, () => {
+        for (const dx of [-1.5, 1.5]) {
+          ctx.moveTo(x + dx, 13 - h + 2);
+          ctx.lineTo(x + dx, 12);
+        }
+      }, false);
+      if (broken) shape(ctx, '#d8d0bc', () => poly(ctx, [x - 3.5, 13 - h, x - 1, 10 - h, x + 1.5, 14 - h, x + 3.5, 11 - h, x + 3.5, 13 - h]), 0.7);
+      else shape(ctx, vertical(ctx, 10 - h, 14 - h, '#f4ecd8', '#a89c88'), () => ctx.rect(x - 5, 10 - h, 10, 3.5), 0.8);
+    }
   }
 
   // espirais do corpo no chão (de trás para a frente)
@@ -485,13 +555,33 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
     }
   }
   if (p.supreme && king) {
-    // Imperador Basilisco: chifres de pedra ao longo das espirais
+    // Imperador Basilisco: chifres de pedra ao longo das espirais e placas de ouro
     for (let i = 0; i < 4; i++) shape(ctx, vertical(ctx, -6, 6, '#c8c0b0', '#6a6258'), () => poly(ctx, [-10 + i * 6, 3, -8 + i * 6, -6 + (i % 2) * 3, -6 + i * 6, 3]), 0.7);
+    for (let i = 0; i < 3; i++) shape(ctx, vertical(ctx, 6, 12, '#ffe07a', '#a8701a'), () => ctx.roundRect(-9 + i * 7, 8.5, 5, 3, 1), 0.5);
   }
   if (p.supreme && spitter) {
-    // Pântano Ácido: glândulas brilhando e poça sob as espirais
-    shape(ctx, '#9aff3a55', () => ellipse(ctx, 0, 13, 18, 3.5), 0);
+    // Pântano Ácido: glândulas brilhando, poça borbulhante e jato de ácido em arco
+    shape(ctx, '#9aff3a55', () => ellipse(ctx, 0, 13, 24, 4.5), 0);
     for (const [x, y] of [[-8, 5], [0, 7], [8, 5]] as const) halo(ctx, x, y, 4, '#9aff3a', 0.7 + Math.sin(p.time * 4 + x) * 0.2);
+    for (let i = 0; i < 4; i++) {
+      const t = (p.time * 0.8 + i / 4) % 1;
+      ctx.save();
+      ctx.globalAlpha *= 1 - t;
+      ctx.strokeStyle = '#c8ff6a';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      circle(ctx, -16 + i * 10, 13 - t * 6, 1.2 + t * 1.6);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.save();
+    ctx.globalAlpha *= 0.85;
+    line(ctx, '#9aff3a', 3, () => {
+      ctx.moveTo(hx + 12, hy + 3);
+      ctx.quadraticCurveTo(hx + 26, hy - 10, hx + 30, 12);
+    }, false);
+    ctx.restore();
+    halo(ctx, hx + 30, 12, 6, '#9aff3a', 0.8);
   }
 }
 
