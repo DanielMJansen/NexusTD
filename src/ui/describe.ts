@@ -261,19 +261,37 @@ function changeText(def: CreatureDef, ability: CreatureAbility, stats: AscendedF
 }
 
 /**
- * As formas despertas na ficha nova: A e B, cada uma com a Suprema logo abaixo.
- * `compact`: só a frase de cada forma; os números aparecem num balão ao passar o mouse (Coleção, sem rolar a tela).
+ * Evoluções na Coleção, em linhas de altura fixa (alinhadas entre fichas): retrato da evolução (A/B),
+ * nome e frase curta (até 2 linhas), e a desperta ★5 na linha de baixo. Texto inteiro e números no balão.
+ * `portrait(i)` devolve o retrato da evolução i.
  */
-export function formsChangeHtml(def: CreatureDef, compact = false): string {
-  const line = (cls: string, head: string, desc: string, nums: string) =>
-    compact
-      ? `<p class="${cls} has-tip">${head}: ${desc} <span class="tip-mark">ⓘ</span><span class="tip">${nums}</span></p>`
-      : `<p class="${cls}">${head}: ${desc} <span class="sheet-num">${nums}</span></p>`;
+export function evolutionRowsHtml(def: CreatureDef, portrait: (i: number) => string): string {
+  return def.ascended
+    .map((form, i) => {
+      const sup = form.supreme;
+      const tip = `<b>${form.name}</b>: ${form.description}<br><span class="sheet-num">${changeText(def, form.ability, form.stats, form.effects)}</span>${
+        sup ? `<br><br><b class="tip-awake">✦ Desperta ★5 · ${sup.name}</b>: ${sup.description}<br><span class="sheet-num">${changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects)}</span>` : ''
+      }`;
+      return `<div class="evo-row has-tip" style="--branch-color:${form.color}">
+        ${portrait(i)}
+        <div class="evo-text">
+          <p class="evo-main"><span class="branch-tag">${i === 0 ? 'A' : 'B'}</span> <b>${form.name}</b>: ${form.description}</p>
+          ${sup ? `<p class="evo-awake">✦ Desperta ★5 · <b>${sup.name}</b></p>` : '<p class="evo-awake"></p>'}
+        </div>
+        <span class="tip">${tip}</span>
+      </div>`;
+    })
+    .join('');
+}
+
+/** As evoluções (nível 3) com as despertas (★5) logo abaixo, com os números (tooltip da barra de invocar). */
+export function formsChangeHtml(def: CreatureDef): string {
+  const line = (cls: string, head: string, desc: string, nums: string) => `<p class="${cls}">${head}: ${desc} <span class="sheet-num">${nums}</span></p>`;
   return def.ascended
     .map((form, i) => {
       const sup = form.supreme;
       const supLine = sup
-        ? line('sheet-supreme', `✦ <b>${sup.name}</b>`, sup.description, changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects))
+        ? line('sheet-supreme', `✦ Desperta ★5 · <b>${sup.name}</b>`, sup.description, changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects))
         : '';
       return `<div class="sheet-form" style="--branch-color:${form.color}">
         ${line('', `<span class="branch-tag">${i === 0 ? 'A' : 'B'}</span> <b>${form.name}</b>`, form.description, changeText(def, form.ability, form.stats, form.effects))}

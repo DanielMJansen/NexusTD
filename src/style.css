@@ -3995,6 +3995,62 @@ body:not([data-mode='run']) .panel.screen {
   left: -4px;
 }
 
+/* evolução: linha de altura fixa (retrato 42px; nome+frase em 2 linhas; desperta em 1 linha) */
+.sheet-card .evo-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 52px;
+  margin-bottom: 4px;
+  padding-left: 0;
+}
+
+.sheet-card .evo-row .sh-form-portrait {
+  width: 44px;
+  height: 44px;
+}
+
+.sheet-card .evo-text {
+  flex: 1;
+  min-width: 0;
+  padding-left: 7px;
+  border-left: 2px solid var(--branch-color);
+}
+
+.sheet-card .evo-main {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.25;
+  height: 2.5em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sheet-card .evo-main > b {
+  color: var(--branch-color);
+}
+
+.sheet-card .evo-awake {
+  margin: 1px 0 0;
+  height: 1.25em;
+  font-size: 11.5px;
+  line-height: 1.25;
+  color: #7ae8ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-card .evo-row .tip {
+  top: calc(100% + 2px);
+}
+
+.sheet-card .evo-row .tip-awake {
+  color: #7ae8ff;
+}
+
 .sheet-card .sh-form-row {
   display: flex;
   align-items: flex-start;

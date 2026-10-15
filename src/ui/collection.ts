@@ -4,7 +4,7 @@ import { VARIANTS, VARIANT_TIERS, type VariantTier } from '../data/altar';
 import { ALL_CREATURE_IDS, CREATURES, isGiftCreature, type CreatureDef, type CreatureId } from '../data/creatures';
 import { ownsCreature, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
-import { creatureClassLine, creatureStats, fightText, formsChangeHtml, mechanicHtml, racePassiveHtml } from './describe';
+import { creatureClassLine, creatureStats, evolutionRowsHtml, fightText, mechanicHtml, racePassiveHtml } from './describe';
 import { showOverlay } from './overlay';
 
 export interface CollectionHandlers {
@@ -58,8 +58,8 @@ function formsPopHtml(profile: Profile, def: CreatureDef): string {
   const tier = profile.selectedVariants[def.id];
   const look = tier ? `${variantTheme(def.id, tier).name} (${VARIANTS[tier].name.toLowerCase()})` : 'visual normal';
   const cols = def.ascended.flatMap((form, i) => [
-    { tag: `Nível 3 · ${i === 0 ? 'A' : 'B'}`, name: form.name, branch: i, supreme: false, color: form.color },
-    ...(form.supreme ? [{ tag: `✦ Suprema ${i === 0 ? 'A' : 'B'}`, name: form.supreme.name, branch: i, supreme: true, color: form.color }] : []),
+    { tag: `Evolução ${i === 0 ? 'A' : 'B'} · nv 3`, name: form.name, branch: i, supreme: false, color: form.color },
+    ...(form.supreme ? [{ tag: `✦ Desperta ${i === 0 ? 'A' : 'B'} · ★5`, name: form.supreme.name, branch: i, supreme: true, color: form.color }] : []),
   ]);
   const cells = cols
     .map(
@@ -71,9 +71,9 @@ function formsPopHtml(profile: Profile, def: CreatureDef): string {
     )
     .join('');
   return `<div class="forms-pop">
-    <p class="fp-title">Formas despertas de ${def.name} <small>· ${look}</small></p>
+    <p class="fp-title">Evoluções de ${def.name} <small>· ${look}</small></p>
     <div class="fp-row-cells">${cells}</div>
-    <p class="fp-hint">A Suprema (★5) exige despertar a criatura no Santuário.</p>
+    <p class="fp-hint">No nível 3 você escolhe a evolução A ou B. A forma desperta (★5) exige despertar a criatura no Santuário.</p>
   </div>`;
 }
 
@@ -90,12 +90,8 @@ function newSheetBody(profile: Profile, def: CreatureDef): string {
     .join('');
   const mechanic = mechanicHtml(def);
   const status = owned ? `<span class="cc-status">${profile.team.includes(def.id) ? '✓ Na equipe' : '✓ Na coleção'}</span>` : '';
-  // cada forma desperta com o próprio retrato ao lado do nome e da descrição
-  const forms = formsChangeHtml(def, true)
-    .split('<div class="sheet-form"')
-    .slice(1)
-    .map((html, i) => `<div class="sh-form-row"><canvas class="sh-form-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}"${look} style="--branch-color:${def.ascended[i]!.color}"></canvas><div class="sheet-form"${html}</div>`)
-    .join('');
+  // cada evolução com o próprio retrato, em linhas de altura fixa
+  const forms = evolutionRowsHtml(def, (i) => `<canvas class="sh-form-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}"${look}></canvas>`);
   return `<div class="sh-block sh-header">
         <canvas class="sh-portrait" data-sprite="${def.id}"${look}></canvas>
         <div class="sh-title">
@@ -115,7 +111,7 @@ function newSheetBody(profile: Profile, def: CreatureDef): string {
         ${racePassiveHtml(def.race)}
       </div>
       <div class="sh-block sh-forms">
-        <p class="sheet-section">Formas despertas <small>nível 3</small>${owned ? '<button class="forms-btn" type="button">👁 Ver todas</button>' : ''}</p>
+        <p class="sheet-section">Evoluções <small>nível 3 · desperta ★5</small>${owned ? '<button class="forms-btn" type="button">👁 Ver todas</button>' : ''}</p>
         ${owned ? formsPopHtml(profile, def) : ''}
         ${forms}
       </div>
