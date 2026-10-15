@@ -80,33 +80,63 @@ export function drawNexusOverlay(ctx: CanvasRenderingContext2D, state: RunState,
     ctx.fill();
     ctx.restore();
   }
-  // seta só até a 1ª compra da run (ensina o caminho); depois o aviso fica no botão do HUD
-  const bought = Object.values(state.nexusLevels).some((level) => level > 0);
-  if (!bought && anyNexusUpgradeAffordable(state)) drawUpgradeArrow(ctx, x + 24, y - 36 + Math.sin(time * 4) * 2.5, time);
+  // há ouro para melhorar: etiqueta sobre o Nexus (mais chamativa até a 1ª compra da run, depois discreta)
+  if (anyNexusUpgradeAffordable(state)) {
+    const bought = Object.values(state.nexusLevels).some((level) => level > 0);
+    drawUpgradeTag(ctx, x, y - 76 + Math.sin(time * 4) * (bought ? 1 : 2.5), time, !bought);
+  }
 }
 
-/** Seta dourada ao lado do Nexus: há ouro para uma melhoria (clique no Nexus ou tecla N). */
-function drawUpgradeArrow(ctx: CanvasRenderingContext2D, x: number, y: number, time: number): void {
+/** Etiqueta dourada sobre o Nexus: "⬆ Melhorar · N" (clique no Nexus ou tecla N). */
+function drawUpgradeTag(ctx: CanvasRenderingContext2D, x: number, y: number, time: number, strong: boolean): void {
   ctx.save();
   ctx.translate(x, y);
-  ctx.globalAlpha = 0.8 + Math.sin(time * 6) * 0.2;
-  ctx.fillStyle = '#ffd25a';
-  ctx.strokeStyle = '#6a4a1a';
-  ctx.lineWidth = 1.2;
+  const s = strong ? 1 : 0.85;
+  ctx.scale(s, s);
+  const pulse = 0.5 + Math.sin(time * 5) * 0.5;
+  ctx.font = '700 9px Cinzel, Georgia, serif';
+  ctx.textBaseline = 'middle';
+  const label = 'MELHORAR';
+  const textW = ctx.measureText(label).width;
+  const w = textW + 32;
+  const h = 15;
+  // pílula escura com borda dourada e brilho pulsando
   ctx.shadowColor = '#ffd25a';
-  ctx.shadowBlur = 8;
+  ctx.shadowBlur = strong ? 6 + pulse * 10 : 4;
+  ctx.fillStyle = '#1e1428ee';
+  ctx.strokeStyle = '#ffd25a';
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.moveTo(0, -7);
-  ctx.lineTo(6, 0);
-  ctx.lineTo(2.2, 0);
-  ctx.lineTo(2.2, 6);
-  ctx.lineTo(-2.2, 6);
-  ctx.lineTo(-2.2, 0);
-  ctx.lineTo(-6, 0);
+  ctx.roundRect(-w / 2, -h / 2, w, h, h / 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  // seta
+  ctx.fillStyle = '#ffd25a';
+  const ax = -w / 2 + 8;
+  ctx.beginPath();
+  ctx.moveTo(ax, -4.5);
+  ctx.lineTo(ax + 4, 0);
+  ctx.lineTo(ax + 1.5, 0);
+  ctx.lineTo(ax + 1.5, 4);
+  ctx.lineTo(ax - 1.5, 4);
+  ctx.lineTo(ax - 1.5, 0);
+  ctx.lineTo(ax - 4, 0);
   ctx.closePath();
   ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.stroke();
+  // texto
+  ctx.fillStyle = '#ffe08a';
+  ctx.textAlign = 'left';
+  ctx.fillText(label, ax + 7, 0.5);
+  // tecla N
+  const kx = w / 2 - 9;
+  ctx.fillStyle = '#ffd25a';
+  ctx.beginPath();
+  ctx.roundRect(kx - 5, -5, 10, 10, 2.5);
+  ctx.fill();
+  ctx.fillStyle = '#2a1a08';
+  ctx.textAlign = 'center';
+  ctx.fillText('N', kx, 0.8);
   ctx.restore();
 }
 

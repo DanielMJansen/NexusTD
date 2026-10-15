@@ -26,6 +26,9 @@ export function canBuyNexusUpgrade(state: RunState, id: NexusUpgradeId): boolean
 /** Alguma melhoria do Nexus cabe no ouro agora (seta ⬆ sobre o Nexus e destaque no HUD). */
 export const anyNexusUpgradeAffordable = (state: RunState): boolean => NEXUS_UPGRADES.some((u) => canBuyNexusUpgrade(state, u.id));
 
+/** Quantas melhorias do Nexus cabem no ouro agora (contador no botão do HUD). */
+export const affordableNexusUpgrades = (state: RunState): number => NEXUS_UPGRADES.filter((u) => canBuyNexusUpgrade(state, u.id)).length;
+
 export function buyNexusUpgrade(state: RunState, id: NexusUpgradeId): boolean {
   const cost = nexusUpgradeCost(state, id);
   if (cost === null || !canBuyNexusUpgrade(state, id)) return false;

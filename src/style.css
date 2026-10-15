@@ -3411,8 +3411,22 @@ body[data-mode='run'] #nexus-button {
   animation: nexus-ready 1.2s ease-in-out infinite;
 }
 
-#nexus-button.ready span::after {
-  content: ' ⬆';
+#nexus-button {
+  gap: 8px;
+}
+
+/* quantas melhorias cabem no ouro: selo dourado entre o texto e a tecla */
+#nexus-button-count {
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #f0c35a;
+  color: #2a1a08;
+  font: 700 11px var(--font-label);
+  line-height: 16px;
+}
+
+#nexus-button kbd {
+  margin-left: 2px;
 }
 
 @keyframes nexus-ready {
