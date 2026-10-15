@@ -131,6 +131,32 @@ export function drawImp(ctx: Ctx, p: Pose): void {
     for (const x of [-4, 4]) shape(ctx, '#e0b860', () => ellipse(ctx, x, 0, 1.6, 2.4), 0.5);
     ctx.restore();
   }
+  if (p.supreme && flaming) {
+    // Arquidiabrete: roda de fogo girando atrás dele
+    halo(ctx, 0, -4, 20, '#ff8a2a', 0.45);
+    ctx.save();
+    ctx.strokeStyle = '#ffb040';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    circle(ctx, 0, -4, 13);
+    ctx.stroke();
+    ctx.restore();
+    for (let i = 0; i < 10; i++) {
+      const a = p.time * 1.4 + (i * TAU) / 10;
+      flame(ctx, Math.cos(a) * 13, -4 + Math.sin(a) * 13, 2.4, 7, a + Math.PI / 2, p.time + i, fireColors);
+    }
+  }
+  if (p.supreme && thief) {
+    // Rei dos Ladrões: saco de ouro gigante nas costas, moedas caindo
+    shape(ctx, vertical(ctx, -20, 6, '#a8804a', '#5a3a1a'), () => ellipse(ctx, -8, -6, 9, 11), 1);
+    shape(ctx, '#5a3a1a', () => ctx.roundRect(-11, -18, 6, 3, 1), 0.6);
+    shape(ctx, GOLD, () => circle(ctx, -8, -4, 3.4), 0.6);
+    shape(ctx, '#a8701a', () => ctx.rect(-8.5, -6.5, 1, 5), 0);
+    for (let i = 0; i < 3; i++) {
+      const t = (p.time * 0.9 + i / 3) % 1;
+      shape(ctx, '#ffe08a', () => ellipse(ctx, -14 + i * 3, -2 + t * 14, 1.4 * Math.abs(Math.cos(p.time * 5 + i)) + 0.3, 1.4), 0.4);
+    }
+  }
   if (p.variant !== 'legendary') demonWings(ctx, p.time * 1.5, iv ? iv.wing : '#5a1a1a', 0.8, -4);
   demonTail(ctx, p.time, skinColor);
   if (flaming && !p.supreme) flame(ctx, -14.5, -1.5 + Math.sin(p.time * 3) * 3, 1.8, 6, -0.8, p.time, fireColors);
@@ -164,7 +190,7 @@ export function drawImp(ctx: Ctx, p: Pose): void {
     ctx.moveTo(0, 8);
     ctx.lineTo(0, -10);
   });
-  if (flaming && !p.supreme) {
+  if (flaming) {
     for (const x of [-2.6, 0, 2.6]) flame(ctx, x, -10, 1.3, x === 0 ? 7 : 5, x * 0.12, p.time + x, fireColors);
   } else {
     shape(ctx, p.variant === 'epic' ? '#e0b860' : '#c8ccd8', () => poly(ctx, [-3, -10, -3, -14, -2, -11, 0, -15, 2, -11, 3, -14, 3, -10]), 0.5);
@@ -195,21 +221,8 @@ export function drawImp(ctx: Ctx, p: Pose): void {
     shape(ctx, GOLD, () => circle(ctx, -7, 1, 1.1), 0.4);
   }
   if (p.supreme && formA(p)) {
-    // chifres em chamas
-    for (const x of [-3, 4]) {
-      for (let i = 0; i < 2; i++) {
-        const h = 4 + Math.sin(p.time * 10 + x + i) * 1.5;
-        shape(ctx, i ? '#ffd040' : '#ff5a1a', () => poly(ctx, [x - 1.4, -21, x, -21 - h - 3, x + 1.4, -21]), 0);
-      }
-    }
-    halo(ctx, 0, -20, 8, '#ff8a2a', 0.5);
-  }
-  if (p.supreme && formB(p)) {
-    // bolsas de ouro penduradas
-    for (const x of [-7, 7]) {
-      shape(ctx, '#8a6a3a', () => circle(ctx, x, 6, 3), 0.7);
-      shape(ctx, '#f0c35a', () => circle(ctx, x, 3, 1.2), 0.4);
-    }
+    // chamas altas nos chifres
+    for (const x of [-3.2, 5.2]) flame(ctx, x, hy - 8, 1.8, 8, x * 0.06, p.time + x, fireColors);
   }
 }
 
@@ -217,16 +230,29 @@ export function drawImp(ctx: Ctx, p: Pose): void {
 export function drawSuccubus(ctx: Ctx, p: Pose): void {
   // Formas Supremas: Rainha Súcubo (A, chicote de chamas) e Agonia (B, correntes sombrias)
   if (p.supreme && formB(p)) {
-    for (let i = 0; i < 3; i++) {
-      const a = p.time * 0.8 + (i * TAU) / 3;
-      ctx.strokeStyle = '#2a0a1a';
-      ctx.lineWidth = 1.4;
-      ctx.setLineDash([2, 2]);
+    // Agonia: auréola quebrada gigante e invertida, e correntes grossas girando em volta
+    ctx.save();
+    ctx.translate(0, -26);
+    ctx.rotate(Math.PI + Math.sin(p.time) * 0.08);
+    ctx.strokeStyle = '#8a8a9a';
+    ctx.shadowColor = '#c86aff';
+    ctx.shadowBlur = 8;
+    ctx.lineWidth = 2.6;
+    for (const [a0, a1] of [[0.3, 2.2], [2.6, 4.1], [4.5, 5.9]] as const) {
       ctx.beginPath();
-      ctx.moveTo(0, -4);
-      ctx.quadraticCurveTo(Math.cos(a) * 10, -4 + Math.sin(a) * 4, Math.cos(a) * 18, 4 + Math.sin(a) * 6);
+      ctx.ellipse(0, 0, 14, 4.5, 0, a0, a1);
       ctx.stroke();
-      ctx.setLineDash([]);
+    }
+    ctx.restore();
+    for (let i = 0; i < 12; i++) {
+      const a = p.time * 1.2 + (i * TAU) / 12;
+      ctx.save();
+      ctx.strokeStyle = '#6a6a7a';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ellipse(ctx, Math.cos(a) * 17, -2 + Math.sin(a) * 6, 1.8, 1.1, a + (i % 2 ? Math.PI / 2 : 0));
+      ctx.stroke();
+      ctx.restore();
     }
   }
   const lure = formA(p);
@@ -273,7 +299,22 @@ export function drawSuccubus(ctx: Ctx, p: Pose): void {
       ctx.restore();
     }
   } else {
-    demonWings(ctx, p.time, sv ? sv.wing : torment ? '#2a0a1a' : '#5a1a5a', lure && !p.supreme ? 1.65 : 1.1, -6);
+    if (lure && p.supreme) {
+      // Rainha Súcubo: coração de luz rosa enorme atrás
+      const beat = 1 + Math.max(0, Math.sin(p.time * 4)) * 0.06;
+      ctx.save();
+      ctx.translate(0, -12);
+      ctx.scale(beat, beat);
+      halo(ctx, 0, 0, 24, '#ff6ab8', 0.45);
+      shape(ctx, vertical(ctx, -14, 16, '#ff9ad0cc', '#c02a7a88'), () => {
+        ctx.moveTo(0, 16);
+        ctx.bezierCurveTo(-24, 0, -14, -20, 0, -8);
+        ctx.bezierCurveTo(14, -20, 24, 0, 0, 16);
+        ctx.closePath();
+      }, 1);
+      ctx.restore();
+    }
+    demonWings(ctx, p.time, sv ? sv.wing : torment ? '#2a0a1a' : '#5a1a5a', lure ? (p.supreme ? 2.1 : 1.65) : 1.1, -6);
   }
   if (torment && !p.supreme) {
     // auréola quebrada e invertida, pendendo atrás da cabeça
@@ -448,14 +489,28 @@ export function drawInfernal(ctx: Ctx, p: Pose): void {
     ctx.scale(1.12, 1.12);
     ctx.translate(0, -14);
   }
-  if (lord && !p.supreme) {
-    // Senhor do Abismo: capa de chamas subindo atrás das costas
-    for (const [x, h, a] of [[-13, 18, -0.45], [-9, 22, -0.25], [-4, 20, -0.1], [9, 16, 0.3]] as const) {
-      flame(ctx, x, 8, 3.8, h, a, p.time + x, p.variant === 'legendary' ? voidFlame : FIRE_FLAME);
+  if (lord) {
+    // Senhor do Abismo: capa de chamas subindo atrás das costas (no Lorde do Inferno, um paredão de fogo)
+    const k = p.supreme ? 1.5 : 1;
+    if (p.supreme) halo(ctx, 0, -10, 28, '#ff6a1a', 0.45);
+    for (const [x, h, a] of (p.supreme
+      ? [[-18, 20, -0.5], [-13, 26, -0.35], [-7, 30, -0.15], [0, 32, 0], [7, 30, 0.15], [13, 26, 0.35], [18, 20, 0.5]]
+      : [[-13, 18, -0.45], [-9, 22, -0.25], [-4, 20, -0.1], [9, 16, 0.3]]) as [number, number, number][]) {
+      flame(ctx, x, 8, 3.8 * Math.sqrt(k), h, a, p.time + x, p.variant === 'legendary' ? voidFlame : FIRE_FLAME);
+    }
+  }
+  if (rage && p.supreme) {
+    // Fúria Infernal: anel de fogo no chão em volta dele
+    for (let i = 0; i < 10; i++) {
+      const a = (i * TAU) / 10 + p.time * 0.5;
+      const x = Math.cos(a) * 19;
+      const y = 12 + Math.sin(a) * 4.5;
+      if (Math.sin(a) > 0) continue; // a metade da frente vem depois do corpo
+      flame(ctx, x, y, 2.8, 10 + Math.sin(p.time * 6 + i) * 2, 0, p.time + i, p.variant === 'legendary' ? voidFlame : FIRE_FLAME);
     }
   }
 
-  demonWings(ctx, p.time, iv ? iv.wing : rage ? '#3a0606' : '#4a1410', lord && !p.supreme ? 1.6 : 1.2, -8);
+  demonWings(ctx, p.time, iv ? iv.wing : rage ? '#3a0606' : '#4a1410', lord ? (p.supreme ? 1.9 : 1.6) : 1.2, -8);
   demonTail(ctx, p.time, hideDark);
   // pernas de bode com cascos
   for (const side of [-1, 1]) {
@@ -610,8 +665,13 @@ export function drawInfernal(ctx: Ctx, p: Pose): void {
     halo(ctx, 1, hy - 14, 11, '#ffb040', 0.5);
   }
   if (p.supreme && rage) {
-    // Fúria Infernal: corpo incandescente
+    // Fúria Infernal: corpo incandescente e a metade da frente do anel de fogo
     halo(ctx, 0, -6, 22, '#ff3a1a', 0.45 + Math.sin(p.time * 5) * 0.15);
+    for (let i = 0; i < 10; i++) {
+      const a = (i * TAU) / 10 + p.time * 0.5;
+      if (Math.sin(a) <= 0) continue;
+      flame(ctx, Math.cos(a) * 19, 12 + Math.sin(a) * 4.5, 2.8, 10 + Math.sin(p.time * 6 + i) * 2, 0, p.time + i, p.variant === 'legendary' ? voidFlame : FIRE_FLAME);
+    }
   }
 }
 
