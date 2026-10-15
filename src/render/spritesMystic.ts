@@ -55,6 +55,24 @@ function wolfHead(ctx: Ctx, hy: number, fur: string, furDark: string, eyeColor: 
   ctx.restore();
 }
 
+/** Lobo espiritual translúcido sentado (matilha das Supremas). `s` = escala, `facing` = -1 olha para a esquerda. */
+function spiritWolf(ctx: Ctx, x: number, y: number, s: number, t: number, color: string, facing = 1, howl = 0): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s * facing, s);
+  ctx.globalAlpha *= 0.6;
+  halo(ctx, 0, -6, 16, color, 0.5);
+  shape(ctx, color, () => {
+    ctx.moveTo(-6, 10);
+    ctx.quadraticCurveTo(-16, 12, -15, 4);
+    ctx.quadraticCurveTo(-11, 9, -5, 7);
+    ctx.closePath();
+  }, 0.6);
+  shape(ctx, color, () => ellipse(ctx, -1, 3, 8, 11), 0.6);
+  wolfHead(ctx, -15, color, darken(color, 0.35), '#ffffff', howl + Math.max(0, Math.sin(t * 0.8 + x) - 0.85) * 4, 0);
+  ctx.restore();
+}
+
 /** Cores do Caçador em cada variante: pelo, barriga, calça e olhos. */
 const HUNTER_VARIANTS = {
   // Lobo do Ártico: branco, olhos azuis
@@ -80,8 +98,15 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
   const fur = hv ? shadeB(hv.fur) : blood ? '#c8ccd8' : feral ? '#b8582a' : '#8a6a4a';
   const furDark = hv ? shadeB(hv.furDark) : blood ? '#5a6078' : feral ? '#6a2a14' : '#5a4030';
   if (blood) {
-    halo(ctx, -6, -24, 14, '#ff3a3a', 0.5);
-    shape(ctx, radial(ctx, -7, -25, 8, '#ff8a7a', '#a01a1a'), () => circle(ctx, -6, -24, 7), 0.6);
+    // Lua Sangrenta: lua vermelha enorme atrás, com crateras
+    halo(ctx, -3, -20, 26, '#ff3a3a', 0.5);
+    shape(ctx, radial(ctx, -6, -24, 17, '#ff9a8a', '#a01a1a'), () => circle(ctx, -3, -20, 16), 0.8);
+    for (const [x, y, r] of [[-9, -26, 3], [2, -14, 2.4], [-1, -29, 1.8], [-10, -15, 1.6]] as const) shape(ctx, '#c83a3a', () => circle(ctx, x, y, r), 0);
+  }
+  if (primal) {
+    // Fera Primal: juba de brasas ardendo nas costas
+    halo(ctx, -4, -14, 16, '#ff6a1a', 0.45);
+    for (let i = 0; i < 6; i++) flame(ctx, -11 + i * 3, -9 - Math.abs(i - 2.5) * -1.2, 3.4, 15 - Math.abs(i - 2.5) * 2, -0.55 + i * 0.12, p.time + i);
   }
   if (feral) {
     // cresce a partir dos pés
@@ -306,6 +331,22 @@ export function drawAlpha(ctx: Ctx, p: Pose): void {
     // Fenrir: sombra crescendo atrás
     halo(ctx, 0, -6, 24 + Math.sin(p.time * 1.5) * 2, '#2a2a5a', 0.8);
   }
+  if (king) {
+    // Rei Lobo: dois lobos espirituais da matilha sentados ao lado dele
+    spiritWolf(ctx, -15, 5, 0.6, p.time, '#cfe6ff', -1);
+    spiritWolf(ctx, 16, 6, 0.6, p.time + 2, '#cfe6ff', 1);
+  }
+  if (wrecker) {
+    // Destruidor: pedras pontudas rompendo o chão ao redor
+    shape(ctx, '#2a201a88', () => ellipse(ctx, 0, 13, 20, 4), 0);
+    for (const [x, h, a] of [[-17, 12, -0.35], [-11, 8, -0.15], [12, 10, 0.2], [18, 13, 0.4]] as const) {
+      ctx.save();
+      ctx.translate(x, 13);
+      ctx.rotate(a);
+      shape(ctx, vertical(ctx, -h, 0, '#a89a8a', '#4a3e34'), () => poly(ctx, [-3, 0, -1, -h, 1.5, -h * 0.8, 3, 0]), 0.9);
+      ctx.restore();
+    }
+  }
   if (leader) {
     // estandarte de guerra: mastro e bandeira esfarrapada tremulando
     const wave = Math.sin(p.time * 3) * 1.5;
@@ -509,13 +550,28 @@ export function drawHowler(ctx: Ctx, p: Pose): void {
   // uiva no ataque e, de vez em quando, sozinho
   const howl = Math.max(p.attack, Math.max(0, Math.sin(p.time * 0.9) - 0.8) * 5);
   if (eclipse) {
-    halo(ctx, -9, -24, 13, '#e8d8ff', 0.6);
-    shape(ctx, '#0a0612', () => circle(ctx, -9, -24, 6.5), 0.8);
+    // Uivo do Eclipse: eclipse enorme atrás, com coroa de raios de luz
+    halo(ctx, -5, -22, 28, '#e8d8ff', 0.6);
+    ctx.save();
+    ctx.translate(-5, -22);
+    ctx.rotate(p.time * 0.3);
+    for (let i = 0; i < 12; i++) {
+      const a = (i * TAU) / 12;
+      const len = i % 2 ? 19 : 23;
+      shape(ctx, '#f4ecff', () => poly(ctx, [Math.cos(a - 0.08) * 14, Math.sin(a - 0.08) * 14, Math.cos(a) * len, Math.sin(a) * len, Math.cos(a + 0.08) * 14, Math.sin(a + 0.08) * 14]), 0);
+    }
+    ctx.restore();
+    shape(ctx, '#0a0612', () => circle(ctx, -5, -22, 14), 1);
   } else if (lunar) {
     // Uivo Lunar: lua cheia grande atrás, com crateras
     halo(ctx, -8, -24, 16, '#bfe8ff', 0.55);
     shape(ctx, radial(ctx, -10, -26, 10, '#ffffff', '#c8dcf0'), () => circle(ctx, -8, -24, 9), 0.6);
     for (const [x, y, r] of [[-11, -27, 1.8], [-6, -21, 1.4], [-5, -27, 1]] as const) shape(ctx, '#b8cce4', () => circle(ctx, x, y, r), 0);
+  }
+  if (horn) {
+    // Trompa da Matilha: dois lobos espirituais uivando atrás
+    spiritWolf(ctx, -14, 2, 0.7, p.time, '#ffb88a', 1, Math.min(1, howl + 0.4));
+    spiritWolf(ctx, 13, 4, 0.6, p.time + 1, '#ffb88a', -1, Math.min(1, howl + 0.4));
   }
   // cauda e corpo sentado
   shape(ctx, furDark, () => {
