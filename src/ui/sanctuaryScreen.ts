@@ -102,7 +102,7 @@ export function showSanctuary(profile: Profile, handlers: SanctuaryHandlers, hig
       <div class="screen-head">
         <button data-action="back">← Voltar</button>
         <h2>Santuário</h2>
-        <button data-action="help">? Como funciona</button>
+        <button data-action="help">Como funciona?</button>
       </div>
       <div class="sanc-balance">${fragments(profile.fragments[race] ?? 0, race)} <span>·</span> ${crystals(profile.crystals)} <small>Cristais Ancestrais</small></div>
       ${tabsHtml(tabs, race)}

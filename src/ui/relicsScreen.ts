@@ -58,7 +58,7 @@ export function showRelics(profile: Profile, onChange: () => void, onBack: () =>
       <div class="screen-head">
         <button data-action="back">← Voltar</button>
         <h2>Relíquias</h2>
-        <span class="muted">${profile.relics.length}/${RELIC_IDS.length} <button data-action="help" title="Rever o tutorial">❔ Como funciona</button></span>
+        <span class="muted">${profile.relics.length}/${RELIC_IDS.length} <button data-action="help" title="Rever o tutorial">Como funciona?</button></span>
       </div>
       <div class="relic-slots">${slotHtml}</div>
       <p class="hint">Equipe antes da run: valem a run inteira. Cada chefe abatido tem chance de deixar um baú de Relíquia: de ${pct(minChance)} (chefes do meio do Cemitério) a ${pct(maxChance)} (chefe final da Cidadela); o Sem Fim também conta. Garantia: ${profile.relicPity} de ${RELIC_DROPS.pity} chefes sem baú. Repetidas viram cópias: sobem o nível da Relíquia (até ${RELIC_MAX_LEVEL}) ou valem ${essence(RELIC_DROPS.copyEssence)}.</p>
