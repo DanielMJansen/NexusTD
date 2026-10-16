@@ -1323,17 +1323,19 @@ button.vp-option:hover {
   color: var(--muted);
 }
 
+/* selo da opção em uso: dentro do canto, para não cobrir o título "Visual" acima */
 .vp-check {
   position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0 6px;
-  border-radius: 999px;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
   background: var(--chip-color);
-  font: 700 9.5px var(--font-label);
+  font: 700 10px/1 var(--font-label);
   color: #120a1e;
-  white-space: nowrap;
 }
 
 /* ficha nova da criatura */
@@ -3989,9 +3991,29 @@ body:not([data-mode='run']) .panel.screen {
   letter-spacing: 0;
 }
 
+/* presa às duas bordas da ficha: não passa para fora na última coluna */
 .sheet-card .forms-pop {
   top: 22px;
   left: -4px;
+  right: -4px;
+}
+
+.sheet-card .fp-row-cells {
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.sheet-card .fp-row-cells figure {
+  width: 84px;
+}
+
+.sheet-card .forms-pop canvas {
+  width: 80px;
+  height: 80px;
+}
+
+.sheet-card .fp-row-cells small {
+  white-space: nowrap;
 }
 
 /* evolução: linha de altura fixa (retrato 42px; nome+frase em 2 linhas; desperta em 1 linha) */
@@ -4056,8 +4078,7 @@ body:not([data-mode='run']) .panel.screen {
   border: 1px solid color-mix(in srgb, var(--branch-color) 60%, var(--line));
   border-radius: 50%;
   background: #1c1430;
-  font-size: 12px;
-  line-height: 1;
+  font: italic 700 13px/1 Georgia, serif;
   color: var(--branch-color);
   cursor: pointer;
 }
@@ -4075,13 +4096,58 @@ body:not([data-mode='run']) .panel.screen {
   left: 0;
   right: 0;
   top: calc(100% + 2px);
-  padding: 8px 26px 8px 10px;
+  padding: 0;
+  overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--branch-color) 60%, var(--line));
-  border-radius: 8px;
-  background: #1a1230;
-  box-shadow: 0 8px 20px #000a;
+  border-radius: 10px;
+  background: linear-gradient(#271b42, #160f27);
+  box-shadow: 0 10px 26px #000c;
   font-size: 12px;
   line-height: 1.3;
+  white-space: normal;
+}
+
+/* blocos do balão: nível 3 e desperta ★5 */
+.sheet-card .tip-block {
+  padding: 7px 28px 8px 10px;
+  border-left: 3px solid var(--branch-color);
+}
+
+.sheet-card .tip-block.awake {
+  --branch-color: #7ae8ff;
+  border-top: 1px solid #ffffff14;
+  background: #7ae8ff0a;
+}
+
+.sheet-card .tip-block p {
+  margin: 0;
+}
+
+.sheet-card .tip-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px !important;
+}
+
+.sheet-card .tip-head small {
+  font: 700 9.5px var(--font-label);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sheet-card .tip-head b {
+  font: 700 13px var(--font-label);
+  color: var(--branch-color);
+}
+
+.sheet-card .tip-nums {
+  margin-top: 4px !important;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--branch-color) 12%, #0e0820);
+  color: #f4ecff;
 }
 
 .sheet-card .evo-row.tip-open .tip {
@@ -4114,10 +4180,6 @@ body:not([data-mode='run']) .panel.screen {
 
 .sheet-card .forms-btn {
   cursor: pointer;
-}
-
-.sheet-card .evo-row .tip-awake {
-  color: #7ae8ff;
 }
 
 .sheet-card .sh-form-row {

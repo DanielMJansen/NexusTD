@@ -64,7 +64,7 @@ function visualPickerHtml(profile: Profile, def: CreatureDef): string {
     const portrait = `<canvas data-sprite="${def.id}" data-variant="${tier || 'none'}"${has ? '' : ' data-silhouette'}></canvas>`;
     const body = `${portrait}<b>${has ? name : '???'}</b><small>${has ? label : `${label} · Altar`}</small>`;
     return has
-      ? `<button class="vp-option${isOn ? ' selected' : ''}" style="--chip-color:${color}" data-action="variant" data-value="${def.id}:${tier}" title="${isOn ? 'Visual em uso' : 'Usar este visual'}">${body}${isOn ? '<span class="vp-check">✓ em uso</span>' : ''}</button>`
+      ? `<button class="vp-option${isOn ? ' selected' : ''}" style="--chip-color:${color}" data-action="variant" data-value="${def.id}:${tier}" title="${isOn ? 'Visual em uso' : 'Usar este visual'}">${body}${isOn ? '<span class="vp-check" aria-label="em uso">✓</span>' : ''}</button>`
       : `<div class="vp-option locked" style="--chip-color:${color}" title="Consiga no Altar">${body}</div>`;
   };
   const options = [
@@ -79,8 +79,8 @@ function formsPopHtml(profile: Profile, def: CreatureDef): string {
   const tier = profile.selectedVariants[def.id];
   const look = tier ? `${variantTheme(def.id, tier).name} (${VARIANTS[tier].name.toLowerCase()})` : 'visual normal';
   const cols = def.ascended.flatMap((form, i) => [
-    { tag: `Evolução ${i === 0 ? 'A' : 'B'} · nv 3`, name: form.name, branch: i, supreme: false, color: form.color },
-    ...(form.supreme ? [{ tag: `✦ Desperta ${i === 0 ? 'A' : 'B'} · ★5`, name: form.supreme.name, branch: i, supreme: true, color: form.color }] : []),
+    { tag: `${i === 0 ? 'A' : 'B'} · nível 3`, name: form.name, branch: i, supreme: false, color: form.color },
+    ...(form.supreme ? [{ tag: `✦ ${i === 0 ? 'A' : 'B'} · ★5`, name: form.supreme.name, branch: i, supreme: true, color: form.color }] : []),
   ]);
   const cells = cols
     .map(

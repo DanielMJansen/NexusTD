@@ -269,16 +269,19 @@ export function evolutionRowsHtml(def: CreatureDef, portrait: (i: number) => str
   return def.ascended
     .map((form, i) => {
       const sup = form.supreme;
-      const tip = `<b>${form.name}</b>: ${form.description}<br><span class="sheet-num">${changeText(def, form.ability, form.stats, form.effects)}</span>${
-        sup ? `<br><br><b class="tip-awake">✦ Desperta ★5 · ${sup.name}</b>: ${sup.description}<br><span class="sheet-num">${changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects)}</span>` : ''
-      }`;
+      // balão em dois blocos (nível 3 e desperta ★5): nome, frase e os números numa faixa destacada
+      const block = (level: string, name: string, text: string, numbers: string, awake = false) =>
+        `<div class="tip-block${awake ? ' awake' : ''}"><p class="tip-head"><small>${level}</small><b>${name}</b></p><p>${text}</p><p class="tip-nums">${numbers}</p></div>`;
+      const tip =
+        block(`${i === 0 ? 'A' : 'B'} · nível 3`, form.name, form.description, changeText(def, form.ability, form.stats, form.effects)) +
+        (sup ? block('✦ Desperta ★5', sup.name, sup.description, changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects), true) : '');
       return `<div class="evo-row" style="--branch-color:${form.color}">
         ${portrait(i)}
         <div class="evo-text">
           <p class="evo-main"><span class="branch-tag">${i === 0 ? 'A' : 'B'}</span> <b>${form.name}</b>: ${form.description}</p>
           ${sup ? `<p class="evo-awake">✦ Desperta ★5 · <b>${sup.name}</b></p>` : '<p class="evo-awake"></p>'}
         </div>
-        <button type="button" class="evo-info" data-toggle-tip title="Ver detalhes e números">ⓘ</button>
+        <button type="button" class="evo-info" data-toggle-tip title="Ver detalhes e números">i</button>
         <div class="tip"><button type="button" class="tip-close" data-close-tip title="Fechar">✕</button>${tip}</div>
       </div>`;
     })

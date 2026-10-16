@@ -430,7 +430,17 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
   const ancient = formB(p);
   const mv = p.variant ? MEDUSA_VARIANTS[p.variant] : null;
   const shadeB = (c: string) => (mv && ancient ? darken(c, 0.2) : c);
-  if (p.supreme && ancient) {
+  if (p.supreme && ancient && p.variant === "legendary") {
+    // Água-viva: no lugar da naja dourada, uma água-viva colossal flutuando atrás, com tentáculos longos
+    const sway = Math.sin(p.time * 1.6) * 1.5;
+    halo(ctx, 0, -26, 22, "#c86aff", 0.35);
+    ctx.save();
+    ctx.translate(0, -13 + sway);
+    ctx.scale(1.6, 1.6);
+    jellyTentacles(ctx, 0, p.time * 0.7, "#c86aff");
+    jellyBell(ctx, 0, p.time * 0.7, "#c86aff");
+    ctx.restore();
+  } else if (p.supreme && ancient) {
     // Górgona Ancestral suprema: naja dourada colossal erguida atrás, de capuz aberto
     const sway = Math.sin(p.time * 1.6) * 1.5;
     halo(ctx, 0, -24, 22, "#ffd25a", 0.4);
@@ -569,9 +579,26 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
       false,
     );
   }
-  if (jelly)
-    jellyTentacles(ctx, hy, p.time, ancient ? darken(mv!.hair, 0.3) : mv!.hair);
-  else
+  // o sino da água-viva fica acima dos olhos (como cabelo), sem cobrir o rosto
+  const bellY = hy - 4;
+  if (jelly) {
+    jellyTentacles(ctx, bellY, p.time, ancient ? darken(mv!.hair, 0.3) : mv!.hair);
+    if (p.supreme && stone) {
+      // Olhar Eterno (Água-viva): tentáculos urticantes erguidos em leque atrás do sino, de pontas acesas
+      for (let i = 0; i < 7; i++) {
+        const a = -Math.PI / 2 + (i - 3) * 0.34;
+        const len = 18 + Math.sin(p.time * 4 + i) * 2;
+        const tx = 1 + Math.cos(a) * len;
+        const ty = bellY - 6 + Math.sin(a) * len;
+        line(ctx, "#ff9ad8cc", 1.6, () => {
+          ctx.moveTo(1 + Math.cos(a) * 4, bellY - 6);
+          ctx.quadraticCurveTo((1 + tx) / 2 + Math.sin(p.time * 3 + i) * 2.5, (bellY - 6 + ty) / 2, tx, ty);
+        }, false);
+        halo(ctx, tx, ty, 3, "#7ad8ff", 0.6 + Math.sin(p.time * 5 + i) * 0.3);
+        shape(ctx, "#e8f8ff", () => circle(ctx, tx, ty, 1.1), 0);
+      }
+    }
+  } else
     snakeHair(
       ctx,
       hy,
@@ -593,7 +620,7 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
     ),
     () => circle(ctx, 1, hy, 6.3),
   );
-  if (jelly) jellyBell(ctx, hy, p.time, ancient ? "#c86aff" : mv!.hair);
+  if (jelly) jellyBell(ctx, bellY, p.time, ancient ? "#c86aff" : mv!.hair);
   const gaze = 1 + p.attack * 0.8;
   const eyes = mv
     ? mv.eyes
@@ -638,34 +665,35 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
     ctx.restore();
   }
   if (ancient) {
-    // coroa antiga (maior, com cobras douradas na Górgona Ancestral)
-    shape(ctx, vertical(ctx, hy - 14, hy - 5, "#ffe090", "#8a6a2a"), () =>
+    // coroa antiga (maior, com cobras douradas na Górgona Ancestral); na Água-viva, pousada no topo do sino
+    const cy = jelly ? hy - 4 : hy;
+    shape(ctx, vertical(ctx, cy - 14, cy - 5, "#ffe090", "#8a6a2a"), () =>
       poly(ctx, [
         -5.5,
-        hy - 5,
+        cy - 5,
         -6,
-        hy - 11,
+        cy - 11,
         -2.5,
-        hy - 7.5,
+        cy - 7.5,
         1,
-        hy - 14,
+        cy - 14,
         4.5,
-        hy - 7.5,
+        cy - 7.5,
         8,
-        hy - 11,
+        cy - 11,
         7.5,
-        hy - 5,
+        cy - 5,
       ]),
     );
     for (const x of [-6, 1, 8])
       shape(
         ctx,
         "#ff3a3a",
-        () => circle(ctx, x, hy - (x === 1 ? 14 : 11), 0.9),
+        () => circle(ctx, x, cy - (x === 1 ? 14 : 11), 0.9),
         0,
       );
   }
-  if (p.supreme && formA(p)) {
+  if (p.supreme && formA(p) && !jelly) {
     // cabelo de serpentes enormes erguidas em leque, cada uma com cabeça e olhos
     for (let i = 0; i < 8; i++) {
       const a = -Math.PI / 2 + (i - 3.5) * 0.3;
@@ -704,7 +732,7 @@ export function drawMedusa(ctx: Ctx, p: Pose): void {
     }
     halo(ctx, 2, -15, 10, "#e8ff6a", 0.5 + p.attack * 0.4);
   }
-  if (p.supreme && formB(p)) {
+  if (p.supreme && formB(p) && !jelly) {
     // coroa de cobras douradas
     for (let i = 0; i < 5; i++) {
       const x = -5 + i * 3;
@@ -777,7 +805,8 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
   const sway = Math.sin(p.time * 1.6) * 1.5;
   const strike = p.attack;
   // um pouco maior que as outras criaturas: imponente (o Rei, ainda maior)
-  const grow = king ? 1.12 * 1.15 : 1.12;
+  // na Suprema a escala de ★5 já aumenta o corpo: o extra do Rei fica menor, para não sair do quadro
+  const grow = king ? 1.12 * (p.supreme ? 1.05 : 1.15) : 1.12;
   ctx.translate(0, 14);
   ctx.scale(grow, grow);
   ctx.translate(0, -14);
@@ -786,10 +815,10 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
     shape(ctx, "#9aff3a55", () => ellipse(ctx, 2, 13, 15, 3), 0);
   }
   if (p.supreme && king) {
-    // Imperador Basilisco: colunas de um templo em ruínas atrás, uma inteira e uma quebrada
+    // Imperador Basilisco: ruínas de um templo atrás (coluna quebrada e um toco), baixas para não disputar com a cabeça
     for (const [x, h, broken] of [
-      [-19, 40, false],
-      [17, 28, true],
+      [-18, 24, true],
+      [17, 12, true],
     ] as const) {
       shape(
         ctx,
@@ -1090,29 +1119,30 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
     }
   }
   if (p.supreme && king) {
-    // Imperador Basilisco: chifres de pedra ao longo das espirais e placas de ouro
-    for (let i = 0; i < 4; i++)
-      shape(
-        ctx,
-        vertical(ctx, -6, 6, "#c8c0b0", "#6a6258"),
-        () =>
-          poly(ctx, [
-            -10 + i * 6,
-            3,
-            -8 + i * 6,
-            -6 + (i % 2) * 3,
-            -6 + i * 6,
-            3,
-          ]),
-        0.7,
-      );
-    for (let i = 0; i < 3; i++)
-      shape(
-        ctx,
-        vertical(ctx, 6, 12, "#ffe07a", "#a8701a"),
-        () => ctx.roundRect(-9 + i * 7, 8.5, 5, 3, 1),
-        0.5,
-      );
+    // Imperador Basilisco: faixas de escamas de ouro acompanhando as espirais, com joias
+    for (const [y, rx, ry] of [
+      [6, 15, 5],
+      [10, 13, 4.5],
+    ] as const) {
+      ctx.save();
+      ctx.strokeStyle = "#5a3a08";
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      ctx.ellipse(0, y, rx - 2, ry - 1.4, 0, 0.25, Math.PI - 0.25);
+      ctx.stroke();
+      ctx.strokeStyle = "#ffd25a";
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+      ctx.restore();
+    }
+    for (const [x, y, c] of [
+      [-6, 10.2, "#ff3a5a"],
+      [0, 14, "#3ad8ff"],
+      [6, 10.2, "#ff3a5a"],
+    ] as const) {
+      halo(ctx, x, y, 2.6, c, 0.5 + Math.sin(p.time * 3 + x) * 0.2);
+      shape(ctx, c, () => circle(ctx, x, y, 1.1), 0.4);
+    }
   }
   if (p.supreme && spitter) {
     // Pântano Ácido: glândulas brilhando, poça borbulhante e jato de ácido em arco

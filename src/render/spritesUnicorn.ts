@@ -652,6 +652,19 @@ export function drawGuardianUnicorn(ctx: Ctx, p: Pose): void {
   ellipse(ctx, 0, 13, 20, 5);
   ctx.stroke();
   ctx.restore();
+  if (p.supreme && sanctuary) {
+    // Templo Vivo: fachada de templo atrás do corpo (pilares e frontão), com a cabeça à frente da coluna
+    const glow = 0.55 + Math.sin(p.time * 2.5) * 0.15;
+    halo(ctx, 0, -12, 26, '#fff2b0', glow * 0.35);
+    shape(ctx, vertical(ctx, -36, -27, '#fff6dc', '#d8c090'), () => poly(ctx, [-25, -27, 0, -36, 25, -27]), 0.5);
+    for (const x of [-20, 20]) {
+      shape(ctx, vertical(ctx, -26, 12, '#fffaf0', '#c8b890'), () => ctx.rect(x - 2.5, -26, 5, 38), 0.5);
+      line(ctx, '#d8c8a0', 0.6, () => { ctx.moveTo(x, -24); ctx.lineTo(x, 10); }, false);
+      shape(ctx, '#ffe9a8', () => ctx.rect(x - 4, -28, 8, 2.5), 0.4);
+      shape(ctx, '#ffe9a8', () => ctx.rect(x - 4, 10.5, 8, 2.5), 0.4);
+    }
+    halo(ctx, 0, -33, 4, '#ffffff', glow);
+  }
   const trim = gv ? gv.trim : GOLD;
   const { hx, hy } = horse(
     ctx,
@@ -733,13 +746,6 @@ export function drawGuardianUnicorn(ctx: Ctx, p: Pose): void {
       halo(ctx, x + 1, -6, 4, '#fff6c0', 0.6);
     }
   }
-  if (p.supreme && sanctuary) {
-    // Templo Vivo: pilares de luz ao redor
-    for (const x of [-18, 18]) {
-      shape(ctx, vertical(ctx, -26, 14, '#fff6dcaa', '#ffd25a22'), () => ctx.rect(x - 2, -26, 4, 40), 0);
-      shape(ctx, '#ffe9a8', () => ctx.rect(x - 3, -27, 6, 2), 0.4);
-    }
-  }
   if (p.supreme && lance) {
     // Juízo de Luz: chifre gigante brilhando e raio vertical
     halo(ctx, hx + 2, hy - 14, 14, '#fff6c0', 0.7 + p.attack * 0.3);
@@ -811,16 +817,34 @@ export function drawWarPegasus(ctx: Ctx, p: Pose): void {
   }
   if (p.attack > 0.2) halo(ctx, hx + 6, hy + 4, 10, storm ? '#9ad8ff' : '#ffffff', p.attack * 0.6);
   if (p.supreme && storm) {
-    // Tempestade Alada: nuvem sobre as asas e raios constantes
-    for (const [x, y, r] of [[-6, -26, 4], [-1, -28, 5], [4, -26, 4]] as const) shape(ctx, '#5a6a8a', () => circle(ctx, x, y, r), 0.6);
-    if (Math.sin(p.time * 12) > 0) {
-      line(ctx, '#fff6a0', 1.2, () => {
-        ctx.moveTo(-1, -23);
-        ctx.lineTo(-3, -17);
-        ctx.lineTo(0, -16);
-        ctx.lineTo(-2, -10);
-      }, false);
+    // Tempestade Alada: nuvem de tempestade sobre as asas, chuva e raios que descem ao lado do corpo até o chão.
+    // Contorno escuro + núcleo branco: o raio aparece em qualquer pelagem (clara ou escura).
+    for (let i = 0; i < 5; i++) {
+      const rx = -16 + i * 7;
+      const ry = -26 + ((p.time * 40 + i * 9) % 30);
+      line(ctx, '#9ad8ffaa', 0.8, () => { ctx.moveTo(rx, ry); ctx.lineTo(rx - 1, ry + 3); }, false);
     }
+    const bolt = (points: readonly number[], flash: number) => {
+      if (flash <= 0) return;
+      const path = () => {
+        ctx.moveTo(points[0], points[1]);
+        for (let i = 2; i < points.length; i += 2) ctx.lineTo(points[i], points[i + 1]);
+      };
+      ctx.save();
+      ctx.globalAlpha *= Math.min(1, flash * 2);
+      line(ctx, '#1a2040', 3.6, path, false);
+      line(ctx, '#ffe95a', 2.2, path, false);
+      line(ctx, '#ffffff', 0.9, path, false);
+      ctx.restore();
+      halo(ctx, points[points.length - 2], points[points.length - 1], 7, '#9ad8ff', flash * 0.8);
+    };
+    // os dois raios se revezam: sempre há um aceso, o outro pisca
+    const flick = Math.sin(p.time * 7);
+    bolt([-10, -24, -15, -14, -11, -12, -18, -1, -14, 0, -19, 12], 0.6 + 0.4 * flick);
+    bolt([12, -24, 17, -16, 14, -14, 20, -3], 0.6 - 0.4 * flick);
+    for (const [x, y, r, c] of [[-11, -27, 4.5, '#3a4262'], [-4, -30, 6, '#4a5478'], [5, -29, 5.5, '#3e4868'], [12, -27, 4.5, '#343c5a'], [0, -26, 5, '#2e3552']] as const)
+      shape(ctx, vertical(ctx, y - r, y + r, '#7a88b0', c), () => circle(ctx, x, y, r), 0.7);
+    halo(ctx, -2, -28, 13, '#9ad8ff', 0.15 + Math.max(0, Math.sin(p.time * 7)) * 0.35);
   }
   if (p.supreme && royal) {
     // Pégaso Imperial: armadura dourada no corpo
