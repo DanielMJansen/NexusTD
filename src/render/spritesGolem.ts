@@ -86,15 +86,16 @@ export function drawWall(ctx: Ctx, p: Pose): void {
   if (p.supreme && snow) {
     // Terremoto: rocha enorme erguida acima da cabeça, rachando
     const lift = Math.sin(p.time * 2) * 1.5 - p.attack * 3;
-    shape(ctx, radial(ctx, -3, -36 + lift, 14, '#b8b0a4', '#4a443c'), () => ellipse(ctx, 0, -33 + lift, 13, 9), 1.2);
+    // (mais baixa e menor: a rocha inteira cabe no quadro, logo acima da cabeça)
+    shape(ctx, radial(ctx, -3, -31 + lift, 12, '#b8b0a4', '#4a443c'), () => ellipse(ctx, 0, -28 + lift, 11, 7), 1.2);
     line(ctx, '#2a2620', 0.9, () => {
-      ctx.moveTo(-6, -40 + lift);
-      ctx.lineTo(-2, -34 + lift);
-      ctx.lineTo(-5, -28 + lift);
-      ctx.moveTo(5, -39 + lift);
-      ctx.lineTo(3, -33 + lift);
+      ctx.moveTo(-5, -33 + lift);
+      ctx.lineTo(-2, -28 + lift);
+      ctx.lineTo(-4, -23 + lift);
+      ctx.moveTo(4, -33 + lift);
+      ctx.lineTo(3, -28 + lift);
     }, false);
-    for (const x of [-12, 12]) rock(ctx, x - 2.5, -27 + lift, 5, 12, light, dark, 2);
+    for (const x of [-11, 11]) rock(ctx, x - 2.5, -23 + lift, 5, 10, light, dark, 2);
   }
   // pernas grossas
   rock(ctx, -9, 7, 7, 7, light, dark, 2);

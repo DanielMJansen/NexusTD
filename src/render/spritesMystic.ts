@@ -99,9 +99,10 @@ export function drawHunter(ctx: Ctx, p: Pose): void {
   const furDark = hv ? shadeB(hv.furDark) : blood ? '#5a6078' : feral ? '#6a2a14' : '#5a4030';
   if (blood) {
     // Lua Sangrenta: lua vermelha enorme atrás, com crateras
-    halo(ctx, -3, -20, 26, '#ff3a3a', 0.5);
-    shape(ctx, radial(ctx, -6, -24, 17, '#ff9a8a', '#a01a1a'), () => circle(ctx, -3, -20, 16), 0.8);
-    for (const [x, y, r] of [[-9, -26, 3], [2, -14, 2.4], [-1, -29, 1.8], [-10, -15, 1.6]] as const) shape(ctx, '#c83a3a', () => circle(ctx, x, y, r), 0);
+    // (menor e à esquerda: cabe no quadro e não engole a cabeça)
+    halo(ctx, -9, -21, 20, '#ff3a3a', 0.5);
+    shape(ctx, radial(ctx, -12, -24, 13, '#ff9a8a', '#a01a1a'), () => circle(ctx, -9, -21, 12), 0.8);
+    for (const [x, y, r] of [[-14, -25, 2.4], [-5, -16, 1.9], [-8, -29, 1.4], [-15, -16, 1.3]] as const) shape(ctx, '#c83a3a', () => circle(ctx, x, y, r), 0);
   }
   if (feral) {
     // cresce a partir dos pés
@@ -551,17 +552,18 @@ export function drawHowler(ctx: Ctx, p: Pose): void {
   const howl = Math.max(p.attack, Math.max(0, Math.sin(p.time * 0.9) - 0.8) * 5);
   if (eclipse) {
     // Uivo do Eclipse: eclipse enorme atrás, com coroa de raios de luz
-    halo(ctx, -5, -22, 28, '#e8d8ff', 0.6);
+    // (menor e à esquerda: a coroa cabe no quadro e a cabeça fica à frente da borda do eclipse)
+    halo(ctx, -10, -20, 22, '#e8d8ff', 0.6);
     ctx.save();
-    ctx.translate(-5, -22);
+    ctx.translate(-10, -20);
     ctx.rotate(p.time * 0.3);
     for (let i = 0; i < 12; i++) {
       const a = (i * TAU) / 12;
-      const len = i % 2 ? 19 : 23;
-      shape(ctx, '#f4ecff', () => poly(ctx, [Math.cos(a - 0.08) * 14, Math.sin(a - 0.08) * 14, Math.cos(a) * len, Math.sin(a) * len, Math.cos(a + 0.08) * 14, Math.sin(a + 0.08) * 14]), 0);
+      const len = i % 2 ? 14 : 17;
+      shape(ctx, '#f4ecff', () => poly(ctx, [Math.cos(a - 0.1) * 10, Math.sin(a - 0.1) * 10, Math.cos(a) * len, Math.sin(a) * len, Math.cos(a + 0.1) * 10, Math.sin(a + 0.1) * 10]), 0);
     }
     ctx.restore();
-    shape(ctx, '#0a0612', () => circle(ctx, -5, -22, 14), 1);
+    shape(ctx, '#0a0612', () => circle(ctx, -10, -20, 10), 1);
   } else if (lunar) {
     // Uivo Lunar: lua cheia grande atrás, com crateras
     halo(ctx, -8, -24, 16, '#bfe8ff', 0.55);

@@ -15,6 +15,7 @@ import {
   glowingEye,
   GOLD,
   halo,
+  lightning,
   line,
   OUTLINE,
   poly,
@@ -1186,8 +1187,9 @@ function drawGuard(ctx: Ctx, p: Required<SpritePose>): void {
     shape(ctx, '#0e0c14', () => ctx.rect(-1, hy - 1.2, 8, 2.2), 0);
     for (const x of [1.5, 4, 6.5]) shape(ctx, '#ffe9a8', () => ctx.rect(x, hy - 0.6, 1.2, 1), 0);
     ctx.save();
-    ctx.translate(-6, 3);
-    ctx.rotate(-0.2 + p.attack * 1.4);
+    // martelo apoiado no ombro, inclinado para trás: a cabeça do martelo fica ao lado do elmo, não em cima dele
+    ctx.translate(-7, 4);
+    ctx.rotate(-0.75 + p.attack * 1.9);
     line(ctx, '#3a2a20', 2.6, () => {
       ctx.moveTo(0, 9);
       ctx.lineTo(0, -22);
@@ -2059,17 +2061,19 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     ctx.save();
     ctx.translate(0, -8);
     ctx.rotate(p.time * 0.3);
-    halo(ctx, 0, 0, 28, '#bfe8ff', 0.4);
-    ctx.strokeStyle = '#e8fbff';
-    ctx.lineWidth = 2.6;
+    // (menor e translúcido, em azul-gelo: o floco fica de fundo sem engolir a silhueta clara do dragão)
+    halo(ctx, 0, 0, 24, '#bfe8ff', 0.35);
+    ctx.globalAlpha *= 0.65;
+    ctx.strokeStyle = '#a8dcff';
+    ctx.lineWidth = 1.9;
     ctx.beginPath();
     for (let i = 0; i < 6; i++) {
       const a = (i * TAU) / 6;
       const cx = Math.cos(a);
       const sy = Math.sin(a);
       ctx.moveTo(0, 0);
-      ctx.lineTo(cx * 28, sy * 28);
-      for (const k of [16, 23]) {
+      ctx.lineTo(cx * 23, sy * 23);
+      for (const k of [13, 19]) {
         ctx.moveTo(cx * k, sy * k);
         ctx.lineTo(cx * k + Math.cos(a + 0.8) * 5, sy * k + Math.sin(a + 0.8) * 5);
         ctx.moveTo(cx * k, sy * k);
@@ -2081,7 +2085,7 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
     // névoa congelante girando em volta
     for (let i = 0; i < 5; i++) {
       const a = p.time * 0.8 + (i * TAU) / 5;
-      halo(ctx, Math.cos(a) * 16, 4 + Math.sin(a) * 6, 7, '#e8fbff', 0.45);
+      halo(ctx, Math.cos(a) * 16, 4 + Math.sin(a) * 6, 6, '#e8fbff', 0.28);
     }
   }
   if (c.eye) {
@@ -2451,22 +2455,8 @@ function drawDragon(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
         ctx.lineTo(5, hy - 6);
       }, false);
     }
-    // raio grosso caindo da nuvem até o chão, ao lado do dragão
-    if (Math.sin(p.time * 5) > -0.2) {
-      ctx.save();
-      ctx.shadowColor = '#fff6a0';
-      ctx.shadowBlur = 8;
-      line(ctx, '#fff6a0', 2, () => {
-        ctx.moveTo(14, hy - 16);
-        ctx.lineTo(19, hy - 4);
-        ctx.lineTo(15, hy + 2);
-        ctx.lineTo(21, hy + 14);
-        ctx.lineTo(17, hy + 18);
-        ctx.lineTo(22, 14);
-      }, false);
-      ctx.restore();
-      halo(ctx, 22, 14, 6, '#fff6a0', 0.7);
-    }
+    // raio grosso caindo da nuvem até o chão, ao lado do dragão (sempre visível; a piscada só muda a força)
+    lightning(ctx, [14, hy - 16, 19, hy - 4, 15, hy + 2, 21, hy + 14, 17, hy + 18, 22, 14], 0.65 + 0.35 * Math.sin(p.time * 5), '#fff6a0');
   }
 }
 
@@ -2590,6 +2580,8 @@ function drawLong(ctx: Ctx, p: Required<SpritePose>, c: DragonPalette): void {
         ctx.lineTo(hx, hy - 4);
       }, false);
     }
+    // Lóng: o mesmo raio até o chão do Senhor dos Raios, descendo à frente da cabeça
+    lightning(ctx, [hx + 8, hy - 15, hx + 12, hy - 4, hx + 9, hy + 2, hx + 14, hy + 12, hx + 11, 14], 0.65 + 0.35 * Math.sin(t * 5), '#fff6a0');
   }
 }
 

@@ -11,6 +11,7 @@ import {
   formB,
   GOLD,
   halo,
+  lightning,
   line,
   poly,
   radial,
@@ -824,24 +825,10 @@ export function drawWarPegasus(ctx: Ctx, p: Pose): void {
       const ry = -26 + ((p.time * 40 + i * 9) % 30);
       line(ctx, '#9ad8ffaa', 0.8, () => { ctx.moveTo(rx, ry); ctx.lineTo(rx - 1, ry + 3); }, false);
     }
-    const bolt = (points: readonly number[], flash: number) => {
-      if (flash <= 0) return;
-      const path = () => {
-        ctx.moveTo(points[0], points[1]);
-        for (let i = 2; i < points.length; i += 2) ctx.lineTo(points[i], points[i + 1]);
-      };
-      ctx.save();
-      ctx.globalAlpha *= Math.min(1, flash * 2);
-      line(ctx, '#1a2040', 3.6, path, false);
-      line(ctx, '#ffe95a', 2.2, path, false);
-      line(ctx, '#ffffff', 0.9, path, false);
-      ctx.restore();
-      halo(ctx, points[points.length - 2], points[points.length - 1], 7, '#9ad8ff', flash * 0.8);
-    };
     // os dois raios se revezam: sempre há um aceso, o outro pisca
     const flick = Math.sin(p.time * 7);
-    bolt([-10, -24, -15, -14, -11, -12, -18, -1, -14, 0, -19, 12], 0.6 + 0.4 * flick);
-    bolt([12, -24, 17, -16, 14, -14, 20, -3], 0.6 - 0.4 * flick);
+    lightning(ctx, [-10, -24, -15, -14, -11, -12, -18, -1, -14, 0, -19, 12], 0.6 + 0.4 * flick);
+    lightning(ctx, [12, -24, 17, -16, 14, -14, 20, -3], 0.6 - 0.4 * flick);
     for (const [x, y, r, c] of [[-11, -27, 4.5, '#3a4262'], [-4, -30, 6, '#4a5478'], [5, -29, 5.5, '#3e4868'], [12, -27, 4.5, '#343c5a'], [0, -26, 5, '#2e3552']] as const)
       shape(ctx, vertical(ctx, y - r, y + r, '#7a88b0', c), () => circle(ctx, x, y, r), 0.7);
     halo(ctx, -2, -28, 13, '#9ad8ff', 0.15 + Math.max(0, Math.sin(p.time * 7)) * 0.35);

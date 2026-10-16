@@ -289,15 +289,22 @@ export function drawValkyrie(ctx: Ctx, p: Pose): void {
     // capa de pele nos ombros
     shape(ctx, vertical(ctx, -12, 6, '#8a6a4a', '#3a2a1a'), () => poly(ctx, [-8, -11, 7, -11, 9, 5, -10, 5]), 1);
   }
-  if (p.supreme && slayer) {
-    // Executora Divina: espada de luz gigante cravada atrás dela
-    glow(ctx, 0, -18, 16, '#fff6c0', 0.5);
-    shape(ctx, vertical(ctx, -46, 12, '#ffffff', '#ffe9a8'), () => poly(ctx, [-3, 12, -3, -38, 0, -46, 3, -38, 3, 12]), 0.8);
-    shape(ctx, vertical(ctx, -12, -7, '#ffe07a', '#a8701a'), () => ctx.roundRect(-10, -12, 20, 4, 1.5), 0.8);
-  }
   if (p.variant !== 'legendary') {
     const wingSize = p.supreme ? 1.65 : celestial ? 1.2 : 0.95;
     featherWings(ctx, p.time, p.supreme ? '#ffd25a' : celestial ? '#9fdcff' : vv ? vv.wing : '#c8d8ff', wingSize, -9, p.supreme ? 2 : 1);
+  }
+  if (p.supreme && slayer) {
+    // Executora Divina: espada de luz gigante cravada atrás dela (na frente das asas, atrás do corpo)
+    // (inclinada, à esquerda: a ponta crava no chão e o cabo sobe ao lado do ombro, sem sair do meio da cabeça)
+    ctx.save();
+    ctx.translate(-9, 13);
+    ctx.rotate(-0.38);
+    glow(ctx, 0, -18, 14, '#fff6c0', 0.5);
+    shape(ctx, vertical(ctx, -30, 0, '#ffffff', '#ffe9a8'), () => poly(ctx, [0, 2, -3, -4, -3, -30, 3, -30, 3, -4]), 0.8);
+    shape(ctx, vertical(ctx, -33, -29, '#ffe07a', '#a8701a'), () => ctx.roundRect(-8, -33, 16, 3.5, 1.5), 0.8);
+    shape(ctx, '#8a5a2a', () => ctx.rect(-1.3, -40, 2.6, 7), 0.6);
+    shape(ctx, '#ffe07a', () => circle(ctx, 0, -41, 2), 0.6);
+    ctx.restore();
   }
   if (!mounted) {
     shape(ctx, '#4a5068', () => ctx.roundRect(-4.5, 6, 4, 8, 1.5));

@@ -806,7 +806,7 @@ export function drawBasilisk(ctx: Ctx, p: Pose): void {
   const strike = p.attack;
   // um pouco maior que as outras criaturas: imponente (o Rei, ainda maior)
   // na Suprema a escala de ★5 já aumenta o corpo: o extra do Rei fica menor, para não sair do quadro
-  const grow = king ? 1.12 * (p.supreme ? 1.05 : 1.15) : 1.12;
+  const grow = king ? 1.12 * (p.supreme ? 1.05 : 1.06) : 1.12;
   ctx.translate(0, 14);
   ctx.scale(grow, grow);
   ctx.translate(0, -14);

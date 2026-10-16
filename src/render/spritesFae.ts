@@ -365,6 +365,11 @@ export function drawTrickster(ctx: Ctx, p: Pose): void {
   if (illusionist) {
     // Grande Ilusionista: palco com cortinas vermelhas e sanefa dourada atrás
     const sway = Math.sin(p.time * 1.5) * 0.8;
+    // palco um pouco menor (a partir dos pés): cabe no quadro e a fada não fica perdida no meio
+    ctx.save();
+    ctx.translate(0, 14);
+    ctx.scale(0.82, 0.92);
+    ctx.translate(0, -14);
     for (const side of [-1, 1]) {
       shape(ctx, vertical(ctx, -32, 14, '#e0304a', '#6a0a1a'), () => {
         ctx.moveTo(side * 22, -30);
@@ -385,6 +390,7 @@ export function drawTrickster(ctx: Ctx, p: Pose): void {
       for (let x = 23; x > -23; x -= 5.75) ctx.quadraticCurveTo(x - 2.9, -24, x - 5.75, -29);
       ctx.closePath();
     }, 0.8);
+    ctx.restore();
   }
   if (queen) {
     // Rainha dos Ladrões: monte de tesouro aos pés, com baú aberto, e capa de moedas

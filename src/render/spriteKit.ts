@@ -87,7 +87,8 @@ export function poly(ctx: Ctx, points: number[]): void {
 /** Escurece uma cor #rrggbb (0 = igual, 1 = preto); usada para diferenciar formas dentro de uma variante. */
 export function darken(color: string, amount: number): string {
   const n = parseInt(color.slice(1, 7), 16);
-  const f = (shift: number) => Math.round(((n >> shift) & 255) * (1 - amount)).toString(16).padStart(2, '0');
+  // amount negativo clareia: limita a 255 (senão vira um hexadecimal de 3 dígitos e o canvas rejeita a cor)
+  const f = (shift: number) => Math.min(255, Math.round(((n >> shift) & 255) * (1 - amount))).toString(16).padStart(2, '0');
   return `#${f(16)}${f(8)}${f(0)}`;
 }
 
@@ -198,6 +199,26 @@ export function halo(ctx: Ctx, x: number, y: number, r: number, color: string, a
   ctx.globalAlpha = previous * alpha;
   ctx.drawImage(image, x - r, y - r, r * 2, r * 2);
   ctx.globalAlpha = previous;
+}
+
+/**
+ * Raio em zigue-zague (pontas [x0, y0, x1, y1, ...]) com contorno escuro, corpo amarelo e núcleo branco:
+ * aparece sobre fundos e pelagens claras ou escuras. `flash` (0–1) controla a intensidade; com 0 não desenha.
+ */
+export function lightning(ctx: Ctx, points: readonly number[], flash: number, glow = '#9ad8ff'): void {
+  if (flash <= 0) return;
+  const path = () => {
+    ctx.moveTo(points[0]!, points[1]!);
+    for (let i = 2; i < points.length; i += 2) ctx.lineTo(points[i]!, points[i + 1]!);
+  };
+  ctx.save();
+  ctx.globalAlpha *= Math.min(1, flash * 2);
+  ctx.lineJoin = 'round';
+  line(ctx, '#1a2040', 3.6, path, false);
+  line(ctx, '#ffe95a', 2.2, path, false);
+  line(ctx, '#ffffff', 0.9, path, false);
+  ctx.restore();
+  halo(ctx, points[points.length - 2]!, points[points.length - 1]!, 7, glow, flash * 0.8);
 }
 
 /** Brilho, filtro e tinta aplicados de uma vez ao sprite inteiro. */
