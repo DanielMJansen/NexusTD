@@ -22,6 +22,27 @@ export function racesInOrder(profile: Profile): string[] {
   return [...new Set(visibleCreatureIds(profile).map((id) => CREATURES[id].race))];
 }
 
+/**
+ * Detalhes das evoluções e "Ver todas" abrem ao clicar e ficam abertos até clicar de novo, no ✕ ou fora.
+ * Um só ouvinte no documento (o overlay é reaproveitado entre telas).
+ */
+let tipsBound = false;
+function bindTips(): void {
+  if (tipsBound) return;
+  tipsBound = true;
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    const open = document.querySelectorAll<HTMLElement>('.sheet-card .tip-open');
+    const close = target.closest('[data-close-tip]');
+    const toggle = target.closest<HTMLElement>('[data-toggle-tip]');
+    const host = toggle?.closest<HTMLElement>('.evo-row, .sh-forms') ?? null;
+    if (target.closest('.sheet-card .tip, .sheet-card .forms-pop') && !close) return; // clicar dentro do balão não fecha
+    const wasOpen = host?.classList.contains('tip-open') ?? false;
+    for (const el of open) el.classList.remove('tip-open');
+    if (host && !close && !wasOpen) host.classList.add('tip-open');
+  });
+}
+
 /** Rodapé do card: na equipe/coleção ou o botão de desbloquear. */
 function footerHtml(profile: Profile, def: CreatureDef): string {
   if (ownsCreature(profile, def.id)) return `<span class="cc-tag">${profile.team.includes(def.id) ? '✓ Na equipe' : '✓ Na coleção'}</span>`;
@@ -111,7 +132,7 @@ function newSheetBody(profile: Profile, def: CreatureDef): string {
         ${racePassiveHtml(def.race)}
       </div>
       <div class="sh-block sh-forms">
-        <p class="sheet-section">Evoluções <small>nível 3 · desperta ★5</small>${owned ? '<button class="forms-btn" type="button">👁 Ver todas</button>' : ''}</p>
+        <p class="sheet-section">Evoluções <small>nível 3 · desperta ★5</small>${owned ? '<button class="forms-btn" type="button" data-toggle-tip>👁 Ver todas</button>' : ''}</p>
         ${owned ? formsPopHtml(profile, def) : ''}
         ${forms}
       </div>
@@ -146,6 +167,7 @@ export function showCollection(profile: Profile, handlers: CollectionHandlers, j
 
   // troca o rodapé de um card entre o botão de desbloquear e a confirmação, sem redesenhar a tela
   const footer = (id: string) => element.querySelector<HTMLElement>(`[data-card="${id}"] .cc-footer`);
+  bindTips();
   const element = showOverlay(
     `<div class="panel screen">
       <div class="screen-head">

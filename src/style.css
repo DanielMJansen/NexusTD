@@ -1192,8 +1192,7 @@ button:disabled {
   pointer-events: none;
 }
 
-.forms-btn:hover ~ .forms-pop,
-.sheet-section:has(.forms-btn:hover) ~ .forms-pop {
+.sh-forms.tip-open > .forms-pop {
   display: block;
 }
 
@@ -4043,8 +4042,78 @@ body:not([data-mode='run']) .panel.screen {
   text-overflow: ellipsis;
 }
 
+/* detalhes da evolução: abre no clique (botão ⓘ), fecha no ✕, clicando de novo ou fora */
+.sheet-card .evo-row {
+  position: relative;
+}
+
+.sheet-card .evo-info {
+  flex: none;
+  align-self: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--branch-color) 60%, var(--line));
+  border-radius: 50%;
+  background: #1c1430;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--branch-color);
+  cursor: pointer;
+}
+
+.sheet-card .evo-info:hover,
+.sheet-card .evo-row.tip-open .evo-info {
+  background: color-mix(in srgb, var(--branch-color) 30%, #1c1430);
+  color: #ffffff;
+}
+
 .sheet-card .evo-row .tip {
+  display: none;
+  position: absolute;
+  z-index: 40;
+  left: 0;
+  right: 0;
   top: calc(100% + 2px);
+  padding: 8px 26px 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--branch-color) 60%, var(--line));
+  border-radius: 8px;
+  background: #1a1230;
+  box-shadow: 0 8px 20px #000a;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.sheet-card .evo-row.tip-open .tip {
+  display: block;
+}
+
+.sheet-card .tip-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.sheet-card .tip-close:hover {
+  background: #ffffff22;
+  color: #ffffff;
+}
+
+.sheet-card .sh-forms.tip-open .forms-btn {
+  background: color-mix(in srgb, var(--card-color) 30%, #1c1430);
+}
+
+.sheet-card .forms-btn {
+  cursor: pointer;
 }
 
 .sheet-card .evo-row .tip-awake {

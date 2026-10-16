@@ -272,13 +272,14 @@ export function evolutionRowsHtml(def: CreatureDef, portrait: (i: number) => str
       const tip = `<b>${form.name}</b>: ${form.description}<br><span class="sheet-num">${changeText(def, form.ability, form.stats, form.effects)}</span>${
         sup ? `<br><br><b class="tip-awake">✦ Desperta ★5 · ${sup.name}</b>: ${sup.description}<br><span class="sheet-num">${changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects)}</span>` : ''
       }`;
-      return `<div class="evo-row has-tip" style="--branch-color:${form.color}">
+      return `<div class="evo-row" style="--branch-color:${form.color}">
         ${portrait(i)}
         <div class="evo-text">
           <p class="evo-main"><span class="branch-tag">${i === 0 ? 'A' : 'B'}</span> <b>${form.name}</b>: ${form.description}</p>
           ${sup ? `<p class="evo-awake">✦ Desperta ★5 · <b>${sup.name}</b></p>` : '<p class="evo-awake"></p>'}
         </div>
-        <span class="tip">${tip}</span>
+        <button type="button" class="evo-info" data-toggle-tip title="Ver detalhes e números">ⓘ</button>
+        <div class="tip"><button type="button" class="tip-close" data-close-tip title="Fechar">✕</button>${tip}</div>
       </div>`;
     })
     .join('');
