@@ -397,14 +397,22 @@ export function raceBonusText(race: string, bonus: RaceBonus): string {
   }
 }
 
-/** Ataque básico do herói, em texto. */
+/** Ataque básico do herói, em texto (o ritmo e o alcance ficam no "Como luta"). */
 export function attackText(def: HeroDef): string {
   const a = def.attack;
   const area = a.pattern.kind === 'cone' ? 'em leque (todos à frente)' : 'num alvo';
-  const heal =
-    (a.healPerHit > 0 ? ` Cada golpe cura ${formatNumber(a.healPerHit)} do Nexus.` : '') +
-    (a.pierceArmor ? ' Ignora armadura.' : '');
-  return `${a.damage} de dano ${area} a cada ${formatNumber(a.cooldown)} s, alcance ${a.range}.${heal}`;
+  const extra =
+    (a.healPerHit > 0 ? ` <b>Roubo de vida:</b> cada golpe cura ${formatNumber(a.healPerHit)} de vida do herói.` : '') +
+    (a.pierceArmor ? ' Ignora a armadura dos inimigos.' : '');
+  return `${a.damage} de dano ${area}.${extra}`;
+}
+
+/** "Como luta" do herói: ritmo e distância, a partir dos atributos. */
+export function heroFightText(def: HeroDef): string {
+  const a = def.attack;
+  const perSecond = formatNumber(Math.round((1 / a.cooldown) * 10) / 10);
+  const where = a.range < 70 ? 'de perto' : a.range < 100 ? 'a média distância' : 'de longe';
+  return `<b>Como luta:</b> ${perSecond} golpes por segundo, ${where} (alcance ${a.range}).`;
 }
 
 /** Pulso do herói, em texto (com o nome em negrito). */
@@ -451,7 +459,7 @@ export function pulseText(def: HeroDef, live?: PulseLive): string {
       what = `explosão de ${d} de dano num raio de ${p.radius}.`;
       break;
     case 'charge':
-      what = `avança ${e.length} com o escudo na direção da mira: ${d} de dano em quem está no caminho, que é arremessado ${e.knockback} para longe do Nexus (chefes resistem ao arremesso).`;
+      what = `avança ${e.length} com o escudo na direção da mira, causando ${d} de dano em quem está no caminho. <b>Arremesso:</b> joga o inimigo ${e.knockback} para longe do Nexus (chefes resistem).`;
       break;
     case 'glide':
       what = `desliza translúcido ${e.length} na direção da mira em ${formatNumber(e.duration)} s: ${d} de dano em quem atravessa.`;
@@ -460,39 +468,39 @@ export function pulseText(def: HeroDef, live?: PulseLive): string {
       what = `leque à frente (alcance ${e.length}): ${d} de dano.`;
       break;
     case 'swarm':
-      what = `morcegos caçam os ${e.count} inimigos mais próximos (até ${e.range}): ${d} de dano e sangramento ${formatNumber(e.bleed.dps)}/s por ${formatNumber(e.bleed.duration)} s.`;
+      what = `morcegos caçam os ${e.count} inimigos mais próximos (até ${e.range}), causando ${d} de dano. <b>Sangramento:</b> o inimigo perde ${formatNumber(e.bleed.dps)} de vida por segundo por ${formatNumber(e.bleed.duration)} s.`;
       break;
     case 'flame':
-      what = `jato de fogo por ${formatNumber(e.duration)} s que segue a mira (alcance ${e.length}): ${d} de dano por segundo e queimadura ${formatNumber(e.burn.dps)}/s.`;
+      what = `jato de fogo por ${formatNumber(e.duration)} s que segue a mira (alcance ${e.length}), causando ${d} de dano por segundo. <b>Queimadura:</b> quem é atingido continua perdendo ${formatNumber(e.burn.dps)} de vida por segundo por ${formatNumber(e.burn.duration)} s.`;
       break;
     case 'transform':
-      what = `vira um lobisomem gigante por ${formatNumber(e.duration)} s: ataca ${pctOf(e.attackSpeed)} mais rápido, com +${pctOf(e.damage)} de dano, em leque, e cada golpe cura ${pctOf(e.lifesteal)} do dano. Ao transformar, uiva (${d} de dano num raio de ${p.radius}).`;
+      what = `<b>Fúria:</b> vira um lobisomem gigante por ${formatNumber(e.duration)} s, que ataca ${pctOf(e.attackSpeed)} mais rápido, com +${pctOf(e.damage)} de dano, em leque, e cada golpe cura ${pctOf(e.lifesteal)} do dano. Ao transformar, uiva (${d} de dano num raio de ${p.radius}).`;
       break;
     case 'hex':
-      what = `inimigos comuns num raio de ${p.radius} viram sapos por ${formatNumber(e.duration)} s: andam devagar, levam +${pctOf(e.vulnerable)} de dano e não ferem o herói nem o Nexus. Chefes só levam ${d} de dano.`;
+      what = `<b>Sapo:</b> inimigos comuns num raio de ${p.radius} viram sapos por ${formatNumber(e.duration)} s, que andam devagar, levam +${pctOf(e.vulnerable)} de dano e não ferem o herói nem o Nexus. Chefes só levam ${d} de dano.`;
       break;
     case 'haste':
       what = `todas as criaturas atacam ${pctOf(e.amount)} mais rápido por ${formatNumber(e.duration)} s; ${d} de dano num raio de ${p.radius}.`;
       break;
     case 'fissure':
-      what = `soca o chão e abre uma fenda de ${e.length} na direção da mira: ${d} de dano; a fenda fica ${formatNumber(e.duration)} s deixando quem passa ${pctOf(e.slow)} mais lento.`;
+      what = `soca o chão e abre uma fenda de ${e.length} na direção da mira: ${d} de dano; a fenda fica ${formatNumber(e.duration)} s no chão. <b>Lentidão:</b> quem passa por ela anda ${pctOf(e.slow)} mais devagar.`;
       break;
     case 'raise':
       what = `ergue até ${e.count} esqueletos aliados onde inimigos morreram nos últimos segundos (sem corpos, ${e.fallback} ao redor do herói) por ${formatNumber(e.duration)} s.`;
       break;
     case 'meteors':
-      what = `${e.count} meteoros caem em sequência ao redor da mira: ${d} de dano cada (raio ${e.radius}) e chão em chamas.`;
+      what = `${e.count} meteoros caem em sequência ao redor da mira, com ${d} de dano cada (raio ${e.radius}). <b>Queimadura:</b> o chão fica em chamas, e quem pisa perde ${formatNumber(e.burn.dps)} de vida por segundo por ${formatNumber(e.burn.duration)} s.`;
       break;
     case 'rainbow':
-      what = `feixe de arco-íris de ${e.length} na direção da mira: ${d} de dano, e inimigos comuns atingidos lutam do seu lado por ${formatNumber(e.charm)} s (chefes resistem).`;
+      what = `feixe de arco-íris de ${e.length} na direção da mira, causando ${d} de dano. <b>Encanto:</b> inimigos comuns atingidos lutam do seu lado por ${formatNumber(e.charm)} s (chefes resistem).`;
       break;
     case 'judgment':
-      what = `após ${formatNumber(e.delay)} s, uma coluna de luz desce na mira: ${d} de dano (raio ${e.radius}) e marca quem atinge (+${pctOf(e.mark.amount)} de dano recebido por ${formatNumber(e.mark.duration)} s).`;
+      what = `após ${formatNumber(e.delay)} s, uma coluna de luz desce na mira, causando ${d} de dano (raio ${e.radius}). <b>Marca:</b> quem é atingido recebe +${pctOf(e.mark.amount)} de dano por ${formatNumber(e.mark.duration)} s.`;
       break;
   }
   const extras = [
-    p.stun ? `${p.stun.look === 'stone' ? 'Petrifica' : 'Atordoa'} por ${formatNumber(p.stun.duration)} s (chefes resistem).` : '',
-    p.fear ? `Inimigos atingidos fogem do Nexus por ${formatNumber(p.fear)} s.` : '',
+    p.stun ? `<b>${p.stun.look === 'stone' ? 'Petrificar' : 'Atordoar'}:</b> os atingidos ficam parados por ${formatNumber(p.stun.duration)} s (chefes resistem).` : '',
+    p.fear ? `<b>Medo:</b> os atingidos fogem do Nexus por ${formatNumber(p.fear)} s.` : '',
     p.healPerEnemy > 0 ? `Cura ${p.healPerEnemy} de vida do herói por inimigo atingido.` : '',
     p.selfDamage ? `Custa ${pctOf(p.selfDamage)} da vida do herói.` : '',
     p.damage > 0 && !live ? 'O dano cresce +10% por nível do herói.' : '',

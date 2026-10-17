@@ -1731,10 +1731,11 @@ button.vp-option:hover {
   background: #0c0716aa;
 }
 
+/* nome numa linha; "raça · papel" logo abaixo (o papel pode ser longo) */
 .hero-title {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .hero-title h3 {
@@ -1760,6 +1761,24 @@ button.vp-option:hover {
   color: var(--muted);
   font-style: italic;
   line-height: 1.4;
+}
+
+/* "Como luta" do herói: ritmo e distância */
+.hero-fight {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.hero-fight b,
+.hero-kit p b {
+  color: var(--card-color);
+}
+
+.hero-title .inline-badge {
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  vertical-align: -3px;
 }
 
 .hero-kit {
@@ -1820,6 +1839,29 @@ button.vp-option:hover {
 .skin.selected {
   border-color: var(--card-color);
   box-shadow: 0 0 10px color-mix(in srgb, var(--card-color) 45%, transparent);
+}
+
+/* como se libera (ou "em uso"), embaixo do nome */
+.skin small {
+  font: italic 400 11px var(--font-body, inherit);
+  color: var(--muted);
+  text-transform: none;
+  line-height: 1.15;
+}
+
+.skin.selected small {
+  color: var(--card-color);
+  font-style: normal;
+}
+
+/* bloqueada: sem ação, mas recebe o mouse (prévia no herói grande) */
+.skin.locked {
+  opacity: 0.6;
+  cursor: help;
+}
+
+.skin.locked:hover {
+  opacity: 0.9;
 }
 
 /* conquistas */

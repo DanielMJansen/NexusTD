@@ -4,7 +4,7 @@ import { ACHIEVEMENTS } from '../data/achievements';
 import { skinsOf } from '../data/skins';
 import { heroSkin, isSkinUnlocked, ownsHero, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
-import { attackText, pulseText, raceBonusText } from './describe';
+import { attackText, heroFightText, pulseText, raceBonusText } from './describe';
 import { showOverlay } from './overlay';
 
 export interface HeroHandlers {
@@ -14,17 +14,22 @@ export interface HeroHandlers {
   onBack(): void;
 }
 
-/** Skins do herói: liberadas por conquistas; clicar escolhe. */
+/**
+ * Skins do herói: liberadas por conquistas; clicar escolhe. Embaixo do nome, como se libera.
+ * Passar o mouse mostra a skin no herói grande da ficha (inclusive as bloqueadas).
+ * Bloqueadas não usam `disabled` (botão desabilitado não recebe o mouse): ficam sem ação e com a classe `locked`.
+ */
 function skinRow(profile: Profile, hero: HeroId, owned: boolean): string {
   const current = heroSkin(profile, hero).id;
   return skinsOf(hero)
     .map((skin) => {
       const unlocked = isSkinUnlocked(profile, skin);
-      const label = unlocked ? skin.name : `🔒 ${ACHIEVEMENTS[skin.unlockedBy!].name}`;
-      const title = unlocked ? skin.name : `Conquista: ${ACHIEVEMENTS[skin.unlockedBy!].description}`;
-      return `<button class="skin${skin.id === current ? ' selected' : ''}" data-action="skin" data-value="${skin.id}" title="${title}"${unlocked && owned ? '' : ' disabled'}>
+      const how = skin.unlockedBy ? `Conquista: ${ACHIEVEMENTS[skin.unlockedBy].name}` : 'Padrão';
+      const title = skin.unlockedBy ? `${ACHIEVEMENTS[skin.unlockedBy].name}: ${ACHIEVEMENTS[skin.unlockedBy].description}` : skin.name;
+      const usable = unlocked && owned;
+      return `<button class="skin${skin.id === current ? ' selected' : ''}${unlocked ? '' : ' locked'}" ${usable ? 'data-action="skin" ' : ''}data-preview="${skin.id}" data-value="${skin.id}" title="${title}"${usable || !unlocked ? '' : ' disabled'}>
         <canvas data-sprite="${hero}" data-skin="${skin.id}"${unlocked ? '' : ' data-silhouette'}></canvas>
-        <span>${label}</span></button>`;
+        <span>${unlocked ? '' : '🔒 '}${skin.name}</span><small>${unlocked ? (skin.id === current ? '✓ Em uso' : how) : how}</small></button>`;
     })
     .join('');
 }
@@ -70,13 +75,14 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
   const owned = ownsHero(profile, shown);
   const showcase = `<section class="hero-showcase${owned ? '' : ' locked'}${options.justUnlocked === shown ? ' just-unlocked' : ''}" data-card="${shown}" style="--card-color:${def.color}">
       <div class="hero-stage">
-        <canvas data-sprite="${shown}" data-skin="${heroSkin(profile, shown).id}"${owned ? '' : ' data-silhouette'}></canvas>
+        <canvas class="hero-big" data-sprite="${shown}" data-skin="${heroSkin(profile, shown).id}"${owned ? '' : ' data-silhouette'}></canvas>
         <div class="hero-stats"><span title="Vida máxima">♥ ${def.maxHp} de vida</span><span title="Velocidade de movimento">➹ ${def.speed} de velocidade</span></div>
       </div>
       <div class="hero-info">
-        <div class="hero-title"><h3>${def.name}</h3><span>${def.race}</span></div>
+        <div class="hero-title"><h3>${def.name}</h3><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${def.race} · ${def.role}</span></div>
         <p class="hero-tagline">${def.description}</p>
         <p class="hero-lore">${def.lore}</p>
+        <p class="hero-fight">${heroFightText(def)}</p>
         <div class="hero-kit">
           <div><b>Ataque</b><p>${attackText(def)}</p></div>
           <div><b>Pulso</b><p>${pulseText(def)}</p></div>
@@ -120,4 +126,19 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
     },
     { keepScroll: options.keepScroll },
   );
+  // prévia da skin no herói grande ao passar o mouse; ao sair, volta à skin em uso
+  const big = element.querySelector<HTMLCanvasElement>('.hero-big');
+  const inUse = heroSkin(profile, shown).id;
+  for (const button of element.querySelectorAll<HTMLElement>('[data-preview]')) {
+    button.addEventListener('mouseenter', () => {
+      if (!big) return;
+      big.dataset.skin = button.dataset.preview!;
+      delete big.dataset.silhouette;
+    });
+    button.addEventListener('mouseleave', () => {
+      if (!big) return;
+      big.dataset.skin = inUse;
+      if (!owned) big.dataset.silhouette = '';
+    });
+  }
 }
