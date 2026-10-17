@@ -14,6 +14,7 @@ import type { Creature, RunState } from '../game/state';
 import type { Interaction } from '../input/interaction';
 import { gold } from './currency';
 import { abilityText, formatNumber } from './describe';
+import { paintRaceBadge } from '../render/raceIcons';
 
 export interface CreaturePopupHandlers {
   /** Evoluir a criatura inspecionada; `branch` na escolha da vertente. */
@@ -58,6 +59,8 @@ export class CreaturePopup {
   /** Câmera da arena (posição do popup na tela). */
   camera: { x: number; y: number; zoom?: number } = { x: 0, y: 0 };
   private root = document.querySelector<HTMLElement>('#creature-popup')!;
+  /** Último HTML montado (comparar com `innerHTML` falharia: pintar o brasão muda os atributos do canvas). */
+  private lastHtml = '';
 
   constructor(
     private readonly interaction: Interaction,
@@ -88,7 +91,12 @@ export class CreaturePopup {
       return;
     }
     const html = this.content(run, creature);
-    if (this.root.innerHTML !== html) this.root.innerHTML = html;
+    if (this.lastHtml !== html) {
+      this.lastHtml = html;
+      this.root.innerHTML = html;
+      // brasão da raça no subtítulo (o popup não passa pelo overlay, que pinta os brasões das telas)
+      for (const badge of this.root.querySelectorAll<HTMLCanvasElement>('canvas[data-race]')) paintRaceBadge(badge, badge.dataset.race!);
+    }
     this.root.classList.toggle('wide', needsBranchChoice(creature));
     this.root.style.setProperty('--card-color', ascendedForm(creature)?.color ?? creature.def.color);
     this.root.hidden = false;
@@ -113,13 +121,13 @@ export class CreaturePopup {
     if (blocked) {
       evolve = `<p class="cp-final">★${creature.level + 1} é a Forma Suprema: só para criaturas despertadas no Santuário (com Forma Suprema), até ${SUPREME_PER_RUN} por run.</p>`;
     } else if (cost === null) {
-      evolve = `<p class="cp-final">Forma final${form ? ` · <span class="branch-tag" style="--branch-color:${form.color}">${form.icon} ${creature.branch === 1 ? 'B' : 'A'}</span>` : ''}</p>`;
+      evolve = `<p class="cp-final">Forma final${form ? ` · <span class="branch-tag" style="--branch-color:${form.color}">${creature.branch === 1 ? 'B' : 'A'}</span> ${form.name}` : ''}</p>`;
     } else if (needsBranchChoice(creature)) {
       const cards = creature.def.ascended
         .map((f, i) => {
           const next = statsOf(run, { ...creature, level: creature.level + 1, branch: i });
           return `<div class="cp-branch" data-branch-card="${i}" style="--branch-color:${f.color}">
-            <div class="cp-branch-head"><span class="branch-tag">${f.icon} ${i === 0 ? 'A' : 'B'}</span><b>${f.name}</b></div>
+            <div class="cp-branch-head"><span class="branch-tag">${i === 0 ? 'A' : 'B'}</span><b>${f.name}</b></div>
             <p class="cp-branch-desc">${f.description}</p>
             <p class="cp-ability">${abilityText(f.ability, f.effects ?? creature.def.effects)}</p>
             ${deltaRows(now, next)}
@@ -140,7 +148,7 @@ export class CreaturePopup {
 
     const armed = this.interaction.sellArmed;
     return `<div class="cp-head"><b>${creatureName(creature)}</b><span class="stars">${stars}</span></div>
-      <div class="cp-sub">${creature.def.race} · investido ${gold(creature.paid)}</div>
+      <div class="cp-sub"><canvas class="inline-badge" data-race="${creature.def.race}"></canvas>${creature.def.race} · investido ${gold(creature.paid)}</div>
       <dl class="cp-stats">
         <dt>Dano</dt><dd>${round1(now.damage)}</dd>
         <dt>Ataques/s</dt><dd>${round2(now.speed)}${creature.auraBonus > 0 ? ' <small>(aura)</small>' : ''}</dd>

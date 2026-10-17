@@ -77,6 +77,8 @@ export function drawSprite(ctx: Ctx, id: SpriteId, x: number, y: number, scale: 
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   const p: Required<SpritePose> = { facing: 1, attack: 0, moving: false, level: 1, branch: 0, palette: {}, supreme: false, variant: null, ...pose };
+  // skins muito escuras: brilho suave atrás, na cor de destaque da skin, para a silhueta não sumir no fundo
+  if (p.palette.backlight) halo(ctx, 0, -8, 24, p.palette.backlight, 0.45);
   switch (id) {
     case 'knight':
       drawHero(ctx, p);

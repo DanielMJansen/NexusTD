@@ -23,6 +23,7 @@ import {
   vertical,
   walk,
   type Ctx,
+  type FlameColors,
   type Pose,
 } from './spriteKit';
 
@@ -1246,7 +1247,23 @@ export function drawSpecter(ctx: Ctx, p: Pose): void {
   const robe = skin(p, 'robe', '#1e4a50');
   const robeDark = skin(p, 'robeDark', '#0a1e22');
   const glow = skin(p, 'glow', '#8ce8d8');
+  const look = skin(p, 'look', '');
   ctx.translate(0, float);
+  if (look === 'reaper') {
+    // Ceifador: foice nas costas (cabo em diagonal, lâmina curva no alto)
+    // (lâmina ao lado do capuz, à esquerda: acima dele sairia do quadro)
+    line(ctx, '#5a4a38', 1.8, () => {
+      ctx.moveTo(-12, 13);
+      ctx.lineTo(-8, -24);
+    });
+    shape(ctx, vertical(ctx, -28, -12, '#f0f0f8', '#8a8a9a'), () => {
+      ctx.moveTo(-8, -24);
+      ctx.quadraticCurveTo(-21, -25, -24, -12);
+      ctx.quadraticCurveTo(-18, -20, -8, -20);
+      ctx.closePath();
+    }, 0.9);
+    halo(ctx, -17, -20, 7, glow, 0.4);
+  }
   const g = ctx.createLinearGradient(0, -12, 0, 14);
   g.addColorStop(0, robe);
   g.addColorStop(0.7, robeDark);
@@ -1289,7 +1306,24 @@ export function drawSpecter(ctx: Ctx, p: Pose): void {
   shape(ctx, '#05080a', () => ellipse(ctx, 2, -14, 5, 5.5), 0);
   glowingEye(ctx, 0.5, -14.5, 1.3, glow);
   glowingEye(ctx, 4, -14.5, 1.3, glow);
+  if (look === 'reaper') {
+    // barra do manto rasgada em tiras
+    for (const [x, len] of [[-5, 5], [-1, 7], [3, 4.5]] as const)
+      shape(ctx, robeDark, () => poly(ctx, [x - 1.6, 10, x + 1.6, 10, x + Math.sin(p.time * 5 + x) * 1.2, 10 + len]), 0.6);
+  }
+  if (look === 'wisp') {
+    // Fogo-Fátuo: três chamas-fantasma orbitando o herói
+    for (let i = 0; i < 3; i++) {
+      const a = p.time * 1.6 + (i * TAU) / 3;
+      const wx = Math.cos(a) * 15;
+      const wy = -8 + Math.sin(a) * 6;
+      flame(ctx, wx, wy, 2.6, 6, 0, p.time + i, WISP_FLAME);
+    }
+  }
 }
+
+/** Chama-fantasma laranja do Fogo-Fátuo (skin do Espectro). */
+const WISP_FLAME: FlameColors = { outer: ['#ffd27a', '#ff7a1a'], inner: ['#ffffff', '#ffe8b0'], glow: '#ffb040' };
 
 // ---------- bruxas ----------
 
