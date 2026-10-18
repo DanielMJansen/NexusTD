@@ -32,7 +32,7 @@ function loadoutTabs(profile: Profile): string {
   return `<div class="loadout-tabs">${tabs}${buy}</div>`;
 }
 
-/** Equipe: as criaturas (até 6) que ficam disponíveis na run, na ordem dos atalhos. */
+/** Equipe: as criaturas (até 8) que ficam disponíveis na run, na ordem dos atalhos. */
 export function showTeam(profile: Profile, handlers: TeamHandlers): void {
   const slots = Array.from({ length: TEAM_SIZE }, (_, i) => {
     const id = profile.team[i];

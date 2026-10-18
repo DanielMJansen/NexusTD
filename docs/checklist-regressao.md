@@ -34,7 +34,7 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] HUD: onda, ouro, vida do Nexus, criaturas/limite. Renda +1 ouro a cada 2 s (talentos aceleram).
 - [ ] Herói anda com WASD/setas e clique/segurar; anel sob os pés na cor do herói (sem brilho ciano).
 - [ ] Painel mostra só a equipe; tooltip com descrição, atributos, habilidade, forma evoluída e bônus do herói (em dourado) quando a raça bate.
-- [ ] Arrastar a carta ou tecla 1–6 + clique posiciona; prévia vermelha onde não pode; botão direito/Esc cancelam.
+- [ ] Arrastar a carta ou tecla 1–8 + clique posiciona; prévia vermelha onde não pode; botão direito/Esc cancelam.
 - [ ] Evoluir a 2ª/3ª cópia de uma criatura custa mais que a 1ª (proporcional ao custo de invocação dela).
 - [ ] Clique no Nexus, tecla N ou botão "Melhorar o Nexus": quadro com 5 melhorias, bolinhas de nível, botão verde com ouro e "Máx." no fim; a ajuda de controles some enquanto o quadro está aberto. Campo de Lentidão aparece no chão; Raio dispara faíscas douradas; Escudo mostra um losango dourado quando pronto e uma bolha quando ativo.
 - [ ] Moedas (giram) e baús (balançam) caem no chão, piscam antes de sumir e são coletados pelo herói; baú pausa e oferece 3 melhorias Raras ou melhores; loot que sobra fica no chão para a próxima onda.
