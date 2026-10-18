@@ -14,12 +14,12 @@ Rodar após mudanças grandes (`npm run dev`), no navegador do computador, com m
 - [ ] Talentos: 6 colunas em cadeia (cor e ícone por ramo); a linha entre os nós mostra "Nv N" até cumprir o requisito e depois acende com ✓; nós bloqueados ficam cinza; comprar desconta Essência, mostra "Atual / Próximo" e persiste.
 - [ ] Nexus+: Raio Desperto / Campo Gélido / Escudo Ancestral fazem a run começar com a habilidade no nível 1; Engenharia Arcana baixa os preços no quadro do Nexus.
 - [ ] Coleção: ficha de cada criatura (descrição, lore, atributos, habilidade, forma evoluída com retrato); bloqueadas em silhueta com preço; comprar adiciona à equipe se houver vaga.
-- [ ] Equipe: 6 vagas; clicar adiciona/remove; "Jogar" desabilita com equipe vazia; ordem da equipe = atalhos 1–6.
+- [ ] Equipe: 8 vagas; clicar adiciona/remove; "Jogar" desabilita com equipe vazia; ordem da equipe = atalhos 1–8.
 - [ ] Heróis: todos com 3 skins (heróis novos: vencer com ele e chegar à onda 30 do Sem Fim com ele); comprar e escolher; descrição de ataque, Pulso e bônus de raça; skins liberadas por conquista são selecionáveis e aparecem na run.
 - [ ] Conquistas: lista com progresso (abates, runs, vitórias, coleção) e a skin que cada uma libera.
 
 ## Tutorial e run salva
-- [ ] Primeira run: tutorial de 7 passos; leitura pausa; ações avançam; "Pular" funciona; "Rever tutorial" nas Configurações reativa.
+- [ ] Primeira run: tutorial de 9 passos (o botão "Próximo" fica livre, acima da barra do herói); leitura pausa; ações avançam; "Pular" funciona; "Rever tutorial" nas Configurações reativa.
 - [ ] Pausa → "Salvar e sair" → menu mostra "Continuar run (onda, herói)"; continuar volta pausado com tudo igual.
 - [ ] Recarregar a página no meio da onda e continuar: volta onde estava. Onda vencida salva sozinha. "Nova run" pede confirmação.
 - [ ] "Abandonar run" pede confirmação e apaga a run salva (sem Essência).
