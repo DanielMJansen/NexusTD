@@ -215,6 +215,7 @@ export class App {
     saveSettings(this.settings);
     this.sound.applySettings(this.settings);
     this.muteButton.textContent = this.settings.muted ? '🔇' : '🔊';
+    this.muteButton.title = this.settings.muted ? 'Ativar som' : 'Silenciar';
     this.speedButton.textContent = this.frozen ? '0x' : `${this.settings.gameSpeed}x`;
     this.speedButton.classList.toggle('frozen', this.frozen);
     this.freezeBadge.hidden = !this.frozen || this.mode !== 'run';

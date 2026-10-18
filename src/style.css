@@ -2148,7 +2148,7 @@ button.danger {
 .tutorial-box {
   position: absolute;
   left: 14px;
-  bottom: 14px;
+  bottom: 92px; /* acima da barra do herói (#hud-bottom), que ocupa o canto inferior esquerdo */
   z-index: 5;
   width: min(340px, 45%);
   padding: 10px 14px 12px;

@@ -41,7 +41,7 @@ export function showRunEnd(
       ${result.relicsFound?.length ? `<p class="run-fragments">Baús de Relíquia: ${result.relicsFound.map((id) => `${RELICS[id].icon} <b>${RELICS[id].name}</b>`).join(' · ')}</p>` : ''}
       ${result.crystals ? `<p class="run-fragments">Cristais Ancestrais: ${crystals(`+${result.crystals}`)}</p>` : ''}
       ${Object.keys(result.fragments).length ? `<p class="run-fragments">Fragmentos: ${Object.entries(result.fragments).map(([race, n]) => fragments(`+${n}`, race)).join(' · ')}</p>` : ''}
-      ${stageUnlocked ? `<p class="stage-unlocked">🔓 <b>Fase ${stageUnlocked.number} · ${stageUnlocked.name}</b> liberada! Escolha em <b>Fase</b>, no menu.</p>` : ''}
+      ${stageUnlocked ? `<p class="stage-unlocked">🔓 <b>Fase ${stageUnlocked.number} · ${stageUnlocked.name}</b> liberada! Escolha-a no cartão da fase, no menu.</p>` : ''}
       ${unlocked ? `<ul class="achievement-list">${unlocked}</ul>` : ''}
       ${onEndless ? '<p class="hint">No <b>Sem Fim</b>, as ondas continuam cada vez mais fortes, com um chefe a cada 5 ondas. A Essência das próximas ondas vem quando o Nexus cair.</p>' : ''}
       <div class="button-row">
