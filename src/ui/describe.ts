@@ -8,55 +8,73 @@ import { ENEMIES, type EnemyTrait } from '../data/enemies';
 import type { HeroDef, RaceBonus } from '../data/heroes';
 import type { HeroStat } from '../data/heroUpgrades';
 import type { TalentEffectKind } from '../data/talents';
-import { t } from '../i18n/i18n';
+import { getLang, t } from '../i18n/i18n';
 
-export const formatNumber = (n: number): string => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+// Todas as frases passam por t() com o português como chave e marcadores nomeados ({d}, {s}...),
+// para cada idioma montar a frase na própria ordem. Os números saem no formato do idioma (vírgula ou ponto).
+const LOCALES = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' } as const;
+export const formatNumber = (n: number): string => n.toLocaleString(LOCALES[getLang()], { maximumFractionDigits: 2 });
 
 const pctOf = (v: number) => `${Math.round(v * 100)}%`;
+const f = formatNumber;
+
+/** "a criatura mais próxima" ou "até N criaturas". */
+const whichCreatures = (n: number) => (n === 1 ? t('a criatura mais próxima') : t('até {n} criaturas', { n }));
 
 /** Texto de um efeito de golpe. */
 export function hitEffectText(e: HitEffect): string {
   switch (e.kind) {
     case 'poison':
-      return `Dano contínuo: ${formatNumber(e.dps)}/s por ${formatNumber(e.duration)} s (ignora armadura).`;
+      return t('Dano contínuo: {dps}/s por {s} s (ignora armadura).', { dps: f(e.dps), s: f(e.duration) });
     case 'stun': {
-      const [term, what] = e.look === 'root' ? ['Raízes', 'prender o alvo no lugar'] : e.look === 'stone' ? ['Petrificar', 'transformar o alvo em pedra'] : ['Atordoar', 'parar o alvo'];
-      return `${term}: ${pctOf(e.chance)} de chance de ${what} por ${formatNumber(e.duration)} s (chefes resistem).`;
+      const vars = { c: pctOf(e.chance), s: f(e.duration) };
+      if (e.look === 'root') return t('Raízes: {c} de chance de prender o alvo no lugar por {s} s (chefes resistem).', vars);
+      if (e.look === 'stone') return t('Petrificar: {c} de chance de transformar o alvo em pedra por {s} s (chefes resistem).', vars);
+      return t('Atordoar: {c} de chance de parar o alvo por {s} s (chefes resistem).', vars);
     }
     case 'fear':
       return e.look === 'confuse'
-        ? `Confusão: ${pctOf(e.chance)} de chance de o inimigo andar para trás por ${formatNumber(e.duration)} s (chefes resistem).`
-        : `Medo: ${pctOf(e.chance)} de chance de o inimigo fugir do Nexus por ${formatNumber(e.duration)} s (chefes resistem).`;
+        ? t('Confusão: {c} de chance de o inimigo andar para trás por {s} s (chefes resistem).', { c: pctOf(e.chance), s: f(e.duration) })
+        : t('Medo: {c} de chance de o inimigo fugir do Nexus por {s} s (chefes resistem).', { c: pctOf(e.chance), s: f(e.duration) });
     case 'mark':
-      return `Marca: o alvo recebe +${pctOf(e.amount)} de dano por ${formatNumber(e.duration)} s${e.explode ? `; se morrer marcado, explode (raio ${e.explode.radius}, ${pctOf(e.explode.ratio)} da vida dele)` : ''}.`;
+      return e.explode
+        ? t('Marca: o alvo recebe +{a} de dano por {s} s; se morrer marcado, explode (raio {r}, {ratio} da vida dele).', {
+            a: pctOf(e.amount),
+            s: f(e.duration),
+            r: e.explode.radius,
+            ratio: pctOf(e.explode.ratio),
+          })
+        : t('Marca: o alvo recebe +{a} de dano por {s} s.', { a: pctOf(e.amount), s: f(e.duration) });
     case 'vulnerable':
-      return `Vulnerável: o alvo recebe +${pctOf(e.amount)} de dano por ${formatNumber(e.duration)} s.`;
+      return t('Vulnerável: o alvo recebe +{a} de dano por {s} s.', { a: pctOf(e.amount), s: f(e.duration) });
     case 'corrode':
-      return `Corrosão: tira ${e.armor} de armadura do alvo por ${formatNumber(e.duration)} s.`;
+      return t('Corrosão: tira {a} de armadura do alvo por {s} s.', { a: e.armor, s: f(e.duration) });
     case 'weaken':
-      return `Enfraquecer: por ${formatNumber(e.duration)} s, o alvo fica ${pctOf(e.slow)} mais lento e causa −${pctOf(e.damage)} de dano ao Nexus.`;
+      return t('Enfraquecer: por {s} s, o alvo fica {slow} mais lento e causa −{d} de dano ao Nexus.', { s: f(e.duration), slow: pctOf(e.slow), d: pctOf(e.damage) });
     case 'pull':
-      return `Puxão: puxa o alvo ${e.distance} na direção da criatura (chefes resistem).`;
+      return t('Puxão: puxa o alvo {n} na direção da criatura (chefes resistem).', { n: e.distance });
     case 'possess':
-      return `Possessão: por ${formatNumber(e.duration)} s, o alvo luta contra os outros inimigos${e.explode ? ` e explode no fim (raio ${e.explode.radius})` : ''} (chefes resistem).`;
+      return e.explode
+        ? t('Possessão: por {s} s, o alvo luta contra os outros inimigos e explode no fim (raio {r}) (chefes resistem).', { s: f(e.duration), r: e.explode.radius })
+        : t('Possessão: por {s} s, o alvo luta contra os outros inimigos (chefes resistem).', { s: f(e.duration) });
     case 'execute':
-      return `Execução: inimigos comuns abaixo de ${pctOf(e.below)} de vida morrem na hora.`;
+      return t('Execução: inimigos comuns abaixo de {p} de vida morrem na hora.', { p: pctOf(e.below) });
     case 'vsStrong':
-      return `Caçadora: +${pctOf(e.bonus)} de dano contra elites e chefes.`;
+      return t('Caçadora: +{p} de dano contra elites e chefes.', { p: pctOf(e.bonus) });
     case 'killHaste':
-      return `Embalo: cada abate dá +${pctOf(e.perKill)} de velocidade de ataque até o fim da onda (máx. +${pctOf(e.max)}).`;
+      return t('Embalo: cada abate dá +{p} de velocidade de ataque até o fim da onda (máx. +{max}).', { p: pctOf(e.perKill), max: pctOf(e.max) });
     case 'killDamage':
-      return `Fúria: cada abate dá +${pctOf(e.perKill)} de dano até o fim da onda (máx. +${pctOf(e.max)}).`;
+      return t('Fúria: cada abate dá +{p} de dano até o fim da onda (máx. +{max}).', { p: pctOf(e.perKill), max: pctOf(e.max) });
     case 'steal':
-      return `Roubo: ${pctOf(e.chance)} de chance de roubar ${e.gold} de ouro a cada golpe.`;
+      return t('Roubo: {c} de chance de roubar {g} de ouro a cada golpe.', { c: pctOf(e.chance), g: e.gold });
     case 'goldOnKill':
       return e.when === 'executed'
-        ? `Recompensa: cada execução rende +${e.gold} de ouro.`
+        ? t('Recompensa: cada execução rende +{g} de ouro.', { g: e.gold })
         : e.when === 'feared'
-          ? `Recompensa: inimigos confusos ou assustados que morrem rendem +${e.gold} de ouro.`
-          : `Recompensa: cada abate rende +${e.gold} de ouro.`;
+          ? t('Recompensa: inimigos confusos ou assustados que morrem rendem +{g} de ouro.', { g: e.gold })
+          : t('Recompensa: cada abate rende +{g} de ouro.', { g: e.gold });
     case 'raiseOnKill':
-      return `Erguer mortos: ${pctOf(e.chance)} de chance de erguer um esqueleto aliado por ${formatNumber(e.duration)} s ao abater.`;
+      return t('Erguer mortos: {c} de chance de erguer um esqueleto aliado por {s} s ao abater.', { c: pctOf(e.chance), s: f(e.duration) });
   }
 }
 
@@ -71,66 +89,75 @@ export function abilityText(a: CreatureAbility, effects: readonly HitEffect[] = 
 function baseAbilityText(a: CreatureAbility): string {
   switch (a.kind) {
     case 'frenzy':
-      return `Frenesi: a cada ${a.hitsToTrigger} golpes, fica ${formatNumber(a.duration)} s atacando ${formatNumber(a.attackSpeedMultiplier)}× mais rápido e com +${Math.round((a.damageMultiplier - 1) * 100)}% de dano.`;
+      return t('Frenesi: a cada {n} golpes, fica {s} s atacando {x}× mais rápido e com +{d}% de dano.', {
+        n: a.hitsToTrigger,
+        s: f(a.duration),
+        x: f(a.attackSpeedMultiplier),
+        d: Math.round((a.damageMultiplier - 1) * 100),
+      });
     case 'splash':
-      return `Área: atinge inimigos num raio de ${a.radius} ao redor do alvo com ${Math.round(a.damageRatio * 100)}% do dano.`;
+      return t('Área: atinge inimigos num raio de {r} ao redor do alvo com {p}% do dano.', { r: a.radius, p: Math.round(a.damageRatio * 100) });
     case 'slow':
-      return `Lentidão: o alvo fica ${Math.round((1 - a.speedMultiplier) * 100)}% mais lento por ${formatNumber(a.duration)} s.`;
+      return t('Lentidão: o alvo fica {p}% mais lento por {s} s.', { p: Math.round((1 - a.speedMultiplier) * 100), s: f(a.duration) });
     case 'multishot':
-      return `Multi-tiro: ataca ${a.targets} inimigos de uma vez.`;
+      return t('Multi-tiro: ataca {n} inimigos de uma vez.', { n: a.targets });
     case 'block':
-      return `Bloqueio: segura até ${a.capacity} inimigos num raio de ${a.radius} (chefes não param).`;
+      return t('Bloqueio: segura até {n} inimigos num raio de {r} (chefes não param).', { n: a.capacity, r: a.radius });
     case 'lifesteal':
-      return `Sustento: cada abate desta criatura cura ${a.healPerKill} de vida do herói.`;
+      return t('Sustento: cada abate desta criatura cura {n} de vida do herói.', { n: a.healPerKill });
     case 'chain':
-      return `Em cadeia: o golpe salta para até ${a.jumps} inimigos próximos (${Math.round(a.falloff * 100)}% do dano a cada salto).`;
+      return t('Em cadeia: o golpe salta para até {n} inimigos próximos ({p}% do dano a cada salto).', { n: a.jumps, p: Math.round(a.falloff * 100) });
     case 'aura':
-      return `Aura: criaturas num raio de ${a.radius} atacam ${Math.round(a.attackSpeed * 100)}% mais rápido.`;
+      return t('Aura: criaturas num raio de {r} atacam {p}% mais rápido.', { r: a.radius, p: Math.round(a.attackSpeed * 100) });
     case 'pierceArmor':
       return a.bonusVsArmored > 0
-        ? `Ignora armadura e causa +${Math.round(a.bonusVsArmored * 100)}% de dano em inimigos com armadura.`
-        : 'Ignora toda a armadura do alvo.';
+        ? t('Ignora armadura e causa +{p}% de dano em inimigos com armadura.', { p: Math.round(a.bonusVsArmored * 100) })
+        : t('Ignora toda a armadura do alvo.');
     case 'screech': {
-      const again = a.immunity ? ` O mesmo inimigo só sofre o efeito de novo após ${formatNumber(a.immunity)} s.` : '';
-      if (a.dive) return `Rasante: atinge todos numa faixa à frente e os empurra ${a.push} para longe do Nexus (chefes resistem).${again}`;
+      const again = a.immunity ? ` ${t('O mesmo inimigo só sofre o efeito de novo após {s} s.', { s: f(a.immunity) })}` : '';
+      if (a.dive) return t('Rasante: atinge todos numa faixa à frente e os empurra {n} para longe do Nexus (chefes resistem).', { n: a.push }) + again;
       return a.fear
-        ? `Grito em leque: atinge todos à frente e os faz fugir do Nexus por ${formatNumber(a.fear)} s (chefes resistem).${again}`
+        ? t('Grito em leque: atinge todos à frente e os faz fugir do Nexus por {s} s (chefes resistem).', { s: f(a.fear) }) + again
         : a.push > 0
-          ? `Grito em leque: atinge todos à frente e os empurra ${a.push} para longe do Nexus (chefes resistem).${again}`
-          : 'Golpe em leque: atinge todos à frente.';
+          ? t('Grito em leque: atinge todos à frente e os empurra {n} para longe do Nexus (chefes resistem).', { n: a.push }) + again
+          : t('Golpe em leque: atinge todos à frente.');
     }
     case 'poison':
-      return `Veneno: ${formatNumber(a.dps)} de dano por segundo durante ${formatNumber(a.duration)} s (ignora armadura).`;
+      return t('Veneno: {dps} de dano por segundo durante {s} s (ignora armadura).', { dps: f(a.dps), s: f(a.duration) });
     case 'pool':
-      if (a.bounty) return `Poça dourada: ${formatNumber(a.dps)} de dano por segundo num raio de ${a.radius} durante ${formatNumber(a.duration)} s; cada inimigo que morre nela rende +${a.bounty} de ouro.`;
-      return `Poça: ${formatNumber(a.dps)} de dano por segundo num raio de ${a.radius} durante ${formatNumber(a.duration)} s.`;
+      if (a.bounty)
+        return t('Poça dourada: {dps} de dano por segundo num raio de {r} durante {s} s; cada inimigo que morre nela rende +{g} de ouro.', {
+          dps: f(a.dps),
+          r: a.radius,
+          s: f(a.duration),
+          g: a.bounty,
+        });
+      return t('Poça: {dps} de dano por segundo num raio de {r} durante {s} s.', { dps: f(a.dps), r: a.radius, s: f(a.duration) });
     case 'crit':
-      return `Crítico: +${Math.round(a.chance * 100)}% de chance de golpe crítico, que causa ×${formatNumber(a.multiplier)} de dano.`;
+      return t('Crítico: +{c}% de chance de golpe crítico, que causa ×{x} de dano.', { c: Math.round(a.chance * 100), x: f(a.multiplier) });
     case 'stun':
-      return `Atordoar: ${Math.round(a.chance * 100)}% de chance de parar o alvo por ${formatNumber(a.duration)} s (chefes resistem).`;
+      return t('Atordoar: {c}% de chance de parar o alvo por {s} s (chefes resistem).', { c: Math.round(a.chance * 100), s: f(a.duration) });
     case 'fear':
-      return `Pavor: ${Math.round(a.chance * 100)}% de chance de fazer o alvo fugir do Nexus por ${formatNumber(a.duration)} s (chefes resistem).`;
+      return t('Pavor: {c}% de chance de fazer o alvo fugir do Nexus por {s} s (chefes resistem).', { c: Math.round(a.chance * 100), s: f(a.duration) });
     case 'bounty':
-      return `Alquimia: cada abate desta criatura rende +${a.gold} de ouro.`;
+      return t('Alquimia: cada abate desta criatura rende +{g} de ouro.', { g: a.gold });
     case 'bless': {
       const parts: string[] = [];
-      if (a.damage) parts.push(`+${pctOf(a.damage)} de dano`);
-      if (a.range) parts.push(`+${pctOf(a.range)} de alcance`);
-      if (a.attackSpeed) parts.push(`+${pctOf(a.attackSpeed)} de velocidade de ataque`);
-      if (a.critDamage) parts.push(`+${formatNumber(a.critDamage)}× de dano crítico`);
-      if (a.protect) parts.push('imunidade a teia e atordoamento');
-      const allies = parts.length ? `Bênção: criaturas num raio de ${a.radius} ganham ${parts.join(', ')}.` : '';
-      const hurt = a.dps ? ` Inimigos dentro da aura sofrem ${formatNumber(a.dps)} de dano por segundo.` : '';
+      if (a.damage) parts.push(t('+{p} de dano', { p: pctOf(a.damage) }));
+      if (a.range) parts.push(t('+{p} de alcance', { p: pctOf(a.range) }));
+      if (a.attackSpeed) parts.push(t('+{p} de velocidade de ataque', { p: pctOf(a.attackSpeed) }));
+      if (a.critDamage) parts.push(t('+{x}× de dano crítico', { x: f(a.critDamage) }));
+      if (a.protect) parts.push(t('imunidade a teia e atordoamento'));
+      const allies = parts.length ? t('Bênção: criaturas num raio de {r} ganham {what}.', { r: a.radius, what: parts.join(', ') }) : '';
+      const hurt = a.dps ? ` ${t('Inimigos dentro da aura sofrem {dps} de dano por segundo.', { dps: f(a.dps) })}` : '';
       return (allies + hurt).trim();
     }
     case 'nova':
-      return `Golpe em área: atinge todos num raio de ${a.radius} ao redor dela.`;
+      return t('Golpe em área: atinge todos num raio de {r} ao redor dela.', { r: a.radius });
     case 'pierce':
-      return a.beams > 1
-        ? `Raio em leque: ${a.beams} raios que atravessam todos os inimigos no caminho.`
-        : 'Raio que atravessa todos os inimigos em linha.';
+      return a.beams > 1 ? t('Raio em leque: {n} raios que atravessam todos os inimigos no caminho.', { n: a.beams }) : t('Raio que atravessa todos os inimigos em linha.');
     case 'none':
-      return 'Alvo único, alcance alto.';
+      return t('Alvo único, alcance alto.');
   }
 }
 
@@ -138,9 +165,13 @@ function baseAbilityText(a: CreatureAbility): string {
 function formStatsText(form: AscendedForm): string {
   const parts: string[] = [];
   const s = form.stats;
-  if (s?.damage) parts.push(`${s.damage > 1 ? '+' : '−'}${Math.round(Math.abs(s.damage - 1) * 100)}% de dano`);
-  if (s?.range) parts.push(`${s.range > 1 ? '+' : '−'}${Math.round(Math.abs(s.range - 1) * 100)}% de alcance`);
-  if (s?.cooldown) parts.push(s.cooldown > 1 ? `ataca ${Math.round((s.cooldown - 1) * 100)}% mais devagar` : `ataca ${Math.round((1 - s.cooldown) * 100)}% mais rápido`);
+  const signed = (m: number) => `${m > 1 ? '+' : '−'}${Math.round(Math.abs(m - 1) * 100)}%`;
+  if (s?.damage) parts.push(t('{p} de dano', { p: signed(s.damage) }));
+  if (s?.range) parts.push(t('{p} de alcance', { p: signed(s.range) }));
+  if (s?.cooldown)
+    parts.push(
+      s.cooldown > 1 ? t('ataca {p}% mais devagar', { p: Math.round((s.cooldown - 1) * 100) }) : t('ataca {p}% mais rápido', { p: Math.round((1 - s.cooldown) * 100) }),
+    );
   return parts.length ? ` (${parts.join(', ')})` : '';
 }
 
@@ -149,71 +180,98 @@ function formStatsText(form: AscendedForm): string {
 export function ascendedFormsHtml(def: CreatureDef, className = 'cc-ability evolved', portraits = false): string {
   return def.ascended
     .map(
-      (form, i) => `<p class="${className}">${portraits ? `<canvas class="branch-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}" style="--branch-color:${form.color}"></canvas>` : ''}<span class="branch-tag" style="--branch-color:${form.color}">${i === 0 ? 'A' : 'B'}</span> Nível 3 — <b>${form.name}</b>: ${abilityText(form.ability, form.effects ?? def.effects)}${formStatsText(form)}${form.supreme ? `<br><small class="supreme-line">✦ Forma Suprema (despertada, ★5): <b>${form.supreme.name}</b> — ${form.supreme.description}</small>` : ''}</p>`,
+      (form, i) =>
+        `<p class="${className}">${portraits ? `<canvas class="branch-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}" style="--branch-color:${form.color}"></canvas>` : ''}<span class="branch-tag" style="--branch-color:${form.color}">${i === 0 ? 'A' : 'B'}</span> ${t('Nível 3')} — <b>${form.name}</b>: ${abilityText(form.ability, form.effects ?? def.effects)}${formStatsText(form)}${
+          form.supreme ? `<br><small class="supreme-line">✦ ${t('Forma Suprema (despertada, ★5):')} <b>${form.supreme.name}</b> — ${form.supreme.description}</small>` : ''
+        }</p>`,
     )
     .join('');
 }
 
 /** Texto de uma habilidade de inimigo (códex). */
-export function enemyTraitText(t: EnemyTrait): string {
-  switch (t.kind) {
+export function enemyTraitText(tr: EnemyTrait): string {
+  switch (tr.kind) {
     case 'ranged':
-      return `Tiro: com o herói a até ${t.range}, avança devagar e atira (${formatNumber(t.damage)} de dano a cada ${formatNumber(t.cooldown)} s).`;
+      return t('Tiro: com o herói a até {r}, avança devagar e atira ({d} de dano a cada {s} s).', { r: tr.range, d: f(tr.damage), s: f(tr.cooldown) });
     case 'split':
-      return `Divisão: ao morrer, vira ${t.count} ${ENEMIES[t.into].name}s.`;
+      return t('Divisão: ao morrer, vira {n} × {name}.', { n: tr.count, name: ENEMIES[tr.into].name });
     case 'stone':
-      return `Pedra: voa ${formatNumber(t.fly)} s e pousa ${formatNumber(t.rest)} s com +${t.armor} de armadura.`;
-    case 'web':
-      if (t.look === 'curse') return `Praga: a cada ${formatNumber(t.cooldown)} s, amaldiçoa ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}): atacam ${Math.round(t.slow * 100)}% mais devagar por ${formatNumber(t.duration)} s.`;
-      return `Teia: a cada ${formatNumber(t.cooldown)} s, prende ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}): atacam ${Math.round(t.slow * 100)}% mais devagar por ${formatNumber(t.duration)} s.`;
+      return t('Pedra: voa {fly} s e pousa {rest} s com +{a} de armadura.', { fly: f(tr.fly), rest: f(tr.rest), a: tr.armor });
+    case 'web': {
+      const vars = { s: f(tr.cooldown), who: whichCreatures(tr.targets), r: tr.range, p: Math.round(tr.slow * 100), d: f(tr.duration) };
+      if (tr.look === 'curse') return t('Praga: a cada {s} s, amaldiçoa {who} (alcance {r}): atacam {p}% mais devagar por {d} s.', vars);
+      return t('Teia: a cada {s} s, prende {who} (alcance {r}): atacam {p}% mais devagar por {d} s.', vars);
+    }
     case 'summon':
-      return `Invocação: a cada ${formatNumber(t.cooldown)} s, ergue ${t.count} ${ENEMIES[t.enemy].name}s.`;
+      return t('Invocação: a cada {s} s, ergue {n} × {name}.', { s: f(tr.cooldown), n: tr.count, name: ENEMIES[tr.enemy].name });
     case 'charge':
-      return `Investida: a cada ${formatNumber(t.cooldown)} s, corre ${formatNumber(t.speedMultiplier)}× mais rápido por ${formatNumber(t.duration)} s.`;
+      return t('Investida: a cada {s} s, corre {x}× mais rápido por {d} s.', { s: f(tr.cooldown), x: f(tr.speedMultiplier), d: f(tr.duration) });
     case 'heal':
-      return `Lamento: a cada ${formatNumber(t.cooldown)} s, cura ${Math.round(t.amount * 100)}% da vida dos inimigos num raio de ${t.radius} (chefes não).`;
+      return t('Lamento: a cada {s} s, cura {p}% da vida dos inimigos num raio de {r} (chefes não).', { s: f(tr.cooldown), p: Math.round(tr.amount * 100), r: tr.radius });
     case 'stomp':
-      return `Pisão: a cada ${formatNumber(t.cooldown)} s, atordoa as criaturas num raio de ${t.radius} por ${formatNumber(t.stun)} s.`;
+      return t('Pisão: a cada {s} s, atordoa as criaturas num raio de {r} por {d} s.', { s: f(tr.cooldown), r: tr.radius, d: f(tr.stun) });
     case 'shield':
-      return `Escudo: a cada ${formatNumber(t.cooldown)} s, reduz o dano recebido em ${Math.round(t.reduction * 100)}% por ${formatNumber(t.duration)} s.`;
+      return t('Escudo: a cada {s} s, reduz o dano recebido em {p}% por {d} s.', { s: f(tr.cooldown), p: Math.round(tr.reduction * 100), d: f(tr.duration) });
     case 'enrage':
-      return `Fúria: abaixo de ${Math.round(t.below * 100)}% da vida, fica ${Math.round((t.speedMultiplier - 1) * 100)}% mais rápido e usa habilidades mais vezes.`;
+      return t('Fúria: abaixo de {b}% da vida, fica {p}% mais rápido e usa habilidades mais vezes.', { b: Math.round(tr.below * 100), p: Math.round((tr.speedMultiplier - 1) * 100) });
     case 'leap':
-      return `Salto: a cada ${formatNumber(t.cooldown)} s, pula ${t.distance} para a frente, por cima de bloqueios.`;
+      return t('Salto: a cada {s} s, pula {n} para a frente, por cima de bloqueios.', { s: f(tr.cooldown), n: tr.distance });
     case 'drain':
-      return `Suga: cada golpe no Nexus cura ${Math.round(t.amount * 100)}% da vida; encostada no herói, cura ${Math.round(t.amount * 100)}% por segundo.`;
+      return t('Suga: cada golpe no Nexus cura {p}% da vida; encostada no herói, cura {p}% por segundo.', { p: Math.round(tr.amount * 100) });
     case 'submerge':
-      return 'Submerso: dentro da lama fica intocável (não é alvo nem leva dano).';
+      return t('Submerso: dentro da lama fica intocável (não é alvo nem leva dano).');
     case 'lure':
-      return 'Isca: as criaturas que o alcançam atiram nele primeiro.';
+      return t('Isca: as criaturas que o alcançam atiram nele primeiro.');
     case 'swallow':
-      return `Engolir: a cada ${formatNumber(t.cooldown)} s, engole a criatura mais próxima (alcance ${t.range}), que fica fora de combate por ${formatNumber(t.duration)} s ou até ele levar ${Math.round(t.breakDamage * 100)}% da vida em dano.`;
+      return t('Engolir: a cada {s} s, engole a criatura mais próxima (alcance {r}), que fica fora de combate por {d} s ou até ele levar {p}% da vida em dano.', {
+        s: f(tr.cooldown),
+        r: tr.range,
+        d: f(tr.duration),
+        p: Math.round(tr.breakDamage * 100),
+      });
     case 'burrow':
-      if (t.radius && t.stun) return `Bote: a cada ${formatNumber(t.cooldown)} s, some sob a areia por ${formatNumber(t.hide)} s e emerge perto do Obelisco, atordoando as criaturas num raio de ${t.radius} por ${formatNumber(t.stun)} s.`;
-      return `Mergulho: a cada ${formatNumber(t.cooldown)} s, some na lama por ${formatNumber(t.hide)} s e reaparece perto do Nexus em investida.`;
-    case 'freeze':
-      if (t.look === 'sting') return `Ferrão: a cada ${formatNumber(t.cooldown)} s, atordoa ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}) por ${formatNumber(t.duration)} s.`;
-      return t.range > 50
-        ? `Bola de neve: a cada ${formatNumber(t.cooldown)} s, congela ${t.targets === 1 ? 'a criatura mais próxima' : `até ${t.targets} criaturas`} (alcance ${t.range}) por ${formatNumber(t.duration)} s.`
-        : `Toque gélido: a cada ${formatNumber(t.cooldown)} s, congela a criatura que tocar por ${formatNumber(t.duration)} s.`;
+      if (tr.radius && tr.stun)
+        return t('Bote: a cada {s} s, some sob a areia por {h} s e emerge perto do Obelisco, atordoando as criaturas num raio de {r} por {d} s.', {
+          s: f(tr.cooldown),
+          h: f(tr.hide),
+          r: tr.radius,
+          d: f(tr.stun),
+        });
+      return t('Mergulho: a cada {s} s, some na lama por {h} s e reaparece perto do Nexus em investida.', { s: f(tr.cooldown), h: f(tr.hide) });
+    case 'freeze': {
+      const vars = { s: f(tr.cooldown), who: whichCreatures(tr.targets), r: tr.range, d: f(tr.duration) };
+      if (tr.look === 'sting') return t('Ferrão: a cada {s} s, atordoa {who} (alcance {r}) por {d} s.', vars);
+      return tr.range > 50 ? t('Bola de neve: a cada {s} s, congela {who} (alcance {r}) por {d} s.', vars) : t('Toque gélido: a cada {s} s, congela a criatura que tocar por {d} s.', vars);
+    }
     case 'regen':
-      return `Regeneração: recupera ${Math.round(t.perSecond * 100)}% da vida por segundo, a não ser que leve dano de fogo.`;
+      return t('Regeneração: recupera {p}% da vida por segundo, a não ser que leve dano de fogo.', { p: Math.round(tr.perSecond * 100) });
     case 'dive':
-      return `Mergulho: nada sob o gelo (intocável) e emerge rachando o gelo e congelando as criaturas num raio de ${t.radius} por ${formatNumber(t.freeze)} s.`;
+      return t('Mergulho: nada sob o gelo (intocável) e emerge rachando o gelo e congelando as criaturas num raio de {r} por {d} s.', { r: tr.radius, d: f(tr.freeze) });
     case 'heads':
-      return `Cabeças: nasce com ${t.start}; cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro após ${formatNumber(t.regrow)} s (até ${t.max}), a não ser que a Hidra morra antes.`;
+      return t('Cabeças: nasce com {n}; cada cabeça é uma barra de vida. Cabeças cortadas renascem em dobro após {s} s (até {max}), a não ser que a Hidra morra antes.', {
+        n: tr.start,
+        s: f(tr.regrow),
+        max: tr.max,
+      });
     case 'revive':
-      return `Imortal: ao cair, levanta uma vez com ${Math.round(t.hp * 100)}% da vida após ${formatNumber(t.delay)} s${t.fireStops ? ', a não ser que tenha levado dano de fogo há pouco' : ''}.`;
+      return tr.fireStops
+        ? t('Imortal: ao cair, levanta uma vez com {p}% da vida após {s} s, a não ser que tenha levado dano de fogo há pouco.', { p: Math.round(tr.hp * 100), s: f(tr.delay) })
+        : t('Imortal: ao cair, levanta uma vez com {p}% da vida após {s} s.', { p: Math.round(tr.hp * 100), s: f(tr.delay) });
     case 'steal':
-      return `Saque: cada golpe num Nexus rouba ${t.gold} de ouro; matá-lo devolve tudo.`;
+      return t('Saque: cada golpe num Nexus rouba {g} de ouro; matá-lo devolve tudo.', { g: tr.gold });
     case 'aegis':
-      return `Égide: a cada ${formatNumber(t.cooldown)} s, cobre os inimigos num raio de ${t.radius} com um escudo que reduz o dano em ${Math.round(t.reduction * 100)}% por ${formatNumber(t.duration)} s.`;
+      return t('Égide: a cada {s} s, cobre os inimigos num raio de {r} com um escudo que reduz o dano em {p}% por {d} s.', {
+        s: f(tr.cooldown),
+        r: tr.radius,
+        p: Math.round(tr.reduction * 100),
+        d: f(tr.duration),
+      });
     case 'evade':
-      return `Esquiva: ${Math.round(t.chance * 100)}% dos golpes diretos passam sem causar dano (veneno e poças pegam sempre).`;
+      return t('Esquiva: {p}% dos golpes diretos passam sem causar dano (veneno e poças pegam sempre).', { p: Math.round(tr.chance * 100) });
     case 'riftcall':
-      return `Fenda: a cada ${formatNumber(t.cooldown)} s, abre ${t.count} portais que soltam ${ENEMIES[t.enemy].name}s.`;
+      return t('Fenda: a cada {s} s, abre {n} portais que soltam {name}.', { s: f(tr.cooldown), n: tr.count, name: ENEMIES[tr.enemy].name });
     case 'blink':
-      return `Teleporte: a cada ${formatNumber(t.cooldown)} s, salta ${t.distance} em direção ao Nexus mais ferido.`;
+      return t('Teleporte: a cada {s} s, salta {n} em direção ao Nexus mais ferido.', { s: f(tr.cooldown), n: tr.distance });
   }
 }
 
@@ -227,15 +285,17 @@ export function creatureClassLine(def: CreatureDef): string {
 /** Texto de habilidade com o termo próprio em negrito ("<b>Frenesi:</b> ..."). */
 function termHtml(text: string): string {
   // cada "Termo:" no começo de uma frase vira negrito
-  return text.replace(/(^|[.;] )([A-ZÁÉÍÓÚÂÊÔÃÕÇ][^:.;]{1,26}):/g, '$1<b>$2:</b>');
+  return text.replace(/(^|[.;] )([A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][^:.;]{1,26}):/g, '$1<b>$2:</b>');
 }
+
+/** Distância de combate pelo alcance (criatura e herói). */
+const whereText = (range: number, melee: boolean, mid: number) => (melee || range < 70 ? t('de perto') : range < mid ? t('a média distância') : t('de longe'));
 
 /** "Como luta": ritmo e distância, a partir dos atributos. */
 export function fightText(def: CreatureDef): string {
-  const perSecond = formatNumber(Math.round((1 / def.cooldown) * 10) / 10);
-  const where = def.classe === 'melee' || def.range < 70 ? 'de perto' : def.range < 110 ? 'a média distância' : 'de longe';
-  const rhythm = def.cooldown < 1 ? `${perSecond} ataques por segundo` : `1 ataque a cada ${formatNumber(def.cooldown)} s`;
-  return `<b>Como luta:</b> ${rhythm}, ${where} (alcance ${def.range}).`;
+  const perSecond = f(Math.round((1 / def.cooldown) * 10) / 10);
+  const rhythm = def.cooldown < 1 ? t('{n} ataques por segundo', { n: perSecond }) : t('1 ataque a cada {s} s', { s: f(def.cooldown) });
+  return `<b>${t('Como luta:')}</b> ${t('{rhythm}, {where} (alcance {r}).', { rhythm, where: whereText(def.range, def.classe === 'melee', 110), r: def.range })}`;
 }
 
 /** A mecânica própria da criatura (o termo definido uma vez), ou vazio se ela não tem. */
@@ -249,11 +309,11 @@ function changeText(def: CreatureDef, ability: CreatureAbility, stats: AscendedF
   const base = def.ability;
   let mech: string;
   if (ability.kind === 'frenzy' && base.kind === 'frenzy') {
-    mech = `Frenesi a cada ${ability.hitsToTrigger} golpes, ${formatNumber(ability.duration)} s, +${Math.round((ability.damageMultiplier - 1) * 100)}% de dano`;
+    mech = t('Frenesi a cada {n} golpes, {s} s, +{d}% de dano', { n: ability.hitsToTrigger, s: f(ability.duration), d: Math.round((ability.damageMultiplier - 1) * 100) });
   } else if (ability.kind === 'multishot') {
-    mech = `${ability.targets} alvos por disparo`;
+    mech = t('{n} alvos por disparo', { n: ability.targets });
   } else if (ability.kind === 'crit') {
-    mech = `<b>Crítico:</b> ${pctOf(ability.chance)} de chance de ×${formatNumber(ability.multiplier)} de dano`;
+    mech = `<b>${t('Crítico:')}</b> ${t('{c} de chance de ×{x} de dano', { c: pctOf(ability.chance), x: f(ability.multiplier) })}`;
   } else {
     mech = termHtml(abilityText(ability, effects ?? def.effects)).replace(/\.$/, '');
   }
@@ -274,16 +334,16 @@ export function evolutionRowsHtml(def: CreatureDef, portrait: (i: number) => str
       const block = (level: string, name: string, text: string, numbers: string, awake = false) =>
         `<div class="tip-block${awake ? ' awake' : ''}"><p class="tip-head"><small>${level}</small><b>${name}</b></p><p>${text}</p><p class="tip-nums">${numbers}</p></div>`;
       const tip =
-        block(`${i === 0 ? 'A' : 'B'} · nível 3`, form.name, form.description, changeText(def, form.ability, form.stats, form.effects)) +
-        (sup ? block('✦ Desperta ★5', sup.name, sup.description, changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects), true) : '');
+        block(`${i === 0 ? 'A' : 'B'} · ${t('nível 3')}`, form.name, form.description, changeText(def, form.ability, form.stats, form.effects)) +
+        (sup ? block(`✦ ${t('Desperta ★5')}`, sup.name, sup.description, changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects), true) : '');
       return `<div class="evo-row" style="--branch-color:${form.color}">
         ${portrait(i)}
         <div class="evo-text">
           <p class="evo-main"><span class="branch-tag">${i === 0 ? 'A' : 'B'}</span> <b>${form.name}</b>: ${form.description}</p>
-          ${sup ? `<p class="evo-awake">✦ Desperta ★5 · <b>${sup.name}</b></p>` : '<p class="evo-awake"></p>'}
+          ${sup ? `<p class="evo-awake">✦ ${t('Desperta ★5')} · <b>${sup.name}</b></p>` : '<p class="evo-awake"></p>'}
         </div>
-        <button type="button" class="evo-info" data-toggle-tip title="Ver detalhes e números">i</button>
-        <div class="tip"><button type="button" class="tip-close" data-close-tip title="Fechar">✕</button>${tip}</div>
+        <button type="button" class="evo-info" data-toggle-tip title="${t('Ver detalhes e números')}">i</button>
+        <div class="tip"><button type="button" class="tip-close" data-close-tip title="${t('Fechar')}">✕</button>${tip}</div>
       </div>`;
     })
     .join('');
@@ -296,7 +356,7 @@ export function formsChangeHtml(def: CreatureDef): string {
     .map((form, i) => {
       const sup = form.supreme;
       const supLine = sup
-        ? line('sheet-supreme', `✦ Desperta ★5 · <b>${sup.name}</b>`, sup.description, changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects))
+        ? line('sheet-supreme', `✦ ${t('Desperta ★5')} · <b>${sup.name}</b>`, sup.description, changeText(def, sup.ability ?? form.ability, sup.stats ?? form.stats, sup.effects ?? form.effects))
         : '';
       return `<div class="sheet-form" style="--branch-color:${form.color}">
         ${line('', `<span class="branch-tag">${i === 0 ? 'A' : 'B'}</span> <b>${form.name}</b>`, form.description, changeText(def, form.ability, form.stats, form.effects))}
@@ -308,10 +368,10 @@ export function formsChangeHtml(def: CreatureDef): string {
 
 export function creatureStats(def: CreatureDef): [string, string][] {
   return [
-    ['Dano', formatNumber(def.damage)],
-    ['Alcance', formatNumber(def.range)],
-    ['Recarga', `${formatNumber(def.cooldown)} s`],
-    ['Custo', `${def.baseCost} ouro`],
+    [t('Dano'), f(def.damage)],
+    [t('Alcance'), f(def.range)],
+    [t('Recarga'), `${f(def.cooldown)} s`],
+    [t('Custo'), t('{n} ouro', { n: def.baseCost })],
   ];
 }
 
@@ -319,101 +379,102 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 
 /** Efeito total de um talento num nível, em texto (ex.: "+30 vida do Nexus"). */
 export function talentEffectText(kind: TalentEffectKind, value: number): string {
+  const v = value;
   switch (kind) {
     case 'nexusMaxHp':
-      return `+${value} de vida do Nexus`;
+      return t('+{v} de vida do Nexus', { v });
     case 'nexusHeal':
-      return `+${value} de cura entre ondas`;
+      return t('+{v} de cura entre ondas', { v });
     case 'nexusRegen':
-      return `${formatNumber(value)} de vida por segundo`;
+      return t('{v} de vida por segundo', { v: f(v) });
     case 'nexusWard':
-      return value > 0 ? 'Anula o 1º golpe de cada onda' : 'Inativa';
+      return v > 0 ? t('Anula o 1º golpe de cada onda') : t('Inativa');
     case 'nexusUpgradeDiscount':
-      return `−${pct(value)} no custo das melhorias do Nexus`;
+      return t('−{p} no custo das melhorias do Nexus', { p: pct(v) });
     case 'startNexusBolt':
-      return value > 0 ? 'Raio do Nexus nível 1 desde o início' : 'Inativo';
+      return v > 0 ? t('Raio do Nexus nível 1 desde o início') : t('Inativo');
     case 'startNexusField':
-      return value > 0 ? 'Campo de Lentidão nível 1 desde o início' : 'Inativo';
+      return v > 0 ? t('Campo de Lentidão nível 1 desde o início') : t('Inativo');
     case 'startNexusShield':
-      return value > 0 ? 'Escudo do Nexus nível 1 desde o início' : 'Inativo';
+      return v > 0 ? t('Escudo do Nexus nível 1 desde o início') : t('Inativo');
     case 'heroMaxHp':
-      return `+${value} de vida do herói`;
+      return t('+{v} de vida do herói', { v });
     case 'startGold':
-      return `+${value} de ouro inicial`;
+      return t('+{v} de ouro inicial', { v });
     case 'incomeInterval':
-      return `+1 ouro a cada ${formatNumber(ECONOMY.passiveIncome.interval - value)} s`;
+      return t('+1 ouro a cada {s} s', { s: f(ECONOMY.passiveIncome.interval - v) });
     case 'evolveDiscount':
-      return `−${pct(value)} no custo de evoluir`;
+      return t('−{p} no custo de evoluir', { p: pct(v) });
     case 'killGold':
-      return `+${pct(value)} de ouro por abate`;
+      return t('+{p} de ouro por abate', { p: pct(v) });
     case 'damage':
-      return `+${pct(value)} de dano`;
+      return t('+{p} de dano', { p: pct(v) });
     case 'attackSpeed':
-      return `+${pct(value)} de velocidade de ataque`;
+      return t('+{p} de velocidade de ataque', { p: pct(v) });
     case 'range':
-      return `+${pct(value)} de alcance`;
+      return t('+{p} de alcance', { p: pct(v) });
     case 'creatureSlots':
-      return `+${value} vaga de criatura`;
+      return t('+{v} vaga de criatura', { v });
     case 'heroDamage':
-      return `+${pct(value)} de dano do herói`;
+      return t('+{p} de dano do herói', { p: pct(v) });
     case 'pulseCooldown':
-      return `−${pct(value)} na recarga do Pulso`;
+      return t('−{p} na recarga do Pulso', { p: pct(v) });
     case 'heroSpeed':
-      return `+${pct(value)} de velocidade do herói`;
+      return t('+{p} de velocidade do herói', { p: pct(v) });
     case 'pulseRadius':
-      return `+${pct(value)} de raio do Pulso`;
+      return t('+{p} de raio do Pulso', { p: pct(v) });
     case 'essenceGain':
-      return `+${pct(value)} de Essência por run`;
+      return t('+{p} de Essência por run', { p: pct(v) });
     case 'victoryEssence':
-      return `+${value} de Essência ao vencer`;
+      return t('+{v} de Essência ao vencer', { v });
     case 'essencePerWave':
-      return `+${value} de Essência por onda`;
+      return t('+{v} de Essência por onda', { v });
     case 'heroRespawn':
-      return `Herói renasce ${pct(value)} mais rápido`;
+      return t('Herói renasce {p} mais rápido', { p: pct(v) });
     case 'heroXp':
-      return `+${pct(value)} de XP do herói`;
+      return t('+{p} de XP do herói', { p: pct(v) });
   }
 }
 
 /** Bônus do herói para as criaturas da raça dele, em texto. */
 export function raceBonusText(race: string, bonus: RaceBonus): string {
-  const plural = `Criaturas da raça ${race}`;
+  const who = t('Criaturas da raça {race}', { race: t(race) });
+  const p = Math.round(bonus.value * 100);
   switch (bonus.kind) {
     case 'range':
-      return `${plural}: +${Math.round(bonus.value * 100)}% de alcance.`;
+      return `${who}: ${t('+{p}% de alcance.', { p })}`;
     case 'damage':
-      return `${plural}: +${Math.round(bonus.value * 100)}% de dano.`;
+      return `${who}: ${t('+{p}% de dano.', { p })}`;
     case 'killHeal':
-      return `${plural}: cada abate cura ${bonus.value} de vida do herói.`;
+      return `${who}: ${t('cada abate cura {n} de vida do herói.', { n: bonus.value })}`;
     case 'attackSpeed':
-      return `${plural}: +${Math.round(bonus.value * 100)}% de velocidade de ataque.`;
+      return `${who}: ${t('+{p}% de velocidade de ataque.', { p })}`;
     case 'armorPierce':
-      return `${plural}: ignoram ${bonus.value} de armadura.`;
+      return `${who}: ${t('ignoram {n} de armadura.', { n: bonus.value })}`;
     case 'poisonDuration':
-      return `${plural}: venenos, poças e efeitos de golpe duram +${bonus.value} s.`;
+      return `${who}: ${t('venenos, poças e efeitos de golpe duram +{n} s.', { n: bonus.value })}`;
     case 'critChance':
-      return `${plural}: +${Math.round(bonus.value * 100)}% de chance de crítico.`;
+      return `${who}: ${t('+{p}% de chance de crítico.', { p })}`;
     case 'vsStrong':
-      return `${plural}: +${Math.round(bonus.value * 100)}% de dano contra elites e chefes.`;
+      return `${who}: ${t('+{p}% de dano contra elites e chefes.', { p })}`;
   }
 }
 
 /** Ataque básico do herói, em texto (o ritmo e o alcance ficam no "Como luta"). */
 export function attackText(def: HeroDef): string {
   const a = def.attack;
-  const area = a.pattern.kind === 'cone' ? 'em leque (todos à frente)' : 'num alvo';
+  const main = a.pattern.kind === 'cone' ? t('{d} de dano em leque (todos à frente).', { d: a.damage }) : t('{d} de dano num alvo.', { d: a.damage });
   const extra =
-    (a.healPerHit > 0 ? ` <b>Roubo de vida:</b> cada golpe cura ${formatNumber(a.healPerHit)} de vida do herói.` : '') +
-    (a.pierceArmor ? ' Ignora a armadura dos inimigos.' : '');
-  return `${a.damage} de dano ${area}.${extra}`;
+    (a.healPerHit > 0 ? ` <b>${t('Roubo de vida:')}</b> ${t('cada golpe cura {n} de vida do herói.', { n: f(a.healPerHit) })}` : '') +
+    (a.pierceArmor ? ` ${t('Ignora a armadura dos inimigos.')}` : '');
+  return main + extra;
 }
 
 /** "Como luta" do herói: ritmo e distância, a partir dos atributos. */
 export function heroFightText(def: HeroDef): string {
   const a = def.attack;
-  const perSecond = formatNumber(Math.round((1 / a.cooldown) * 10) / 10);
-  const where = a.range < 70 ? 'de perto' : a.range < 100 ? 'a média distância' : 'de longe';
-  return `<b>Como luta:</b> ${perSecond} golpes por segundo, ${where} (alcance ${a.range}).`;
+  const perSecond = f(Math.round((1 / a.cooldown) * 10) / 10);
+  return `<b>${t('Como luta:')}</b> ${t('{n} golpes por segundo, {where} (alcance {r}).', { n: perSecond, where: whereText(a.range, false, 100), r: a.range })}`;
 }
 
 /** Pulso do herói, em texto (com o nome em negrito). */
@@ -452,97 +513,110 @@ export function pulseText(def: HeroDef, live?: PulseLive): string {
                   ? { ...raw, radius: Math.round(raw.radius * size) }
                   : raw
   ) as typeof raw;
-  const d = formatNumber(p.damage);
-  const pctOf = (v: number) => `${Math.round(v * 100)}%`;
+  const d = f(p.damage);
+  const term = (name: string) => `<b>${t(name)}</b>`;
   let what: string;
   switch (e.kind) {
     case 'burst':
-      what = `explosão de ${d} de dano num raio de ${p.radius}.`;
+      what = t('explosão de {d} de dano num raio de {r}.', { d, r: p.radius });
       break;
     case 'charge':
-      what = `avança ${e.length} com o escudo na direção da mira, causando ${d} de dano em quem está no caminho. <b>Arremesso:</b> joga o inimigo ${e.knockback} para longe do Nexus (chefes resistem).`;
+      what = `${t('avança {n} com o escudo na direção da mira, causando {d} de dano em quem está no caminho.', { n: e.length, d })} ${term('Arremesso:')} ${t('joga o inimigo {n} para longe do Nexus (chefes resistem).', { n: e.knockback })}`;
       break;
     case 'glide':
-      what = `desliza translúcido ${e.length} na direção da mira em ${formatNumber(e.duration)} s: ${d} de dano em quem atravessa.`;
+      what = t('desliza translúcido {n} na direção da mira em {s} s: {d} de dano em quem atravessa.', { n: e.length, s: f(e.duration), d });
       break;
     case 'cone':
-      what = `leque à frente (alcance ${e.length}): ${d} de dano.`;
+      what = t('leque à frente (alcance {n}): {d} de dano.', { n: e.length, d });
       break;
     case 'swarm':
-      what = `morcegos caçam os ${e.count} inimigos mais próximos (até ${e.range}), causando ${d} de dano. <b>Sangramento:</b> o inimigo perde ${formatNumber(e.bleed.dps)} de vida por segundo por ${formatNumber(e.bleed.duration)} s.`;
+      what = `${t('morcegos caçam os {n} inimigos mais próximos (até {r}), causando {d} de dano.', { n: e.count, r: e.range, d })} ${term('Sangramento:')} ${t('o inimigo perde {dps} de vida por segundo por {s} s.', { dps: f(e.bleed.dps), s: f(e.bleed.duration) })}`;
       break;
     case 'flame':
-      what = `jato de fogo por ${formatNumber(e.duration)} s que segue a mira (alcance ${e.length}), causando ${d} de dano por segundo. <b>Queimadura:</b> quem é atingido continua perdendo ${formatNumber(e.burn.dps)} de vida por segundo por ${formatNumber(e.burn.duration)} s.`;
+      what = `${t('jato de fogo por {s} s que segue a mira (alcance {n}), causando {d} de dano por segundo.', { s: f(e.duration), n: e.length, d })} ${term('Queimadura:')} ${t('quem é atingido continua perdendo {dps} de vida por segundo por {s} s.', { dps: f(e.burn.dps), s: f(e.burn.duration) })}`;
       break;
     case 'transform':
-      what = `<b>Fúria:</b> vira um lobisomem gigante por ${formatNumber(e.duration)} s, que ataca ${pctOf(e.attackSpeed)} mais rápido, com +${pctOf(e.damage)} de dano, em leque, e cada golpe cura ${pctOf(e.lifesteal)} do dano. Ao transformar, uiva (${d} de dano num raio de ${p.radius}).`;
+      what = `${term('Fúria:')} ${t('vira um lobisomem gigante por {s} s, que ataca {as} mais rápido, com +{dmg} de dano, em leque, e cada golpe cura {ls} do dano. Ao transformar, uiva ({d} de dano num raio de {r}).', {
+        s: f(e.duration),
+        as: pctOf(e.attackSpeed),
+        dmg: pctOf(e.damage),
+        ls: pctOf(e.lifesteal),
+        d,
+        r: p.radius,
+      })}`;
       break;
     case 'hex':
-      what = `<b>Sapo:</b> inimigos comuns num raio de ${p.radius} viram sapos por ${formatNumber(e.duration)} s, que andam devagar, levam +${pctOf(e.vulnerable)} de dano e não ferem o herói nem o Nexus. Chefes só levam ${d} de dano.`;
+      what = `${term('Sapo:')} ${t('inimigos comuns num raio de {r} viram sapos por {s} s, que andam devagar, levam +{v} de dano e não ferem o herói nem o Nexus. Chefes só levam {d} de dano.', {
+        r: p.radius,
+        s: f(e.duration),
+        v: pctOf(e.vulnerable),
+        d,
+      })}`;
       break;
     case 'haste':
-      what = `todas as criaturas atacam ${pctOf(e.amount)} mais rápido por ${formatNumber(e.duration)} s; ${d} de dano num raio de ${p.radius}.`;
+      what = t('todas as criaturas atacam {a} mais rápido por {s} s; {d} de dano num raio de {r}.', { a: pctOf(e.amount), s: f(e.duration), d, r: p.radius });
       break;
     case 'fissure':
-      what = `soca o chão e abre uma fenda de ${e.length} na direção da mira: ${d} de dano; a fenda fica ${formatNumber(e.duration)} s no chão. <b>Lentidão:</b> quem passa por ela anda ${pctOf(e.slow)} mais devagar.`;
+      what = `${t('soca o chão e abre uma fenda de {n} na direção da mira: {d} de dano; a fenda fica {s} s no chão.', { n: e.length, d, s: f(e.duration) })} ${term('Lentidão:')} ${t('quem passa por ela anda {p} mais devagar.', { p: pctOf(e.slow) })}`;
       break;
     case 'raise':
-      what = `ergue até ${e.count} esqueletos aliados onde inimigos morreram nos últimos segundos (sem corpos, ${e.fallback} ao redor do herói) por ${formatNumber(e.duration)} s.`;
+      what = t('ergue até {n} esqueletos aliados onde inimigos morreram nos últimos segundos (sem corpos, {fb} ao redor do herói) por {s} s.', { n: e.count, fb: e.fallback, s: f(e.duration) });
       break;
     case 'meteors':
-      what = `${e.count} meteoros caem em sequência ao redor da mira, com ${d} de dano cada (raio ${e.radius}). <b>Queimadura:</b> o chão fica em chamas, e quem pisa perde ${formatNumber(e.burn.dps)} de vida por segundo por ${formatNumber(e.burn.duration)} s.`;
+      what = `${t('{n} meteoros caem em sequência ao redor da mira, com {d} de dano cada (raio {r}).', { n: e.count, d, r: e.radius })} ${term('Queimadura:')} ${t('o chão fica em chamas, e quem pisa perde {dps} de vida por segundo por {s} s.', { dps: f(e.burn.dps), s: f(e.burn.duration) })}`;
       break;
     case 'rainbow':
-      what = `feixe de arco-íris de ${e.length} na direção da mira, causando ${d} de dano. <b>Encanto:</b> inimigos comuns atingidos lutam do seu lado por ${formatNumber(e.charm)} s (chefes resistem).`;
+      what = `${t('feixe de arco-íris de {n} na direção da mira, causando {d} de dano.', { n: e.length, d })} ${term('Encanto:')} ${t('inimigos comuns atingidos lutam do seu lado por {s} s (chefes resistem).', { s: f(e.charm) })}`;
       break;
     case 'judgment':
-      what = `após ${formatNumber(e.delay)} s, uma coluna de luz desce na mira, causando ${d} de dano (raio ${e.radius}). <b>Marca:</b> quem é atingido recebe +${pctOf(e.mark.amount)} de dano por ${formatNumber(e.mark.duration)} s.`;
+      what = `${t('após {delay} s, uma coluna de luz desce na mira, causando {d} de dano (raio {r}).', { delay: f(e.delay), d, r: e.radius })} ${term('Marca:')} ${t('quem é atingido recebe +{p} de dano por {s} s.', { p: pctOf(e.mark.amount), s: f(e.mark.duration) })}`;
       break;
   }
   const extras = [
-    p.stun ? `<b>${p.stun.look === 'stone' ? 'Petrificar' : 'Atordoar'}:</b> os atingidos ficam parados por ${formatNumber(p.stun.duration)} s (chefes resistem).` : '',
-    p.fear ? `<b>Medo:</b> os atingidos fogem do Nexus por ${formatNumber(p.fear)} s.` : '',
-    p.healPerEnemy > 0 ? `Cura ${p.healPerEnemy} de vida do herói por inimigo atingido.` : '',
-    p.selfDamage ? `Custa ${pctOf(p.selfDamage)} da vida do herói.` : '',
-    p.damage > 0 && !live ? 'O dano cresce +10% por nível do herói.' : '',
-    live && base.damage > 0 && p.damage !== base.damage ? `(dano base ${base.damage}; nível e melhorias ×${formatNumber(Math.round((live.power) * 100) / 100)})` : '',
+    p.stun ? `${term(p.stun.look === 'stone' ? 'Petrificar:' : 'Atordoar:')} ${t('os atingidos ficam parados por {s} s (chefes resistem).', { s: f(p.stun.duration) })}` : '',
+    p.fear ? `${term('Medo:')} ${t('os atingidos fogem do Nexus por {s} s.', { s: f(p.fear) })}` : '',
+    p.healPerEnemy > 0 ? t('Cura {n} de vida do herói por inimigo atingido.', { n: p.healPerEnemy }) : '',
+    p.selfDamage ? t('Custa {p} da vida do herói.', { p: pctOf(p.selfDamage) }) : '',
+    p.damage > 0 && !live ? t('O dano cresce +10% por nível do herói.') : '',
+    live && base.damage > 0 && p.damage !== base.damage ? t('(dano base {d}; nível e melhorias ×{x})', { d: base.damage, x: f(Math.round(live.power * 100) / 100) }) : '',
   ].filter(Boolean);
-  return `<b>${p.name}</b> (recarga ${p.cooldown} s): ${what}${extras.length ? ' ' + extras.join(' ') : ''}`;
+  return `<b>${p.name}</b> (${t('recarga {s} s', { s: f(p.cooldown) })}): ${what}${extras.length ? ' ' + extras.join(' ') : ''}`;
 }
 
 const pctText = (v: number) => `${Math.round(v * 100)}%`;
 
 /** Total de um atributo de melhoria do herói, em texto curto (ex.: "+36% de alcance"). */
 export function heroStatText(stat: HeroStat, value: number): string {
+  const p = pctText(value);
   switch (stat) {
     case 'damage':
-      return `+${pctText(value)} de dano`;
+      return t('+{p} de dano', { p });
     case 'attackSpeed':
-      return `+${pctText(value)} de vel. de ataque`;
+      return t('+{p} de vel. de ataque', { p });
     case 'range':
-      return `+${pctText(value)} de alcance`;
+      return t('+{p} de alcance', { p });
     case 'maxHp':
-      return `+${formatNumber(value)} de vida máxima`;
+      return t('+{n} de vida máxima', { n: f(value) });
     case 'regen':
-      return `+${formatNumber(Math.round(value * 10) / 10)} de vida/s`;
+      return t('+{n} de vida/s', { n: f(Math.round(value * 10) / 10) });
     case 'speed':
-      return `+${pctText(value)} de velocidade`;
+      return t('+{p} de velocidade', { p });
     case 'pulseCooldown':
-      return `−${pctText(value)} na recarga do Pulso`;
+      return t('−{p} na recarga do Pulso', { p });
     case 'pulseDamage':
-      return `+${pctText(value)} de dano do Pulso`;
+      return t('+{p} de dano do Pulso', { p });
     case 'lifesteal':
-      return `${pctText(value)} do dano vira vida`;
+      return t('{p} do dano vira vida', { p });
     case 'thorns':
-      return `${formatNumber(value)} de dano/s em quem encosta`;
+      return t('{n} de dano/s em quem encosta', { n: f(value) });
     case 'armor':
-      return `−${pctText(Math.min(0.6, value))} de dano recebido`;
+      return t('−{p} de dano recebido', { p: pctText(Math.min(0.6, value)) });
     case 'pickup':
-      return `+${pctText(value)} no raio do ímã de moedas e baús`;
+      return t('+{p} no raio do ímã de moedas e baús', { p });
     case 'pulseSize':
-      return `Pulso +${pctText(value)} maior`;
+      return t('Pulso +{p} maior', { p });
     case 'pulseEcho':
-      return `${pctText(value)} de chance de eco do Pulso`;
+      return t('{p} de chance de eco do Pulso', { p });
   }
 }
 
@@ -555,24 +629,24 @@ export function heroStatRows(stats: Record<HeroStat, number>): string[] {
 export function heroSheetRows(run: RunState): [string, string][] {
   const def = run.hero.def;
   const s = run.heroStats;
-  const t = run.talents;
-  const damage = def.attack.damage * run.modifiers.damage * (1 + t.heroDamage + s.damage);
+  const tal = run.talents;
+  const damage = def.attack.damage * run.modifiers.damage * (1 + tal.heroDamage + s.damage);
   const perSecond = (run.modifiers.attackSpeed + s.attackSpeed) / def.attack.cooldown;
   const rows: [string, string][] = [
-    ['Nível', `${run.hero.level}`],
-    ['Vida', `${Math.ceil(run.hero.hp)}/${Math.round(heroMaxHp(run))}`],
-    ['Dano', formatNumber(Math.round(damage * 10) / 10)],
-    ['Ataques/s', formatNumber(Math.round(perSecond * 100) / 100)],
-    ['Alcance', `${Math.round(heroRange(run))}`],
-    ['Velocidade', `${Math.round(def.speed * (1 + t.heroSpeed + s.speed))}`],
+    [t('Nível'), `${run.hero.level}`],
+    [t('Vida'), `${Math.ceil(run.hero.hp)}/${Math.round(heroMaxHp(run))}`],
+    [t('Dano'), f(Math.round(damage * 10) / 10)],
+    [t('Ataques/s'), f(Math.round(perSecond * 100) / 100)],
+    [t('Alcance'), `${Math.round(heroRange(run))}`],
+    [t('Velocidade'), `${Math.round(def.speed * (1 + tal.heroSpeed + s.speed))}`],
   ];
-  if (run.modifiers.critChance > 0) rows.push(['Crítico', `${Math.round(run.modifiers.critChance * 100)}%`]);
-  if (s.regen > 0) rows.push(['Regeneração', `${formatNumber(Math.round(s.regen * 10) / 10)}/s`]);
-  if (s.lifesteal > 0) rows.push(['Roubo de vida', `${Math.round(s.lifesteal * 100)}%`]);
-  if (s.armor > 0) rows.push(['Couraça', `−${Math.round(Math.min(0.6, s.armor) * 100)}% de dano`]);
-  if (s.thorns > 0) rows.push(['Espinhos', `${formatNumber(s.thorns)}/s`]);
-  if (def.pulse.damage > 0) rows.push(['Dano do Pulso', `${Math.round(def.pulse.damage * pulsePower(run))}`]);
-  rows.push(['Recarga do Pulso', `${formatNumber(Math.round(run.pulse.cooldown * 10) / 10)} s`]);
+  if (run.modifiers.critChance > 0) rows.push([t('Crítico'), `${Math.round(run.modifiers.critChance * 100)}%`]);
+  if (s.regen > 0) rows.push([t('Regeneração'), `${f(Math.round(s.regen * 10) / 10)}/s`]);
+  if (s.lifesteal > 0) rows.push([t('Roubo de vida'), `${Math.round(s.lifesteal * 100)}%`]);
+  if (s.armor > 0) rows.push([t('Couraça'), t('−{p} de dano', { p: `${Math.round(Math.min(0.6, s.armor) * 100)}%` })]);
+  if (s.thorns > 0) rows.push([t('Espinhos'), `${f(s.thorns)}/s`]);
+  if (def.pulse.damage > 0) rows.push([t('Dano do Pulso'), `${Math.round(def.pulse.damage * pulsePower(run))}`]);
+  rows.push([t('Recarga do Pulso'), `${f(Math.round(run.pulse.cooldown * 10) / 10)} s`]);
   return rows;
 }
 
@@ -589,9 +663,10 @@ export function racePassiveHtml(race: string, className = 'cc-ability race-passi
   const p = def.passive;
   const text =
     p.kind === 'evolveDiscount'
-      ? `evolui ${pctText(p.value)} mais barato`
+      ? t('evolui {p} mais barato', { p: pctText(p.value) })
       : p.kind === 'pure'
-        ? 'imune a teia, maldição, atordoamento, congelamento e a ser engolido'
-        : `golpes ignoram armadura e agarram o alvo por ${formatNumber(p.duration)} s: ele fica ${pctText(p.slow)} mais lento e não desliza no gelo${p.leap ? `. Sem inimigo no alcance, salta até um a ${p.leap.range} de distância, golpeia com ${formatNumber(p.leap.damage)}× de dano e volta (a cada ${formatNumber(p.leap.cooldown)} s)` : ''}`;
-  return `<p class="${className}"><b>${def.name}</b> (raça ${race}): ${text}.</p>`;
+        ? t('imune a teia, maldição, atordoamento, congelamento e a ser engolido')
+        : t('golpes ignoram armadura e agarram o alvo por {s} s: ele fica {p} mais lento e não desliza no gelo', { s: f(p.duration), p: pctText(p.slow) }) +
+          (p.leap ? t('. Sem inimigo no alcance, salta até um a {r} de distância, golpeia com {x}× de dano e volta (a cada {s} s)', { r: p.leap.range, x: f(p.leap.damage), s: f(p.leap.cooldown) }) : '');
+  return `<p class="${className}"><b>${def.name}</b> (${t('raça {race}', { race: t(race) })}): ${text}.</p>`;
 }

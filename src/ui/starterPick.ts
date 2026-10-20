@@ -31,10 +31,10 @@ export function showStarterPick(profile: Profile, onPick: (id: CreatureId) => vo
     .join('');
   showOverlay(
     `<div class="panel wide starter-pick">
-      <h2>Escolha seu primeiro companheiro</h2>
-      <p class="subtitle">Uma criatura mística entra de graça na sua coleção e na sua equipe. As outras você libera depois, com Essência, na Coleção.</p>
+      <h2>${t('Escolha seu primeiro companheiro')}</h2>
+      <p class="subtitle">${t('Uma criatura mística entra de graça na sua coleção e na sua equipe. As outras você libera depois, com Essência, na Coleção.')}</p>
       <div class="starter-grid">${cards}</div>
-      <div class="starter-owned"><canvas data-sprite="archer"></canvas><span><b>Você já tem o Arqueiro</b> (Humano, dano à distância): ele já está na sua equipe, e o companheiro escolhido luta ao lado dele.</span></div>
+      <div class="starter-owned"><canvas data-sprite="archer"></canvas><span>${t('<b>Você já tem o Arqueiro</b> (Humano, dano à distância): ele já está na sua equipe, e o companheiro escolhido luta ao lado dele.')}</span></div>
     </div>`,
     { view: (id) => showStarterConfirm(profile, id as CreatureId, onPick) },
   );
@@ -44,7 +44,7 @@ export function showStarterPick(profile: Profile, onPick: (id: CreatureId) => vo
 function showStarterConfirm(profile: Profile, id: CreatureId, onPick: (id: CreatureId) => void): void {
   const def = CREATURES[id];
   const stats = creatureStats(def)
-    .filter(([label]) => label !== 'Custo')
+    .filter(([label]) => label !== t('Custo'))
     .map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`)
     .join('');
   showOverlay(
@@ -53,12 +53,12 @@ function showStarterConfirm(profile: Profile, id: CreatureId, onPick: (id: Creat
       <h2>${t(def.race)} ${def.name}</h2>
       <p class="subtitle">${def.role}</p>
       <p>${def.description}</p>
-      <dl class="cc-stats">${stats}<dt>Custo por unidade</dt><dd>${gold(def.baseCost)}</dd></dl>
+      <dl class="cc-stats">${stats}<dt>${t('Custo por unidade')}</dt><dd>${gold(def.baseCost)}</dd></dl>
       <p class="cc-ability">${abilityText(def.ability, def.effects)}</p>
       ${ascendedFormsHtml(def, undefined, true)}
       <div class="row-buttons">
-        <button data-action="back">← Ver outras</button>
-        <button class="play-button" data-action="confirm">Escolher ${def.name}</button>
+        <button data-action="back">${t('← Ver outras')}</button>
+        <button class="play-button" data-action="confirm">${t('Escolher {name}', { name: def.name })}</button>
       </div>
     </div>`,
     {

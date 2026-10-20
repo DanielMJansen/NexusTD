@@ -25,7 +25,7 @@ for (const f of files) {
 }
 
 const entry = /^\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"):/gm;
-const table = (lang) => new Set([...readFileSync(`src/i18n/${lang}.ts`, 'utf8').matchAll(entry)].map((m) => unescape(m[1] ?? m[2])));
+const table = (lang) => new Set([`src/i18n/${lang}.ts`, `src/i18n/${lang}-texts.ts`].flatMap((f) => [...readFileSync(f, 'utf8').matchAll(entry)].map((m) => unescape(m[1] ?? m[2]))));
 
 let missing = 0;
 for (const lang of ['en', 'es']) {

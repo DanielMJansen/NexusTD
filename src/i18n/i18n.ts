@@ -1,19 +1,21 @@
 // Idiomas do jogo. O português é a fonte: os textos ficam em português no código e passam por `t()`,
 // que devolve a tradução do idioma ativo (ou o próprio português, se ainda não houver tradução).
 import { EN } from './en';
+import { EN_TEXTS } from './en-texts';
 import { ES } from './es';
+import { ES_TEXTS } from './es-texts';
 
 export type Lang = 'pt' | 'en' | 'es';
 export const LANGS: readonly Lang[] = ['pt', 'en', 'es'];
 /** Nome de cada idioma no próprio idioma (seletor nas Configurações). */
 export const LANG_NAMES: Record<Lang, string> = { pt: 'Português', en: 'English', es: 'Español' };
 
-const TABLES: Record<Exclude<Lang, 'pt'>, Record<string, string>> = { en: EN, es: ES };
+const TABLES: Record<Exclude<Lang, 'pt'>, Record<string, string>> = { en: { ...EN, ...EN_TEXTS }, es: { ...ES, ...ES_TEXTS } };
 
 let current: Lang = 'pt';
 
-/** Enquanto false, o padrão de quem não escolheu idioma é português (os dados ainda não estão todos traduzidos). */
-export const TRANSLATION_COMPLETE = false;
+/** Interface e dados completos em inglês e espanhol: quem não escolheu idioma segue o navegador (false = sempre português). */
+export const TRANSLATION_COMPLETE = true;
 
 /** Idioma do navegador: português, espanhol ou, para qualquer outro, inglês. */
 export function detectLang(): Lang {
@@ -29,6 +31,12 @@ export function setLang(lang: Lang): void {
 }
 
 export const getLang = (): Lang => current;
+
+/** Nome de equipe salva: o padrão gravado no save ("Equipe 2") aparece traduzido; nomes dados pelo jogador ficam como estão. */
+export const loadoutLabel = (name: string): string => {
+  const n = /^Equipe (d+)$/.exec(name)?.[1];
+  return n ? t('Equipe {n}', { n }) : name;
+};
 
 /**
  * Texto no idioma ativo. `pt` é o texto em português (também a chave da tradução);

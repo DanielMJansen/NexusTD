@@ -3,6 +3,7 @@ import { canBuyNexusUpgrade, nexusUpgradeCost } from '../game/nexus';
 import type { RunState } from '../game/state';
 import { gold } from './currency';
 import { formatNumber } from './describe';
+import { t } from '../i18n/i18n';
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
@@ -10,15 +11,15 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 export function nexusLevelText(level: NexusLevel): string {
   switch (level.kind) {
     case 'vitality':
-      return `+${level.maxHp} de vida máxima`;
+      return t('+{n} de vida máxima', { n: level.maxHp });
     case 'armor':
-      return `−${pct(level.reduction)} de dano recebido`;
+      return t('−{p} de dano recebido', { p: pct(level.reduction) });
     case 'bolt':
-      return `${formatNumber(level.damage)} de dano a cada ${formatNumber(level.cooldown)} s, alcance ${level.range}`;
+      return t('{d} de dano a cada {s} s, alcance {r}', { d: formatNumber(level.damage), s: formatNumber(level.cooldown), r: level.range });
     case 'shield':
-      return `imune por ${formatNumber(level.duration)} s, recarga ${level.cooldown} s`;
+      return t('imune por {d} s, recarga {s} s', { d: formatNumber(level.duration), s: formatNumber(level.cooldown) });
     case 'slowField':
-      return `−${pct(level.slow)} de velocidade num raio de ${level.radius}`;
+      return t('−{p} de velocidade num raio de {r}', { p: pct(level.slow), r: level.radius });
   }
 }
 
@@ -54,7 +55,7 @@ export class NexusPanel {
       const next = u.levels[level];
       const current = level > 0 ? u.levels[level - 1] : undefined;
       const pips = '<span class="pip on"></span>'.repeat(level) + '<span class="pip"></span>'.repeat(u.levels.length - level);
-      const detail = next ? `${current ? 'Próximo: ' : ''}${nexusLevelText(next)}` : nexusLevelText(current!);
+      const detail = next ? `${current ? `${t('Próximo')}: ` : ''}${nexusLevelText(next)}` : nexusLevelText(current!);
       return `<div class="nexus-row${level ? ' owned' : ''}" title="${u.description}">
         <span class="nexus-icon">${u.icon}</span>
         <div class="nexus-text">
@@ -63,7 +64,7 @@ export class NexusPanel {
         </div>
         ${
           cost === null
-            ? '<span class="nexus-max">Máx.</span>'
+            ? `<span class="nexus-max">${t('Máx.')}</span>`
             : `<button type="button" data-upgrade="${u.id}"${canBuyNexusUpgrade(run, u.id) ? '' : ' disabled'}>${gold(cost)}</button>`
         }
       </div>`;

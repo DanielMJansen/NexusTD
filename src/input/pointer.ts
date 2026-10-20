@@ -4,6 +4,7 @@ import { creatureCost, evolveCreature, placeCreature } from '../game/economy';
 import { distance, type Point, type RunState } from '../game/state';
 import { boundKeyLabel } from './bindings';
 import type { Interaction } from './interaction';
+import { t } from '../i18n/i18n';
 
 /** Raio do clique para selecionar uma criatura em campo. */
 const CREATURE_CLICK_RADIUS = 18;
@@ -74,7 +75,7 @@ export function attachPointer({ canvas, camera, interaction, getRun, isActive }:
     if (interaction.holding) getRun().hero.target = point;
     // mouse sobre o Nexus: mãozinha e dica de que ele se melhora com ouro
     const overNexus = inside && isActive() && distance(getRun().nexus, point) < NEXUS_CLICK_RADIUS;
-    const hint = overNexus ? `Nexus: clique (ou tecla ${boundKeyLabel('nexus')}) para melhorar com ouro` : '';
+    const hint = overNexus ? t('Nexus: clique (ou tecla {key}) para melhorar com ouro', { key: boundKeyLabel('nexus') }) : '';
     if (canvas.title !== hint) {
       canvas.title = hint;
       canvas.style.cursor = overNexus ? 'pointer' : '';

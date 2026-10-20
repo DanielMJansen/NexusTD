@@ -11,6 +11,7 @@ const withKeys = (text: string): string =>
     .replace('{nexus}', boundKeyLabel('nexus'));
 import type { GameEvent } from '../game/events';
 import type { Point } from '../game/state';
+import { t } from '../i18n/i18n';
 
 /** O que o tutorial observa a cada quadro para avançar os passos de ação. */
 export interface TutorialWatch {
@@ -117,10 +118,10 @@ export class Tutorial {
       this.highlighted = [...document.querySelectorAll(step.highlight)];
       for (const el of this.highlighted) el.classList.add('tutorial-highlight');
     }
-    const action = step.advance === 'read' ? '<button data-tutorial="next">Próximo ▸</button>' : '<em>Faça a ação para continuar…</em>';
+    const action = step.advance === 'read' ? `<button data-tutorial="next">${t('Próximo ▸')}</button>` : `<em>${t('Faça a ação para continuar…')}</em>`;
     this.box.innerHTML = `
-      <div class="tutorial-head"><span>Tutorial ${this.step + 1}/${TUTORIAL_STEPS.length}</span>
-        <button class="tutorial-skip" data-tutorial="skip">Pular tutorial</button></div>
+      <div class="tutorial-head"><span>${t('Tutorial')} ${this.step + 1}/${TUTORIAL_STEPS.length}</span>
+        <button class="tutorial-skip" data-tutorial="skip">${t('Pular tutorial')}</button></div>
       <h4>${step.title}</h4>
       <p>${withKeys(step.text)}</p>
       <div class="tutorial-foot">${action}</div>`;

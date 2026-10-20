@@ -46,10 +46,10 @@ function bindTips(): void {
 
 /** Rodapé do card: na equipe/coleção ou o botão de desbloquear. */
 function footerHtml(profile: Profile, def: CreatureDef): string {
-  if (ownsCreature(profile, def.id)) return `<span class="cc-tag">${profile.team.includes(def.id) ? '✓ Na equipe' : '✓ Na coleção'}</span>`;
+  if (ownsCreature(profile, def.id)) return `<span class="cc-tag">${profile.team.includes(def.id) ? t('✓ Na equipe') : t('✓ Na coleção')}</span>`;
   if (def.unlock.kind !== 'essence') return '';
   return `<button data-action="ask" data-value="${def.id}"${profile.essence >= def.unlock.cost ? '' : ' disabled'}>
-      Desbloquear ${essence(def.unlock.cost)}</button>`;
+      ${t('Desbloquear')} ${essence(def.unlock.cost)}</button>`;
 }
 
 /**
@@ -63,24 +63,24 @@ function visualPickerHtml(profile: Profile, def: CreatureDef): string {
     const has = tier === '' || owned.includes(tier);
     const isOn = selected === tier;
     const portrait = `<canvas data-sprite="${def.id}" data-variant="${tier || 'none'}"${has ? '' : ' data-silhouette'}></canvas>`;
-    const body = `${portrait}<b>${has ? name : '???'}</b><small>${has ? label : `${label} · Altar`}</small>`;
+    const body = `${portrait}<b>${has ? name : '???'}</b><small>${has ? label : `${label} · ${t('Altar')}`}</small>`;
     return has
-      ? `<button class="vp-option${isOn ? ' selected' : ''}" style="--chip-color:${color}" data-action="variant" data-value="${def.id}:${tier}" title="${isOn ? 'Visual em uso' : 'Usar este visual'}">${body}${isOn ? '<span class="vp-check" aria-label="em uso">✓</span>' : ''}</button>`
-      : `<div class="vp-option locked" style="--chip-color:${color}" title="Consiga no Altar">${body}</div>`;
+      ? `<button class="vp-option${isOn ? ' selected' : ''}" style="--chip-color:${color}" data-action="variant" data-value="${def.id}:${tier}" title="${isOn ? t('Visual em uso') : t('Usar este visual')}">${body}${isOn ? '<span class="vp-check" aria-label="em uso">✓</span>' : ''}</button>`
+      : `<div class="vp-option locked" style="--chip-color:${color}" title="${t('Consiga no Altar')}">${body}</div>`;
   };
   const options = [
-    option('', 'Normal', 'Original', '#9a8ab8'),
+    option('', t('Normal'), t('Original'), '#9a8ab8'),
     ...VARIANT_TIERS.map((tier) => option(tier, variantTheme(def.id, tier).name, VARIANTS[tier].name, VARIANTS[tier].color)),
   ].join('');
-  return `<p class="sheet-section">Visual <small>${owned.length}/3 variantes · clique para usar</small></p><div class="vp-row">${options}</div>`;
+  return `<p class="sheet-section">${t('Visual')} <small>${t('{n}/3 variantes · clique para usar', { n: owned.length })}</small></p><div class="vp-row">${options}</div>`;
 }
 
 /** Janela das formas despertas: A, B e as Supremas, no visual em uso. Abre ao passar o mouse no botão ou nos retratos do nível 3. */
 function formsPopHtml(profile: Profile, def: CreatureDef): string {
   const tier = profile.selectedVariants[def.id];
-  const look = tier ? `${variantTheme(def.id, tier).name} (${VARIANTS[tier].name.toLowerCase()})` : 'visual normal';
+  const look = tier ? `${variantTheme(def.id, tier).name} (${VARIANTS[tier].name.toLowerCase()})` : t('visual normal');
   const cols = def.ascended.flatMap((form, i) => [
-    { tag: `${i === 0 ? 'A' : 'B'} · nível 3`, name: form.name, branch: i, supreme: false, color: form.color },
+    { tag: `${i === 0 ? 'A' : 'B'} · ${t('nível 3')}`, name: form.name, branch: i, supreme: false, color: form.color },
     ...(form.supreme ? [{ tag: `✦ ${i === 0 ? 'A' : 'B'} · ★5`, name: form.supreme.name, branch: i, supreme: true, color: form.color }] : []),
   ]);
   const cells = cols
@@ -93,9 +93,9 @@ function formsPopHtml(profile: Profile, def: CreatureDef): string {
     )
     .join('');
   return `<div class="forms-pop">
-    <p class="fp-title">Evoluções de ${def.name} <small>· ${look}</small></p>
+    <p class="fp-title">${t('Evoluções de {name}', { name: def.name })} <small>· ${look}</small></p>
     <div class="fp-row-cells">${cells}</div>
-    <p class="fp-hint">No nível 3 você escolhe a evolução A ou B. A forma desperta (★5) exige despertar a criatura no Santuário.</p>
+    <p class="fp-hint">${t('No nível 3 você escolhe a evolução A ou B. A forma desperta (★5) exige despertar a criatura no Santuário.')}</p>
   </div>`;
 }
 
@@ -111,7 +111,7 @@ function newSheetBody(profile: Profile, def: CreatureDef): string {
     .map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`)
     .join('');
   const mechanic = mechanicHtml(def);
-  const status = owned ? `<span class="cc-status">${profile.team.includes(def.id) ? '✓ Na equipe' : '✓ Na coleção'}</span>` : '';
+  const status = owned ? `<span class="cc-status">${profile.team.includes(def.id) ? t('✓ Na equipe') : t('✓ Na coleção')}</span>` : '';
   // cada evolução com o próprio retrato, em linhas de altura fixa
   const forms = evolutionRowsHtml(def, (i) => `<canvas class="sh-form-portrait" data-sprite="${def.id}" data-level="3" data-branch="${i}"${look}></canvas>`);
   return `<div class="sh-block sh-header">
@@ -133,7 +133,7 @@ function newSheetBody(profile: Profile, def: CreatureDef): string {
         ${racePassiveHtml(def.race)}
       </div>
       <div class="sh-block sh-forms">
-        <p class="sheet-section">Evoluções <small>nível 3 · desperta ★5</small>${owned ? '<button class="forms-btn" type="button" data-toggle-tip>👁 Ver todas</button>' : ''}</p>
+        <p class="sheet-section">${t('Evoluções')} <small>${t('nível 3 · desperta ★5')}</small>${owned ? `<button class="forms-btn" type="button" data-toggle-tip>👁 ${t('Ver todas')}</button>` : ''}</p>
         ${owned ? formsPopHtml(profile, def) : ''}
         ${forms}
       </div>
@@ -173,7 +173,7 @@ export function showCollection(profile: Profile, handlers: CollectionHandlers, j
     `<div class="panel screen">
       <div class="screen-head">
         <button data-action="back">${t('← Voltar')}</button>
-        <h2>Coleção</h2>
+        <h2>${t('Coleção')}</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>
       ${groups}

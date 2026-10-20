@@ -22,11 +22,11 @@ function nodeHtml(profile: Profile, id: TalentId): string {
   const pips = '<i class="on"></i>'.repeat(level) + '<i></i>'.repeat(max - level);
 
   let footer: string;
-  if (cost === null) footer = '<span class="node-max">Máximo</span>';
-  else if (!available) footer = '<span class="node-lock">🔒 Bloqueado</span>';
+  if (cost === null) footer = `<span class="node-max">${t('Máximo')}</span>`;
+  else if (!available) footer = `<span class="node-lock">🔒 ${t('Bloqueado')}</span>`;
   else {
     footer = `<button class="node-buy" data-action="buy" data-value="${id}"${canBuyTalent(profile, id) ? '' : ' disabled'}>
-      ${level ? 'Melhorar' : 'Aprender'} ${essence(cost)}</button>`;
+      ${level ? t('Melhorar') : t('Aprender')} ${essence(cost)}</button>`;
   }
 
   const classes = ['talent-node', level > 0 ? 'owned' : '', !available ? 'locked' : '', cost === null ? 'maxed' : '']
@@ -38,7 +38,7 @@ function nodeHtml(profile: Profile, id: TalentId): string {
       <div><b>${def.name}</b><span class="node-pips">${pips}</span></div>
     </div>
     <div class="node-tip"><b>${def.name}</b><div class="node-desc">${def.description}</div>
-    <div class="node-effect">${now ? `Atual: <b>${now}</b>` : ''}${now && next ? '<br>' : ''}${next ? `${now ? 'Próximo' : 'Nível 1'}: <b>${next}</b>` : ''}</div></div>
+    <div class="node-effect">${now ? `${t('Atual')}: <b>${now}</b>` : ''}${now && next ? '<br>' : ''}${next ? `${now ? t('Próximo') : t('Nível 1')}: <b>${next}</b>` : ''}</div></div>
     ${footer}
   </div>`;
 }
@@ -48,7 +48,7 @@ function linkHtml(profile: Profile, child: TalentId): string {
   const req = TALENTS[child].requires;
   if (!req) return '';
   const met = isTalentAvailable(profile, child);
-  return `<div class="node-link${met ? ' met' : ''}"><span>${met ? '✓' : `Nv ${req.level}`}</span></div>`;
+  return `<div class="node-link${met ? ' met' : ''}"><span>${met ? '✓' : t('Nv {n}', { n: req.level })}</span></div>`;
 }
 
 /** Árvore de talentos: uma coluna por ramo, em cadeia vertical (cada nó exige o de cima). */
@@ -59,7 +59,7 @@ export function showTalents(profile: Profile, handlers: TalentHandlers): void {
     const nodes = ids.map((id) => linkHtml(profile, id) + nodeHtml(profile, id)).join('');
     return `<div class="talent-branch" style="--branch-color:${branch.color}">
       <h3><span class="branch-icon">${branch.icon}</span>${branch.name}</h3>
-      <small class="branch-spent">${spent ? `${spent} investidos` : '&nbsp;'}</small>
+      <small class="branch-spent">${spent ? t('{n} investidos', { n: spent }) : '&nbsp;'}</small>
       ${nodes}
     </div>`;
   }).join('');
@@ -68,10 +68,10 @@ export function showTalents(profile: Profile, handlers: TalentHandlers): void {
     `<div class="panel screen talents-screen">
       <div class="screen-head">
         <button data-action="back">${t('← Voltar')}</button>
-        <h2>Talentos</h2>
+        <h2>${t('Talentos')}</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>
-      <p class="subtitle">Cada ramo é uma trilha: aprenda o talento de cima para liberar o de baixo.</p>
+      <p class="subtitle">${t('Cada ramo é uma trilha: aprenda o talento de cima para liberar o de baixo.')}</p>
       <div class="talent-tree">${columns}</div>
     </div>`,
     { buy: (id) => handlers.onBuy(id as TalentId), back: () => handlers.onBack() },

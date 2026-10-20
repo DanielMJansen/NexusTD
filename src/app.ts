@@ -81,6 +81,7 @@ import { showTeam } from './ui/teamScreen';
 import { Tutorial } from './ui/tutorial';
 import { creatureCost, evolveCreature, sellCreature } from './game/economy';
 import { showWaveChoices } from './ui/waveChoices';
+import { t } from './i18n/i18n';
 
 type Mode = 'entry' | 'menu' | 'run';
 
@@ -259,13 +260,13 @@ export class App {
       onRedeem: async (code) => {
         if ((await sha256(code.trim().toUpperCase())) === ADMIN_HASH) {
           this.updateSettings({ admin: true });
-          return '🛠 Modo administrador ativado: botão Admin no menu.';
+          return t('🛠 Modo administrador ativado: botão Admin no menu.');
         }
         const gift = await redeemGiftCode(this.profile, code);
-        if (!gift) return 'Código inválido.';
+        if (!gift) return t('Código inválido.');
         saveProfile(this.profile);
         updateMenuHud(this.profile);
-        return `🎁 ${GIFTS[gift].name} liberada! Veja na Coleção e em Heróis.`;
+        return `🎁 ${t('{name} liberada! Veja na Coleção e em Heróis.', { name: GIFTS[gift].name })}`;
       },
     });
   }
@@ -292,8 +293,8 @@ export class App {
   }
 
   private resetSave(): void {
-    if (!confirm('Apagar TODO o progresso (Essência, talentos, coleção, heróis, conquistas e run salva)?')) return;
-    if (!confirm('Tem certeza? Isso não pode ser desfeito.')) return;
+    if (!confirm(t('Apagar TODO o progresso (Essência, talentos, coleção, heróis, conquistas e run salva)?'))) return;
+    if (!confirm(t('Tem certeza? Isso não pode ser desfeito.'))) return;
     deleteProfile();
     clearRun();
     this.updateSettings({ tutorialDone: false });
@@ -303,12 +304,12 @@ export class App {
   private async importSave(): Promise<void> {
     const text = await pickBackupFile();
     if (text === null) return;
-    if (!confirm('Importar este save vai substituir TODO o seu progresso atual. Continuar?')) return;
+    if (!confirm(t('Importar este save vai substituir TODO o seu progresso atual. Continuar?'))) return;
     try {
       importBackup(text);
       location.reload();
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Não foi possível importar o save.');
+      alert(error instanceof Error ? error.message : t('Não foi possível importar o save.'));
     }
   }
 
@@ -633,13 +634,13 @@ export class App {
       return;
     }
     saveProfile(this.profile);
-    this.showFeatureIntro(id, 'Liberado!', open);
+    this.showFeatureIntro(id, t('Liberado!'), open);
   }
 
   /** Quadro "o que é" de uma tela (1ª visita ou botão "Como funciona"). */
   private showFeatureIntro(id: FeatureId, kicker: string, onClose: () => void): void {
     const def = FEATURES[id];
-    showIntro({ kicker, title: def.name, subtitle: def.intro.subtitle, color: def.intro.color, tips: def.intro.tips, demo: id }, onClose, `▶ Abrir ${def.name}`);
+    showIntro({ kicker, title: def.name, subtitle: def.intro.subtitle, color: def.intro.color, tips: def.intro.tips, demo: id }, onClose, `▶ ${t('Abrir {name}', { name: def.name })}`);
   }
 
   private openRelics(): void {
@@ -647,7 +648,7 @@ export class App {
       this.profile,
       () => saveProfile(this.profile),
       () => this.openMenu(),
-      () => this.showFeatureIntro('relics', 'Como funciona', () => this.openRelics()),
+      () => this.showFeatureIntro('relics', t('Como funciona'), () => this.openRelics()),
     );
   }
 
@@ -664,7 +665,7 @@ export class App {
     if (!this.profile.seenTutorials.includes('sanctuary')) {
       this.profile.seenTutorials.push('sanctuary');
       saveProfile(this.profile);
-      showSanctuaryIntro(() => this.openSanctuary(highlight), '▶ Entrar no Santuário');
+      showSanctuaryIntro(() => this.openSanctuary(highlight), t('▶ Entrar no Santuário'));
       return;
     }
     showSanctuary(
@@ -674,7 +675,7 @@ export class App {
           if (!upgradeSanctuary(this.profile, id)) return;
           this.afterPurchase(true, () => this.openSanctuary(id));
         },
-        onHelp: () => showSanctuaryIntro(() => this.openSanctuary(), '← Voltar'),
+        onHelp: () => showSanctuaryIntro(() => this.openSanctuary(), t('← Voltar')),
         onBack: () => this.openMenu(),
       },
       highlight,
@@ -853,7 +854,7 @@ export class App {
   }
 
   private startRun(): void {
-    if (savedRunSummary() && !confirm('Começar uma nova run descarta a run salva. Continuar?')) return;
+    if (savedRunSummary() && !confirm(t('Começar uma nova run descarta a run salva. Continuar?'))) return;
     clearRun();
     this.effects.clear();
     resetInteraction(this.interaction);
@@ -893,13 +894,13 @@ export class App {
     showPause({
       onResume: () => this.togglePause(),
       onSettings: () => this.openSettings(),
-      onStageIntro: () => showStageIntro(this.run.stage, () => this.showPauseScreen(), '← Voltar'),
+      onStageIntro: () => showStageIntro(this.run.stage, () => this.showPauseScreen(), t('← Voltar')),
       onSaveAndQuit: () => {
         saveRun(this.run);
         this.openMenu();
       },
       onAbandon: () => {
-        if (!confirm('Abandonar a run? O progresso dela será perdido e não rende Essência.')) return;
+        if (!confirm(t('Abandonar a run? O progresso dela será perdido e não rende Essência.'))) return;
         clearRun();
         this.openMenu();
       },

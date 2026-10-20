@@ -83,7 +83,7 @@ export class SidePanel {
           <p class="sheet-line">${fightText(def)}</p>
           ${mechanicHtml(def) ? `<p class="sheet-line">${mechanicHtml(def)}</p>` : ''}
           ${racePassiveHtml(def.race, 'special')}
-          <p class="sheet-section">Evoluções <small>nível 3 · desperta ★5</small></p>
+          <p class="sheet-section">${t('Evoluções')} <small>${t('nível 3 · desperta ★5')}</small></p>
           ${formsChangeHtml(def)}
           ${def.race === hero.race ? `<p class="special hero-bonus">${t('Bônus do {hero}:', { hero: hero.name })} ${raceBonusText(hero.race, hero.raceBonus)}</p>` : ''}
         </div>`;

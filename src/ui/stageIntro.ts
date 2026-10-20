@@ -1,5 +1,6 @@
 import { STAGES, type StageId, type StageTip } from '../data/stages';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 export interface IntroContent {
   kicker: string;
@@ -12,7 +13,7 @@ export interface IntroContent {
 }
 
 /** Quadro de tutorial (dicas com ícone): fases, Santuário e o que mais precisar de explicação. */
-export function showIntro(content: IntroContent, onClose: () => void, closeLabel = '▶ Começar'): void {
+export function showIntro(content: IntroContent, onClose: () => void, closeLabel = t('▶ Começar')): void {
   const tips = content.tips
     .map((tip) => `<li><span class="intro-icon">${tip.icon}</span><div><b>${tip.title}</b><p>${tip.text}</p></div></li>`)
     .join('');
@@ -30,7 +31,7 @@ export function showIntro(content: IntroContent, onClose: () => void, closeLabel
 }
 
 /** Quadro "como funciona esta fase": mecânicas do mapa, antes da primeira run nela (ou pela pausa). */
-export function showStageIntro(stage: StageId, onClose: () => void, closeLabel = '▶ Começar'): void {
+export function showStageIntro(stage: StageId, onClose: () => void, closeLabel = t('▶ Começar')): void {
   const def = STAGES[stage];
-  showIntro({ kicker: `Fase ${def.number}`, title: def.name, subtitle: def.description, color: def.color, tips: def.intro }, onClose, closeLabel);
+  showIntro({ kicker: t('Fase {n}', { n: def.number }), title: def.name, subtitle: def.description, color: def.color, tips: def.intro }, onClose, closeLabel);
 }

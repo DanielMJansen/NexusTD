@@ -18,8 +18,8 @@ export function showAchievements(profile: Profile, onBack: () => void): void {
   const general = ACHIEVEMENT_IDS.filter((id) => !byHero(id));
   const heroes = ACHIEVEMENT_IDS.filter(byHero);
   const tabs: Tab[] = [
-    { id: 'general', label: 'Gerais', badge: count(general) },
-    { id: 'heroes', label: 'Heróis', badge: count(heroes) },
+    { id: 'general', label: t('Gerais'), badge: count(general) },
+    { id: 'heroes', label: t('Heróis'), badge: count(heroes) },
   ];
   const shown = currentTab('achievements', tabs);
   const items = (shown === 'heroes' ? heroes : general).map((id) => {
@@ -28,7 +28,7 @@ export function showAchievements(profile: Profile, onBack: () => void): void {
     const progress = achievementProgress(profile, id);
     const rewards = SKINS.filter((s) => s.unlockedBy === id).map(
       (s) => `<canvas data-sprite="${s.hero}" data-skin="${s.id}"${done ? '' : ' data-silhouette'}></canvas>
-        <small>Skin <b>${s.name}</b><br>${HEROES[s.hero].name}</small>`,
+        <small>${t('Skin')} <b>${s.name}</b><br>${HEROES[s.hero].name}</small>`,
     );
     return `<div class="achievement${done ? ' done' : ''}">
       <span class="achievement-icon">${done ? '🏆' : '🔒'}</span>
@@ -44,10 +44,10 @@ export function showAchievements(profile: Profile, onBack: () => void): void {
     `<div class="panel screen">
       <div class="screen-head">
         <button data-action="back">${t('← Voltar')}</button>
-        <h2>Conquistas</h2>
+        <h2>${t('Conquistas')}</h2>
         <span class="muted">${profile.achievements.length}/${ACHIEVEMENT_IDS.length}</span>
       </div>
-      <p class="subtitle">${profile.stats.runs} runs · ${profile.stats.wins} vitórias · ${profile.stats.kills} abates</p>
+      <p class="subtitle">${t('{r} runs · {w} vitórias · {k} abates', { r: profile.stats.runs, w: profile.stats.wins, k: profile.stats.kills })}</p>
       ${tabsHtml(tabs, shown)}
       <div class="achievement-grid">${items}</div>
     </div>`,

@@ -5,6 +5,7 @@ import { CREATURES } from '../data/creatures';
 import type { AltarResult } from '../game/altar';
 import type { Profile } from '../game/profile';
 import { essence, fragments } from './currency';
+import { formatNumber } from './describe';
 import { showOverlay } from './overlay';
 import { t } from '../i18n/i18n';
 
@@ -13,29 +14,31 @@ export interface AltarHandlers {
   onBack(): void;
 }
 
-const pct = (w: number, total: number) => `${Math.round((w / total) * 1000) / 10}%`.replace('.', ',');
+const pct = (w: number, total: number) => `${formatNumber(Math.round((w / total) * 1000) / 10)}%`;
 
 function resultHtml(result: AltarResult): string {
   switch (result.kind) {
     case 'refund':
-      return `<div class="altar-result">O Altar devolveu ${essence(result.amount)}.</div>`;
+      return `<div class="altar-result">${t('O Altar devolveu {e}.', { e: essence(result.amount) })}</div>`;
     case 'fragments':
-      return `<div class="altar-result">Você recebeu ${fragments(result.amount, result.race)}.</div>`;
+      return `<div class="altar-result">${t('Você recebeu {f}.', { f: fragments(result.amount, result.race) })}</div>`;
     case 'nexusColor': {
       const look = VARIANTS[result.tier];
       const color = findNexusColor(result.color)!;
       return `<div class="altar-result variant" style="--tier-color:${look.color}">
         <canvas data-nexus="${result.color}"></canvas>
-        <div><b>Cor do Nexus ${look.name}!</b> ${color.name}<br><small>Escolha-a na tela do Nexus, no menu.</small></div>
+        <div><b>${t('Cor do Nexus {tier}!', { tier: look.name })}</b> ${color.name}<br><small>${t('Escolha-a na tela do Nexus, no menu.')}</small></div>
       </div>`;
     }
     case 'variant': {
       const look = VARIANTS[result.tier];
       const name = CREATURES[result.creature].name;
-      const extra = result.duplicate ? `<small>Todas as suas criaturas já têm essa variante: virou ${fragments(result.amount, result.race)}.</small>` : '<small>Escolha-a na Coleção, no card da criatura.</small>';
+      const extra = result.duplicate
+        ? `<small>${t('Todas as suas criaturas já têm essa variante: virou {f}.', { f: fragments(result.amount, result.race) })}</small>`
+        : `<small>${t('Escolha-a na Coleção, no card da criatura.')}</small>`;
       return `<div class="altar-result variant" style="--tier-color:${look.color}">
         <canvas data-sprite="${result.creature}" data-variant="${result.tier}"></canvas>
-        <div><b>Variante ${look.name} · ${variantTheme(result.creature, result.tier).name}!</b> ${name}<br>${extra}</div>
+        <div><b>${t('Variante {tier} · {theme}!', { tier: look.name, theme: variantTheme(result.creature, result.tier).name })}</b> ${name}<br>${extra}</div>
       </div>`;
     }
   }
@@ -47,7 +50,15 @@ export function showAltar(profile: Profile, handlers: AltarHandlers, last?: Alta
   const odds = ALTAR.outcomes
     .map((o) => {
       const label =
-        o.kind === 'refund' ? `Devolve ${essence(o.amount)}` : o.kind === 'fragments' ? `${fragments(o.amount)} de uma raça da coleção` : `<b style="color:${VARIANTS[o.tier].color}">Variante ${VARIANTS[o.tier].name}</b>${o.tier !== 'rare' ? ` <small>(${Math.round(ALTAR_NEXUS_CHANCE * 100)}%: cor do Nexus ${o.tier === 'epic' ? 'Vazio' : 'Aurora'})</small>` : ''}`;
+        o.kind === 'refund'
+          ? t('Devolve {e}', { e: essence(o.amount) })
+          : o.kind === 'fragments'
+            ? t('{f} de uma raça da coleção', { f: fragments(o.amount) })
+            : `<b style="color:${VARIANTS[o.tier].color}">${t('Variante {tier}', { tier: VARIANTS[o.tier].name })}</b>${
+                o.tier !== 'rare'
+                  ? ` <small>(${t('{p}%: cor do Nexus {color}', { p: Math.round(ALTAR_NEXUS_CHANCE * 100), color: findNexusColor(o.tier === 'epic' ? 'void' : 'aurora')?.name ?? '' })})</small>`
+                  : ''
+              }`;
       return `<li><span>${label}</span><b>${pct(o.weight, total)}</b></li>`;
     })
     .join('');
@@ -58,18 +69,18 @@ export function showAltar(profile: Profile, handlers: AltarHandlers, last?: Alta
     `<div class="panel screen altar">
       <div class="screen-head">
         <button data-action="back">${t('← Voltar')}</button>
-        <h2>Altar de Variantes</h2>
+        <h2>${t('Altar de Variantes')}</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>
-      <p class="subtitle">Variantes mudam só a aparência das criaturas da sua coleção (cores, aura e faíscas). Não dão poder.</p>
+      <p class="subtitle">${t('Variantes mudam só a aparência das criaturas da sua coleção (cores, aura e faíscas). Não dão poder.')}</p>
       ${last ? resultHtml(last) : ''}
       <div class="altar-columns">
         <ul class="altar-odds">${odds}</ul>
         <div class="altar-pity">
-          <p>Épica (ou melhor) garantida em <b>${epicIn}</b> sorteio${epicIn === 1 ? '' : 's'}.</p>
-          <p>Lendária garantida em <b>${legendaryIn}</b> sorteio${legendaryIn === 1 ? '' : 's'}.</p>
+          <p>${epicIn === 1 ? t('Épica (ou melhor) garantida no próximo sorteio.') : t('Épica (ou melhor) garantida em <b>{n}</b> sorteios.', { n: epicIn })}</p>
+          <p>${legendaryIn === 1 ? t('Lendária garantida no próximo sorteio.') : t('Lendária garantida em <b>{n}</b> sorteios.', { n: legendaryIn })}</p>
           <div class="altar-roll">
-            <button class="play-button" data-action="ask"${can ? '' : ' disabled'}>Sortear ${essence(ALTAR.cost)}</button>
+            <button class="play-button" data-action="ask"${can ? '' : ' disabled'}>${t('Sortear')} ${essence(ALTAR.cost)}</button>
           </div>
         </div>
       </div>
@@ -78,8 +89,8 @@ export function showAltar(profile: Profile, handlers: AltarHandlers, last?: Alta
       ask: () => {
         const box = element.querySelector<HTMLElement>('.altar-roll');
         if (box) {
-          box.innerHTML = `<div class="cc-confirm"><span>Sortear por ${essence(ALTAR.cost)}? Sobram ${essence(profile.essence - ALTAR.cost)}</span>
-            <button data-action="cancel">Cancelar</button><button class="play-button" data-action="roll">Confirmar</button></div>`;
+          box.innerHTML = `<div class="cc-confirm"><span>${t('Sortear por {e}? Sobram {left}', { e: essence(ALTAR.cost), left: essence(profile.essence - ALTAR.cost) })}</span>
+            <button data-action="cancel">${t('Cancelar')}</button><button class="play-button" data-action="roll">${t('Confirmar')}</button></div>`;
         }
       },
       cancel: () => showAltar(profile, handlers, last),

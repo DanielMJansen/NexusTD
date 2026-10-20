@@ -12,7 +12,7 @@ import type { SavedRunSummary } from '../save/runSave';
 import { CODEX_ENEMIES } from './codexScreen';
 import { showOverlay } from './overlay';
 import { paintStageThumbnail } from '../render/arena';
-import { t } from '../i18n/i18n';
+import { loadoutLabel, t } from '../i18n/i18n';
 
 /** Botão de uma tela que libera com o progresso: cadeado com a condição, selo NOVO até a 1ª visita. */
 function featureButton(profile: Profile, id: FeatureId, detail = ''): string {
@@ -71,7 +71,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       <p class="subtitle">${t('Um herói. Um exército de monstros.')}</p>
       ${stageCard}
       <div class="hub-team">${team}</div>
-      ${profile.loadouts.length > 1 ? `<div class="hub-loadouts">${profile.loadouts.map((l, i) => `<button class="${i === profile.activeLoadout ? 'active' : ''}" data-action="loadout" data-value="${i}" title="${HEROES[l.hero].name} + ${t('{n} criatura(s)', { n: l.team.length })}">${l.name}</button>`).join('')}</div>` : ''}
+      ${profile.loadouts.length > 1 ? `<div class="hub-loadouts">${profile.loadouts.map((l, i) => `<button class="${i === profile.activeLoadout ? 'active' : ''}" data-action="loadout" data-value="${i}" title="${HEROES[l.hero].name} + ${t('{n} criatura(s)', { n: l.team.length })}">${loadoutLabel(l.name)}</button>`).join('')}</div>` : ''}
       <div class="hub-play">
         ${saved ? `<button class="play-button" data-action="continue">${t('▶ Continuar run')} <small>${t('onda {n}', { n: saved.wave })} · ${HEROES[saved.hero].name}</small></button>` : ''}
         <button class="${saved ? '' : 'play-button'}" data-action="play"${profile.team.length ? '' : ' disabled'}>${saved ? t('Nova run') : t('▶ Jogar')}</button>
@@ -79,7 +79,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
       </section>
       <section class="hub-buttons">
         <button data-action="heroes">${t('Herói')} <small>${HEROES[profile.selectedHero].name}</small></button>
-        <button data-action="team">${t('Equipes')} <small>${profile.loadouts[profile.activeLoadout]?.name ?? ''} · ${t('{a} de {b}', { a: profile.team.length, b: TEAM_SIZE })}</small></button>
+        <button data-action="team">${t('Equipes')} <small>${loadoutLabel(profile.loadouts[profile.activeLoadout]?.name ?? '')} · ${t('{a} de {b}', { a: profile.team.length, b: TEAM_SIZE })}</small></button>
         <button data-action="collection">${t('Coleção')} <small>${t('{a} de {b}', { a: CREATURE_IDS.filter((id) => profile.ownedCreatures.includes(id)).length, b: CREATURE_IDS.length })}</small></button>
         ${featureButton(profile, 'talents', `${profile.essence} ✦`)}
         ${featureButton(profile, 'achievements', t('{a} de {b}', { a: profile.achievements.length, b: ACHIEVEMENT_IDS.length }))}

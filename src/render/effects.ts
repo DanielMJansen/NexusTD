@@ -13,6 +13,7 @@ import { drawSprite } from './sprites';
 import { drawLayered } from './spriteKit';
 import { DEFAULT_NEXUS, type NexusAppearance } from './arena';
 import type { NexusModelId } from '../data/nexusSkins';
+import { t } from '../i18n/i18n';
 
 const TAU = Math.PI * 2;
 const GOLD = '#ffd25a';
@@ -247,10 +248,10 @@ export class Effects {
         this.burst(event.x, event.y - 8, 10, '#ffe8a0', 50, 0.5, 2, true, -20);
         break;
       case 'enemyEvaded':
-        this.text(event.x, event.y - 18, 'Esquivou!', '#bfe8f0', 9);
+        this.text(event.x, event.y - 18, t('Esquivou!'), '#bfe8f0', 9);
         break;
       case 'portalsWarning':
-        this.banner(`${event.count} portais se abrindo`, `em ${event.seconds} s · pare o herói sobre um para selar`, '#d8b8ff', 2.2);
+        this.banner(t('{n} portais se abrindo', { n: event.count }), t('em {s} s · pare o herói sobre um para selar', { s: event.seconds }), '#d8b8ff', 2.2);
         break;
       case 'portalOpened':
         this.ring(event.x, event.y, 36, '#c8a0ff', 0.6, 3);
@@ -259,15 +260,15 @@ export class Effects {
       case 'portalSealed':
         this.ring(event.x, event.y, 50, '#ffd25a', 0.7, 4);
         this.burst(event.x, event.y - 10, 26, '#fff0b0', 110, 0.7, 2.6, true, -40);
-        this.text(event.x, event.y - 40, event.prevented ? `Selado! −${event.prevented} inimigos` : 'Selado!', '#ffd25a', 12);
+        this.text(event.x, event.y - 40, event.prevented ? t('Selado! −{n} inimigos', { n: event.prevented }) : t('Selado!'), '#ffd25a', 12);
         break;
       case 'portalClosed':
         this.burst(event.x, event.y - 10, 10, '#c8a0ff', 50, 0.5, 2, true);
         break;
       case 'relicFound':
         this.banner(
-          `Baú de Relíquia: ${RELICS[event.relic].icon} ${RELICS[event.relic].name}`,
-          event.fresh ? 'Nova! Equipe no menu, em Relíquias' : 'Repetida: suba o nível ou troque por Essência, em Relíquias',
+          `${t('Baú de Relíquia:')} ${RELICS[event.relic].icon} ${RELICS[event.relic].name}`,
+          event.fresh ? t('Nova! Equipe no menu, em Relíquias') : t('Repetida: suba o nível ou troque por Essência, em Relíquias'),
           '#f0c35a',
           2.8,
         );
@@ -275,16 +276,16 @@ export class Effects {
         this.burst(event.x, event.y, 30, '#ffe9a0', 120, 0.9, 3, true, -40);
         break;
       case 'ankhSaved':
-        this.banner('☥ O Ankh salvou o Obelisco!', 'Uma vez por run', '#f0c35a', 2.4);
+        this.banner(t('☥ O Ankh salvou o Obelisco!'), t('Uma vez por run'), '#f0c35a', 2.4);
         break;
       case 'guardDestroyed':
         this.ring(event.x, event.y, 70, '#ff5a5a', 0.8, 5);
         this.burst(event.x, event.y - 16, 30, '#ffd25a', 130, 0.8, 3, true);
-        this.banner(`${event.name} caiu!`, '', '#ff5a5a', 2.2);
+        this.banner(t('{name} caiu!', { name: event.name }), '', '#ff5a5a', 2.2);
         this.shake = Math.max(this.shake, 10);
         break;
       case 'caravanMoved':
-        this.banner('A caravana avançou', 'Nova parada · reposicione a defesa se precisar', '#ffd25a', 2.2);
+        this.banner(t('A caravana avançou'), t('Nova parada · reposicione a defesa se precisar'), '#ffd25a', 2.2);
         this.ring(event.to.x, event.to.y, 60, '#ffd25a', 0.7, 3);
         break;
       case 'iceCracked':
@@ -293,7 +294,7 @@ export class Effects {
       case 'enemyFell':
         this.ring(event.x, event.y, 16, '#5a9ad0', 0.5, 2);
         this.burst(event.x, event.y, 12, '#8ac8f0', 70, 0.5, 2, false, -40, 160);
-        this.text(event.x, event.y - 16, 'Caiu no gelo!', '#bfe4ff', 9);
+        this.text(event.x, event.y - 16, t('Caiu no gelo!'), '#bfe4ff', 9);
         break;
       case 'creatureFrozen':
         this.burst(event.x, event.y - 8, 10, '#bfe8ff', 50, 0.5, 2, true);
@@ -304,13 +305,13 @@ export class Effects {
         this.shake = Math.max(this.shake, 9);
         break;
       case 'avalancheWarning':
-        this.banner('Avalanche!', `desce pela passagem em ${event.seconds} s · saia do caminho`, '#ff8a8a', 2.4);
+        this.banner(t('Avalanche!'), t('desce pela passagem em {s} s · saia do caminho', { s: event.seconds }), '#ff8a8a', 2.4);
         break;
       case 'avalancheEnded':
         this.shake = Math.max(this.shake, 4);
         break;
       case 'synergyUp':
-        this.banner(`Sinergia: ${event.race}`, event.tier === 2 ? 'nível máximo (3 classes)' : 'ativa (2 classes)', '#ffd25a', 1.6);
+        this.banner(t('Sinergia: {race}', { race: t(event.race) }), event.tier === 2 ? t('nível máximo (3 classes)') : t('ativa (2 classes)'), '#ffd25a', 1.6);
         break;
       case 'skeletonRaised':
         this.burst(event.x, event.y + 8, 10, '#6a5a3a', 50, 0.5, 2.4, false, -30, 140);
@@ -319,23 +320,23 @@ export class Effects {
       case 'pulseReady':
         this.ring(event.x, event.y + 6, 34, '#e2c8ff', 0.6, 3);
         this.burst(event.x, event.y - 10, 10, '#e2c8ff', 50, 0.6, 2, true, -40);
-        this.text(event.x, event.y - 34, 'Pulso pronto!', '#e2c8ff', 10);
+        this.text(event.x, event.y - 34, t('Pulso pronto!'), '#e2c8ff', 10);
         break;
       case 'weatherWarning':
-        if (event.kind === 'sandstorm') this.banner('Tempestade de areia chegando', `em ${event.seconds} s · espalhe as criaturas pelas trilhas`, '#ffd08a', 2.2);
-        else this.banner('Nevasca chegando', `em ${event.seconds} s · fique perto das fogueiras`, '#bfe4ff', 2.2);
+        if (event.kind === 'sandstorm') this.banner(t('Tempestade de areia chegando'), t('em {s} s · espalhe as criaturas pelas trilhas', { s: event.seconds }), '#ffd08a', 2.2);
+        else this.banner(t('Nevasca chegando'), t('em {s} s · fique perto das fogueiras', { s: event.seconds }), '#bfe4ff', 2.2);
         break;
       case 'weatherStarted':
-        if (event.kind === 'sandstorm') this.banner(event.forced ? 'Tempestade Eterna' : 'Tempestade de areia!', 'Inimigos longe do herói e das criaturas ficam ocultos', '#ffe0a8', 2.4);
-        else this.banner(event.forced ? 'Nevasca Eterna' : 'Nevasca!', 'Alcance −30% longe das fogueiras · reacenda com o herói', '#e8f4ff', 2.4);
+        if (event.kind === 'sandstorm') this.banner(event.forced ? t('Tempestade Eterna') : t('Tempestade de areia!'), t('Inimigos longe do herói e das criaturas ficam ocultos'), '#ffe0a8', 2.4);
+        else this.banner(event.forced ? t('Nevasca Eterna') : t('Nevasca!'), t('Alcance −30% longe das fogueiras · reacenda com o herói'), '#e8f4ff', 2.4);
         break;
       case 'weatherEnded':
-        this.banner(event.kind === 'sandstorm' ? 'A tempestade passou' : 'A nevasca passou', '', event.kind === 'sandstorm' ? '#ffd08a' : '#bfe4ff', 1.4);
+        this.banner(event.kind === 'sandstorm' ? t('A tempestade passou') : t('A nevasca passou'), '', event.kind === 'sandstorm' ? '#ffd08a' : '#bfe4ff', 1.4);
         break;
       case 'interactableActivated':
         this.ring(event.x, event.y - 10, 30, '#ffb85a', 0.6, 3);
         this.burst(event.x, event.y - 14, 14, '#ffd27a', 60, 0.6, 2.2, true, -40);
-        this.text(event.x, event.y - 32, 'Fogueira acesa!', '#ffd27a', 10);
+        this.text(event.x, event.y - 32, t('Fogueira acesa!'), '#ffd27a', 10);
         break;
       case 'enemyLeap':
         this.burst(event.x, event.y + 10, 8, '#6a5a3a', 50, 0.4, 2.4, false, -10, 100);
@@ -343,7 +344,7 @@ export class Effects {
       case 'creatureSwallowed':
         this.ring(event.x, event.y + 6, 22, '#9aba4a', 0.5, 3);
         this.burst(event.x, event.y, 14, '#bada9a', 70, 0.5, 2.2, true);
-        this.text(event.x, event.y - 22, 'Engolida!', '#bada9a', 10);
+        this.text(event.x, event.y - 22, t('Engolida!'), '#bada9a', 10);
         break;
       case 'creatureReleased':
         this.burst(event.x, event.y, 16, '#9aba4a', 80, 0.5, 2.4, false, -20, 120);
@@ -352,7 +353,7 @@ export class Effects {
         if (event.rising) {
           this.ring(event.x, event.y, event.boss ? 70 : 32, '#f0c35a', 0.7, 3);
           this.burst(event.x, event.y, event.boss ? 30 : 14, '#e8d8a8', 80, 0.7, 2.6, false, -40, 120);
-          this.text(event.x, event.y - (event.boss ? 50 : 26), event.boss ? 'O Faraó se ergue!' : 'Levantou!', '#f0c35a', event.boss ? 13 : 10);
+          this.text(event.x, event.y - (event.boss ? 50 : 26), event.boss ? t('O Faraó se ergue!') : t('Levantou!'), '#f0c35a', event.boss ? 13 : 10);
           if (event.boss) this.shake = Math.max(this.shake, 6);
         } else this.burst(event.x, event.y, 12, '#d8c8a0', 50, 0.6, 2.2, false, -20, 120);
         break;
@@ -372,12 +373,12 @@ export class Effects {
         break;
       case 'headCut':
         this.burst(event.x, event.y - 20, 22, '#4a9a6a', 110, 0.6, 3, false, -40, 200);
-        this.text(event.x, event.y - 46, event.heads > 1 ? `Cabeça cortada! (${event.heads})` : 'Última cabeça!', '#ffb84a', 11);
+        this.text(event.x, event.y - 46, event.heads > 1 ? t('Cabeça cortada! ({n})', { n: event.heads }) : t('Última cabeça!'), '#ffb84a', 11);
         this.shake = Math.max(this.shake, 4);
         break;
       case 'headsRegrown':
         this.ring(event.x, event.y - 10, 50, '#9aff5a', 0.7, 4);
-        this.text(event.x, event.y - 46, `Cabeças renasceram! (${event.heads})`, '#9aff5a', 11);
+        this.text(event.x, event.y - 46, t('Cabeças renasceram! ({n})', { n: event.heads }), '#9aff5a', 11);
         break;
       case 'enemyCharge':
         this.burst(event.x, event.y + 8, 8, '#9ae8ff', 50, 0.4, 2, true);
@@ -393,12 +394,12 @@ export class Effects {
         break;
       case 'bossShield':
         this.ring(event.x, event.y - 8, 40, '#7af0d8', 0.5, 3);
-        this.text(event.x, event.y - 50, 'Escudo!', '#7af0d8', 11);
+        this.text(event.x, event.y - 50, t('Escudo!'), '#7af0d8', 11);
         break;
       case 'bossEnraged':
         this.ring(event.x, event.y, 60, '#ff2a3a', 0.8, 5);
         this.burst(event.x, event.y - 10, 30, '#ff3a4a', 120, 0.8, 3, true);
-        this.banner(`${ENEMIES[event.enemy].name} enfurecido!`, 'Segunda fase', '#ff5a5a', 2);
+        this.banner(t('{name} enfurecido!', { name: ENEMIES[event.enemy].name }), t('Segunda fase'), '#ff5a5a', 2);
         this.shake = Math.max(this.shake, 8);
         break;
       case 'nexusBolt': {
@@ -412,7 +413,7 @@ export class Effects {
       }
       case 'nexusShieldUp':
         this.ring(this.nexusAt.x, this.nexusAt.y - 8, 44, '#ffd25a', 0.6, 4);
-        this.text(this.nexusAt.x, this.nexusAt.y - 56, 'Escudo!', '#ffd25a', 12);
+        this.text(this.nexusAt.x, this.nexusAt.y - 56, t('Escudo!'), '#ffd25a', 12);
         break;
       case 'nexusShieldBlocked':
         this.burst(this.nexusAt.x, this.nexusAt.y - 8, 8, '#ffe9a8', 70, 0.35, 2, true);
@@ -428,7 +429,7 @@ export class Effects {
         } else {
           this.ring(event.x, event.y, 22, GOLD, 0.5, 3);
           this.burst(event.x, event.y - 4, 18, '#ffe9a8', 80, 0.7, 2.2, true, -60);
-          this.text(event.x, event.y - 20, 'Baú!', GOLD, 12);
+          this.text(event.x, event.y - 20, t('Baú!'), GOLD, 12);
         }
         break;
       case 'bountyGold':
@@ -457,12 +458,12 @@ export class Effects {
         this.burst(event.x, event.y - 6, 8, '#e8f0c8', 40, 0.5, 2, false, -20);
         break;
       case 'executed':
-        this.text(event.x, event.y - 24, 'Executado!', '#ff5a6a', 10);
+        this.text(event.x, event.y - 24, t('Executado!'), '#ff5a6a', 10);
         this.burst(event.x, event.y - 6, 10, '#ff3a4a', 80, 0.4, 2, true);
         break;
       case 'heroDied':
         this.burst(event.x, event.y - 8, 18, '#ff5a6a', 90, 0.6, 2.6, true);
-        this.text(event.x, event.y - 30, 'Herói caiu!', '#ff7a84', 12);
+        this.text(event.x, event.y - 30, t('Herói caiu!'), '#ff7a84', 12);
         this.shake = Math.max(this.shake, 5);
         break;
       case 'heroRespawned':
@@ -470,7 +471,7 @@ export class Effects {
         this.burst(event.x, event.y, 14, '#ffe9a8', 60, 0.7, 2.2, true, -50);
         break;
       case 'heroLevelUp':
-        this.banner(`Nível ${event.level}`, 'Herói', '#ffd25a', 1.2);
+        this.banner(t('Nível {n}', { n: event.level }), t('Herói'), '#ffd25a', 1.2);
         break;
       case 'enemyDamaged':
         if (this.showDamageNumbers) {
@@ -555,7 +556,7 @@ export class Effects {
           // uivo de transformação: anel vermelho e lua
           this.ring(event.x, event.y, event.radius, '#ff5a3a', 0.6, 6);
           this.burst(event.x, event.y - 10, 30, '#ffb08a', 120, 0.7, 2.8, true, -40);
-          this.banner('Fúria Lunar', 'Transformação', '#ff8a5a', 1.2);
+          this.banner(t('Fúria Lunar'), t('Transformação'), '#ff8a5a', 1.2);
           this.shake = Math.max(this.shake, 5);
           break;
         }
@@ -594,7 +595,7 @@ export class Effects {
         this.waves.push({ ...event, life: 0.4, maxLife: 0.4 });
         break;
       case 'pulseEcho':
-        this.text(event.x, event.y - 34, 'Eco!', '#c8a8ff', 12);
+        this.text(event.x, event.y - 34, t('Eco!'), '#c8a8ff', 12);
         this.ring(event.x, event.y, 26, '#c8a8ff', 0.4, 3);
         break;
       case 'pulseSwarm':
@@ -649,7 +650,7 @@ export class Effects {
         break;
       case 'wardBlocked':
         this.ring(this.nexusAt.x, this.nexusAt.y - 10, 40, '#ffd25a', 0.5, 4);
-        this.text(this.nexusAt.x, this.nexusAt.y - 52, 'Égide!', '#ffd25a', 12);
+        this.text(this.nexusAt.x, this.nexusAt.y - 52, t('Égide!'), '#ffd25a', 12);
         break;
       case 'nexusHealed':
         this.text(this.nexusAt.x + 14, this.nexusAt.y - 46, `+${event.amount}`, '#5af0a0', 11);
@@ -657,11 +658,11 @@ export class Effects {
         break;
       case 'bossSpawned':
         this.shake = Math.max(this.shake, 9);
-        this.banner(`${ENEMIES[event.enemy].name} chegou!`, 'Chefe', '#ff5a5a', 2.6);
+        this.banner(t('{name} chegou!', { name: ENEMIES[event.enemy].name }), t('Chefe'), '#ff5a5a', 2.6);
         break;
       case 'mutationAdded': {
         const def = MUTATIONS[event.mutation];
-        this.banner(`Mutação: ${def.name}`, def.description, '#ff7ad8', 3);
+        this.banner(t('Mutação: {name}', { name: def.name }), def.description, '#ff7ad8', 3);
         break;
       }
       case 'enemyWardBroken':
@@ -671,8 +672,8 @@ export class Effects {
         {
           // onda roteirizada: título e cor pelo tipo
           const colors: Record<string, string> = { normal: '#e2c8ff', horde: '#ffb84a', elite: '#ffd25a', event: '#7ad8ff', boss: '#ff5a5a', truce: '#7af0b0' };
-          const sub = event.wave === event.total ? 'Onda final' : event.wave > event.total ? 'Sem Fim' : `de ${event.total}`;
-          this.banner(event.title ? `${event.title}` : `Onda ${event.wave}`, event.title ? `Onda ${event.wave} · ${sub}` : sub, colors[event.kind] ?? '#e2c8ff', event.title ? 2.4 : 1.8);
+          const sub = event.wave === event.total ? t('Onda final') : event.wave > event.total ? t('Sem Fim') : t('de {n}', { n: event.total });
+          this.banner(event.title ? `${event.title}` : t('Onda {n}', { n: event.wave }), event.title ? `${t('Onda {n}', { n: event.wave })} · ${sub}` : sub, colors[event.kind] ?? '#e2c8ff', event.title ? 2.4 : 1.8);
         }
         break;
       case 'creaturePlaced': {
@@ -687,7 +688,7 @@ export class Effects {
         this.ring(event.x, event.y + 6, 22, '#ffd25a', 0.45, 2.5);
         this.burst(event.x, event.y, 22, '#ffd25a', 90, 0.8, 2.4, true, -70);
         this.burst(event.x, event.y, 10, def.color, 60, 0.7, 2.6, true, -40);
-        const label = event.ascended ? `${event.name}!` : `Nível ${event.level}`;
+        const label = event.ascended ? `${event.name}!` : t('Nível {n}', { n: event.level });
         this.text(event.x, event.y - 46, label, '#ffd25a', event.ascended ? 13 : 11);
         if (event.ascended) this.shake = Math.max(this.shake, 3);
         break;

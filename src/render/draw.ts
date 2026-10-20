@@ -19,6 +19,7 @@ import { drawLoot, drawNexusGround, drawNexusOverlay } from './nexusLoot';
 import { drawShadow, drawSprite } from './sprites';
 import { drawRaceBadge } from './raceIcons';
 import { drawLayered, halo, type LayerLook } from './spriteKit';
+import { t } from '../i18n/i18n';
 
 const TAU = Math.PI * 2;
 /** Pontos extras a defender: Nexus em cores douradas. */
@@ -327,7 +328,7 @@ function drawEnemy(ctx: CanvasRenderingContext2D, state: RunState, enemy: Enemy,
     ctx.textAlign = 'center';
     ctx.lineWidth = 2.5;
     ctx.strokeStyle = '#07040d';
-    const label = `${enemy.heads} cabeça${enemy.heads > 1 ? 's' : ''}${enemy.cutHeads ? ` · +${enemy.cutHeads * 2} em ${Math.ceil(enemy.regrowTimer ?? 0)} s` : ''}`;
+    const label = `${enemy.heads > 1 ? t('{n} cabeças', { n: enemy.heads }) : t('1 cabeça')}${enemy.cutHeads ? ` · ${t('+{n} em {s} s', { n: enemy.cutHeads * 2, s: Math.ceil(enemy.regrowTimer ?? 0) })}` : ''}`;
     ctx.strokeText(label, enemy.x, enemy.y - 32 * scale);
     ctx.fillStyle = enemy.cutHeads ? '#ffb84a' : '#bada9a';
     ctx.fillText(label, enemy.x, enemy.y - 32 * scale);
@@ -681,7 +682,7 @@ function drawHero(ctx: CanvasRenderingContext2D, state: RunState, time: number, 
     ctx.textBaseline = 'middle';
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#0a0612';
-    const label = `Renasce em ${Math.ceil(hero.respawnTimer)} s`;
+    const label = t('Renasce em {s} s', { s: Math.ceil(hero.respawnTimer) });
     ctx.strokeText(label, x, y + 16);
     ctx.fillStyle = '#ff9aa4';
     ctx.fillText(label, x, y + 16);

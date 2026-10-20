@@ -22,30 +22,30 @@ function firstWave(id: EnemyId): number | null {
 
 function entry(def: EnemyDef, seen: boolean): string {
   const wave = firstWave(def.id);
-  const when = wave ? `${def.isBoss ? 'Chefe da onda' : 'A partir da onda'} ${wave}` : '';
+  const when = wave ? (def.isBoss ? t('Chefe da onda {n}', { n: wave }) : t('A partir da onda {n}', { n: wave })) : '';
   if (!seen) {
     return `<div class="codex-entry unknown">
       <canvas data-sprite="${def.id}" data-silhouette></canvas>
-      <div class="codex-text"><b>???</b><span class="codex-when">${when}. Enfrente-o para descobrir.</span></div>
+      <div class="codex-text"><b>???</b><span class="codex-when">${when}. ${t('Enfrente-o para descobrir.')}</span></div>
     </div>`;
   }
   const stats: [string, string][] = [
-    ['Vida', formatNumber(def.hp)],
-    ['Velocidade', formatNumber(def.speed)],
-    ['Armadura', formatNumber(def.armor)],
-    ['Dano ao Nexus', formatNumber(def.nexusDamage)],
-    ['Dano ao herói', `${formatNumber(def.heroDps)}/s`],
-    ['Ouro', formatNumber(def.gold)],
+    [t('Vida'), formatNumber(def.hp)],
+    [t('Velocidade'), formatNumber(def.speed)],
+    [t('Armadura'), formatNumber(def.armor)],
+    [t('Dano ao Nexus'), formatNumber(def.nexusDamage)],
+    [t('Dano ao herói'), `${formatNumber(def.heroDps)}/s`],
+    [t('Ouro'), formatNumber(def.gold)],
   ];
-  const traits = def.traits.map((t) => `<li>${enemyTraitText(t)}</li>`).join('');
+  const traits = def.traits.map((tr) => `<li>${enemyTraitText(tr)}</li>`).join('');
   return `<div class="codex-entry${def.isBoss ? ' boss' : ''}">
     <canvas data-sprite="${def.id}"></canvas>
     <div class="codex-text">
-      <b>${def.name}${def.isBoss ? ' <span class="tag">Chefe</span>' : ''}</b>
+      <b>${def.name}${def.isBoss ? ` <span class="tag">${t('Chefe')}</span>` : ''}</b>
       <span>${def.description}</span>
       <span class="codex-stats">${stats.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join('')}</span>
       ${traits ? `<ul class="codex-traits">${traits}</ul>` : ''}
-      <span class="codex-when">${when}${def.flying ? ' · voa' : ''}</span>
+      <span class="codex-when">${when}${def.flying ? ` · ${t('voa')}` : ''}</span>
     </div>
   </div>`;
 }
@@ -58,7 +58,7 @@ export function showCodex(profile: Profile, onBack: () => void): void {
     STAGE_IDS.find((s) => STAGES[s].composition.some((c) => c.enemy === id) || STAGES[s].bosses.some((b) => b.enemy === id) || (STAGES[s].script ?? []).some((w) => (w.groups ?? []).some((g) => g.enemy === id))) ?? STAGE_IDS[0]!;
   const tabs: Tab[] = STAGE_IDS.map((s) => {
     const ids = CODEX_ENEMIES.filter((id) => stageOf(id) === s);
-    return { id: s, label: `Fase ${STAGES[s].number} · ${STAGES[s].name}`, badge: `${ids.filter((id) => profile.seenEnemies.includes(id)).length}/${ids.length}`, color: STAGES[s].color };
+    return { id: s, label: `${t('Fase {n}', { n: STAGES[s].number })} · ${STAGES[s].name}`, badge: `${ids.filter((id) => profile.seenEnemies.includes(id)).length}/${ids.length}`, color: STAGES[s].color };
   });
   const shown = currentTab('codex', tabs);
   const items = tabsHtml(tabs, shown) + '<div class="codex-grid">' + CODEX_ENEMIES.filter((id) => stageOf(id) === shown).map((id) => entry(ENEMIES[id], profile.seenEnemies.includes(id))).join('') + '</div>';
@@ -66,10 +66,10 @@ export function showCodex(profile: Profile, onBack: () => void): void {
     `<div class="panel screen">
       <div class="screen-head">
         <button data-action="back">${t('← Voltar')}</button>
-        <h2>Códex</h2>
+        <h2>${t('Códex')}</h2>
         <span class="muted">${seen}/${CODEX_ENEMIES.length}</span>
       </div>
-      <p class="subtitle">Valores da onda 1. A cada onda os inimigos ganham vida, velocidade e dano; elites (contorno dourado) são ainda mais fortes.</p>
+      <p class="subtitle">${t('Valores da onda 1. A cada onda os inimigos ganham vida, velocidade e dano; elites (contorno dourado) são ainda mais fortes.')}</p>
       ${items}
     </div>`,
     {

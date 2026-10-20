@@ -25,22 +25,22 @@ function skinRow(profile: Profile, hero: HeroId, owned: boolean): string {
   return skinsOf(hero)
     .map((skin) => {
       const unlocked = isSkinUnlocked(profile, skin);
-      const how = skin.unlockedBy ? `Conquista: ${ACHIEVEMENTS[skin.unlockedBy].name}` : 'Padrão';
+      const how = skin.unlockedBy ? t('Conquista: {name}', { name: ACHIEVEMENTS[skin.unlockedBy].name }) : t('Padrão');
       const title = skin.unlockedBy ? `${ACHIEVEMENTS[skin.unlockedBy].name}: ${ACHIEVEMENTS[skin.unlockedBy].description}` : skin.name;
       const usable = unlocked && owned;
       return `<button class="skin${skin.id === current ? ' selected' : ''}${unlocked ? '' : ' locked'}" ${usable ? 'data-action="skin" ' : ''}data-preview="${skin.id}" data-value="${skin.id}" title="${title}"${usable || !unlocked ? '' : ' disabled'}>
         <canvas data-sprite="${hero}" data-skin="${skin.id}"${unlocked ? '' : ' data-silhouette'}></canvas>
-        <span>${unlocked ? '' : '🔒 '}${skin.name}</span><small>${unlocked ? (skin.id === current ? '✓ Em uso' : how) : how}</small></button>`;
+        <span>${unlocked ? '' : '🔒 '}${skin.name}</span><small>${unlocked ? (skin.id === current ? t('✓ Em uso') : how) : how}</small></button>`;
     })
     .join('');
 }
 
 /** Rodapé da ficha: escolhido, escolher ou o botão de desbloquear (que pede confirmação). */
 function footerHtml(profile: Profile, id: HeroId): string {
-  if (profile.selectedHero === id) return '<span class="cc-tag">✓ Herói escolhido</span>';
-  if (ownsHero(profile, id)) return `<button class="play-button" data-action="select" data-value="${id}">Escolher</button>`;
+  if (profile.selectedHero === id) return `<span class="cc-tag">${t('✓ Herói escolhido')}</span>`;
+  if (ownsHero(profile, id)) return `<button class="play-button" data-action="select" data-value="${id}">${t('Escolher')}</button>`;
   const cost = HEROES[id].cost ?? 0;
-  return `<button data-action="ask" data-value="${id}"${profile.essence >= cost ? '' : ' disabled'}>Desbloquear ${essence(cost)}</button>`;
+  return `<button data-action="ask" data-value="${id}"${profile.essence >= cost ? '' : ' disabled'}>${t('Desbloquear')} ${essence(cost)}</button>`;
 }
 
 export interface HeroScreenOptions {
@@ -77,7 +77,7 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
   const showcase = `<section class="hero-showcase${owned ? '' : ' locked'}${options.justUnlocked === shown ? ' just-unlocked' : ''}" data-card="${shown}" style="--card-color:${def.color}">
       <div class="hero-stage">
         <canvas class="hero-big" data-sprite="${shown}" data-skin="${heroSkin(profile, shown).id}"${owned ? '' : ' data-silhouette'}></canvas>
-        <div class="hero-stats"><span title="Vida máxima">♥ ${def.maxHp} de vida</span><span title="Velocidade de movimento">➹ ${def.speed} de velocidade</span></div>
+        <div class="hero-stats"><span title="${t('Vida máxima')}">♥ ${t('{n} de vida', { n: def.maxHp })}</span><span title="${t('Velocidade de movimento')}">➹ ${t('{n} de velocidade', { n: def.speed })}</span></div>
       </div>
       <div class="hero-info">
         <div class="hero-title"><h3>${def.name}</h3><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${t(def.race)} · ${def.role}</span></div>
@@ -85,9 +85,9 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
         <p class="hero-lore">${def.lore}</p>
         <p class="hero-fight">${heroFightText(def)}</p>
         <div class="hero-kit">
-          <div><b>Ataque</b><p>${attackText(def)}</p></div>
-          <div><b>Pulso</b><p>${pulseText(def)}</p></div>
-          <div class="race-bonus"><b>Bônus de raça</b><p>${raceBonusText(def.race, def.raceBonus)}</p></div>
+          <div><b>${t('Ataque')}</b><p>${attackText(def)}</p></div>
+          <div><b>${t('Pulso')}</b><p>${pulseText(def)}</p></div>
+          <div class="race-bonus"><b>${t('Bônus de raça')}</b><p>${raceBonusText(def.race, def.raceBonus)}</p></div>
         </div>
         <div class="skin-row">${skinRow(profile, shown, owned)}</div>
         <div class="cc-footer">${footerHtml(profile, shown)}</div>
@@ -99,7 +99,7 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
     `<div class="panel screen heroes-screen">
       <div class="screen-head">
         <button data-action="back">${t('← Voltar')}</button>
-        <h2>Heróis</h2>
+        <h2>${t('Heróis')}</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>
       <div class="heroes-layout">

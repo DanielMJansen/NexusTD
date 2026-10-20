@@ -21,46 +21,46 @@ export function showNexusSkins(profile: Profile, stage: StageId, handlers: Nexus
   const stageModel = STAGES[stage].nexusModel;
   const model = look.model === 'map' ? stageModel : look.model;
   const tabs = STAGE_IDS.filter((id) => isStageUnlocked(profile, id))
-    .map((id) => `<button class="nexus-stage${id === stage ? ' active' : ''}" data-action="stage" data-value="${id}">Fase ${STAGES[id].number} · ${STAGES[id].name}</button>`)
+    .map((id) => `<button class="nexus-stage${id === stage ? ' active' : ''}" data-action="stage" data-value="${id}">${t('Fase {n}', { n: STAGES[id].number })} · ${STAGES[id].name}</button>`)
     .join('');
   const mapCard = `<button class="nexus-skin${look.model === 'map' ? ' selected' : ''}" data-action="model" data-value="map">
       <canvas data-nexus="${look.color}" data-model="${stageModel}"></canvas>
-      <b>Do mapa</b><small>${NEXUS_MODELS[stageModel].name}</small></button>`;
+      <b>${t('Do mapa')}</b><small>${NEXUS_MODELS[stageModel].name}</small></button>`;
   const models = NEXUS_MODEL_IDS.map((id) => {
     const def = NEXUS_MODELS[id];
     const unlocked = isNexusModelUnlocked(profile, id);
-    const how = def.stage ? `🔒 Vença a Fase ${STAGES[def.stage].number} · ${STAGES[def.stage].name}` : '';
+    const how = def.stage ? `🔒 ${t('Vença a Fase {n} · {name}', { n: STAGES[def.stage].number, name: STAGES[def.stage].name })}` : '';
     return `<button class="nexus-skin${look.model === id ? ' selected' : ''}" data-action="model" data-value="${id}"${unlocked ? '' : ' disabled'}>
       <canvas data-nexus="${look.color}" data-model="${id}"${unlocked ? '' : ' data-locked'}></canvas>
       <b>${def.name}</b><small>${unlocked ? def.description.split('.')[0] : how}</small></button>`;
   }).join('');
   const original = `<button class="nexus-skin${look.color === 'original' ? ' selected' : ''}" data-action="color" data-value="original">
-      <canvas data-nexus="original" data-model="${model}"></canvas><b>Original</b><small>Cores do próprio modelo</small></button>`;
+      <canvas data-nexus="original" data-model="${model}"></canvas><b>${t('Original')}</b><small>${t('Cores do próprio modelo')}</small></button>`;
   const colors = NEXUS_COLORS.map((c) => {
     const unlocked = isNexusColorUnlocked(profile, c);
     let how = '';
     if (!unlocked) {
-      if (c.unlock.kind === 'essence') how = `<span class="nexus-buy" data-color="${c.id}"><button data-action="ask" data-value="${c.id}"${profile.essence >= c.unlock.cost ? '' : ' disabled'}>Comprar ${essence(c.unlock.cost)}</button></span>`;
-      else if (c.unlock.kind === 'achievement') how = `<small>🏆 Conquista: ${ACHIEVEMENTS[c.unlock.id].name}</small>`;
-      else how = `<small>✨ Altar (${c.unlock.tier === 'epic' ? 'Épica' : 'Lendária'})</small>`;
+      if (c.unlock.kind === 'essence') how = `<span class="nexus-buy" data-color="${c.id}"><button data-action="ask" data-value="${c.id}"${profile.essence >= c.unlock.cost ? '' : ' disabled'}>${t('Comprar')} ${essence(c.unlock.cost)}</button></span>`;
+      else if (c.unlock.kind === 'achievement') how = `<small>🏆 ${t('Conquista: {name}', { name: ACHIEVEMENTS[c.unlock.id].name })}</small>`;
+      else how = `<small>✨ ${t('Altar')} (${c.unlock.tier === 'epic' ? t('Épica') : t('Lendária')})</small>`;
     }
     const inner = `<canvas data-nexus="${c.id}" data-model="${model}"></canvas><b>${c.name}</b>`;
     return unlocked
-      ? `<button class="nexus-skin${look.color === c.id ? ' selected' : ''}" data-action="color" data-value="${c.id}">${inner}<small>${c.animated ? 'Cores que mudam' : 'Liberada'}</small></button>`
+      ? `<button class="nexus-skin${look.color === c.id ? ' selected' : ''}" data-action="color" data-value="${c.id}">${inner}<small>${c.animated ? t('Cores que mudam') : t('Liberada')}</small></button>`
       : `<div class="nexus-skin locked">${inner}${how}</div>`;
   }).join('');
   const element = showOverlay(
     `<div class="panel screen">
       <div class="screen-head">
         <button data-action="back">${t('← Voltar')}</button>
-        <h2>Nexus</h2>
+        <h2>${t('Nexus')}</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>
-      <p class="subtitle">Cada fase tem seu próprio Nexus: escolha o modelo e a cor de cada uma. Só visual. Vencer fases libera modelos; cores vêm da Essência, de conquistas e do Altar.</p>
+      <p class="subtitle">${t('Cada fase tem seu próprio Nexus: escolha o modelo e a cor de cada uma. Só visual. Vencer fases libera modelos; cores vêm da Essência, de conquistas e do Altar.')}</p>
       <div class="nexus-stages">${tabs}</div>
-      <h3>Modelo</h3>
+      <h3>${t('Modelo')}</h3>
       <div class="nexus-grid">${mapCard}${models}</div>
-      <h3>Cor</h3>
+      <h3>${t('Cor')}</h3>
       <div class="nexus-grid">${original}${colors}</div>
     </div>`,
     {
