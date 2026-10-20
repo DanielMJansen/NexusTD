@@ -1,7 +1,7 @@
 # Página do Nexus TD no itch.io
 
 Guia para publicar o jogo e, abaixo, todo o texto e as configurações da página.
-Arquivos: o jogo em `release/nexus-td-1.0.0-itch.zip` (gerado por `npm run release:itch`); capa e capturas em `release/itch/`.
+Arquivos: o jogo em `release/nexus-td-1.0.0-itch.zip` (gerado por `npm run release:itch`); capa e capturas em `release/itch/`; banner, fundo, títulos e faixas da página em `release/itch/pagina/`.
 
 ## Como publicar (primeira vez, ~20 minutos)
 
@@ -11,14 +11,15 @@ Arquivos: o jogo em `release/nexus-td-1.0.0-itch.zip` (gerado por `npm run relea
 4. **Preço.** Escolha **$0 or donate** e coloque **US$ 3** como valor sugerido: o jogo é grátis, e quem quiser pode pagar o quanto quiser (inclusive nada). Para o dinheiro chegar até você, faça a seção "Receber as doações" (abaixo) antes ou logo depois de publicar.
 5. **Enviar o jogo.** Em *Uploads*, clique em **Upload files**, escolha `release/nexus-td-1.0.0-itch.zip` e, quando terminar de subir, marque **This file will be played in the browser**.
 6. **Janela do jogo.** Em *Embed options*: **Viewport dimensions** = 1280 × 720; marque **Fullscreen button**; deixe **Mobile friendly** e **Automatically start on page load** desmarcados.
-7. **Descrição.** Cole em *Description* os três blocos da seção "Descrição" (inglês, português e espanhol, nessa ordem).
+7. **Descrição.** Monte em *Description* o texto da seção "Descrição", enviando as imagens nos pontos marcados (botão de imagem do editor).
 8. **Classificação.** *Genre* = Strategy; *Tags* da tabela; responda a pergunta sobre IA (sugestão: sim, código e arte feitos com ajuda de IA).
 9. **Imagens.** *Cover image* = `release/itch/capa-630x500.png`; *Screenshots* = as 5 capturas de `release/itch/` (na ordem dos números).
 10. **Comentários.** Em *Community*, escolha **Comments** (é por lá que os jogadores vão dar retorno).
 11. **Salvar como rascunho.** Em *Visibility & access* deixe **Draft** e clique em **Save & view page**.
-12. **Conferir.** Na página, clique em **Run game**: o jogo deve abrir na tela "Clique para começar". Jogue um pouco, teste o botão de tela cheia e recarregue a página para ver se o progresso continua salvo.
-13. **Publicar.** Volte em **Edit game**, mude *Visibility & access* para **Public** e salve. Pronto: o jogo está no ar.
-14. **Divulgar.** Use a mensagem pronta do fim deste arquivo, com o link da página.
+12. **Deixar a página bonita.** Ainda em rascunho, clique em **Edit theme** no topo da página e aplique a seção "Visual da página (tema)": banner, fundo e cores. Salve.
+13. **Conferir.** Na página, clique em **Run game**: o jogo deve abrir na tela "Clique para começar". Jogue um pouco, teste o botão de tela cheia e recarregue a página para ver se o progresso continua salvo.
+14. **Publicar.** Volte em **Edit game**, mude *Visibility & access* para **Public** e salve. Pronto: o jogo está no ar.
+15. **Divulgar.** Use a mensagem pronta do fim deste arquivo, com o link da página.
 
 ## Como atualizar (cada versão nova)
 
@@ -59,96 +60,81 @@ Se o itch.io não deixar salvar "$0 or donate" antes disso, publique com **No pa
 | Community | **Comments** (canal de retorno dos jogadores) |
 | Visibility & access | **Draft** para conferir se o jogo abre → **Public** (decidido em 20/10/2026: publicar direto, sem playtest fechado) |
 
+## Visual da página (tema)
+
+Com a página aberta em rascunho, clique em **Edit theme** (barra no topo da sua página). Imagens em `release/itch/pagina/`.
+
+| Opção do tema | Valor |
+|---|---|
+| **Banner** (Header image) | `01-banner-960x250.png` (troca o título em texto pelo logo, com o Arcanjo e o Arquidemônio) |
+| **Hide title** | marcar (o banner já mostra o nome) |
+| **Background image** | `02-fundo-1920x1080.png`, sem repetir (*No repeat*), centralizado, fixo se houver a opção |
+| **Background color** (BG) | `#0b0716` |
+| **Background 2** (fundo da coluna do conteúdo) | `#160d2b` |
+| **Text** | `#e8dcff` |
+| **Link** | `#ffd25a` |
+| **Button** | `#7a4fd0` (texto do botão branco) |
+| **Fonts** | Título/Cabeçalhos: **Cinzel** se existir na lista; senão uma serifada (ex.: *Lora*). Texto: *Lato* ou *Open Sans* |
+
+Depois de salvar o tema, a página fica escura e roxa como o jogo, com o banner no topo.
+
 ## Descrição (campo "Description")
 
-> O itch.io aceita formatação simples. Colar os três blocos na ordem; o idioma do jogo segue o navegador e pode ser trocado em Settings → Language.
+> O editor do itch.io tem um botão de **imagem** na barra de formatação: onde aparece **[imagem: arquivo]** abaixo, envie a imagem de `release/itch/pagina/` (ou uma captura de `release/itch/`) naquele ponto. Os textos em **negrito** e as listas são feitos com os botões do próprio editor.
+>
+> O inglês vem completo porque é o idioma de quem chega pelo itch.io; português e espanhol vêm curtos no fim. O jogo em si segue o idioma do navegador.
 
 ---
-
-### 🇬🇧 English
 
 **One hero. An army of monsters. Defend the Nexus!**
 
-Nexus TD mixes **tower defense**, **survivor action** and a **roguelite** run: you control a hero on the battlefield while your summoned creatures hold the line as living towers around the Nexus.
+Nexus TD mixes **tower defense**, **survivor action** and a **roguelite** run. You fight on the battlefield with your hero while the creatures you summon hold the line as living towers around the Nexus.
 
-**What you do**
-- **Summon creatures** from your team and place them along the enemy paths. Each one has a role: damage, area, control, blocking or support.
-- **Fight with your hero**: move with WASD, attack automatically and unleash a unique **Pulse** ability.
-- **Evolve** creatures in battle and choose between two paths at level 3. Awakened creatures can reach a **Supreme Form**.
-- **Upgrade the Nexus** with gold: health, a bolt, a shield and a slowing field.
-- After each wave, **pick 1 of 3 upgrades** and build a different run every time.
+[imagem: `release/itch/captura-1-citadel.png`]
 
-**What's in it**
-- **5 stages** with their own rules: the Graveyard, a Swamp of sticky mud, a Frozen Tundra with blizzards and cracking ice, a Golden Desert with two Obelisks to protect, and a Celestial Citadel where the sky tears open into portals.
-- **12 races, 36 creatures and 12 heroes**, each with their own art, abilities and evolutions.
-- **Permanent progression**: talents, a Sanctuary to strengthen your creatures, Relics dropped by bosses, an Altar of cosmetic variants, achievements and skins.
-- **Endless mode** with mutations, and Ascension levels for an extra challenge.
+[imagem: `titulo-features.png`]
 
-**Controls**
-WASD/arrows or click: move · 1–8 or drag a card: summon · Click a creature: evolve/sell · E: evolve · V: sell · N: upgrade the Nexus · Space: Pulse · F: speed · 0: freeze time · Mouse wheel: zoom · P/Esc: pause
+- 🛡️ **Summon creatures** and place them along the enemy paths. Damage, area, control, blocking or support: every creature has a role.
+- ⚔️ **Fight with your hero**: move with WASD, attack automatically and unleash a unique **Pulse** ability.
+- ⬆️ **Evolve** creatures mid-battle and choose one of two paths at level 3. Awakened creatures reach a **Supreme Form**.
+- 💎 **Upgrade the Nexus** with gold: more health, a bolt, a shield and a slowing field.
+- 🎲 After each wave, **pick 1 of 3 upgrades**. Every run plays differently.
 
-**Good to know**
-- Made for **desktop browsers** with mouse and keyboard.
-- Your progress is saved **in your browser**. To move it to another computer, use Settings → Export/Import save.
-- The game is **in development**: balance and content may change. Feedback in the comments is very welcome!
+[imagem: `titulo-heroes.png`]
 
----
+**12 heroes**, one per race, each with their own attack, Pulse and race bonus.
 
-### 🇧🇷 Português
+[imagem: `faixa-herois.png`]
 
-**Um herói. Um exército de monstros. Defenda o Nexus!**
+[imagem: `titulo-creatures.png`]
 
-Nexus TD mistura **tower defense**, **ação survivor** e uma **run roguelite**: você controla um herói no campo de batalha enquanto as criaturas que você invoca seguram a linha como torres vivas ao redor do Nexus.
+**36 creatures** across 12 races, each with two evolution paths, a Supreme Form and collectible variants.
 
-**O que você faz**
-- **Invoca criaturas** da sua equipe e posiciona ao longo das trilhas dos inimigos. Cada uma tem um papel: dano, área, controle, bloqueio ou suporte.
-- **Luta com o herói**: anda com WASD, ataca sozinho e solta um **Pulso**, uma habilidade única de cada herói.
-- **Evolui** as criaturas durante a batalha e escolhe entre duas vertentes no nível 3. Criaturas despertas chegam a uma **Forma Suprema**.
-- **Melhora o Nexus** com ouro: vida, raio, escudo e campo de lentidão.
-- Ao fim de cada onda, **escolhe 1 entre 3 melhorias** e monta uma run diferente a cada vez.
+[imagem: `faixa-criaturas.png`]
 
-**O que tem no jogo**
-- **5 fases** com regras próprias: o Cemitério, um Pântano de lama que prende, uma Tundra Gelada com nevascas e gelo que racha, um Deserto Dourado com dois Obeliscos para proteger e uma Cidadela Celeste onde o céu se rasga em portais.
-- **12 raças, 36 criaturas e 12 heróis**, cada um com arte, habilidades e evoluções próprias.
-- **Progresso permanente**: talentos, um Santuário para fortalecer as criaturas, Relíquias deixadas pelos chefes, um Altar de variantes cosméticas, conquistas e skins.
-- **Modo Sem Fim** com mutações e níveis de Ascensão para quem quer mais desafio.
+[imagem: `titulo-stages.png`]
 
-**Controles**
-WASD/setas ou clique: mover · 1–8 ou arrastar a carta: invocar · Clique na criatura: evoluir/vender · E: evoluir · V: vender · N: melhorar o Nexus · Espaço: Pulso · F: velocidade · 0: congelar o tempo · Roda do mouse: zoom · P/Esc: pausar
+**5 stages**, each with its own rules: sticky mud, cracking ice and blizzards, sandstorms with two Obelisks to protect, and a sky that tears open into portals.
 
-**Bom saber**
-- Feito para **navegador de computador**, com mouse e teclado.
-- O progresso fica salvo **no seu navegador**. Para levar para outro computador, use Configurações → Exportar/Importar save.
-- O jogo está **em desenvolvimento**: equilíbrio e conteúdo ainda podem mudar. Comentários são muito bem-vindos!
+[imagem: `faixa-fases.png`]
 
----
+[imagem: `release/itch/captura-2-tundra.png`]
 
-### 🇪🇸 Español
+Plus **permanent progression** (talents, a Sanctuary, Relics dropped by bosses, an Altar of cosmetic variants, achievements and skins), an **Endless mode** with mutations and **Ascension** levels.
 
-**Un héroe. Un ejército de monstruos. ¡Defiende el Nexus!**
+[imagem: `titulo-controls.png`]
 
-Nexus TD mezcla **tower defense**, **acción survivor** y una **partida roguelite**: controlas a un héroe en el campo de batalla mientras las criaturas que invocas aguantan la línea como torres vivientes alrededor del Nexus.
+**WASD / arrows / click** move · **1–8 or drag a card** summon · **click a creature** evolve or sell · **E** evolve · **V** sell · **N** upgrade the Nexus · **Space** Pulse · **F** speed · **0** freeze time · **mouse wheel** zoom · **P / Esc** pause
 
-**Qué haces**
-- **Invocas criaturas** de tu equipo y las colocas a lo largo de los caminos enemigos. Cada una tiene un papel: daño, área, control, bloqueo o apoyo.
-- **Luchas con el héroe**: te mueves con WASD, atacas automáticamente y lanzas un **Pulso**, una habilidad única de cada héroe.
-- **Evolucionas** a las criaturas en plena batalla y eliges entre dos vertientes en el nivel 3. Las criaturas despertadas alcanzan una **Forma Suprema**.
-- **Mejoras el Nexus** con oro: vida, rayo, escudo y campo de ralentización.
-- Al final de cada oleada, **eliges 1 de 3 mejoras** y cada partida es distinta.
+Made for **desktop browsers** with mouse and keyboard. Your progress is saved in your browser (Settings → Export/Import save to move it). The game is **in development**: feedback in the comments is very welcome! 💜
 
-**Qué incluye**
-- **5 fases** con reglas propias: el Cementerio, un Pantano de barro que atrapa, una Tundra Helada con ventiscas y hielo que se agrieta, un Desierto Dorado con dos Obeliscos que proteger y una Ciudadela Celeste donde el cielo se rasga en portales.
-- **12 razas, 36 criaturas y 12 héroes**, cada uno con su arte, habilidades y evoluciones.
-- **Progreso permanente**: talentos, un Santuario para fortalecer a tus criaturas, Reliquias que sueltan los jefes, un Altar de variantes cosméticas, logros y aspectos.
-- **Modo Sin Fin** con mutaciones y niveles de Ascensión para quien quiera más desafío.
+[imagem: `titulo-portugues.png`]
 
-**Controles**
-WASD/flechas o clic: mover · 1–8 o arrastrar la carta: invocar · Clic en una criatura: evolucionar/vender · E: evolucionar · V: vender · N: mejorar el Nexus · Espacio: Pulso · F: velocidad · 0: congelar el tiempo · Rueda del ratón: zoom · P/Esc: pausa
+**Um herói. Um exército de monstros. Defenda o Nexus!** Tower defense, ação survivor e roguelite: invoque criaturas como torres vivas, lute com seu herói e evolua seu exército. 5 fases, 12 heróis, 36 criaturas, progresso permanente e modo Sem Fim. O jogo abre em português se o seu navegador estiver em português (ou troque em Configurações → Idioma). Feito para computador. Comentários são muito bem-vindos!
 
-**Conviene saber**
-- Hecho para **navegador de ordenador**, con ratón y teclado.
-- Tu progreso se guarda **en tu navegador**. Para llevarlo a otro ordenador, usa Ajustes → Exportar/Importar progreso.
-- El juego está **en desarrollo**: el equilibrio y el contenido aún pueden cambiar. ¡Los comentarios son muy bienvenidos!
+[imagem: `titulo-espanol.png`]
+
+**Un héroe. Un ejército de monstruos. ¡Defiende el Nexus!** Tower defense, acción survivor y roguelite: invoca criaturas como torres vivientes, lucha con tu héroe y haz evolucionar a tu ejército. 5 fases, 12 héroes, 36 criaturas, progreso permanente y modo Sin Fin. El juego se abre en español si tu navegador está en español (o cámbialo en Ajustes → Idioma). Hecho para ordenador. ¡Los comentarios son muy bienvenidos!
 
 ## Mensagem para divulgar (amigos, grupos, redes)
 
