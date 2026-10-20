@@ -13,7 +13,7 @@ Texto e configurações para a página do jogo. Copiar cada bloco para o campo i
 | Classification | Games |
 | Kind of project | **HTML** |
 | Release status | **In development** |
-| Pricing | **No payments** (grátis) |
+| Pricing | **$0 or donate** com valor sugerido de **US$ 3** (exige PayPal/Stripe e o formulário W-8BEN em Settings → Payouts; até lá, **No payments**) |
 | Uploads | `nexus-td-<versão>-itch.zip` → marcar **This file will be played in the browser** |
 | Embed options → Viewport dimensions | **1280 × 720** |
 | Embed options → marcar | **Fullscreen button**; deixar **Mobile friendly** desmarcado (o jogo é para computador) |
@@ -24,7 +24,7 @@ Texto e configurações para a página do jogo. Copiar cada bloco para o campo i
 | Cover image | `release/itch/capa-630x500.png` |
 | Screenshots | `release/itch/captura-1…5` |
 | Community | **Comments** ligado (é o canal de retorno do playtest) |
-| Visibility & access | **Draft** para conferir → **Restricted** (com senha) para o playtest → **Public** depois |
+| Visibility & access | **Draft** para conferir se o jogo abre → **Public** (decidido em 20/10/2026: publicar direto, sem playtest fechado) |
 
 ## Descrição (campo "Description")
 
@@ -57,7 +57,7 @@ WASD/arrows or click: move · 1–8 or drag a card: summon · Click a creature: 
 **Good to know**
 - Made for **desktop browsers** with mouse and keyboard.
 - Your progress is saved **in your browser**. To move it to another computer, use Settings → Export/Import save.
-- This is an **early playtest version**: balance may change. Feedback in the comments is very welcome!
+- The game is **in development**: balance and content may change. Feedback in the comments is very welcome!
 
 ---
 
@@ -86,7 +86,7 @@ WASD/setas ou clique: mover · 1–8 ou arrastar a carta: invocar · Clique na c
 **Bom saber**
 - Feito para **navegador de computador**, com mouse e teclado.
 - O progresso fica salvo **no seu navegador**. Para levar para outro computador, use Configurações → Exportar/Importar save.
-- Esta é uma **versão de teste**: o equilíbrio ainda pode mudar. Comentários são muito bem-vindos!
+- O jogo está **em desenvolvimento**: equilíbrio e conteúdo ainda podem mudar. Comentários são muito bem-vindos!
 
 ---
 
@@ -115,14 +115,14 @@ WASD/flechas o clic: mover · 1–8 o arrastrar la carta: invocar · Clic en una
 **Conviene saber**
 - Hecho para **navegador de ordenador**, con ratón y teclado.
 - Tu progreso se guarda **en tu navegador**. Para llevarlo a otro ordenador, usa Ajustes → Exportar/Importar progreso.
-- Es una **versión de prueba**: el equilibrio aún puede cambiar. ¡Los comentarios son muy bienvenidos!
+- El juego está **en desarrollo**: el equilibrio y el contenido aún pueden cambiar. ¡Los comentarios son muy bienvenidos!
 
-## Mensagem para quem vai testar (playtest fechado)
+## Mensagem para divulgar (amigos, grupos, redes)
 
-> Para mandar junto com o link e a senha.
+> Para mandar junto com o link.
 
 Oi! Estou testando meu jogo, o **Nexus TD**, e queria muito a sua opinião.
-- **Link:** `https://<seu-usuario>.itch.io/nexus-td` · **Senha:** `<senha>`
+- **Link:** `https://<seu-usuario>.itch.io/nexus-td`
 - Jogue no computador, com mouse e teclado. Uma partida leva uns 15–25 minutos.
 - Depois, deixe um comentário na página (ou me mande mensagem) contando: o que achou divertido, o que ficou confuso, até que fase chegou e se encontrou algum problema.
 Obrigado!
