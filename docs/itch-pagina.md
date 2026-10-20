@@ -11,7 +11,7 @@ Arquivos: o jogo em `release/nexus-td-1.0.0-itch.zip` (gerado por `npm run relea
 4. **Preço.** Escolha **$0 or donate** e coloque **US$ 3** como valor sugerido: o jogo é grátis, e quem quiser pode pagar o quanto quiser (inclusive nada). Para o dinheiro chegar até você, faça a seção "Receber as doações" (abaixo) antes ou logo depois de publicar.
 5. **Enviar o jogo.** Em *Uploads*, clique em **Upload files**, escolha `release/nexus-td-1.0.0-itch.zip` e, quando terminar de subir, marque **This file will be played in the browser**.
 6. **Janela do jogo.** Em *Embed options*: **Viewport dimensions** = 1280 × 720; marque **Fullscreen button**; deixe **Mobile friendly** e **Automatically start on page load** desmarcados.
-7. **Descrição.** Monte em *Description* o texto da seção "Descrição", enviando as imagens nos pontos marcados (botão de imagem do editor).
+7. **Descrição.** Abra `release/itch/descricao-para-colar.txt`, copie o texto e cole em *Description*; depois troque cada linha ">>> IMAGEM N <<<" pela imagem indicada (botão de imagem do editor).
 8. **Classificação.** *Genre* = Strategy; *Tags* da tabela; responda a pergunta sobre IA (sugestão: sim, código e arte feitos com ajuda de IA).
 9. **Imagens.** *Cover image* = `release/itch/capa-630x500.png`; *Screenshots* = as 5 capturas de `release/itch/` (na ordem dos números).
 10. **Comentários.** Em *Community*, escolha **Comments** (é por lá que os jogadores vão dar retorno).
