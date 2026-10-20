@@ -13,7 +13,7 @@ Jogo de **navegador para computador** (paisagem 16:9, mouse e teclado): Tower De
 - `npm run docs:values` gera `docs/valores.md` (números atuais lidos de `src/data`); rode após mudar balanceamento.
 - `npm run stop` encerra processos que ficaram rodando do projeto (bot de calibragem, Vite, esbuild, Edge de testes).
 - `npm run calib -- [raça]` roda o bot de calibragem (`scripts/calib.ts`; variáveis STAGE, TAL, N, SYN, ENDLESS, AWAKE/AWAKEN no topo do arquivo).
-- `npm run calib:matrix` roda a matriz completa da CAL (5 fases × talentos 2500/max, N=30; ~3 h com o PC livre) e salva os relatórios em `calib-results/<data>/` (ignorada pelo git).
+- `npm run calib:matrix` roda a matriz completa da CAL (5 fases × talentos 2500/max, N=30, as 10 combinações em paralelo com prioridade baixa; PAR limita quantas ao mesmo tempo) e salva os relatórios em `calib-results/<data>/` (ignorada pelo git).
 
 ## Arquitetura (`src/`)
 - `data/` — tudo que é conteúdo e balanceamento, como dados: `config` (arena, Nexus, economia, loja, recompensas), `creatures` (criaturas, habilidades e efeitos de golpe como uniões discriminadas, duas vertentes no nível 3, descrição/lore), `evolution`, `heroes` (um por raça: ataque, Pulso, bônus de raça), `enemies` (habilidades como uniões discriminadas), `waves` (20 ondas, escalonamento, elites, Sem Fim), `heroUpgrades`, `nexusUpgrades` (melhorias do Nexus e loot), `upgrades` (melhorias da run), `talents` (árvore), `achievements`, `skins`, `relics` (Relíquias).
