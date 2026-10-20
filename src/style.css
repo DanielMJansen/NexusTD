@@ -395,11 +395,14 @@ kbd {
   flex-direction: column;
   align-items: flex-start;
   line-height: 1.1;
+  /* o botão tem largura fixa: nomes longos de Pulso (outros idiomas) quebram a linha em vez de empurrar a tecla para fora */
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .pulse-label b {
   font: 700 14px var(--font-label);
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .pulse-label small {
@@ -3686,24 +3689,21 @@ body:not([data-mode='run']) .panel.screen {
   margin: 0 auto;
 }
 
-/* janelas mais baixas (notebooks 1366×768 etc.): as telas de menu encolhem um pouco para caber sem rolagem */
+/* janelas mais baixas (notebooks 1366×768, página do itch.io em 1280×720): os quadros do jogo encolhem um pouco para caber sem rolagem */
 @media (max-height: 860px) {
-  body:not([data-mode='run']) .panel.screen,
-  .panel.settings {
+  #overlay .panel {
     zoom: 0.9;
   }
 }
 
 @media (max-height: 800px) {
-  body:not([data-mode='run']) .panel.screen,
-  .panel.settings {
+  #overlay .panel {
     zoom: 0.84;
   }
 }
 
 @media (max-height: 720px) {
-  body:not([data-mode='run']) .panel.screen,
-  .panel.settings {
+  #overlay .panel {
     zoom: 0.78;
   }
 }

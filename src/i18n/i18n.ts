@@ -34,7 +34,7 @@ export const getLang = (): Lang => current;
 
 /** Nome de equipe salva: o padrão gravado no save ("Equipe 2") aparece traduzido; nomes dados pelo jogador ficam como estão. */
 export const loadoutLabel = (name: string): string => {
-  const n = /^Equipe (d+)$/.exec(name)?.[1];
+  const n = /^Equipe (\d+)$/.exec(name)?.[1];
   return n ? t('Equipe {n}', { n }) : name;
 };
 
