@@ -1,11 +1,11 @@
-// Regras gerais e números soltos. Valores de referência: GDD seção 9.
+﻿// Regras gerais e nÃºmeros soltos. Valores de referÃªncia: GDD seÃ§Ã£o 9.
 import type { CreatureId } from './creatures';
 
 export const GAME_TITLE = 'NEXUS TD';
-/** Versão mostrada no menu e em Configurações → Sobre (1.0 = lançamento). */
-export const GAME_VERSION = '1.0.0';
+/** VersÃ£o mostrada no menu e em ConfiguraÃ§Ãµes â†’ Sobre (1.0 = lanÃ§amento). */
+export const GAME_VERSION = '1.0.1';
 
-/** Mundo do jogo em unidades lógicas (16:9); o canvas escala para a tela. */
+/** Mundo do jogo em unidades lÃ³gicas (16:9); o canvas escala para a tela. */
 export const ARENA = {
   width: 640,
   height: 360,
@@ -13,27 +13,27 @@ export const ARENA = {
 };
 
 /**
- * Primeiro companheiro (grátis, escolha única): uma criatura mística por papel — alvo único, área e
- * suporte. Bot no Cemitério sem talentos, com o Arqueiro (que todos já têm) + a escolhida: Alfa 27/30,
- * Fogo 26/30, Duelista 20/30; só o Arqueiro: 12/30 (13/10/2026).
+ * Primeiro companheiro (grÃ¡tis, escolha Ãºnica): uma criatura mÃ­stica por papel â€” alvo Ãºnico, Ã¡rea e
+ * suporte. Bot no CemitÃ©rio sem talentos, com o Arqueiro (que todos jÃ¡ tÃªm) + a escolhida: Alfa 27/30,
+ * Fogo 26/30, Duelista 20/30; sÃ³ o Arqueiro: 12/30 (13/10/2026).
  */
 export const STARTER_CHOICES = ['duelist', 'fireDragon', 'alpha'] as const satisfies readonly CreatureId[];
 
 export const NEXUS = {
   baseHp: 100,
   healBetweenWaves: 10,
-  /** Distância em que um inimigo atinge o Nexus. */
+  /** DistÃ¢ncia em que um inimigo atinge o Nexus. */
   contactRadius: 16,
-  /** Inimigos colados no Nexus golpeiam a cada N segundos até morrer (chefes mais devagar). */
+  /** Inimigos colados no Nexus golpeiam a cada N segundos atÃ© morrer (chefes mais devagar). */
   enemyAttackInterval: 2,
   bossAttackInterval: 2.5,
-  /** Distância mínima do Nexus para posicionar criaturas. */
+  /** DistÃ¢ncia mÃ­nima do Nexus para posicionar criaturas. */
   placementClearance: 28,
 };
 
-/** Onde o herói começa e quanto pode chegar perto da borda. Atributos de cada herói: data/heroes.ts. */
+/** Onde o herÃ³i comeÃ§a e quanto pode chegar perto da borda. Atributos de cada herÃ³i: data/heroes.ts. */
 export const HERO_PLACEMENT = {
-  /** Posição inicial: abaixo do Nexus. */
+  /** PosiÃ§Ã£o inicial: abaixo do Nexus. */
   startOffsetY: 55,
   edgeMargin: 10,
 };
@@ -42,7 +42,7 @@ export const ECONOMY = {
   startGold: 30,
   passiveIncome: { amount: 1, interval: 2 },
   creatureLimit: 5,
-  /** Custo = base × costGrowth^(cópias da classe em campo). */
+  /** Custo = base Ã— costGrowth^(cÃ³pias da classe em campo). */
   costGrowth: 1.5,
   sellRefund: 0.6,
 };
@@ -52,22 +52,22 @@ export const CHOICES = {
   count: 3,
 };
 
-/** Loja entre ondas (na tela de escolha após cada onda vencida). */
+/** Loja entre ondas (na tela de escolha apÃ³s cada onda vencida). */
 export const SHOP = {
-  /** Sortear de novo as opções: custo = baseCost + costStep × vezes já sorteadas na run. */
+  /** Sortear de novo as opÃ§Ãµes: custo = baseCost + costStep Ã— vezes jÃ¡ sorteadas na run. */
   reroll: { baseCost: 10, costStep: 10 },
-  /** +1 vaga de criatura: custo = baseCost × costGrowth^(vagas já compradas). */
+  /** +1 vaga de criatura: custo = baseCost Ã— costGrowth^(vagas jÃ¡ compradas). */
   extraSlot: { baseCost: 60, costGrowth: 2, max: 3 },
 };
 
-/** Essência = 3 × onda + 1 a cada 5 abates + 30 se vencer. */
-/** Objetos do mapa: distância para o herói ativar e tempo parado perto para ativar. */
+/** EssÃªncia = 3 Ã— onda + 1 a cada 5 abates + 30 se vencer. */
+/** Objetos do mapa: distÃ¢ncia para o herÃ³i ativar e tempo parado perto para ativar. */
 export const INTERACT = {
   reach: 24,
   time: 2,
 };
 
-/** Equipes salvas: grátis, máximo e preço de cada vaga extra (Essência). */
+/** Equipes salvas: grÃ¡tis, mÃ¡ximo e preÃ§o de cada vaga extra (EssÃªncia). */
 export const LOADOUTS = {
   free: 3,
   max: 5,
