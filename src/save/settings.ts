@@ -19,8 +19,11 @@ export interface Settings {
   quality: Quality;
   /** Medidor de quadros por segundo no canto da tela. */
   showFps: boolean;
-  /** Modo administrador (liberado por código): botão 🛠 Admin no menu. */
-  admin: boolean;
+  /**
+   * Código de administrador digitado (vazio = sem Admin). Guarda-se o código, não um "sim": editar o save
+   * à mão não libera o Admin, porque o app confere o hash dele ao abrir (`adminUnlocked` no App).
+   */
+  adminCode: string;
   /** Teclas configuradas (Controles). */
   keys: KeyBindings;
   /** Idioma do jogo (padrão: o do navegador). */
@@ -41,7 +44,7 @@ const DEFAULT_SETTINGS: Settings = {
   tutorialDone: false,
   quality: 'auto',
   showFps: false,
-  admin: false,
+  adminCode: '',
   keys: { ...DEFAULT_BINDINGS },
   language: 'pt',
 };
@@ -61,7 +64,7 @@ export function sanitizeSettings(data: unknown): Settings {
     tutorialDone: raw.tutorialDone === true,
     quality: raw.quality === 'high' || raw.quality === 'medium' || raw.quality === 'low' ? raw.quality : 'auto',
     showFps: raw.showFps === true,
-    admin: raw.admin === true,
+    adminCode: typeof raw.adminCode === 'string' ? raw.adminCode.slice(0, 64) : '',
     keys: sanitizeBindings(raw.keys),
     // sem idioma salvo (jogador novo ou configurações antigas): português até a tradução dos dados terminar;
     // depois passa a seguir o navegador (detectLang)

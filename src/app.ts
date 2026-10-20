@@ -89,6 +89,8 @@ type Mode = 'entry' | 'menu' | 'run';
 export class App {
   private profile: Profile = loadProfile();
   private settings: Settings = loadSettings();
+  /** Admin liberado nesta sessão (código guardado confere com o hash). */
+  private adminUnlocked = false;
   private run: RunState;
   private mode: Mode = 'entry';
   private quality = new RenderQuality();
@@ -201,6 +203,11 @@ export class App {
   }
 
   start(): void {
+    // Admin só com o código certo guardado (conferido pelo hash; editar o save à mão não basta)
+    if (this.settings.adminCode)
+      void sha256(this.settings.adminCode).then((hash) => {
+        this.adminUnlocked = hash === ADMIN_HASH;
+      });
     showEntry(() => this.leaveEntry());
     requestAnimationFrame((t) => this.frame(t));
   }
@@ -259,7 +266,8 @@ export class App {
       onResetSave: () => this.resetSave(),
       onRedeem: async (code) => {
         if ((await sha256(code.trim().toUpperCase())) === ADMIN_HASH) {
-          this.updateSettings({ admin: true });
+          this.adminUnlocked = true;
+          this.updateSettings({ adminCode: code.trim().toUpperCase() });
           return t('🛠 Modo administrador ativado: botão Admin no menu.');
         }
         const gift = await redeemGiftCode(this.profile, code);
@@ -596,7 +604,7 @@ export class App {
       return;
     }
     showMenu(this.profile, savedRunSummary(), {
-      onAdmin: this.settings.admin ? () => this.openAdmin() : undefined,
+      onAdmin: this.adminUnlocked ? () => this.openAdmin() : undefined,
       onPlay: () => this.startRun(),
       onContinue: () => this.continueRun(),
       onTeam: () => this.openTeam(),
@@ -904,7 +912,7 @@ export class App {
         clearRun();
         this.openMenu();
       },
-      onAdmin: this.settings.admin
+      onAdmin: this.adminUnlocked
         ? (action) => {
             applyAdminRunAction(this.run, action);
             this.sound.play('coin');
