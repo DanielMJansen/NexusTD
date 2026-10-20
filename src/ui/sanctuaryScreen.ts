@@ -93,7 +93,7 @@ function cardHtml(profile: Profile, id: CreatureId, highlight?: CreatureId): str
 /** Santuário: nível permanente das criaturas da coleção, pago com Fragmentos da raça; no máximo, Despertar. */
 export function showSanctuary(profile: Profile, handlers: SanctuaryHandlers, highlight?: CreatureId): void {
   const races = racesInOrder(profile).filter((race) => ALL_CREATURE_IDS.some((id) => CREATURES[id].race === race && profile.ownedCreatures.includes(id)));
-  const tabs: Tab[] = races.map((race) => ({ id: race, label: race, badge: `${profile.fragments[race] ?? 0} ❖`, color: CREATURES[ALL_CREATURE_IDS.find((id) => CREATURES[id].race === race)!].color }));
+  const tabs: Tab[] = races.map((race) => ({ id: race, label: t(race), badge: `${profile.fragments[race] ?? 0} ❖`, color: CREATURES[ALL_CREATURE_IDS.find((id) => CREATURES[id].race === race)!].color }));
   if (highlight) setTab('sanctuary', CREATURES[highlight].race);
   const race = currentTab('sanctuary', tabs);
   const owned = ALL_CREATURE_IDS.filter((id) => CREATURES[id].race === race && profile.ownedCreatures.includes(id));

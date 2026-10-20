@@ -8,6 +8,7 @@ import { ENEMIES, type EnemyTrait } from '../data/enemies';
 import type { HeroDef, RaceBonus } from '../data/heroes';
 import type { HeroStat } from '../data/heroUpgrades';
 import type { TalentEffectKind } from '../data/talents';
+import { t } from '../i18n/i18n';
 
 export const formatNumber = (n: number): string => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
 
@@ -220,7 +221,7 @@ export function enemyTraitText(t: EnemyTrait): string {
 
 /** "Vampiro · Atacante corpo a corpo, alvo único". */
 export function creatureClassLine(def: CreatureDef): string {
-  return `${def.race} · ${CREATURE_CLASSES[def.classe]}${def.classDetail ? `, ${def.classDetail}` : ''}`;
+  return `${t(def.race)} · ${CREATURE_CLASSES[def.classe]}${def.classDetail ? `, ${def.classDetail}` : ''}`;
 }
 
 /** Texto de habilidade com o termo próprio em negrito ("<b>Frenesi:</b> ..."). */

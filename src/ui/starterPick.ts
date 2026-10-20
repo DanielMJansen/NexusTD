@@ -4,6 +4,7 @@ import type { Profile } from '../game/profile';
 import { gold } from './currency';
 import { abilityText, ascendedFormsHtml, creatureStats } from './describe';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 /** Opções do primeiro companheiro (as três fixas que ainda não estão na coleção). */
 export function starterOptions(profile: Profile): CreatureId[] {
@@ -21,7 +22,7 @@ export function showStarterPick(profile: Profile, onPick: (id: CreatureId) => vo
       const def = CREATURES[id];
       return `<button class="starter-option" style="--card-color:${def.color}" data-action="view" data-value="${id}">
         <canvas data-sprite="${id}"></canvas>
-        <span class="choice-kind">${def.race}</span>
+        <span class="choice-kind">${t(def.race)}</span>
         <b>${def.name}</b>
         <span class="starter-role">${def.role}</span>
         <small>${def.description}</small>
@@ -49,7 +50,7 @@ function showStarterConfirm(profile: Profile, id: CreatureId, onPick: (id: Creat
   showOverlay(
     `<div class="panel starter-confirm" style="--card-color:${def.color}">
       <canvas data-sprite="${id}"></canvas>
-      <h2>${def.race} ${def.name}</h2>
+      <h2>${t(def.race)} ${def.name}</h2>
       <p class="subtitle">${def.role}</p>
       <p>${def.description}</p>
       <dl class="cc-stats">${stats}<dt>Custo por unidade</dt><dd>${gold(def.baseCost)}</dd></dl>

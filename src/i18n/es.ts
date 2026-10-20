@@ -218,4 +218,21 @@ export const ES: Record<string, string> = {
   'Próxima fase': 'Siguiente fase',
   'MELHORAR': 'MEJORAR',
   'Melhor onda': 'Mejor oleada',
+
+  // raças (a chave interna continua em português) e textos ligados a elas
+  'Humano': 'Humano',
+  'Vampiro': 'Vampiro',
+  'Dragão': 'Dragón',
+  'Lobisomem': 'Hombre lobo',
+  'Fantasma': 'Fantasma',
+  'Bruxa': 'Bruja',
+  'Fada': 'Hada',
+  'Golem': 'Gólem',
+  'Necromante': 'Nigromante',
+  'Górgona': 'Gorgona',
+  'Demônio': 'Demonio',
+  'Anjo': 'Ángel',
+  'Unicórnio': 'Unicornio',
+  'investido': 'invertido',
+  'Dano {race}': 'Daño {race}',
 };

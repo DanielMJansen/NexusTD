@@ -43,7 +43,7 @@ export interface VariantTheme {
  * cores; a Épica e a Lendária também mudam a forma (acessórios), em todas as formas da criatura. `colors`
  * e `accent` pintam ataques, aura e partículas; o desenho em si fica no sprite (`pose.variant`).
  */
-const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantTheme>>> = {
+export const CREATURE_VARIANTS: Partial<Record<CreatureId, Record<VariantTier, VariantTheme>>> = {
   archer: {
     rare: { name: 'Patrulheiro do Outono', colors: ['#ffb04a', '#c0601a'], strength: 0, accent: '#ff9a3a', art: true },
     epic: { name: 'Caçador de Bestas', colors: ['#ffc860', '#c07a20', '#6a3a10'], strength: 0, accent: '#ffb030', art: true },

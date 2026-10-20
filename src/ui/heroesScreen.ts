@@ -64,7 +64,7 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
     .map((id) => {
       const owned = ownsHero(profile, id);
       const classes = ['hero-pick', id === shown ? 'active' : '', owned ? '' : 'locked', profile.selectedHero === id ? 'chosen' : ''].filter(Boolean).join(' ');
-      return `<button class="${classes}" data-action="tab" data-value="${id}" style="--card-color:${HEROES[id].color}" title="${HEROES[id].name} · ${HEROES[id].race}">
+      return `<button class="${classes}" data-action="tab" data-value="${id}" style="--card-color:${HEROES[id].color}" title="${HEROES[id].name} · ${t(HEROES[id].race)}">
         <canvas data-sprite="${id}" data-skin="${heroSkin(profile, id).id}"${owned ? '' : ' data-silhouette'}></canvas>
         <span>${owned ? '' : '🔒 '}${HEROES[id].name}</span>
         ${profile.selectedHero === id ? '<small class="hero-pick-badge">✓</small>' : ''}
@@ -80,7 +80,7 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
         <div class="hero-stats"><span title="Vida máxima">♥ ${def.maxHp} de vida</span><span title="Velocidade de movimento">➹ ${def.speed} de velocidade</span></div>
       </div>
       <div class="hero-info">
-        <div class="hero-title"><h3>${def.name}</h3><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${def.race} · ${def.role}</span></div>
+        <div class="hero-title"><h3>${def.name}</h3><span><canvas class="inline-badge" data-race="${def.race}"></canvas>${t(def.race)} · ${def.role}</span></div>
         <p class="hero-tagline">${def.description}</p>
         <p class="hero-lore">${def.lore}</p>
         <p class="hero-fight">${heroFightText(def)}</p>

@@ -15,6 +15,7 @@ import type { Interaction } from '../input/interaction';
 import { gold } from './currency';
 import { abilityText, formatNumber } from './describe';
 import { paintRaceBadge } from '../render/raceIcons';
+import { t } from '../i18n/i18n';
 
 export interface CreaturePopupHandlers {
   /** Evoluir a criatura inspecionada; `branch` na escolha da vertente. */
@@ -148,7 +149,7 @@ export class CreaturePopup {
 
     const armed = this.interaction.sellArmed;
     return `<div class="cp-head"><b>${creatureName(creature)}</b><span class="stars">${stars}</span></div>
-      <div class="cp-sub"><canvas class="inline-badge" data-race="${creature.def.race}"></canvas>${creature.def.race} · investido ${gold(creature.paid)}</div>
+      <div class="cp-sub"><canvas class="inline-badge" data-race="${creature.def.race}"></canvas>${t(creature.def.race)} · ${t('investido')} ${gold(creature.paid)}</div>
       <dl class="cp-stats">
         <dt>Dano</dt><dd>${round1(now.damage)}</dd>
         <dt>Ataques/s</dt><dd>${round2(now.speed)}${creature.auraBonus > 0 ? ' <small>(aura)</small>' : ''}</dd>

@@ -54,7 +54,7 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
   const races = racesInOrder(profile).filter((race) => ALL_CREATURE_IDS.some((id) => CREATURES[id].race === race && ownsCreature(profile, id)));
   const tabs: Tab[] = races.map((race) => {
     const ids = ALL_CREATURE_IDS.filter((id) => CREATURES[id].race === race && ownsCreature(profile, id));
-    return { id: race, label: race, badge: `${ids.filter((id) => profile.team.includes(id)).length}`, color: CREATURES[ids[0]!].color };
+    return { id: race, label: t(race), badge: `${ids.filter((id) => profile.team.includes(id)).length}`, color: CREATURES[ids[0]!].color };
   });
   const race = currentTab('team', tabs);
   const options = ALL_CREATURE_IDS.filter((id) => ownsCreature(profile, id) && CREATURES[id].race === race)
@@ -64,7 +64,7 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
       const tag = inTeam ? '✓ Na equipe' : full ? 'Equipe cheia' : 'Adicionar';
       return `<button class="team-option${inTeam ? ' in-team' : ''}" style="--card-color:${def.color}" data-action="toggle" data-value="${id}"${!inTeam && full ? ' disabled' : ''}>
         <canvas data-sprite="${id}"></canvas>
-        <span><b>${def.name}</b><small>${def.race} · ${def.role}</small></span>
+        <span><b>${def.name}</b><small>${t(def.race)} · ${def.role}</small></span>
         <em>${tag}</em></button>`;
     })
     .join('');

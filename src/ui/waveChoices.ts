@@ -5,6 +5,7 @@ import { canBuyExtraSlot, canReroll, extraSlotCost, rerollCost } from '../game/s
 import type { Choice, RunState } from '../game/state';
 import { formatNumber, heroStatRows } from './describe';
 import { showOverlay } from './overlay';
+import { t as tr } from '../i18n/i18n';
 
 export type ChoiceReason = 'start' | 'waveCleared';
 
@@ -27,7 +28,7 @@ export function upgradeText(upgrade: OfferedUpgrade): string {
         : family.format === 'flat'
           ? formatNumber(value)
           : '';
-  return family.text.replace('{v}', v).replace('{race}', race ?? '');
+  return family.text.replace('{v}', v).replace('{race}', race ? tr(race) : '');
 }
 
 /** Valor atual e depois de pegar a melhoria ("máx." quando bate no teto da família); null quando não há número a comparar. */
@@ -89,7 +90,7 @@ export function bonusRows(run: RunState): [string, string][] {
     ['Alcance', `+${pct(m.range - 1)}`],
   ];
   if (m.critChance > 0) rows.push(['Crítico', pct(m.critChance)]);
-  for (const [race, value] of Object.entries(m.raceDamage)) rows.push([`Dano ${race}`, `+${pct(value)}`]);
+  for (const [race, value] of Object.entries(m.raceDamage)) rows.push([tr('Dano {race}', { race: tr(race) }), `+${pct(value)}`]);
   if (t.heroDamage > 0) rows.push(['Dano do herói', `+${pct(t.heroDamage)}`]);
   if (t.pulseCooldown > 0) rows.push(['Recarga do Pulso', `−${pct(Math.min(0.65, t.pulseCooldown))}`]);
   if (t.nexusRegen > 0) rows.push(['Regeneração', `${formatNumber(Math.round(t.nexusRegen * 100) / 100)}/s`]);

@@ -2,11 +2,13 @@
 # As 10 combinacoes rodam em paralelo (um processo por nucleo, prioridade baixa) e cada uma salva um
 # relatorio em calib-results/<data>/ (pasta ignorada pelo git).
 # Uso: npm run calib:matrix. Para parar: npm run stop.
-# Opcional: $env:N = 10 (rodada rapida) e $env:PAR = 4 (quantas combinacoes ao mesmo tempo; padrao: todas).
+# Opcional: $env:N = 10 (rodada rapida), $env:PAR = 4 (quantas combinacoes ao mesmo tempo; padrao: todas)
+# e $env:RACE = 'Humano' (so uma raca; o nome como aparece no relatorio, ex.: Vampiro, Dragão, Misto 8).
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$out = Join-Path $root ("calib-results\" + (Get-Date -Format 'yyyy-MM-dd_HH-mm'))
+$tag = if ($env:RACE) { '_' + ($env:RACE -replace '[^A-Za-z0-9]', '') } else { '' }
+$out = Join-Path $root ("calib-results\" + (Get-Date -Format 'yyyy-MM-dd_HH-mm') + $tag)
 New-Item -ItemType Directory -Force $out | Out-Null
 
 # compila o bot uma vez (o npm run calib recompila a cada chamada)
@@ -43,7 +45,7 @@ foreach ($job in $jobs) {
   $env:STAGE = $job.Stage
   $env:TAL = $job.Tal
   $file = Join-Path $out ("{0}-{1}.txt" -f $job.Stage, $job.Tal)
-  $p = Start-Process -FilePath 'node' -ArgumentList "`"$bot`"" -NoNewWindow -PassThru `
+  $p = Start-Process -FilePath 'node' -ArgumentList (@("`"$bot`"") + $(if ($env:RACE) { @("`"$($env:RACE)`"") } else { @() })) -NoNewWindow -PassThru `
     -RedirectStandardOutput $file -RedirectStandardError "$file.err"
   try { $p.PriorityClass = 'BelowNormal' } catch {}
   $running += [pscustomobject]@{ Process = $p; Stage = $job.Stage; Tal = $job.Tal }

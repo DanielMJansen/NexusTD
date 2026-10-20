@@ -157,7 +157,7 @@ export function showCollection(profile: Profile, handlers: CollectionHandlers, j
   // uma raça por aba (com quantas criaturas dela o jogador já tem)
   const tabs: Tab[] = racesInOrder(profile).map((race) => {
     const ids = visibleCreatureIds(profile).filter((id) => CREATURES[id].race === race);
-    return { id: race, label: race, badge: `${ids.filter((id) => profile.ownedCreatures.includes(id)).length}/${ids.length}`, color: CREATURES[ids[0]!].color };
+    return { id: race, label: t(race), badge: `${ids.filter((id) => profile.ownedCreatures.includes(id)).length}/${ids.length}`, color: CREATURES[ids[0]!].color };
   });
   if (justUnlocked) setTab('collection', CREATURES[justUnlocked].race);
   const race = currentTab('collection', tabs);

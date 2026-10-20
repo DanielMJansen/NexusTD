@@ -60,7 +60,7 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
   const hero = `<div class="hub-hero-pick" title="${t('Herói')}: ${HEROES[profile.selectedHero].name}"><small>${t('Herói')}</small><canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas><span>${HEROES[profile.selectedHero].name}</span></div>`;
   // cada criatura com o selo da raça no canto (nome e raça no hover)
   const creatures = profile.team
-    .map((id) => `<span class="crew-member" title="${CREATURES[id].name} · ${CREATURES[id].race}"><canvas class="team-mini" data-sprite="${id}"></canvas><canvas class="race-badge" data-race="${CREATURES[id].race}"></canvas></span>`)
+    .map((id) => `<span class="crew-member" title="${CREATURES[id].name} · ${t(CREATURES[id].race)}"><canvas class="team-mini" data-sprite="${id}"></canvas><canvas class="race-badge" data-race="${CREATURES[id].race}"></canvas></span>`)
     .join('');
   const team = `${hero}<div class="hub-crew">${creatures}</div>`;
 

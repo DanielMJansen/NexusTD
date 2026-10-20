@@ -1,4 +1,5 @@
 // Moedas sempre com o mesmo símbolo e cor em qualquer tela.
+import { t } from '../i18n/i18n';
 
 /** Essência (permanente): ✦ lilás. */
 export const essence = (amount: number | string): string => `<span class="essence-amount">${amount} ✦</span>`;
@@ -14,7 +15,7 @@ export function confirmPurchaseHtml(id: string, cost: number, balance: number): 
 
 /** Fragmentos de raça (Santuário): ❖ verde-água. */
 export const fragments = (amount: number | string, race?: string): string =>
-  `<span class="fragment-amount">❖ ${amount}${race ? ` <small>${race}</small>` : ''}</span>`;
+  `<span class="fragment-amount">❖ ${amount}${race ? ` <small>${t(race)}</small>` : ''}</span>`;
 
 /** Cristais Ancestrais (Despertar): ◆ ciano. */
 export const crystals = (amount: number | string): string => `<span class="crystal-amount">◆ ${amount}</span>`;

@@ -68,10 +68,10 @@ export class SidePanel {
         .join('');
       root.innerHTML = `
         <canvas></canvas>
-        <canvas class="card-badge" title="${def.race}"></canvas>
+        <canvas class="card-badge" title="${t(def.race)}"></canvas>
         <div class="card-info">
           <span class="card-name">${def.name}</span>
-          <span class="card-race">${def.race}</span>
+          <span class="card-race">${t(def.race)}</span>
           <span class="card-cost"></span>
         </div>
         <kbd>${index + 1}</kbd>
@@ -117,9 +117,9 @@ export class SidePanel {
         const value = tier ? def.values[tier - 1]! : def.values[0];
         const extra = def.critDamage ? def.critDamage[Math.max(0, tier - 1)] : undefined;
         const title = tier
-          ? `${race} (${count}/${total}): ${def.text(value, extra)}${tier < 2 ? ` · ${t('com 3 classes:')} ${def.text(def.values[1], def.critDamage?.[1])}` : ''}`
-          : `${race} (${count}/${total}): ${t('com 2 classes,')} ${def.text(def.values[0], def.critDamage?.[0])}`;
-        return `<span class="synergy${tier ? ' active tier' + tier : ''}" title="${title}" style="--syn-color:${CREATURES[run.team.find((id) => CREATURES[id].race === race)!].color}">${race} ${count}/${total}</span>`;
+          ? `${t(race)} (${count}/${total}): ${def.text(value, extra)}${tier < 2 ? ` · ${t('com 3 classes:')} ${def.text(def.values[1], def.critDamage?.[1])}` : ''}`
+          : `${t(race)} (${count}/${total}): ${t('com 2 classes,')} ${def.text(def.values[0], def.critDamage?.[0])}`;
+        return `<span class="synergy${tier ? ' active tier' + tier : ''}" title="${title}" style="--syn-color:${CREATURES[run.team.find((id) => CREATURES[id].race === race)!].color}">${t(race)} ${count}/${total}</span>`;
       })
       .join('');
     setHtml(this.synergies, html);
