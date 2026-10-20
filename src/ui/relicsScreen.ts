@@ -3,6 +3,7 @@ import { STAGE_IDS, STAGES } from '../data/stages';
 import { activeRelics, convertRelicCopy, relicLevelOf, relicSlots, toggleRelic, upgradeRelic, type Profile } from '../game/profile';
 import { essence } from './currency';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 /** Condição de cada vaga (a 1ª vem com a liberação das Relíquias). */
 const SLOT_HINTS = ['Liberada ao vencer a Tundra', 'Vença o Deserto Dourado', `Chegue à onda ${RELIC_SLOTS.desertEndlessWave} do Sem Fim no Deserto`];
@@ -56,7 +57,7 @@ export function showRelics(profile: Profile, onChange: () => void, onBack: () =>
   showOverlay(
     `<div class="panel screen relics-screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Relíquias</h2>
         <span class="muted">${profile.relics.length}/${RELIC_IDS.length} <button data-action="help" title="Rever o tutorial">Como funciona?</button></span>
       </div>

@@ -6,6 +6,7 @@ import type { AltarResult } from '../game/altar';
 import type { Profile } from '../game/profile';
 import { essence, fragments } from './currency';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 export interface AltarHandlers {
   onRoll(): void;
@@ -56,7 +57,7 @@ export function showAltar(profile: Profile, handlers: AltarHandlers, last?: Alta
   const element = showOverlay(
     `<div class="panel screen altar">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Altar de Variantes</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>

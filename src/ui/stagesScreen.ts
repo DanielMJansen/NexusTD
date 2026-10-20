@@ -4,6 +4,7 @@ import { STAGE_IDS, stageWaveCount, STAGES, type StageId } from '../data/stages'
 import { isStageUnlocked, type Profile } from '../game/profile';
 import { paintStageThumbnail } from '../render/arena';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 export interface StageHandlers {
   onSelect(id: StageId): void;
@@ -19,17 +20,17 @@ let shown: StageId | null = null;
 function ascensionRow(profile: Profile, id: StageId): string {
   if (!ascensionOpen(profile)) return '';
   const unlocked = ascensionUnlocked(profile, id);
-  if (!unlocked) return '<p class="hint">Vença esta fase para liberar a Ascensão nela.</p>';
+  if (!unlocked) return `<p class="hint">${t('Vença esta fase para liberar a Ascensão nela.')}</p>`;
   const current = selectedAscension(profile, id);
   const buttons = ASCENSION.levels
     .map((_, level) =>
       level > unlocked
-        ? `<button class="asc-chip" disabled title="Vença em A${level - 1} para liberar">🔒 A${level}</button>`
-        : `<button class="asc-chip${level === current ? ' selected' : ''}" data-action="ascension" data-value="${level}">${level ? `A${level}` : 'Normal'}</button>`,
+        ? `<button class="asc-chip" disabled title="${t('Vença em A{n} para liberar', { n: level - 1 })}">🔒 A${level}</button>`
+        : `<button class="asc-chip${level === current ? ' selected' : ''}" data-action="ascension" data-value="${level}">${level ? `A${level}` : t('Normal')}</button>`,
     )
     .join('');
-  const bonus = current ? ` · Essência +${Math.round(ASCENSION.essencePerLevel * current * 100)}%` : '';
-  return `<div class="asc-row"><span>Ascensão</span>${buttons}</div><p class="hint asc-text">${current ? `A${current}: ${ASCENSION.levels.slice(1, current + 1).map((l) => l.text).join(' ')}` : 'Escolha um nível de Ascensão para mais desafio e mais Essência.'}${bonus}</p>`;
+  const bonus = current ? ` · ${t('Essência')} +${Math.round(ASCENSION.essencePerLevel * current * 100)}%` : '';
+  return `<div class="asc-row"><span>${t('Ascensão')}</span>${buttons}</div><p class="hint asc-text">${current ? `A${current}: ${ASCENSION.levels.slice(1, current + 1).map((l) => t(l.text)).join(' ')}` : t('Escolha um nível de Ascensão para mais desafio e mais Essência.')}${bonus}</p>`;
 }
 
 /** Fases em carrossel: uma por vez, com a miniatura do mapa, recordes e a escolha. */
@@ -44,33 +45,33 @@ export function showStages(profile: Profile, handlers: StageHandlers): void {
   const total = stageWaveCount(id);
   const best = record?.bestWave ?? 0;
   let footer: string;
-  if (!unlocked) footer = `<span class="cc-tag locked-tag">🔒 Vença a Fase ${STAGES[def.requires!].number} · ${STAGES[def.requires!].name}</span>`;
-  else if (selected) footer = '<span class="cc-tag">✓ Fase escolhida</span>';
-  else footer = `<button class="play-button" data-action="select" data-value="${id}">Escolher esta fase</button>`;
+  if (!unlocked) footer = `<span class="cc-tag locked-tag">🔒 ${t('Vença a Fase {n} · {name}', { n: STAGES[def.requires!].number, name: STAGES[def.requires!].name })}</span>`;
+  else if (selected) footer = `<span class="cc-tag">${t('✓ Fase escolhida')}</span>`;
+  else footer = `<button class="play-button" data-action="select" data-value="${id}">${t('Escolher esta fase')}</button>`;
   const dots = STAGE_IDS.map((s) => `<span class="stage-dot${s === id ? ' active' : ''}${isStageUnlocked(profile, s) ? '' : ' locked'}" style="--card-color:${STAGES[s].color}"></span>`).join('');
   const element = showOverlay(
     `<div class="panel screen stage-carousel">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
-        <h2>Fases</h2>
+        <button data-action="back">${t('← Voltar')}</button>
+        <h2>${t('Fases')}</h2>
         <div></div>
       </div>
       <div class="carousel">
-        <button class="carousel-arrow" data-action="prev"${index > 0 ? '' : ' disabled'} title="Fase anterior">◀</button>
+        <button class="carousel-arrow" data-action="prev"${index > 0 ? '' : ' disabled'} title="${t('Fase anterior')}">◀</button>
         <div class="stage-hero${unlocked ? '' : ' locked'}${selected ? ' selected' : ''}" style="--card-color:${def.color}">
           <canvas class="stage-map" width="760" height="380"></canvas>
           <div class="stage-info">
-            <div class="cc-head"><b>Fase ${def.number} · ${def.name}</b><span>${total} ondas</span></div>
+            <div class="cc-head"><b>${t('Fase {n}', { n: def.number })} · ${def.name}</b><span>${t('{n} ondas', { n: total })}</span></div>
             <p class="cc-desc">${def.description}</p>
             <div class="stage-stats">
-              <div><small>Vitórias</small><b>${record?.wins ?? 0}</b></div>
-              <div><small>Melhor onda</small><b>${best ? `${best}${best > total ? ' · Sem Fim' : ''}` : '—'}</b></div>
+              <div><small>${t('Vitórias')}</small><b>${record?.wins ?? 0}</b></div>
+              <div><small>${t('Melhor onda')}</small><b>${best ? `${best}${best > total ? ` · ${t('Sem Fim')}` : ''}` : '—'}</b></div>
             </div>
             ${ascensionRow(profile, id)}
             <div class="cc-footer">${footer}</div>
           </div>
         </div>
-        <button class="carousel-arrow" data-action="next"${index < STAGE_IDS.length - 1 ? '' : ' disabled'} title="Próxima fase">▶</button>
+        <button class="carousel-arrow" data-action="next"${index < STAGE_IDS.length - 1 ? '' : ' disabled'} title="${t('Próxima fase')}">▶</button>
       </div>
       <div class="stage-dots">${dots}</div>
     </div>`,

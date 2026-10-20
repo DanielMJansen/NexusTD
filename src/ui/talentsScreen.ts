@@ -3,6 +3,7 @@ import { canBuyTalent, isTalentAvailable, talentCost, talentLevel, type Profile 
 import { essence } from './currency';
 import { talentEffectText } from './describe';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 export interface TalentHandlers {
   onBuy(id: TalentId): void;
@@ -66,7 +67,7 @@ export function showTalents(profile: Profile, handlers: TalentHandlers): void {
   showOverlay(
     `<div class="panel screen talents-screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Talentos</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>

@@ -2,6 +2,7 @@
 
 import { anyNexusUpgradeAffordable, nexusLevel } from '../game/nexus';
 import type { LootItem, RunState } from '../game/state';
+import { t } from '../i18n/i18n';
 
 const TAU = Math.PI * 2;
 
@@ -96,7 +97,7 @@ function drawUpgradeTag(ctx: CanvasRenderingContext2D, x: number, y: number, tim
   const pulse = 0.5 + Math.sin(time * 5) * 0.5;
   ctx.font = '700 9px Cinzel, Georgia, serif';
   ctx.textBaseline = 'middle';
-  const label = 'MELHORAR';
+  const label = t('MELHORAR');
   const textW = ctx.measureText(label).width;
   const w = textW + 32;
   const h = 15;

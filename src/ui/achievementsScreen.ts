@@ -5,6 +5,7 @@ import { SKINS } from '../data/skins';
 import { achievementProgress } from '../game/achievements';
 import type { Profile } from '../game/profile';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 /** Lista de conquistas, com progresso e a skin que cada uma libera. */
 export function showAchievements(profile: Profile, onBack: () => void): void {
@@ -42,7 +43,7 @@ export function showAchievements(profile: Profile, onBack: () => void): void {
   showOverlay(
     `<div class="panel screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Conquistas</h2>
         <span class="muted">${profile.achievements.length}/${ACHIEVEMENT_IDS.length}</span>
       </div>

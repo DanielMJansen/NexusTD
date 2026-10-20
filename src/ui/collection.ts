@@ -6,6 +6,7 @@ import { ownsCreature, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
 import { creatureClassLine, creatureStats, evolutionRowsHtml, fightText, mechanicHtml, racePassiveHtml } from './describe';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 export interface CollectionHandlers {
   onBuy(id: CreatureId): void;
@@ -171,7 +172,7 @@ export function showCollection(profile: Profile, handlers: CollectionHandlers, j
   const element = showOverlay(
     `<div class="panel screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Coleção</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>

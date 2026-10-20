@@ -7,6 +7,7 @@ import { racesInOrder } from './collection';
 import { crystals, fragments } from './currency';
 import { showOverlay } from './overlay';
 import { showIntro } from './stageIntro';
+import { t } from '../i18n/i18n';
 
 export interface SanctuaryHandlers {
   onUpgrade(id: CreatureId): void;
@@ -100,7 +101,7 @@ export function showSanctuary(profile: Profile, handlers: SanctuaryHandlers, hig
   const element = showOverlay(
     `<div class="panel screen sanctuary-screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Santuário</h2>
         <button data-action="help">Como funciona?</button>
       </div>

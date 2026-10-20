@@ -4,6 +4,7 @@ import { STAGE_IDS, STAGES } from '../data/stages';
 import type { Profile } from '../game/profile';
 import { enemyTraitText, formatNumber } from './describe';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 /** Inimigos do códex (sem os que só surgem por invocação ou divisão). */
 export const CODEX_ENEMIES = ENEMY_IDS.filter((id) => !ENEMIES[id].minion);
@@ -64,7 +65,7 @@ export function showCodex(profile: Profile, onBack: () => void): void {
   showOverlay(
     `<div class="panel screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Códex</h2>
         <span class="muted">${seen}/${CODEX_ENEMIES.length}</span>
       </div>

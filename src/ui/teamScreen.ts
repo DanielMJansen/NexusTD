@@ -6,6 +6,7 @@ import { HEROES } from '../data/heroes';
 import { heroSkin, loadoutSlotCost, ownsCreature, TEAM_SIZE, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 export interface TeamHandlers {
   onToggle(id: CreatureId): void;
@@ -74,7 +75,7 @@ export function showTeam(profile: Profile, handlers: TeamHandlers): void {
   const element = showOverlay(
     `<div class="panel screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Equipes</h2>
         <span class="muted">${profile.team.length} de ${TEAM_SIZE} criaturas</span>
       </div>

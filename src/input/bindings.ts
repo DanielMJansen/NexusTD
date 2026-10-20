@@ -1,4 +1,5 @@
 // Teclas configuráveis (Configurações → Controles). Esc e 1–9 são fixos; as setas sempre movem o herói.
+import { t } from '../i18n/i18n';
 
 export type KeyAction = 'up' | 'down' | 'left' | 'right' | 'pulse' | 'evolve' | 'sell' | 'speed' | 'pause' | 'camera' | 'nexus' | 'freeze';
 
@@ -80,7 +81,7 @@ const NAMES: Record<string, string> = {
 };
 
 /** Nome da tecla para mostrar na tela. */
-export const keyLabel = (key: string): string => NAMES[key] ?? (key.length === 1 ? key.toUpperCase() : key[0]!.toUpperCase() + key.slice(1));
+export const keyLabel = (key: string): string => (NAMES[key] ? t(NAMES[key]) : null) ?? (key.length === 1 ? key.toUpperCase() : key[0]!.toUpperCase() + key.slice(1));
 
 /** Teclas em uso agora (para os textos de ajuda da interface). */
 let active: KeyBindings = { ...DEFAULT_BINDINGS };

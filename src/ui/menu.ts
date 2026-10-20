@@ -12,13 +12,14 @@ import type { SavedRunSummary } from '../save/runSave';
 import { CODEX_ENEMIES } from './codexScreen';
 import { showOverlay } from './overlay';
 import { paintStageThumbnail } from '../render/arena';
+import { t } from '../i18n/i18n';
 
 /** Botão de uma tela que libera com o progresso: cadeado com a condição, selo NOVO até a 1ª visita. */
 function featureButton(profile: Profile, id: FeatureId, detail = ''): string {
   const def = FEATURES[id];
-  if (!isFeatureUnlocked(profile, id)) return `<button class="hub-locked" disabled>🔒 ${def.name} <small>${def.lockedHint}</small></button>`;
-  const badge = isFeatureNew(profile, id) ? '<span class="new-badge">NOVO</span>' : '';
-  return `<button data-action="${id}">${badge}${def.name}${detail ? ` <small>${detail}</small>` : ''}</button>`;
+  if (!isFeatureUnlocked(profile, id)) return `<button class="hub-locked" disabled>🔒 ${t(def.name)} <small>${t(def.lockedHint)}</small></button>`;
+  const badge = isFeatureNew(profile, id) ? `<span class="new-badge">${t('NOVO')}</span>` : '';
+  return `<button data-action="${id}">${badge}${t(def.name)}${detail ? ` <small>${detail}</small>` : ''}</button>`;
 }
 
 export interface MenuHandlers {
@@ -48,15 +49,15 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
   const stage = STAGES[runSetup(profile).stage ?? FIRST_STAGE];
   const finalBoss = stage.bosses.at(-1);
   const goal = finalBoss
-    ? `${stageWaveCount(stage.id)} ondas · chefe final: <b>${ENEMIES[finalBoss.enemy].name}</b>`
-    : `${stageWaveCount(stage.id)} ondas`;
+    ? t('{n} ondas · chefe final: <b>{boss}</b>', { n: stageWaveCount(stage.id), boss: ENEMIES[finalBoss.enemy].name })
+    : t('{n} ondas', { n: stageWaveCount(stage.id) });
   // fase escolhida em destaque: miniatura do mapa, nome e objetivo (clicar troca de fase)
-  const stageCard = `<button class="hub-stage" data-action="stages" style="--stage: ${stage.color}" title="Trocar de fase">
+  const stageCard = `<button class="hub-stage" data-action="stages" style="--stage: ${stage.color}" title="${t('Trocar de fase')}">
         <canvas class="hub-stage-map" width="240" height="135"></canvas>
-        <span class="hub-stage-info"><small>Fase ${stage.number} escolhida${selectedAscension(profile, stage.id) ? ` · Ascensão ${selectedAscension(profile, stage.id)}` : ''}</small><b>${stage.name}</b><span>${goal}</span><em>Trocar fase ›</em></span>
+        <span class="hub-stage-info"><small>${t('Fase {n} escolhida', { n: stage.number })}${selectedAscension(profile, stage.id) ? ` · ${t('Ascensão {n}', { n: selectedAscension(profile, stage.id) })}` : ''}</small><b>${stage.name}</b><span>${goal}</span><em>${t('Trocar fase ›')}</em></span>
       </button>`;
   // herói em moldura dourada com o nome; criaturas vizinhas da mesma raça agrupadas sob o nome da raça
-  const hero = `<div class="hub-hero-pick" title="Herói: ${HEROES[profile.selectedHero].name}"><small>Herói</small><canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas><span>${HEROES[profile.selectedHero].name}</span></div>`;
+  const hero = `<div class="hub-hero-pick" title="${t('Herói')}: ${HEROES[profile.selectedHero].name}"><small>${t('Herói')}</small><canvas class="team-mini" data-sprite="${profile.selectedHero}" data-skin="${heroSkin(profile, profile.selectedHero).id}"></canvas><span>${HEROES[profile.selectedHero].name}</span></div>`;
   // cada criatura com o selo da raça no canto (nome e raça no hover)
   const creatures = profile.team
     .map((id) => `<span class="crew-member" title="${CREATURES[id].name} · ${CREATURES[id].race}"><canvas class="team-mini" data-sprite="${id}"></canvas><canvas class="race-badge" data-race="${CREATURES[id].race}"></canvas></span>`)
@@ -67,27 +68,27 @@ export function showMenu(profile: Profile, saved: SavedRunSummary | null, handle
     `<span class="game-version">v${GAME_VERSION}</span><div class="menu-page">
       <section class="hub-hero">
       <h1>${GAME_TITLE}</h1>
-      <p class="subtitle">Um herói. Um exército de monstros.</p>
+      <p class="subtitle">${t('Um herói. Um exército de monstros.')}</p>
       ${stageCard}
       <div class="hub-team">${team}</div>
-      ${profile.loadouts.length > 1 ? `<div class="hub-loadouts">${profile.loadouts.map((l, i) => `<button class="${i === profile.activeLoadout ? 'active' : ''}" data-action="loadout" data-value="${i}" title="${HEROES[l.hero].name} + ${l.team.length} criatura(s)">${l.name}</button>`).join('')}</div>` : ''}
+      ${profile.loadouts.length > 1 ? `<div class="hub-loadouts">${profile.loadouts.map((l, i) => `<button class="${i === profile.activeLoadout ? 'active' : ''}" data-action="loadout" data-value="${i}" title="${HEROES[l.hero].name} + ${t('{n} criatura(s)', { n: l.team.length })}">${l.name}</button>`).join('')}</div>` : ''}
       <div class="hub-play">
-        ${saved ? `<button class="play-button" data-action="continue">▶ Continuar run <small>onda ${saved.wave} · ${HEROES[saved.hero].name}</small></button>` : ''}
-        <button class="${saved ? '' : 'play-button'}" data-action="play"${profile.team.length ? '' : ' disabled'}>${saved ? 'Nova run' : '▶ Jogar'}</button>
+        ${saved ? `<button class="play-button" data-action="continue">${t('▶ Continuar run')} <small>${t('onda {n}', { n: saved.wave })} · ${HEROES[saved.hero].name}</small></button>` : ''}
+        <button class="${saved ? '' : 'play-button'}" data-action="play"${profile.team.length ? '' : ' disabled'}>${saved ? t('Nova run') : t('▶ Jogar')}</button>
       </div>
       </section>
       <section class="hub-buttons">
-        <button data-action="heroes">Herói <small>${HEROES[profile.selectedHero].name}</small></button>
-        <button data-action="team">Equipes <small>${profile.loadouts[profile.activeLoadout]?.name ?? ''} · ${profile.team.length} de ${TEAM_SIZE}</small></button>
-        <button data-action="collection">Coleção <small>${CREATURE_IDS.filter((id) => profile.ownedCreatures.includes(id)).length} de ${CREATURE_IDS.length}</small></button>
+        <button data-action="heroes">${t('Herói')} <small>${HEROES[profile.selectedHero].name}</small></button>
+        <button data-action="team">${t('Equipes')} <small>${profile.loadouts[profile.activeLoadout]?.name ?? ''} · ${t('{a} de {b}', { a: profile.team.length, b: TEAM_SIZE })}</small></button>
+        <button data-action="collection">${t('Coleção')} <small>${t('{a} de {b}', { a: CREATURE_IDS.filter((id) => profile.ownedCreatures.includes(id)).length, b: CREATURE_IDS.length })}</small></button>
         ${featureButton(profile, 'talents', `${profile.essence} ✦`)}
-        ${featureButton(profile, 'achievements', `${profile.achievements.length} de ${ACHIEVEMENT_IDS.length}`)}
-        ${featureButton(profile, 'codex', `${CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length} de ${CODEX_ENEMIES.length} vistos`)}
-        ${featureButton(profile, 'sanctuary', `${Object.values(profile.fragments).reduce((a, b) => a + b, 0)} ❖ para gastar`)}
-        ${featureButton(profile, 'nexus', 'modelo e cor')}
+        ${featureButton(profile, 'achievements', t('{a} de {b}', { a: profile.achievements.length, b: ACHIEVEMENT_IDS.length }))}
+        ${featureButton(profile, 'codex', t('{a} de {b} vistos', { a: CODEX_ENEMIES.filter((id) => profile.seenEnemies.includes(id)).length, b: CODEX_ENEMIES.length }))}
+        ${featureButton(profile, 'sanctuary', t('{n} ❖ para gastar', { n: Object.values(profile.fragments).reduce((a, b) => a + b, 0) }))}
+        ${featureButton(profile, 'nexus', t('modelo e cor'))}
         ${featureButton(profile, 'altar')}
-        ${featureButton(profile, 'relics', `${activeRelics(profile).length} de ${relicSlots(profile)} equipadas · ${profile.relics.length} de ${RELIC_IDS.length}`)}
-        <button data-action="settings">⚙ Configurações</button>
+        ${featureButton(profile, 'relics', `${t('{a} de {b} equipadas', { a: activeRelics(profile).length, b: relicSlots(profile) })} · ${t('{a} de {b}', { a: profile.relics.length, b: RELIC_IDS.length })}`)}
+        <button data-action="settings">⚙ ${t('Configurações')}</button>
         ${handlers.onAdmin ? '<button data-action="admin">🛠 Admin</button>' : ''}
       </section>
     </div>`,

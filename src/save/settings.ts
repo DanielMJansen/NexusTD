@@ -1,5 +1,6 @@
 // Configurações do jogador, salvas separadas do progresso. Novas opções entram com valor padrão.
 import { DEFAULT_BINDINGS, sanitizeBindings, type KeyBindings } from '../input/bindings';
+import { detectLang, LANGS, TRANSLATION_COMPLETE, type Lang } from '../i18n/i18n';
 
 export type GameSpeed = 1 | 2 | 4;
 
@@ -22,9 +23,14 @@ export interface Settings {
   admin: boolean;
   /** Teclas configuradas (Controles). */
   keys: KeyBindings;
+  /** Idioma do jogo (padrão: o do navegador). */
+  language: Lang;
 }
 
 export const SETTINGS_KEY = 'nexus-settings-v1';
+
+/** Idioma de quem ainda não escolheu: o do navegador quando a tradução estiver completa (TRANSLATION_COMPLETE). */
+const DEFAULT_LANGUAGE: Lang = TRANSLATION_COMPLETE ? detectLang() : 'pt';
 
 const DEFAULT_SETTINGS: Settings = {
   musicVolume: 0.7,
@@ -37,6 +43,7 @@ const DEFAULT_SETTINGS: Settings = {
   showFps: false,
   admin: false,
   keys: { ...DEFAULT_BINDINGS },
+  language: 'pt',
 };
 
 const clamp01 = (value: unknown, fallback: number): number =>
@@ -56,6 +63,9 @@ export function sanitizeSettings(data: unknown): Settings {
     showFps: raw.showFps === true,
     admin: raw.admin === true,
     keys: sanitizeBindings(raw.keys),
+    // sem idioma salvo (jogador novo ou configurações antigas): português até a tradução dos dados terminar;
+    // depois passa a seguir o navegador (detectLang)
+    language: LANGS.includes(raw.language as Lang) ? (raw.language as Lang) : DEFAULT_LANGUAGE,
   };
 }
 

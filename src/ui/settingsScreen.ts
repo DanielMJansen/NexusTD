@@ -2,6 +2,7 @@ import { GAME_TITLE, GAME_VERSION } from '../data/config';
 import type { Settings } from '../save/settings';
 import { showOverlay } from './overlay';
 import { DEFAULT_BINDINGS, isReservedKey, KEY_ACTIONS, keyLabel, rebind, type KeyAction } from '../input/bindings';
+import { LANG_NAMES, LANGS, t, type Lang } from '../i18n/i18n';
 
 export interface SettingsHandlers {
   onChange(change: Partial<Settings>): void;
@@ -34,18 +35,22 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
 
   const root = showOverlay(
     `<div class="panel settings">
-      <h2>Configurações</h2>
+      <h2>${t('Configurações')}</h2>
       <div class="settings-columns">
       <section>
-      <h3>Som</h3>
-      ${slider('musicVolume', 'Música')}
-      ${slider('sfxVolume', 'Efeitos')}
-      ${toggle('muted', 'Silenciar tudo')}
-      <h3>Jogo</h3>
-      ${toggle('damageNumbers', 'Mostrar números de dano')}
-      <h3>Desempenho</h3>
+      <h3>${t('Som')}</h3>
+      ${slider('musicVolume', t('Música'))}
+      ${slider('sfxVolume', t('Efeitos'))}
+      ${toggle('muted', t('Silenciar tudo'))}
+      <h3>${t('Jogo')}</h3>
       <div class="quality-row">
-        <span>Qualidade gráfica</span>
+        <span>${t('Idioma')}</span>
+        <div class="segmented">${LANGS.map((lang) => `<button class="${settings.language === lang ? 'active' : ''}" data-action="language" data-value="${lang}">${LANG_NAMES[lang]}</button>`).join('')}</div>
+      </div>
+      ${toggle('damageNumbers', t('Mostrar números de dano'))}
+      <h3>${t('Desempenho')}</h3>
+      <div class="quality-row">
+        <span>${t('Qualidade gráfica')}</span>
         <div class="segmented">${(
           [
             ['auto', 'Automática'],
@@ -54,45 +59,45 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
             ['low', 'Baixa'],
           ] as const
         )
-          .map(([value, label]) => `<button class="${settings.quality === value ? 'active' : ''}" data-action="quality" data-value="${value}">${label}</button>`)
+          .map(([value, label]) => `<button class="${settings.quality === value ? 'active' : ''}" data-action="quality" data-value="${value}">${t(label)}</button>`)
           .join('')}</div>
       </div>
-      <p class="hint">Automática reduz a resolução da arena sozinha se o jogo ficar pesado. Baixa ajuda bastante em computadores mais simples ou telas muito grandes.</p>
-      ${toggle('showFps', 'Mostrar FPS (quadros por segundo)')}
+      <p class="hint">${t('Automática reduz a resolução da arena sozinha se o jogo ficar pesado. Baixa ajuda bastante em computadores mais simples ou telas muito grandes.')}</p>
+      ${toggle('showFps', t('Mostrar FPS (quadros por segundo)'))}
       <div class="row-buttons">
         <button data-action="tutorial"${settings.tutorialDone ? '' : ' disabled'}>${
-          settings.tutorialDone ? '↺ Rever tutorial na próxima run' : 'Tutorial na próxima run ✓'
+          settings.tutorialDone ? t('↺ Rever tutorial na próxima run') : t('Tutorial na próxima run ✓')
         }</button>
       </div>
       </section>
       <section>
-      <h3>Controles</h3>
-      <p class="hint">Clique numa ação e aperte a nova tecla (Esc cancela). Se a tecla já for de outra ação, as duas trocam. As setas sempre movem o herói; 1–8 invocam as criaturas.</p>
+      <h3>${t('Controles')}</h3>
+      <p class="hint">${t('Clique numa ação e aperte a nova tecla (Esc cancela). Se a tecla já for de outra ação, as duas trocam. As setas sempre movem o herói; 1–8 invocam as criaturas.')}</p>
       <div class="keys-grid">${KEY_ACTIONS.map(
-        ({ action, label }) => `<span>${label}</span><button class="key-button" data-action="rebind" data-value="${action}">${keyLabel(settings.keys[action])}</button>`,
+        ({ action, label }) => `<span>${t(label)}</span><button class="key-button" data-action="rebind" data-value="${action}">${keyLabel(settings.keys[action])}</button>`,
       ).join('')}</div>
-      <div class="row-buttons"><button data-action="resetKeys">↺ Restaurar teclas padrão</button></div>
+      <div class="row-buttons"><button data-action="resetKeys">${t('↺ Restaurar teclas padrão')}</button></div>
       </section>
       <section>
-      <h3>Progresso</h3>
-      <p class="hint">Leve seu progresso para outro computador ou navegador.</p>
+      <h3>${t('Progresso')}</h3>
+      <p class="hint">${t('Leve seu progresso para outro computador ou navegador.')}</p>
       <div class="row-buttons">
-        <button data-action="export">⇩ Exportar save</button>
-        <button data-action="import">⇧ Importar save</button>
+        <button data-action="export">${t('⇩ Exportar save')}</button>
+        <button data-action="import">${t('⇧ Importar save')}</button>
       </div>
       <div class="gift-row">
-        <input type="text" id="gift-code" placeholder="Código de presente" maxlength="40" autocomplete="off" spellcheck="false" />
-        <button data-action="redeem">🎁 Resgatar</button>
+        <input type="text" id="gift-code" placeholder="${t('Código de presente')}" maxlength="40" autocomplete="off" spellcheck="false" />
+        <button data-action="redeem">${t('🎁 Resgatar')}</button>
       </div>
       <p class="hint" id="gift-result"></p>
       <div class="row-buttons">
-        <button class="danger" data-action="reset">✖ Apagar todo o progresso</button>
+        <button class="danger" data-action="reset">${t('✖ Apagar todo o progresso')}</button>
       </div>
-      <h3>Sobre</h3>
-      <p class="hint about"><b>${GAME_TITLE}</b> · versão ${GAME_VERSION}<br>Criado por Daniel M. Jansen. Arte desenhada em código e música sintetizada, feitas para o jogo.<br>Fontes: Cinzel, Cinzel Decorative e Crimson Pro (SIL Open Font License).</p>
+      <h3>${t('Sobre')}</h3>
+      <p class="hint about"><b>${GAME_TITLE}</b> · ${t('versão {v}', { v: GAME_VERSION })}<br>${t('Criado por Daniel M. Jansen. Arte desenhada em código e música sintetizada, feitas para o jogo.')}<br>${t('Fontes: Cinzel, Cinzel Decorative e Crimson Pro (SIL Open Font License).')}</p>
       </section>
       </div>
-      <button class="play-button" data-action="back">Voltar</button>
+      <button class="play-button" data-action="back">${t('Voltar')}</button>
     </div>`,
     {
       back: () => handlers.onBack(),
@@ -107,6 +112,12 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
           result.textContent = message;
         });
       },
+      language: (value) => {
+        if (value === settings.language) return;
+        // trocar o idioma recarrega o jogo: todos os textos já desenhados mudam juntos
+        handlers.onChange({ language: value as Lang });
+        location.reload();
+      },
       quality: (value) => {
         handlers.onChange({ quality: value as Settings['quality'] });
         showSettings({ ...settings, quality: value as Settings['quality'] }, handlers);
@@ -115,7 +126,7 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
         const action = value as KeyAction;
         const button = document.querySelector<HTMLButtonElement>(`.key-button[data-value="${action}"]`);
         if (!button) return;
-        button.textContent = 'Aperte uma tecla…';
+        button.textContent = t('Aperte uma tecla…');
         button.classList.add('listening');
         // captura antes do jogo (fase de captura no documento)
         const listen = (event: KeyboardEvent) => {

@@ -38,6 +38,7 @@ import type { Profile } from '../game/profile';
 import { crystals, essence, fragments } from './currency';
 import { showOverlay } from './overlay';
 import { currentTab, setTab, tabsHtml, type Tab } from './tabs';
+import { t } from '../i18n/i18n';
 
 export interface AdminHandlers {
   /** Aplica uma mudança no perfil (o app salva, valida e reabre a tela). */
@@ -224,7 +225,7 @@ export function showAdmin(profile: Profile, handlers: AdminHandlers): void {
   const root = showOverlay(
     `<div class="panel screen admin-screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>🛠 Administrador</h2>
         <div></div>
       </div>

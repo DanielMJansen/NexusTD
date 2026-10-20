@@ -6,6 +6,7 @@ import { heroSkin, isSkinUnlocked, ownsHero, type Profile } from '../game/profil
 import { confirmPurchaseHtml, essence } from './currency';
 import { attackText, heroFightText, pulseText, raceBonusText } from './describe';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 export interface HeroHandlers {
   onBuy(id: HeroId): void;
@@ -97,7 +98,7 @@ export function showHeroes(profile: Profile, handlers: HeroHandlers, options: He
   const element = showOverlay(
     `<div class="panel screen heroes-screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Heróis</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>

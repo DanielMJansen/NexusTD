@@ -12,6 +12,7 @@ import { gold } from './currency';
 import { paintRaceBadge } from '../render/raceIcons';
 import { creatureClassLine, creatureStats, fightText, formsChangeHtml, mechanicHtml, pulseText, raceBonusText, racePassiveHtml } from './describe';
 import type { HeroDef, HeroId } from '../data/heroes';
+import { t } from '../i18n/i18n';
 
 interface Card {
   root: HTMLElement;
@@ -50,7 +51,7 @@ export class SidePanel {
   private setTeam(team: readonly CreatureId[], hero: HeroDef): void {
     this.team = [...team];
     this.heroId = hero.id;
-    this.pulseTooltip.innerHTML = `<h4>Pulso do ${hero.name} <kbd>${boundKeyLabel('pulse')}</kbd></h4><p class="special">${pulseText(hero)}</p>`;
+    this.pulseTooltip.innerHTML = `<h4>${t('Pulso do {hero}', { hero: hero.name })} <kbd>${boundKeyLabel('pulse')}</kbd></h4><p class="special">${pulseText(hero)}</p>`;
     this.pulseKey = '';
     this.pulseTooltip.style.setProperty('--card-color', hero.color);
     this.cards.clear();
@@ -84,7 +85,7 @@ export class SidePanel {
           ${racePassiveHtml(def.race, 'special')}
           <p class="sheet-section">Evoluções <small>nível 3 · desperta ★5</small></p>
           ${formsChangeHtml(def)}
-          ${def.race === hero.race ? `<p class="special hero-bonus">Bônus do ${hero.name}: ${raceBonusText(hero.race, hero.raceBonus)}</p>` : ''}
+          ${def.race === hero.race ? `<p class="special hero-bonus">${t('Bônus do {hero}:', { hero: hero.name })} ${raceBonusText(hero.race, hero.raceBonus)}</p>` : ''}
         </div>`;
       root.addEventListener('pointerdown', (event) => {
         if (event.button !== 0) return;
@@ -116,8 +117,8 @@ export class SidePanel {
         const value = tier ? def.values[tier - 1]! : def.values[0];
         const extra = def.critDamage ? def.critDamage[Math.max(0, tier - 1)] : undefined;
         const title = tier
-          ? `${race} (${count}/${total}): ${def.text(value, extra)}${tier < 2 ? ` · com 3 classes: ${def.text(def.values[1], def.critDamage?.[1])}` : ''}`
-          : `${race} (${count}/${total}): com 2 classes, ${def.text(def.values[0], def.critDamage?.[0])}`;
+          ? `${race} (${count}/${total}): ${def.text(value, extra)}${tier < 2 ? ` · ${t('com 3 classes:')} ${def.text(def.values[1], def.critDamage?.[1])}` : ''}`
+          : `${race} (${count}/${total}): ${t('com 2 classes,')} ${def.text(def.values[0], def.critDamage?.[0])}`;
         return `<span class="synergy${tier ? ' active tier' + tier : ''}" title="${title}" style="--syn-color:${CREATURES[run.team.find((id) => CREATURES[id].race === race)!].color}">${race} ${count}/${total}</span>`;
       })
       .join('');
@@ -141,7 +142,7 @@ export class SidePanel {
       card.root.classList.toggle('ready', affordable && !full);
       card.root.classList.toggle('blocked', !affordable || full);
       card.root.classList.toggle('denied', interaction.denied?.id === id && now - interaction.denied.at < 400);
-      setHtml(card.cost, full ? '<span class="card-full">Sem vaga</span>' : gold(cost));
+      setHtml(card.cost, full ? `<span class="card-full">${t('Sem vaga')}</span>` : gold(cost));
       card.cost.classList.toggle('too-expensive', !affordable);
       if (redraw) {
         // variante do Altar escolhida para esta criatura (mesma cor do campo)
@@ -155,15 +156,15 @@ export class SidePanel {
     this.pulseFill.style.transform = `scaleX(${1 - remaining / cooldown})`;
     this.pulseButton.classList.toggle('ready', ready);
     const corpses = run.hero.def.pulse.effect.kind === 'raise' ? raisableCorpses(run).length : -1;
-    const raiseText = corpses < 0 ? '' : corpses ? ` · ☠ ${corpses} corpo${corpses > 1 ? 's' : ''}` : ' · sem corpos (ergue ao redor)';
-    const status = (remaining > 0 ? `recarregando ${Math.ceil(remaining)} s` : 'pronto') + raiseText;
+    const raiseText = corpses < 0 ? '' : corpses ? ` · ☠ ${corpses > 1 ? t('{n} corpos', { n: corpses }) : t('1 corpo')}` : ` · ${t('sem corpos (ergue ao redor)')}`;
+    const status = (remaining > 0 ? t('recarregando {s} s', { s: Math.ceil(remaining) }) : t('pronto')) + raiseText;
     // tooltip do Pulso com os valores atuais (nível do herói, melhorias e talentos)
     // (só refaz o texto quando algum valor muda)
     const live = { power: pulsePower(run), size: 1 + run.heroStats.pulseSize, radius: run.pulse.radius, cooldown: run.pulse.cooldown };
     const key = `${run.hero.def.id} ${live.power} ${live.size} ${live.radius} ${live.cooldown}`;
     if (key !== this.pulseKey) {
       this.pulseKey = key;
-      setHtml(this.pulseTooltip, `<h4>Pulso do ${run.hero.def.name} <kbd>${boundKeyLabel('pulse')}</kbd></h4><p class="special">${pulseText(run.hero.def, live)}</p>`);
+      setHtml(this.pulseTooltip, `<h4>${t('Pulso do {hero}', { hero: run.hero.def.name })} <kbd>${boundKeyLabel('pulse')}</kbd></h4><p class="special">${pulseText(run.hero.def, live)}</p>`);
     }
     const name = run.hero.def.pulse.name;
     if (this.pulseName.textContent !== name) this.pulseName.textContent = name;

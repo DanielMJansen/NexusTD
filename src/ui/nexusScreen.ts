@@ -5,6 +5,7 @@ import { isNexusColorUnlocked, isNexusModelUnlocked, nexusLookFor } from '../gam
 import { isStageUnlocked, type Profile } from '../game/profile';
 import { confirmPurchaseHtml, essence } from './currency';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 export interface NexusScreenHandlers {
   onStage(stage: StageId): void;
@@ -51,7 +52,7 @@ export function showNexusSkins(profile: Profile, stage: StageId, handlers: Nexus
   const element = showOverlay(
     `<div class="panel screen">
       <div class="screen-head">
-        <button data-action="back">← Voltar</button>
+        <button data-action="back">${t('← Voltar')}</button>
         <h2>Nexus</h2>
         <div class="essence">${essence(profile.essence)}</div>
       </div>

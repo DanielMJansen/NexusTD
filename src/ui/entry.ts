@@ -1,5 +1,6 @@
 import { GAME_TITLE } from '../data/config';
 import { showOverlay } from './overlay';
+import { t } from '../i18n/i18n';
 
 /**
  * Tela de entrada. O clique (ou Enter/Espaço) é o gesto que o navegador exige
@@ -9,7 +10,7 @@ export function showEntry(onStart: () => void): void {
   showOverlay(
     `<button class="entry" data-action="start">
       <span class="entry-title">${GAME_TITLE}</span>
-      <span class="entry-hint">Clique para começar</span>
+      <span class="entry-hint">${t('Clique para começar')}</span>
     </button>`,
     { start: () => onStart() },
   );

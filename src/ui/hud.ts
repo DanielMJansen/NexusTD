@@ -8,6 +8,7 @@ import { HERO_IDS } from '../data/heroes';
 import type { Profile } from '../game/profile';
 import { heroSheetHtml } from './describe';
 import type { RunState } from '../game/state';
+import { t } from '../i18n/i18n';
 
 const wave = document.querySelector<HTMLElement>('#hud-wave')!;
 const mutationChip = document.querySelector<HTMLElement>('#hud-mutations')!;
@@ -37,7 +38,7 @@ const heroChip = document.querySelector<HTMLElement>('.hero-chip')!;
 const heroSheet = document.querySelector<HTMLElement>('#hero-sheet')!;
 
 export function updateHud(run: RunState): void {
-  setText(wave, run.endless ? `${run.wave} · Sem Fim` : `${Math.max(1, run.wave)} de ${stageWaveCount(run.stage)}`);
+  setText(wave, run.endless ? `${run.wave} · ${t('Sem Fim')}` : t('{a} de {b}', { a: Math.max(1, run.wave), b: stageWaveCount(run.stage) }));
   setText(gold, `${run.gold}`);
   // mutações do Sem Fim ativas (ícones; nome e efeito no título)
   const mutations = run.mutations ?? [];
@@ -57,11 +58,11 @@ export function updateHud(run: RunState): void {
   setText(nexusCount, `⬆ ${affordable}`);
   // vento (Fase 5)
   if (windChip.hidden === (run.wind !== null)) windChip.hidden = run.wind === null;
-  if (run.wind !== null) setText(windText, WIND_NAMES[Math.round(run.wind / (Math.PI / 4)) % 8] ?? '');
+  if (run.wind !== null) setText(windText, t(WIND_NAMES[Math.round(run.wind / (Math.PI / 4)) % 8] ?? ''));
   // segundo Nexus (Deserto): bloco próprio no HUD
   const twin = run.guards.find((g) => g.twin);
   if (twinChip.hidden === !!twin) twinChip.hidden = !twin;
-  setText(nexusLabel, twin ? 'Obelisco Oeste' : 'Vida do Nexus');
+  setText(nexusLabel, twin ? t('Obelisco Oeste') : t('Vida do Nexus'));
   if (twin) {
     const twinHp = Math.max(0, Math.trunc(twin.hp));
     const twinRatio = twinHp / twin.maxHp;
@@ -70,19 +71,19 @@ export function updateHud(run: RunState): void {
     twinBar.style.width = `${twinRatio * 100}%`;
     twinBar.classList.toggle('low', twinRatio < 0.3);
   }
-  setText(creatures, `${run.creatures.length} de ${run.creatureLimit}`);
+  setText(creatures, t('{a} de {b}', { a: run.creatures.length, b: run.creatureLimit }));
   // restantes = vivos (sem aliados) + ainda por entrar; total = restantes + abatidos (inclui divisões e invocados)
   const remaining = run.enemies.filter((e) => !e.dead && e.allyTimer <= 0).length + run.spawnQueue.length;
-  setText(enemies, run.phase === 'playing' ? `${remaining} de ${remaining + run.waveKills}` : 'entre ondas');
+  setText(enemies, run.phase === 'playing' ? t('{a} de {b}', { a: remaining, b: remaining + run.waveKills }) : t('entre ondas'));
   const hero = run.hero;
-  setText(heroLevel, hero.dead ? `nível ${hero.level} · volta em ${Math.ceil(hero.respawnTimer)} s` : `nível ${hero.level}`);
+  setText(heroLevel, hero.dead ? t('nível {n} · volta em {s} s', { n: hero.level, s: Math.ceil(hero.respawnTimer) }) : t('nível {n}', { n: hero.level }));
   const maxHp = heroMaxHp(run);
   const nextXp = xpToNextLevel(hero.level);
   heroHp.style.width = `${(hero.hp / maxHp) * 100}%`;
   const maxed = hero.level >= HERO_MAX_LEVEL;
   heroXp.style.width = maxed ? '100%' : `${(hero.xp / nextXp) * 100}%`;
   setText(heroHpText, `♥ ${Math.ceil(Math.max(0, hero.hp))}/${Math.round(maxHp)}`);
-  setText(heroXpText, maxed ? 'Nível máximo' : `XP ${Math.floor(hero.xp)}/${nextXp} → nível ${hero.level + 1}`);
+  setText(heroXpText, maxed ? t('Nível máximo') : t('XP {a}/{b} → nível {n}', { a: Math.floor(hero.xp), b: nextXp, n: hero.level + 1 }));
   // ficha do herói só é montada enquanto o mouse está no chip
   if (heroChip.matches(':hover')) {
     const html = `<h4>${hero.def.name}</h4>${heroSheetHtml(run)}`;
@@ -99,9 +100,9 @@ const menuWins = document.querySelector<HTMLElement>('#menu-wins')!;
 /** Fora da run, o topo mostra o progresso permanente em vez dos dados da run. */
 export function updateMenuHud(profile: Profile): void {
   setText(menuEssence, `${profile.essence}`);
-  setText(menuCollection, `${CREATURE_IDS.filter((id) => profile.ownedCreatures.includes(id)).length} de ${CREATURE_IDS.length}`);
-  setText(menuHeroes, `${HERO_IDS.filter((id) => profile.ownedHeroes.includes(id)).length} de ${HERO_IDS.length}`);
-  setText(menuWins, `${profile.stats.wins} de ${profile.stats.runs} runs`);
+  setText(menuCollection, t('{a} de {b}', { a: CREATURE_IDS.filter((id) => profile.ownedCreatures.includes(id)).length, b: CREATURE_IDS.length }));
+  setText(menuHeroes, t('{a} de {b}', { a: HERO_IDS.filter((id) => profile.ownedHeroes.includes(id)).length, b: HERO_IDS.length }));
+  setText(menuWins, t('{a} de {b} runs', { a: profile.stats.wins, b: profile.stats.runs }));
 }
 
 function setText(element: HTMLElement, text: string): void {
