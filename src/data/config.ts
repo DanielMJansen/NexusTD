@@ -1,4 +1,4 @@
-﻿// Regras gerais e nÃºmeros soltos. Valores de referÃªncia: GDD seÃ§Ã£o 9.
+// Regras gerais e nÃºmeros soltos. Valores de referÃªncia: GDD seÃ§Ã£o 9.
 import type { CreatureId } from './creatures';
 
 export const GAME_TITLE = 'NEXUS TD';
