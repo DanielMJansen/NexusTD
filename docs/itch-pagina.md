@@ -1,7 +1,38 @@
 # Página do Nexus TD no itch.io
 
-Texto e configurações para a página do jogo. Copiar cada bloco para o campo indicado no painel do itch.io
-(**Dashboard → Edit game**). O .zip sai de `npm run release:itch` (pasta `release/`); capa e capturas em `release/itch/`.
+Guia para publicar o jogo e, abaixo, todo o texto e as configurações da página.
+Arquivos: o jogo em `release/nexus-td-1.0.0-itch.zip` (gerado por `npm run release:itch`); capa e capturas em `release/itch/`.
+
+## Como publicar (primeira vez, ~20 minutos)
+
+1. **Criar a conta.** Em https://itch.io clique em **Register**, crie a conta e confirme o e-mail. O nome de usuário vira o endereço da página (`https://<usuario>.itch.io/nexus-td`).
+2. **Criar o projeto.** No menu do seu avatar (canto superior direito), **Upload new project**.
+3. **Preencher o topo do formulário** com a tabela "Configurações do projeto" abaixo: título, endereço, frase curta, *Classification* = Games e **Kind of project = HTML** (isso faz o jogo rodar na própria página).
+4. **Preço.** Escolha **No payments** por enquanto. Doação fica para depois (ver "Doações", no fim).
+5. **Enviar o jogo.** Em *Uploads*, clique em **Upload files**, escolha `release/nexus-td-1.0.0-itch.zip` e, quando terminar de subir, marque **This file will be played in the browser**.
+6. **Janela do jogo.** Em *Embed options*: **Viewport dimensions** = 1280 × 720; marque **Fullscreen button**; deixe **Mobile friendly** e **Automatically start on page load** desmarcados.
+7. **Descrição.** Cole em *Description* os três blocos da seção "Descrição" (inglês, português e espanhol, nessa ordem).
+8. **Classificação.** *Genre* = Strategy; *Tags* da tabela; responda a pergunta sobre IA (sugestão: sim, código e arte feitos com ajuda de IA).
+9. **Imagens.** *Cover image* = `release/itch/capa-630x500.png`; *Screenshots* = as 5 capturas de `release/itch/` (na ordem dos números).
+10. **Comentários.** Em *Community*, escolha **Comments** (é por lá que os jogadores vão dar retorno).
+11. **Salvar como rascunho.** Em *Visibility & access* deixe **Draft** e clique em **Save & view page**.
+12. **Conferir.** Na página, clique em **Run game**: o jogo deve abrir na tela "Clique para começar". Jogue um pouco, teste o botão de tela cheia e recarregue a página para ver se o progresso continua salvo.
+13. **Publicar.** Volte em **Edit game**, mude *Visibility & access* para **Public** e salve. Pronto: o jogo está no ar.
+14. **Divulgar.** Use a mensagem pronta do fim deste arquivo, com o link da página.
+
+## Como atualizar (cada versão nova)
+
+1. Rodar `npm run release:itch` (gera o .zip com o número da versão).
+2. No itch.io: **Edit game** → *Uploads* → remover o .zip antigo (lixeira) → **Upload files** com o novo → marcar de novo **played in the browser** → **Save**.
+3. Opcional: escrever um *devlog* (**Edit game → Devlog**) contando o que mudou; quem seguiu o jogo recebe aviso.
+
+O save dos jogadores fica no navegador deles e continua valendo depois da atualização.
+
+## Doações (depois, quando quiser)
+
+1. **Settings → Payouts**: cadastrar PayPal (mais simples) ou Stripe.
+2. Preencher o formulário fiscal **W-8BEN** (pessoa física fora dos EUA; o itch.io guia o preenchimento).
+3. Em **Edit game → Pricing**, trocar para **$0 or donate** com valor sugerido de **US$ 3** e salvar. Não precisa enviar o jogo de novo.
 
 ## Configurações do projeto
 
@@ -13,8 +44,8 @@ Texto e configurações para a página do jogo. Copiar cada bloco para o campo i
 | Classification | Games |
 | Kind of project | **HTML** |
 | Release status | **In development** |
-| Pricing | **$0 or donate** com valor sugerido de **US$ 3** (exige PayPal/Stripe e o formulário W-8BEN em Settings → Payouts; até lá, **No payments**) |
-| Uploads | `nexus-td-<versão>-itch.zip` → marcar **This file will be played in the browser** |
+| Pricing | **No payments** no lançamento; depois **$0 or donate** com US$ 3 sugeridos (ver "Doações") |
+| Uploads | `release/nexus-td-1.0.0-itch.zip` → marcar **This file will be played in the browser** |
 | Embed options → Viewport dimensions | **1280 × 720** |
 | Embed options → marcar | **Fullscreen button**; deixar **Mobile friendly** desmarcado (o jogo é para computador) |
 | Frame options | **Click to launch in fullscreen**: desmarcado (joga na própria página; o botão de tela cheia fica disponível) |
@@ -23,7 +54,7 @@ Texto e configurações para a página do jogo. Copiar cada bloco para o campo i
 | AI disclosure (se perguntado) | Sim: código e arte foram feitos com ajuda de IA |
 | Cover image | `release/itch/capa-630x500.png` |
 | Screenshots | `release/itch/captura-1…5` |
-| Community | **Comments** ligado (é o canal de retorno do playtest) |
+| Community | **Comments** (canal de retorno dos jogadores) |
 | Visibility & access | **Draft** para conferir se o jogo abre → **Public** (decidido em 20/10/2026: publicar direto, sem playtest fechado) |
 
 ## Descrição (campo "Description")
