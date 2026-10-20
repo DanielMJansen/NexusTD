@@ -3265,9 +3265,10 @@ body:not([data-mode='run']) .top-buttons {
 }
 
 /* skins do Nexus */
+/* 6 colunas: os 6 modelos (Do mapa + 5 fases) numa linha só */
 .nexus-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -3683,6 +3684,28 @@ body:not([data-mode='run']) #overlay {
 body:not([data-mode='run']) .panel.screen {
   width: min(100%, 1200px);
   margin: 0 auto;
+}
+
+/* janelas mais baixas (notebooks 1366×768 etc.): as telas de menu encolhem um pouco para caber sem rolagem */
+@media (max-height: 860px) {
+  body:not([data-mode='run']) .panel.screen,
+  .panel.settings {
+    zoom: 0.9;
+  }
+}
+
+@media (max-height: 800px) {
+  body:not([data-mode='run']) .panel.screen,
+  .panel.settings {
+    zoom: 0.84;
+  }
+}
+
+@media (max-height: 720px) {
+  body:not([data-mode='run']) .panel.screen,
+  .panel.settings {
+    zoom: 0.78;
+  }
 }
 
 /* menu: duas colunas (identidade + jogar | atalhos) */
