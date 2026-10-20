@@ -8,7 +8,7 @@ Arquivos: o jogo em `release/nexus-td-1.0.0-itch.zip` (gerado por `npm run relea
 1. **Criar a conta.** Em https://itch.io clique em **Register**, crie a conta e confirme o e-mail. O nome de usuário vira o endereço da página (`https://<usuario>.itch.io/nexus-td`).
 2. **Criar o projeto.** No menu do seu avatar (canto superior direito), **Upload new project**.
 3. **Preencher o topo do formulário** com a tabela "Configurações do projeto" abaixo: título, endereço, frase curta, *Classification* = Games e **Kind of project = HTML** (isso faz o jogo rodar na própria página).
-4. **Preço.** Escolha **No payments** por enquanto. Doação fica para depois (ver "Doações", no fim).
+4. **Preço.** Escolha **$0 or donate** e coloque **US$ 3** como valor sugerido: o jogo é grátis, e quem quiser pode pagar o quanto quiser (inclusive nada). Para o dinheiro chegar até você, faça a seção "Receber as doações" (abaixo) antes ou logo depois de publicar.
 5. **Enviar o jogo.** Em *Uploads*, clique em **Upload files**, escolha `release/nexus-td-1.0.0-itch.zip` e, quando terminar de subir, marque **This file will be played in the browser**.
 6. **Janela do jogo.** Em *Embed options*: **Viewport dimensions** = 1280 × 720; marque **Fullscreen button**; deixe **Mobile friendly** e **Automatically start on page load** desmarcados.
 7. **Descrição.** Cole em *Description* os três blocos da seção "Descrição" (inglês, português e espanhol, nessa ordem).
@@ -28,11 +28,13 @@ Arquivos: o jogo em `release/nexus-td-1.0.0-itch.zip` (gerado por `npm run relea
 
 O save dos jogadores fica no navegador deles e continua valendo depois da atualização.
 
-## Doações (depois, quando quiser)
+## Receber as doações
 
 1. **Settings → Payouts**: cadastrar PayPal (mais simples) ou Stripe.
-2. Preencher o formulário fiscal **W-8BEN** (pessoa física fora dos EUA; o itch.io guia o preenchimento).
-3. Em **Edit game → Pricing**, trocar para **$0 or donate** com valor sugerido de **US$ 3** e salvar. Não precisa enviar o jogo de novo.
+2. Preencher o formulário fiscal **W-8BEN** (pessoa física fora dos EUA; o itch.io guia o preenchimento online). Sem ele, os EUA retêm uma parte maior de imposto.
+3. Em **Settings → Payouts** também dá para escolher quanto o itch.io fica de cada pagamento (padrão 10%; você pode baixar).
+
+Se o itch.io não deixar salvar "$0 or donate" antes disso, publique com **No payments** e troque para "$0 or donate" depois do cadastro, em **Edit game → Pricing** (não precisa enviar o jogo de novo).
 
 ## Configurações do projeto
 
@@ -44,7 +46,7 @@ O save dos jogadores fica no navegador deles e continua valendo depois da atuali
 | Classification | Games |
 | Kind of project | **HTML** |
 | Release status | **In development** |
-| Pricing | **No payments** no lançamento; depois **$0 or donate** com US$ 3 sugeridos (ver "Doações") |
+| Pricing | **$0 or donate**, valor sugerido **US$ 3** (ver "Receber as doações") |
 | Uploads | `release/nexus-td-1.0.0-itch.zip` → marcar **This file will be played in the browser** |
 | Embed options → Viewport dimensions | **1280 × 720** |
 | Embed options → marcar | **Fullscreen button**; deixar **Mobile friendly** desmarcado (o jogo é para computador) |
