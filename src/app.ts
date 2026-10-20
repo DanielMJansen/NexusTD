@@ -203,6 +203,7 @@ export class App {
   }
 
   start(): void {
+    document.body.dataset.uiScale = this.settings.uiScale;
     // Admin só com o código certo guardado (conferido pelo hash; editar o save à mão não basta)
     if (this.settings.adminCode)
       void sha256(this.settings.adminCode).then((hash) => {
@@ -227,6 +228,7 @@ export class App {
     this.speedButton.classList.toggle('frozen', this.frozen);
     this.freezeBadge.hidden = !this.frozen || this.mode !== 'run';
     this.effects.showDamageNumbers = this.settings.damageNumbers;
+    document.body.dataset.uiScale = this.settings.uiScale;
     this.keyboard.bindings = this.settings.keys;
     setActiveBindings(this.settings.keys);
   }

@@ -47,6 +47,10 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
         <span>${t('Idioma')}</span>
         <div class="segmented">${LANGS.map((lang) => `<button class="${settings.language === lang ? 'active' : ''}" data-action="language" data-value="${lang}">${LANG_NAMES[lang]}</button>`).join('')}</div>
       </div>
+      <div class="quality-row">
+        <span>${t('Tamanho da interface')}</span>
+        <div class="segmented">${(['normal', 'large'] as const).map((value) => `<button class="${settings.uiScale === value ? 'active' : ''}" data-action="uiScale" data-value="${value}">${value === 'normal' ? t('Normal') : t('Grande')}</button>`).join('')}</div>
+      </div>
       ${toggle('damageNumbers', t('Mostrar números de dano'))}
       <h3>${t('Desempenho')}</h3>
       <div class="quality-row">
@@ -117,6 +121,10 @@ export function showSettings(settings: Settings, handlers: SettingsHandlers): vo
         // trocar o idioma recarrega o jogo: todos os textos já desenhados mudam juntos
         handlers.onChange({ language: value as Lang });
         location.reload();
+      },
+      uiScale: (value) => {
+        handlers.onChange({ uiScale: value as Settings['uiScale'] });
+        showSettings({ ...settings, uiScale: value as Settings['uiScale'] }, handlers);
       },
       quality: (value) => {
         handlers.onChange({ quality: value as Settings['quality'] });

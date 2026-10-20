@@ -402,7 +402,7 @@ kbd {
 
 .pulse-label b {
   font: 700 14px var(--font-label);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .pulse-label small {
@@ -5346,4 +5346,65 @@ b.awakened {
   color: var(--muted);
   font: 600 11px var(--font-label);
   opacity: 0.6;
+}
+
+/* ---------- legibilidade do HUD (20/10/2026): textos mínimos maiores; na página do itch.io o jogo roda em 1280×720 ---------- */
+.chip-label {
+  font-size: 11.5px;
+}
+
+.synergy {
+  font-size: 12px;
+}
+
+.hud-creatures-head {
+  font-size: 12.5px;
+}
+
+body[data-mode='run'] #hud-hero .hero-bars > div {
+  height: 18px;
+}
+
+body[data-mode='run'] #hud-hero .hero-bars span {
+  font-size: 13px;
+}
+
+body[data-mode='run'] #card-list .card {
+  width: 72px;
+}
+
+body[data-mode='run'] #card-list .card canvas {
+  width: 54px;
+  height: 54px;
+}
+
+body[data-mode='run'] #card-list .card .card-cost {
+  font-size: 14px;
+}
+
+body[data-mode='run'] #card-list .card kbd {
+  font-size: 12px;
+}
+
+/* Tamanho da interface: Grande (Configurações). Aumenta HUD, cartas, painel do Nexus e tutorial;
+   herói e Pulso ficam um pouco mais estreitos para a barra de baixo caber em 1280 px. */
+body[data-ui-scale='large'][data-mode='run'] #hud,
+body[data-ui-scale='large'][data-mode='run'] #hud-nexus-block,
+body[data-ui-scale='large'][data-mode='run'] #hud-bottom,
+body[data-ui-scale='large'] .tutorial-box {
+  zoom: 1.18;
+}
+
+body[data-ui-scale='large'][data-mode='run'] #hud-hero .hero-bars {
+  width: 180px;
+}
+
+body[data-ui-scale='large'][data-mode='run'] #pulse-button {
+  width: 190px;
+}
+
+/* no Grande a barra de baixo fica mais alta: a caixa sobe acima dela inteira (bottom é multiplicado pelo zoom) */
+body[data-ui-scale='large'] .tutorial-box {
+  bottom: 152px;
+  width: min(320px, 40%);
 }

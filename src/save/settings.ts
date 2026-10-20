@@ -28,7 +28,11 @@ export interface Settings {
   keys: KeyBindings;
   /** Idioma do jogo (padrão: o do navegador). */
   language: Lang;
+  /** Tamanho da interface da run (HUD, cartas, tutorial): normal ou grande (acessibilidade). */
+  uiScale: UiScale;
 }
+
+export type UiScale = 'normal' | 'large';
 
 export const SETTINGS_KEY = 'nexus-settings-v1';
 
@@ -47,6 +51,7 @@ const DEFAULT_SETTINGS: Settings = {
   adminCode: '',
   keys: { ...DEFAULT_BINDINGS },
   language: 'pt',
+  uiScale: 'normal',
 };
 
 const clamp01 = (value: unknown, fallback: number): number =>
@@ -69,6 +74,7 @@ export function sanitizeSettings(data: unknown): Settings {
     // sem idioma salvo (jogador novo ou configurações antigas): português até a tradução dos dados terminar;
     // depois passa a seguir o navegador (detectLang)
     language: LANGS.includes(raw.language as Lang) ? (raw.language as Lang) : DEFAULT_LANGUAGE,
+    uiScale: raw.uiScale === 'large' ? 'large' : 'normal',
   };
 }
 

@@ -519,4 +519,7 @@ export const ES_TEXTS: Record<string, string> = {
   'Consiga no Altar': 'Consíguelo en el Altar',
   // nome padrão das equipes salvas
   'Equipe {n}': 'Equipo {n}',
+  // tamanho da interface (Configurações)
+  'Tamanho da interface': 'Tamaño de la interfaz',
+  'Grande': 'Grande',
 };
