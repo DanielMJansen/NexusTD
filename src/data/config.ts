@@ -3,7 +3,7 @@ import type { CreatureId } from './creatures';
 
 export const GAME_TITLE = 'NEXUS TD';
 /** VersÃ£o mostrada no menu e em ConfiguraÃ§Ãµes â†’ Sobre (1.0 = lanÃ§amento). */
-export const GAME_VERSION = '1.0.2';
+export const GAME_VERSION = '1.0.3';
 
 /** Mundo do jogo em unidades lÃ³gicas (16:9); o canvas escala para a tela. */
 export const ARENA = {

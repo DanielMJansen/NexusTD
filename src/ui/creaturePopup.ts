@@ -164,15 +164,17 @@ export class CreaturePopup {
   private place(creature: Creature): void {
     const stage = this.root.parentElement!;
     const scale = (stage.clientWidth / ARENA.width) * (this.camera.zoom ?? 1);
-    const width = this.root.offsetWidth;
-    const height = this.root.offsetHeight;
+    // Tamanho da interface Grande: o quadro tem zoom; medidas e left/top dele ficam em unidades com zoom
+    const zoom = Number.parseFloat(getComputedStyle(this.root).zoom) || 1;
+    const width = this.root.offsetWidth * zoom;
+    const height = this.root.offsetHeight * zoom;
     const margin = 8;
     const x = (creature.x - this.camera.x) * scale;
     const above = (creature.y - this.camera.y - 30) * scale - height;
     const below = (creature.y - this.camera.y + 24) * scale;
     const top = above >= margin ? above : Math.min(below, stage.clientHeight - height - margin);
     const left = Math.max(margin, Math.min(stage.clientWidth - width - margin, x - width / 2));
-    this.root.style.left = `${Math.round(left)}px`;
-    this.root.style.top = `${Math.round(Math.max(margin, top))}px`;
+    this.root.style.left = `${Math.round(left / zoom)}px`;
+    this.root.style.top = `${Math.round(Math.max(margin, top) / zoom)}px`;
   }
 }

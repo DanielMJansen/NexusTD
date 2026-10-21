@@ -3691,21 +3691,35 @@ body:not([data-mode='run']) .panel.screen {
 }
 
 /* janelas mais baixas (notebooks 1366×768, página do itch.io em 1280×720): os quadros do jogo encolhem um pouco para caber sem rolagem */
+/* zoom dos quadros = encolhimento pela altura da janela × Tamanho da interface (Configurações) */
+#overlay .panel {
+  zoom: calc(var(--fit-zoom, 1) * var(--ui-zoom, 1));
+}
+
+/* o menu principal já cabe em janelas baixas: só o Tamanho da interface */
+#overlay .menu-page {
+  zoom: var(--ui-zoom, 1);
+}
+
+body[data-ui-scale='large'] {
+  --ui-zoom: 1.18;
+}
+
 @media (max-height: 860px) {
-  #overlay .panel {
-    zoom: 0.9;
+  #overlay {
+    --fit-zoom: 0.9;
   }
 }
 
 @media (max-height: 800px) {
-  #overlay .panel {
-    zoom: 0.84;
+  #overlay {
+    --fit-zoom: 0.84;
   }
 }
 
 @media (max-height: 720px) {
-  #overlay .panel {
-    zoom: 0.78;
+  #overlay {
+    --fit-zoom: 0.78;
   }
 }
 
@@ -5391,8 +5405,9 @@ body[data-mode='run'] #card-list .card kbd {
 body[data-ui-scale='large'][data-mode='run'] #hud,
 body[data-ui-scale='large'][data-mode='run'] #hud-nexus-block,
 body[data-ui-scale='large'][data-mode='run'] #hud-bottom,
-body[data-ui-scale='large'] .tutorial-box {
-  zoom: 1.18;
+body[data-ui-scale='large'] .tutorial-box,
+body[data-ui-scale='large'] #creature-popup {
+  zoom: var(--ui-zoom);
 }
 
 body[data-ui-scale='large'][data-mode='run'] #hud-hero .hero-bars {
